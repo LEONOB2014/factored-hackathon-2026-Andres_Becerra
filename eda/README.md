@@ -13,10 +13,10 @@ duckdb) stay out of the app and CI installs.
 | Path | Contents | In git |
 |---|---|---|
 | `src/latam_eda/` | Shared code: DuckDB loader, chart theme, anomaly features | yes |
-| `notebooks/` | Numbered notebook series; `# %%` `.py` sources (executed `.ipynb` pending) | `.py` yes |
+| `notebooks/` | Numbered notebook series; `# %%` `.py` sources plus executed `.ipynb` | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
-| `reports/notebooks/` | HTML export of each notebook | pending |
+| `reports/notebooks/` | HTML export of each notebook | yes |
 | `reports/dashboards/` | Interactive D3 dashboards (overlap, time shift, anomalies) | yes; `data/` is regenerated |
 | `reports/figures/` | Static PNG charts | yes |
 | `reports/tables/` | Summary CSVs the final report reads | yes |
