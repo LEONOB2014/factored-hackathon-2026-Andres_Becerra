@@ -195,18 +195,33 @@ jobs:
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
+      # Checked before installing: the dev dependency set is multi-gigabyte, and
+      # there is no point unpacking it for a script that does not exist yet.
+      - name: Check for eval suite
+        id: suite
+        run: |
+          if [ -f agents/evals/evaluator.py ]; then
+            echo "present=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "present=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::agents/evals/evaluator.py not written yet - skipping"
+          fi
+
+      - name: Install uv
+        if: steps.suite.outputs.present == 'true'
+        uses: astral-sh/setup-uv@v3
+
+      # uv, like every other job here: plain pip filled the runner's disk
+      # unpacking the same dependency set ("No space left on device").
       - name: Install dependencies
-        run: pip install -e ".[dev]"
+        if: steps.suite.outputs.present == 'true'
+        run: uv pip install --system -e ".[dev]"
 
       - name: Run CI evaluation suite
+        if: steps.suite.outputs.present == 'true'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: |
-          if [ ! -f agents/evals/evaluator.py ]; then
-            echo "::notice::agents/evals/evaluator.py not written yet - skipping"
-            exit 0
-          fi
-          python agents/evals/evaluator.py --suite=ci
+        run: python agents/evals/evaluator.py --suite=ci
 
   # ============================================================================
   # Docker Build
