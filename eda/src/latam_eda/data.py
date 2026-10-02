@@ -1,13 +1,16 @@
 """DuckDB access to the main and backup Parquet copies of the dataset."""
 
+import os
 from pathlib import Path
 
 import duckdb
 
 ROOT = Path(__file__).resolve().parents[2]
-MAIN = ROOT / "data" / "parquet"
-BACKUP = ROOT / "data" / "parquet_backup"
-DERIVED = ROOT / "data" / "derived"
+# The dataset lives outside git; LATAM_EDA_DATA points at another copy (e.g. ../s3_preview/data).
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+MAIN = DATA / "parquet"
+BACKUP = DATA / "parquet_backup"
+DERIVED = DATA / "derived"
 DERIVED.mkdir(parents=True, exist_ok=True)
 
 FACTS = [

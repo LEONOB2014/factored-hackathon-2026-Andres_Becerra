@@ -3,11 +3,17 @@
 Run scripts/build_backup_parquet.py first. Prints, per table: schema diff, PK overlap and
 per-column differences on shared primary keys."""
 
+import os
+from pathlib import Path
+
 import duckdb
 
-c = duckdb.connect()
-M, B = "data/parquet", "data/parquet_backup"
-pk = {
+ROOT = Path(__file__).resolve().parent.parent
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+MAIN = DATA / "parquet"
+BACKUP = DATA / "parquet_backup"
+PARTITION_COLS = ("day", "month", "year")
+PK = {
     "customers": "customer_id",
     "products": "product_id",
     "branches": "branch_id",
@@ -19,46 +25,82 @@ pk = {
     "campaign_sends": "send_id",
     "complaints": "complaint_id",
 }
-for t, k in pk.items():
-    m = f"'{M}/{t}.parquet'"
-    b = f"'{B}/{t}.parquet'"
+
+
+def compare_table(c, main: Path, backup: Path, t: str, k: str) -> dict:
+    """Schema diff, key overlap and per-column differences on shared keys for one table."""
+    m = f"'{main}/{t}.parquet'"
+    b = f"'{backup}/{t}.parquet'"
     cm = [
-        r[0]
-        for r in c.sql(f"describe select * from {m}").fetchall()
-        if r[0] not in ("day", "month", "year")
+        r[0] for r in c.sql(f"describe select * from {m}").fetchall() if r[0] not in PARTITION_COLS
     ]
     cb = [
-        r[0]
-        for r in c.sql(f"describe select * from {b}").fetchall()
-        if r[0] not in ("day", "month", "year")
+        r[0] for r in c.sql(f"describe select * from {b}").fetchall() if r[0] not in PARTITION_COLS
     ]
-    print(
-        f"\n=== {t}: main cols={len(cm)} backup cols={len(cb)} schema_diff main-only={set(cm) - set(cb)} backup-only={set(cb) - set(cm)}"
-    )
-    r = c.sql(f"""select (select count(*) from {m}) rows_main,(select count(*) from {b}) rows_backup,
+    counts = c.sql(f"""select (select count(*) from {m}) rows_main,(select count(*) from {b}) rows_backup,
       (select count(distinct {k}) from {m}) uk_main,(select count(distinct {k}) from {b}) uk_backup,
       (select count(*) from (select {k} from {b} except select {k} from {m})) only_backup,
       (select count(*) from (select {k} from {m} except select {k} from {b})) only_main""").fetchone()
-    print("rows_main,rows_backup,uniq_main,uniq_backup,only_backup,only_main =", r)
     common = [x for x in cm if x in cb and x != k]
-    if t == "transactions":  # restrict main to backup's window for fair compare
-        pass
     diffs = (
         c.sql(
             "select "
-            + ",".join(
-                f"count(*) filter (where m.{x} is distinct from b.{x}) as {x}" for x in common
+            + "".join(
+                f"count(*) filter (where m.{x} is distinct from b.{x}) as {x}, " for x in common
             )
-            + f" ,count(*) joined from {m} m join {b} b using({k})"
+            + f"count(*) joined from {m} m join {b} b using({k})"
         )
         .df()
         .T
     )
     diffs.columns = ["n"]
-    print(
-        diffs[diffs.n > 0].to_string()
-        if (diffs.n > 0).any()
-        else "no column differences on shared keys",
-        "| joined rows:",
-        int(diffs.loc["joined", "n"]),
-    )
+    return {
+        "table": t,
+        "main_cols": cm,
+        "backup_cols": cb,
+        "main_only_cols": set(cm) - set(cb),
+        "backup_only_cols": set(cb) - set(cm),
+        "counts": dict(
+            zip(
+                [
+                    "rows_main",
+                    "rows_backup",
+                    "uniq_main",
+                    "uniq_backup",
+                    "only_backup",
+                    "only_main",
+                ],
+                counts,
+                strict=True,
+            )
+        ),
+        "column_diffs": {col: int(n) for col, n in diffs.n.items() if col != "joined" and n > 0},
+        "joined": int(diffs.loc["joined", "n"]),
+    }
+
+
+def compare(main: Path = MAIN, backup: Path = BACKUP, pk: dict[str, str] = PK) -> list[dict]:
+    c = duckdb.connect()
+    return [compare_table(c, main, backup, t, k) for t, k in pk.items()]
+
+
+def main() -> None:
+    for r in compare(MAIN, BACKUP, PK):
+        print(
+            f"\n=== {r['table']}: main cols={len(r['main_cols'])} backup cols={len(r['backup_cols'])}"
+            f" schema_diff main-only={r['main_only_cols']} backup-only={r['backup_only_cols']}"
+        )
+        print(
+            "rows_main,rows_backup,uniq_main,uniq_backup,only_backup,only_main =",
+            tuple(r["counts"].values()),
+        )
+        if r["column_diffs"]:
+            for col, n in r["column_diffs"].items():
+                print(f"{col:>30} {n}")
+        else:
+            print("no column differences on shared keys")
+        print("| joined rows:", r["joined"])
+
+
+if __name__ == "__main__":
+    main()

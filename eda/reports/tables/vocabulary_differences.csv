@@ -1,2 +1,2 @@
 table,column,values_only_main,values_only_backup,rows_main,rows_backup,examples_main,examples_backup
-call_center_interactions,interaction_type,2,2,583250,581513,Inbound Call | Outbound Call,Llamada Saliente | Llamada Entrante
+call_center_interactions,interaction_type,2,2,583250,581513,Inbound Call | Outbound Call,Llamada Entrante | Llamada Saliente

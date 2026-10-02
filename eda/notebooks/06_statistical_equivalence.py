@@ -29,7 +29,7 @@ from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 from latam_eda import theme
-from latam_eda.data import DERIVED, ROOT, connect
+from latam_eda.data import DERIVED, PK, ROOT, connect
 
 theme.register()
 con = connect()
@@ -57,7 +57,14 @@ def draw(prefix, t, n, exclude_shared=None):
             if prefix == "m"
             else f"where {pk} not in (select {pk} from m_{t})"
         )
-    return con.sql(f"select * from {prefix}_{t} {where} using sample {n} rows").df()
+    # Hashing the (unique) key gives a random-looking sample that is identical on every
+    # run; choosing the keys first keeps the sort small. (USING SAMPLE was unseeded and
+    # ran before the WHERE, so excluded draws came back short.)
+    key = PK[t]
+    return con.sql(f"""
+        with picked as (select {key} from {prefix}_{t} {where} order by hash({key}) limit {n})
+        select x.* from {prefix}_{t} x semi join picked using ({key}) order by hash(x.{key})
+    """).df()
 
 
 # %% [markdown]
@@ -139,7 +146,6 @@ def classify(col, s):
 # counting the same record twice). We report the effect size and the **ratio to the A-vs-B baseline**.
 
 # %%
-from latam_eda.data import PK
 
 rows = []
 for t in TABLES:
@@ -418,12 +424,16 @@ def first_digit(s):
 
 
 amt_m = (
-    con.sql("select amount from m_transactions where amount > 0 using sample 500000 rows")
+    con.sql(
+        "select amount from m_transactions where amount > 0 order by hash(transaction_id) limit 500000"
+    )
     .df()
     .amount
 )
 amt_b = (
-    con.sql("select amount from b_transactions where amount > 0 using sample 500000 rows")
+    con.sql(
+        "select amount from b_transactions where amount > 0 order by hash(transaction_id) limit 500000"
+    )
     .df()
     .amount
 )
@@ -550,10 +560,10 @@ for t in SHARED:
                                (select coalesce(sum(n),0) from b where v not in (select v from a)) rows_backup""").fetchone()
         if r[0] or r[1]:
             ex_m = con.sql(
-                f"select string_agg(v, ' | ') from (select distinct {c} v from m_{t} where {c} is not null and {c} not in (select {c} from b_{t} where {c} is not null) limit 4)"
+                f"select string_agg(v, ' | ' order by v) from (select distinct {c} v from m_{t} where {c} is not null and {c} not in (select {c} from b_{t} where {c} is not null) order by v limit 4)"
             ).fetchone()[0]
             ex_b = con.sql(
-                f"select string_agg(v, ' | ') from (select distinct {c} v from b_{t} where {c} is not null and {c} not in (select {c} from m_{t} where {c} is not null) limit 4)"
+                f"select string_agg(v, ' | ' order by v) from (select distinct {c} v from b_{t} where {c} is not null and {c} not in (select {c} from m_{t} where {c} is not null) order by v limit 4)"
             ).fetchone()[0]
             rows.append(
                 dict(
