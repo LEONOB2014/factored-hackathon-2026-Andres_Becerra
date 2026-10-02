@@ -1,0 +1,116 @@
+version: 2
+
+sources:
+  - name: raw
+    description: "Raw (Bronze) layer - ingested banking data"
+    schema: raw
+    tables:
+      - name: customers
+        description: "Bank customer dimension table (150K rows)"
+        columns:
+          - name: customer_id
+            description: "Unique customer identifier"
+            tests:
+              - unique
+              - not_null
+          - name: country
+            tests:
+              - accepted_values:
+                  values: ["Mexico", "Colombia", "Argentina"]
+          - name: segment
+            tests:
+              - accepted_values:
+                  values: ["Premium", "Plus", "Basic", "Student"]
+          - name: customer_status
+            tests:
+              - accepted_values:
+                  values: ["Active", "Inactive", "Suspended", "Closed"]
+
+      - name: products
+        description: "Active financial products (400K rows)"
+        columns:
+          - name: product_id
+            tests: [unique, not_null]
+          - name: customer_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'customers')
+                  field: customer_id
+
+      - name: branches
+        description: "Physical bank branches (350 rows)"
+        columns:
+          - name: branch_id
+            tests: [unique, not_null]
+
+      - name: service_agents
+        description: "Customer service agents (1,200 rows)"
+        columns:
+          - name: agent_id
+            tests: [unique, not_null]
+
+      - name: marketing_campaigns
+        description: "Marketing campaigns (200 rows)"
+        columns:
+          - name: campaign_id
+            tests: [unique, not_null]
+
+      - name: transactions
+        description: "Daily financial transactions (5M rows)"
+        columns:
+          - name: transaction_id
+            tests: [unique, not_null]
+          - name: customer_id
+            tests:
+              - not_null
+              - relationships:
+                  to: source('raw', 'customers')
+                  field: customer_id
+          - name: amount
+            tests: [not_null]
+
+      - name: call_center_interactions
+        description: "Call center interactions (800K rows)"
+        columns:
+          - name: interaction_id
+            tests: [unique, not_null]
+          - name: customer_id
+            tests: [not_null]
+
+      - name: call_transcripts
+        description: "Call transcripts in Spanish (200K rows)"
+        columns:
+          - name: transcript_id
+            tests: [unique, not_null]
+          - name: interaction_id
+            tests: [not_null]
+
+      - name: satisfaction_surveys
+        description: "Post-interaction satisfaction surveys (250K rows)"
+        columns:
+          - name: survey_id
+            tests: [unique, not_null]
+
+      - name: digital_events
+        description: "Digital channel events (10M rows)"
+        columns:
+          - name: event_id
+            tests: [unique, not_null]
+
+      - name: complaints
+        description: "Complaints and claims (80K rows)"
+        columns:
+          - name: complaint_id
+            tests: [unique, not_null]
+          - name: customer_id
+            tests: [not_null]
+
+      - name: campaign_sends
+        description: "Individual campaign sends (2M rows)"
+        columns:
+          - name: send_id
+            tests: [unique, not_null]
+
+      - name: daily_exchange_rates
+        description: "Daily exchange rates (3K rows)"

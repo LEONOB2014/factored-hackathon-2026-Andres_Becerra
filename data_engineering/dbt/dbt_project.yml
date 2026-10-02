@@ -1,0 +1,38 @@
+name: "factored_banking"
+version: "1.0.0"
+config-version: 2
+
+profile: "factored_banking"
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+vars:
+  # Date range for filtering
+  start_date: "2023-06-17"
+  end_date: "2026-06-17"
+  # Countries in scope
+  countries: ["Mexico", "Colombia", "Argentina"]
+
+models:
+  factored_banking:
+    staging:
+      +schema: clean
+      +materialized: view
+      +tags: ["staging"]
+    intermediate:
+      +schema: clean
+      +materialized: table
+      +tags: ["intermediate"]
+    marts:
+      +schema: analytics
+      +materialized: table
+      +tags: ["marts"]
