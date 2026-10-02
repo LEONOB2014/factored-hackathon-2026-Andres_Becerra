@@ -37,10 +37,13 @@ def build_tx_features(
 
     enrich_fraud=True keeps *every* is_fraud row plus a sample of n non-fraud rows (for supervised fraud models).
     """
+    # Seeded hash order, not USING SAMPLE: a reservoir sample over this multi-threaded
+    # window query differs run to run despite the seed, and it is applied before WHERE.
+    pick = f"order by hash(transaction_id, {seed}) limit {n}"
     final = (
-        f"select * from (select * from f where not coalesce(is_fraud, false) using sample {n} rows (reservoir, {seed})) union all select * from f where is_fraud"
+        f"select * from (select * from f where not coalesce(is_fraud, false) {pick}) union all select * from f where is_fraud"
         if enrich_fraud
-        else f"select * from f using sample {n} rows (reservoir, {seed})"
+        else f"select * from f {pick}"
     )
     q = f"""
     with base as (

@@ -212,7 +212,7 @@ def main():
     for table, col in cats:
         df = con.sql(f"""SELECT {col} AS value, count(*) AS n,
                          round(100.0*count(*)/sum(count(*)) OVER (),2) AS pct
-                         FROM {table} GROUP BY 1 ORDER BY 2 DESC LIMIT 15""").df()
+                         FROM {table} GROUP BY 1 ORDER BY 2 DESC, 1 LIMIT 15""").df()
         section(f"Distribution – {table}.{col}", df)
 
     # 5. Numeric summaries ------------------------------------------------------
@@ -251,7 +251,7 @@ def main():
         con.sql("""
         SELECT transaction_type, channel, count(*) n, sum(is_fraud::INT) fraud,
                round(100.0*avg(is_fraud::INT),3) fraud_pct, round(avg(fraud_score),1) avg_score
-        FROM transactions GROUP BY 1,2 ORDER BY fraud DESC LIMIT 15""").df(),
+        FROM transactions GROUP BY 1,2 ORDER BY fraud DESC, n DESC, 1, 2 LIMIT 15""").df(),
     )
 
     # 7. Marketing funnel ------------------------------------------------------
@@ -264,7 +264,7 @@ def main():
                round(100*avg(was_clicked::INT),1) clicked_pct,
                round(100*avg(had_conversion::INT),2) conv_pct,
                round(sum(send_cost),0) AS total_cost
-        FROM campaign_sends GROUP BY 1 ORDER BY 2 DESC""").df(),
+        FROM campaign_sends GROUP BY 1 ORDER BY 2 DESC, 1""").df(),
     )
 
     # 8. Contact center -------------------------------------------------------
@@ -273,7 +273,7 @@ def main():
         con.sql("""
         SELECT reason_category, count(*) n, round(100*avg(was_resolved::INT),1) resolved_pct,
                round(avg(sentiment_score),2) avg_sentiment, round(avg(duration_seconds)) avg_dur_s
-        FROM call_center_interactions GROUP BY 1 ORDER BY 2 DESC""").df(),
+        FROM call_center_interactions GROUP BY 1 ORDER BY 2 DESC, 1""").df(),
     )
 
     # 9. Figures ---------------------------------------------------------------
@@ -294,7 +294,9 @@ def main():
     fig.savefig(FIGS / "monthly_volumes.png", dpi=120)
     plt.close(fig)
 
-    amt = con.sql("SELECT amount_usd FROM transactions USING SAMPLE 500000").df()
+    amt = con.sql(
+        "SELECT amount_usd FROM transactions ORDER BY hash(transaction_id, 0) LIMIT 500000"
+    ).df()
     fig, ax = plt.subplots(figsize=(7, 4))
     ax.hist(amt["amount_usd"], bins=80)
     ax.set_yscale("log")
