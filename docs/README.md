@@ -5,6 +5,7 @@
 | [`hackathon/`](hackathon/) | Official challenge material — rules, scope and kickoff brief |
 | [`dataset/`](dataset/) | LATAM Bank data dictionary and dataset summary |
 | [`specs/`](specs/) | Our own design specs (product, data engineering, ML, agents) |
+| [`research/`](research/) | Background research on LATAM banking AI, regulation and modelling |
 
 ## hackathon/
 
@@ -22,3 +23,11 @@
 - `DATA_ENGINEERING_SPEC.md` — ingestion, medallion layers, dbt models
 - `ML_SPEC.md` — models, training and serving
 - `AGENT_SPEC.md` — agent graph, tools, RAG and evals
+
+## research/
+
+- `AI Banking Data Solutions.md` — analytics and AI blueprint over the dataset's 13 tables
+- `AI Governance in LatAm Banking.md` — governance, architecture and risk, incl. the EU AI Act
+- `GNNs in Banking Sector.md` — graph learning architectures for fraud and risk
+- `LATAM Banking AI Regulations Report.md` — country-by-country legal frameworks
+- `LATAM Fintech AI Regulations.md` — fintech regulation across eleven jurisdictions
