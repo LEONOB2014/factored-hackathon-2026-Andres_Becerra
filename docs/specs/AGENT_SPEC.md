@@ -12,22 +12,22 @@ stateDiagram-v2
     [*] --> InputGuardrails
     InputGuardrails --> IdentityVerification
     IdentityVerification --> IntentRouter
-    
+
     IntentRouter --> DisputeAgent
     IntentRouter --> CardSupportAgent
     IntentRouter --> AccountAgent
-    
+
     DisputeAgent --> ToolExecution
     CardSupportAgent --> ToolExecution
     AccountAgent --> ToolExecution
-    
+
     ToolExecution --> VerificationNode
     VerificationNode --> ResponseGeneration
     VerificationNode --> EscalationAgent
-    
+
     ResponseGeneration --> OutputGuardrails
     EscalationAgent --> OutputGuardrails
-    
+
     OutputGuardrails --> [*]
 ```
 
@@ -160,7 +160,7 @@ class AgentState(TypedDict):
 
 ### Example System Prompt (Dispute Agent)
 ```text
-You are a factual banking dispute agent for a LATAM bank. 
+You are a factual banking dispute agent for a LATAM bank.
 Language: {language}
 Verified Facts: {verified_facts}
 Rules:

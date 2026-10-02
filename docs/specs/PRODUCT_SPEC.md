@@ -36,7 +36,7 @@ The AI workflow must strictly adhere to the following sequence: **Understand →
 
 - **Latency:** Time to first token <1s. Total response time <3s (p50) and <8s (p95) including DB lookups.
 - **Cost:** Inference and API usage cost <$0.15 per resolved conversation.
-- **Security:** 
+- **Security:**
   - Strict PII masking before logging.
   - Robust prompt injection defenses.
   - Strict authorization checks before any state-changing action.

@@ -60,7 +60,8 @@ htmlcov/
 coverage.xml
 
 # Secrets
-.secrets.baseline
+# NOTE: .secrets.baseline is intentionally COMMITTED — it is the shared
+# detect-secrets audit baseline, not a secret itself.
 *.pem
 *.key
 

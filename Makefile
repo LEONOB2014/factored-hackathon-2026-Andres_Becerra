@@ -17,7 +17,7 @@ help: ## Show this help
 setup: ## Initial project setup (install deps, pre-commit, create .env)
 	@echo "🔧 Setting up project..."
 	pip install -e ".[dev]"
-	pre-commit install
+	pre-commit install --hook-type pre-commit --hook-type commit-msg
 	@if [ ! -f .env ]; then cp .env.example .env; echo "📝 Created .env from template"; fi
 	@echo "✅ Setup complete!"
 

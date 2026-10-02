@@ -10,17 +10,29 @@ ResponseGeneration → OutputGuardrails
 
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
-from langgraph.graph import END, StateGraph
 from langgraph.checkpoint.memory import MemorySaver
+from langgraph.graph import END, StateGraph
 
 from agents.core.state import AgentStateDict
 
+if TYPE_CHECKING:
+    from langgraph.graph.state import CompiledStateGraph
+
+# Domain agents reachable from the intent router.
+AgentRoute = Literal[
+    "dispute_agent",
+    "card_support_agent",
+    "account_agent",
+    "escalation_agent",
+    "clarification",
+]
 
 # ==============================================================================
 # Node Functions
 # ==============================================================================
+
 
 async def input_guardrails(state: AgentStateDict) -> dict[str, Any]:
     """
@@ -158,6 +170,7 @@ async def output_guardrails(state: AgentStateDict) -> dict[str, Any]:
 # Routing Functions
 # ==============================================================================
 
+
 def route_after_guardrails(state: AgentStateDict) -> Literal["identity_verification", "blocked"]:
     """Route based on input safety check."""
     if state.get("is_blocked", False):
@@ -173,11 +186,9 @@ def route_after_verification(state: AgentStateDict) -> Literal["intent_router", 
     return "intent_router"  # TODO: Implement auth_failure path
 
 
-def route_by_intent(
-    state: AgentStateDict,
-) -> Literal["dispute_agent", "card_support_agent", "account_agent", "escalation_agent", "clarification"]:
+def route_by_intent(state: AgentStateDict) -> AgentRoute:
     """Route to appropriate domain agent based on classified intent."""
-    intent = state.get("current_intent", "unknown")
+    intent = state.get("current_intent") or "unknown"
     confidence = state.get("intent_confidence", 0.0)
 
     if confidence < 0.5:
@@ -186,7 +197,7 @@ def route_by_intent(
             return "escalation_agent"
         return "clarification"
 
-    intent_to_agent = {
+    intent_to_agent: dict[str, AgentRoute] = {
         "transaction_dispute": "dispute_agent",
         "card_support": "card_support_agent",
         "account_inquiry": "account_agent",
@@ -208,6 +219,7 @@ def route_after_action(
 # ==============================================================================
 # Graph Definition
 # ==============================================================================
+
 
 def build_agent_graph() -> StateGraph:
     """
@@ -290,7 +302,7 @@ def build_agent_graph() -> StateGraph:
     return graph
 
 
-def create_agent(checkpointer: MemorySaver | None = None):
+def create_agent(checkpointer: MemorySaver | None = None) -> CompiledStateGraph:
     """Create and compile the agent graph."""
     graph = build_agent_graph()
 
