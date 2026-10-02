@@ -13,6 +13,7 @@ Usage:
 """
 
 import argparse
+import os
 from pathlib import Path
 
 import duckdb
@@ -23,8 +24,9 @@ import matplotlib.pyplot as plt
 from rich.console import Console
 
 ROOT = Path(__file__).resolve().parent.parent
-RAW = ROOT / "data" / "raw" / "data"
-PQ = ROOT / "data" / "parquet"
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+RAW = DATA / "raw" / "data"
+PQ = DATA / "parquet"
 REPORTS = ROOT / "reports"
 FIGS = REPORTS / "figures"
 
