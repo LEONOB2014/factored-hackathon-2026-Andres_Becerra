@@ -4,7 +4,7 @@
 
 > An intelligent, multilingual customer service system for LATAM banking operations. Handles transaction disputes, card support, and account inquiries with AI-powered decision making, human escalation, and full observability.
 
-[![CI](https://github.com/your-team/factored-hackathon-2026-andres/actions/workflows/ci.yml/badge.svg)](https://github.com/your-team/factored-hackathon-2026-andres/actions)
+[![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
 
 ---
 
@@ -14,7 +14,62 @@ Build an AI-first banking customer service system that can **understand** comple
 
 **Focused Workflow**: Transaction Disputes & Card Support
 
-## 🏗️ Architecture
+## 📍 Project Status
+
+| Area | Path | Status |
+|---|---|---|
+| Exploratory data analysis | [`eda/`](eda/) | ✅ Done — 11-notebook study, reports, dashboards, 188 tests |
+| Dataset docs & ERD | [`docs/dataset/`](docs/dataset/) | ✅ Done — ERD generated from the data dictionary |
+| Backend API | `backend/` | 🧱 Scaffold — FastAPI app and routers; `/health` works, chat, analytics and model endpoints return placeholders |
+| Agent orchestrator | `agents/` | 🧱 Scaffold — LangGraph graph and state wired; every node is a TODO |
+| Data engineering | `data_engineering/` | 🧱 Scaffold — dbt project and raw sources; no models, Spark jobs or DAGs yet |
+| ML models | `ml/` | ⏳ Not started — empty packages |
+| Frontend | `frontend/` | ⏳ Not started — the folder does not exist yet |
+| Infrastructure | `infrastructure/`, `docker-compose.yml` | 🧱 Scaffold — compose stack, Dockerfiles, Terraform |
+| CI & quality gates | `.github/`, `.pre-commit-config.yaml` | ✅ Done — pre-commit, unit, EDA, integration and dbt jobs |
+
+The architecture, models and evaluation targets below describe the **target system**; the table above is what exists today.
+
+## 🔎 Data Exploration (`eda/`)
+
+A CRISP-DM study of the datathon bucket, which ships two folders: the main dataset and an unexplained `data_backup_20260831/`. It answers three questions:
+
+1. **What is in the data?** Volumes, nulls, duplicates, referential integrity and distributions per table — [`eda/reports/eda_overview.md`](eda/reports/eda_overview.md).
+2. **What is the backup?** Set difference, time-shift diagnostics, record linkage and statistical equivalence (notebooks 02–06).
+3. **What looks anomalous?** Rules, robust statistics, ML, deep and supervised detectors, and their consensus (notebooks 07–10).
+
+Key findings ([full report](eda/reports/notebooks/11_evaluation_and_report.html), [summary](docs/dataset/backup_comparison.md)):
+
+- **The backup is not a copy.** It is a second, independently generated realisation of the same bank: same schema and statistics for the core tables, mostly different IDs, two tables missing and `transactions` truncated to 2023-07-01 → 2024-09-25. Never join it to the main data.
+- **Shared IDs are noisy.** Of 4,025 customer IDs present in both folders, 25 % belong to a different person.
+- **Both folders carry the same defects:** products opened before the customer registered (50 %), transactions before their product existed (18.7 %), Mexican transactions labelled `USD`, ~5 % nulls injected into mandatory fields, and `fraud_score ≥ 35` ⇒ fraud in 100 % of cases (label leakage).
+
+Everything is reproducible: each notebook re-runs against the data and must regenerate its committed tables (`make eda-test-notebooks`). See [`eda/README.md`](eda/README.md) for the layout and how to run it.
+
+## 📊 Dataset
+
+13 tables, process dates 2023-06-17 → 2026-06-17, currencies MXN/COP/ARS/USD. Row counts are **measured** from the main folder; several differ from the documented sizes.
+
+| Table | Type | Rows (measured) | Documented |
+|-------|------|----------------:|-----------:|
+| `customers` | Dimension | 150,000 | 150K |
+| `products` | Dimension | 400,000 | 400K |
+| `branches` | Dimension | 350 | 350 |
+| `service_agents` | Dimension | 1,200 | 1.2K |
+| `marketing_campaigns` | Dimension | 200 | 200 |
+| `transactions` | Fact | 4,425,008 | 5M |
+| `digital_events` | Fact | 15,620,994 | 10M |
+| `call_center_interactions` | Fact | 686,296 | 800K |
+| `call_transcripts` | Fact | 171,321 | 200K |
+| `satisfaction_surveys` | Fact | 212,759 | 250K |
+| `complaints` | Fact | 67,095 | 80K |
+| `campaign_sends` | Fact | 1,746,801 | 2M |
+| `daily_exchange_rates` | Reference | 13,164 | 3K |
+
+- **Schema & relationships:** [ERD](docs/dataset/erd.md) (Mermaid, 260 columns, 24 foreign keys), generated from the [data dictionary](docs/dataset/LATAM_Bank_Complete_Data_Dictionary.pdf).
+- **Getting the data:** it is not in git (~10 GB raw). `eda/scripts/download_s3.py` downloads it with AWS credentials in `eda/.env`; `LATAM_EDA_DATA` points the EDA at an existing copy.
+
+## 🏗️ Target Architecture
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -51,71 +106,60 @@ Build an AI-first banking customer service system that can **understand** comple
 └──────────────────────────────────────────────────────────────────┘
 ```
 
+Design specs: [product](docs/specs/PRODUCT_SPEC.md) · [data engineering](docs/specs/DATA_ENGINEERING_SPEC.md) · [ML](docs/specs/ML_SPEC.md) · [agents](docs/specs/AGENT_SPEC.md).
+
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Docker & Docker Compose
-- Python 3.11+
-- Make
+- Python 3.11+ and [uv](https://docs.astral.sh/uv/) (the EDA installs its own Python 3.12)
+- Docker & Docker Compose, Make
 
-### Setup
+### Application (scaffold)
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-team/factored-hackathon-2026-andres.git
-cd factored-hackathon-2026-andres
+git clone https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra.git
+cd factored-hackathon-2026-Andres_Becerra
 
-# Copy environment template
-cp .env.example .env
-# Edit .env with your API keys (OPENAI_API_KEY, GOOGLE_API_KEY)
+make setup        # installs .[dev], the pre-commit + commit-msg hooks, and creates .env
+make dev          # FastAPI on http://localhost:8000 (docs at /docs)
+make test         # backend unit tests
+```
 
-# Install Python dependencies
-make setup
+Fill in `.env` (copied from `.env.example`) before using LLM-backed features. The service stack is defined in `docker-compose.yml`, but `make up` includes a `frontend` service built from `./frontend`, which does not exist yet; until it does, start the data services by name:
 
-# Start core services (PostgreSQL, Redis, Neo4j, MLflow)
-make up
-
-# Initialize database
+```bash
+docker compose up -d postgres redis neo4j mlflow
 make db-init
-
-# Start the API server
-make dev
 ```
 
-The API will be available at `http://localhost:8000` with docs at `http://localhost:8000/docs`.
-
-### Full Stack
+### Exploratory analysis
 
 ```bash
-# Start everything (including monitoring, orchestration)
-make up-full
-
-# Services available:
-# API:         http://localhost:8000
-# Frontend:    http://localhost:3000
-# MLflow:      http://localhost:5000
-# Neo4j:       http://localhost:7474
-# Airflow:     http://localhost:8080
-# Grafana:     http://localhost:3001
-# Prometheus:  http://localhost:9090
+make eda-setup                                 # eda/ has its own uv environment
+export LATAM_EDA_DATA=/path/to/data            # or download into eda/data/ (see eda/README.md)
+make eda-test                                  # tests that need no dataset (what CI runs)
+make eda-test-data                             # findings recomputed from the real data
+make eda-test-notebooks                        # re-run all 11 notebooks (~6 min)
 ```
 
-## 📊 Dataset
+## 🧪 Quality & Workflow
 
-| Table | Rows | Type | Description |
-|-------|------|------|-------------|
-| `customers` | 150K | Dimension | Bank customers across MX/CO/AR |
-| `products` | 400K | Dimension | Financial products (accounts, cards, loans) |
-| `transactions` | 5M | Fact | Daily financial transactions |
-| `call_center_interactions` | 800K | Fact | Customer service interactions |
-| `call_transcripts` | 200K | Fact | Call transcripts in Spanish |
-| `complaints` | 80K | Fact | Complaints and claims |
-| `digital_events` | 10M | Fact | Digital channel events |
-| `satisfaction_surveys` | 250K | Fact | CSAT/NPS surveys |
-| `campaign_sends` | 2M | Fact | Marketing campaign sends |
-| + 4 reference tables | | | Branches, agents, campaigns, exchange rates |
+- **Branches and PRs.** Work on `feat/…`, `fix/…`, `test/…` branches and merge through pull requests into `main`.
+- **Conventional Commits**, enforced by commitizen at the `commit-msg` hook (`feat(eda): …`, `fix: …`, `docs: …`).
+- **pre-commit** is the single quality gate, locally and in CI: ruff (lint + format), mypy (`backend/`, `agents/`), sqlfluff (dbt), actionlint, detect-secrets, file hygiene, plus `eda-lock` and `eda-tests` for the EDA workspace.
+- **CI** (`.github/workflows/ci.yml`) runs on pull requests into `main` and pushes to `main`:
 
-## 🤖 ML Models
+| Job | What it checks |
+|---|---|
+| Lint, Format & Type Check | `pre-commit run --all-files` |
+| Unit Tests | `backend/tests/unit`, `agents/evals` |
+| EDA Tests | the EDA suite minus dataset-dependent tests |
+| Integration Tests | `backend/tests/integration` against Postgres and Redis (none written yet) |
+| dbt Tests | `dbt seed/run/test` against Postgres |
+| Agent Evaluations | `main` only; skipped until `agents/evals/evaluator.py` exists |
+| Docker Build | `main` only; builds the API image |
+
+## 🤖 Planned ML Models
 
 | Model | Purpose | Framework | Serving |
 |-------|---------|-----------|---------|
@@ -126,7 +170,9 @@ make up-full
 | Churn Predictor | Identify at-risk customers | XGBoost | Batch |
 | Injection Detector | Input safety guardrail | DistilBERT | ONNX (<5ms) |
 
-## 🧪 Evaluation
+The EDA's [label-leakage check](eda/reports/tables/fraud_label_leakage.csv) matters for the fraud scorer: `fraud_score` alone predicts `is_fraud` with AUC 0.82, while the behavioural features alone reach 0.51. `fraud_score` is a leaked label, not a usable feature, and the real fraud signal still has to be engineered.
+
+## 🎯 Evaluation Targets
 
 | Metric | Target | Description |
 |--------|--------|-------------|
@@ -139,29 +185,25 @@ make up-full
 
 ## 🛠️ Tech Stack
 
-**Backend**: FastAPI, LangGraph, LangChain, LiteLLM, PostgreSQL, PGVector, Neo4j, Redis
+**In use**: Python, FastAPI, LangGraph, DuckDB, pandas, scikit-learn, PyOD, PyTorch, Plotly, D3.js, dbt, uv, pre-commit, GitHub Actions, Docker
 
-**Data**: Apache Spark, dbt, Airflow, Great Expectations, Kafka, BigQuery
-
-**ML**: scikit-learn, XGBoost, LightGBM, HuggingFace Transformers, ONNX Runtime, MLflow, Optuna, SHAP, Evidently
-
-**Frontend**: Next.js, React, TypeScript, TailwindCSS
-
-**Infrastructure**: Docker, Terraform, GitHub Actions, Prometheus, Grafana
+**Planned**: LangChain, LiteLLM, PostgreSQL + PGVector, Neo4j, Redis, Spark, Airflow, Great Expectations, Kafka, BigQuery, XGBoost, LightGBM, HuggingFace Transformers, ONNX Runtime, MLflow, Optuna, SHAP, Evidently, Next.js, Terraform, Prometheus, Grafana
 
 ## 📁 Project Structure
 
 ```
-├── agents/          # LangGraph multi-agent system
-├── backend/         # FastAPI REST + WebSocket API
-├── data_engineering/ # Spark ETL, dbt models, Airflow DAGs
-├── docs/            # Architecture decisions, specs
-├── frontend/        # Next.js customer & admin UI
-├── infrastructure/  # Docker, Terraform, CI/CD
-├── ml/              # ML training, serving, monitoring
-├── monitoring/      # Prometheus, Grafana configs
-└── scripts/         # Setup & utility scripts
+├── agents/            # LangGraph orchestrator and agent state (scaffold)
+├── backend/           # FastAPI app, routers and tests (scaffold)
+├── data_engineering/  # dbt project and raw sources (scaffold)
+├── docs/              # Hackathon brief, dataset docs + ERD, specs, research
+├── eda/               # Exploratory analysis: notebooks, scripts, reports, tests
+├── infrastructure/    # Dockerfiles and Terraform
+├── ml/                # ML training, serving, monitoring (empty)
+├── monitoring/        # Prometheus config
+└── scripts/           # Database initialisation SQL
 ```
+
+Documentation index: [`docs/README.md`](docs/README.md).
 
 ## 📜 License
 
