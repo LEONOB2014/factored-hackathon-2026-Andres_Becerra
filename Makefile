@@ -4,7 +4,8 @@
 # ==============================================================================
 
 .PHONY: help setup up down clean test lint format check db-init db-migrate \
-        dbt-run dbt-test ml-train ml-serve evals docker-build deploy
+        dbt-run dbt-test ml-train ml-serve evals docker-build deploy \
+        eda-setup eda-test eda-test-data eda-test-notebooks
 
 # Default target
 help: ## Show this help
@@ -138,6 +139,20 @@ test-integration: ## Run integration tests (requires Docker)
 
 test-all: ## Run all tests
 	pytest --cov=backend --cov=agents --cov-report=html -v
+
+# EDA workspace: its own uv environment (Python 3.12). Data tests need the dataset under
+# eda/data/ or LATAM_EDA_DATA pointing at a copy; they skip when it is absent.
+eda-setup: ## Install the EDA environment
+	cd eda && uv sync
+
+eda-test: ## Run the EDA tests that need no dataset (as CI does)
+	cd eda && uv run pytest -m "not data and not notebooks"
+
+eda-test-data: ## Run the EDA tests against the real dataset
+	cd eda && uv run pytest -m "data and not notebooks"
+
+eda-test-notebooks: ## Execute every EDA notebook and check its tables reproduce (long)
+	cd eda && uv run pytest -m notebooks
 
 # ==============================================================================
 # Backend

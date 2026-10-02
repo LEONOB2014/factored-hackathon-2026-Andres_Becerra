@@ -36,7 +36,10 @@ jobs:
       # Single source of truth: the same pinned hooks that run locally on commit.
       # Running ruff/mypy separately here let CI resolve newer versions than the
       # hooks pinned, so a clean local commit could still fail CI.
+      # eda-tests needs the EDA environment; the test-eda job installs it and runs them.
       - name: Lint, format and type check (pre-commit)
+        env:
+          SKIP: eda-tests
         run: uvx pre-commit run --all-files --show-diff-on-failure
 
   # ============================================================================
@@ -67,6 +70,34 @@ jobs:
         uses: codecov/codecov-action@v4
         with:
           file: coverage.xml
+
+  # ============================================================================
+  # EDA Tests
+  # ============================================================================
+  # eda/ is its own uv project (Python 3.12 from eda/.python-version, CPU-only
+  # torch on Linux). The dataset is not in git, so `data` and `notebooks` tests
+  # are left out here; run them locally with `make eda-test-data`.
+  test-eda:
+    name: "EDA Tests"
+    runs-on: ubuntu-latest
+    needs: quality
+    defaults:
+      run:
+        working-directory: eda
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: eda/uv.lock
+
+      - name: Install EDA environment
+        run: uv sync --locked
+
+      - name: Run EDA tests
+        run: uv run pytest -m "not data and not notebooks" --cov=latam_eda --cov-report=term-missing
 
   # ============================================================================
   # Integration Tests

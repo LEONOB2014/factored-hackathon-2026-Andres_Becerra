@@ -61,6 +61,24 @@ repos:
         files: ^data_engineering/dbt/
         args: [--dialect, postgres]
 
+  # === EDA workspace (eda/ is its own uv project) ===
+  # The fast suite needs no dataset; the `data`/`slow` tests run with `make eda-test-data`.
+  # CI skips eda-tests here and runs the suite in its own job (test-eda).
+  - repo: local
+    hooks:
+      - id: eda-lock
+        name: eda uv.lock matches pyproject
+        entry: uv lock --check --directory eda
+        language: system
+        files: ^eda/(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+      - id: eda-tests
+        name: eda fast tests
+        entry: uv run --directory eda pytest -q -m "not data and not slow and not notebooks"
+        language: system
+        files: ^(eda/|docs/dataset/)
+        pass_filenames: false
+
   # === Commit Messages ===
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v3.29.1
