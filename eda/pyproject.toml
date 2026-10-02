@@ -30,3 +30,29 @@ dependencies = [
     "tabulate>=0.10.0",
     "torch>=2.14.1",
 ]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3.0",
+    "pytest-cov>=5.0.0",
+]
+
+# Linux (CI) gets the CPU-only torch build: the default CUDA wheels are several
+# GB and the EDA never uses a GPU. macOS keeps the regular PyPI wheel.
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", marker = "sys_platform == 'linux'" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "scripts"]
+addopts = "-ra --strict-markers -m 'not notebooks'"
+markers = [
+    "data: needs the downloaded dataset under eda/data/ (skipped when absent)",
+    "slow: takes more than a few seconds",
+    "notebooks: executes notebook sources end to end (opt-in, hours on the full data)",
+]
