@@ -42,7 +42,10 @@ repos:
     hooks:
       - id: detect-secrets
         args: [--baseline, .secrets.baseline]
-        exclude: (\.lock|\.csv|\.parquet)$
+        # Executed notebooks and their HTML exports embed base64 chart data that trips the
+        # entropy and AWS-key detectors (checked: no real credentials). Their code is still
+        # scanned through the .py sources in eda/notebooks/.
+        exclude: (\.lock|\.csv|\.parquet|^eda/notebooks/.*\.ipynb|^eda/reports/notebooks/.*\.html)$
 
   # === Type Checking ===
   - repo: https://github.com/pre-commit/mirrors-mypy
