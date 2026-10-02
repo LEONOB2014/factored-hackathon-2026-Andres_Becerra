@@ -8,12 +8,15 @@ All nodes read and write to this shared state.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
-from typing import Annotated, Any
+from typing import Annotated, Any, TypedDict
 
-from langgraph.graph.message import add_messages
-from langchain_core.messages import BaseMessage
+# NOTE: these stay runtime imports — LangGraph resolves AgentStateDict's
+# annotations at runtime via get_type_hints(include_extras=True) to discover
+# the add_messages reducer, so a TYPE_CHECKING block would break graph build.
+from langchain_core.messages import BaseMessage  # noqa: TCH002
+from langgraph.graph.message import add_messages  # noqa: TCH002
 
 
 class Language(str, Enum):
@@ -23,7 +26,7 @@ class Language(str, Enum):
     ES_CO = "es-co"  # Spanish (Colombia)
     ES_AR = "es-ar"  # Spanish (Argentina)
     PT_BR = "pt-br"  # Portuguese (Brazil)
-    ES = "es"        # Spanish (generic)
+    ES = "es"  # Spanish (generic)
 
 
 class Intent(str, Enum):
@@ -69,7 +72,7 @@ class SafetyFlag:
     """Safety flag raised during processing."""
 
     flag_type: str  # 'pii_detected', 'injection_attempt', 'policy_violation'
-    severity: str   # 'low', 'medium', 'high', 'critical'
+    severity: str  # 'low', 'medium', 'high', 'critical'
     details: str
     action_taken: str
 
@@ -123,10 +126,6 @@ class AgentState:
     turn_count: int
     total_tokens: int
     total_cost_usd: float
-
-
-# TypedDict version for LangGraph compatibility
-from typing import TypedDict
 
 
 class AgentStateDict(TypedDict, total=False):

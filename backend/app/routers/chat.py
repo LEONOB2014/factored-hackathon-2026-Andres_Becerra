@@ -45,7 +45,7 @@ async def chat_websocket(websocket: WebSocket, session_id: str) -> None:
     await websocket.accept()
     try:
         while True:
-            data = await websocket.receive_json()
+            _data = await websocket.receive_json()
             # TODO: Route through LangGraph agent orchestrator
             # TODO: Stream responses back via WebSocket
             response = {
