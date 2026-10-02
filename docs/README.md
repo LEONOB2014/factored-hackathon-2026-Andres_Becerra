@@ -3,7 +3,7 @@
 | Folder | Contents |
 |---|---|
 | [`hackathon/`](hackathon/) | Official challenge material — rules, scope and kickoff brief |
-| [`dataset/`](dataset/) | LATAM Bank data dictionary and dataset summary |
+| [`dataset/`](dataset/) | LATAM Bank data dictionary, dataset summary, ERD and backup comparison |
 | [`specs/`](specs/) | Our own design specs (product, data engineering, ML, agents) |
 | [`research/`](research/) | Background research on LATAM banking AI, regulation and modelling |
 
@@ -18,6 +18,8 @@ Exploratory data analysis (notebooks, scripts, reports) lives in [`../eda/`](../
 
 - `LATAM_Bank_Complete_Data_Dictionary.pdf` — field-level reference for every table
 - `LATAM_Bank_Dataset_Summary.pdf` — high-level overview of the dataset
+- `erd.md` — entity relationship diagram (Mermaid), generated from the dictionary by `eda/scripts/generate_erd.py`
+- `backup_comparison.md` — what the `data_backup_20260831/` folder is and why it must not be joined to the main data
 
 ## specs/
 
