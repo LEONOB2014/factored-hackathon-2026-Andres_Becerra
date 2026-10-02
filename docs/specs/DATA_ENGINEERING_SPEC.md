@@ -64,14 +64,14 @@ from pyspark.sql.functions import col, row_number, coalesce, lit
 
 def clean_transactions(spark, bronze_df):
     windowSpec = Window.partitionBy("transaction_id").orderBy(col("ingested_at").desc())
-    
+
     silver_df = bronze_df \
         .withColumn("row_num", row_number().over(windowSpec)) \
         .filter(col("row_num") == 1) \
         .drop("row_num") \
         .withColumn("amount", col("amount").cast("decimal(18,2)")) \
         .withColumn("currency", coalesce(col("currency"), lit("USD"))) # Impute default
-        
+
     return silver_df
 ```
 
@@ -156,13 +156,13 @@ models:
 
 ## 8. Orchestration
 Apache Airflow DAGs control pipeline execution.
-- **Daily Batch (`dag_daily_lakehouse_etl`)**: 
+- **Daily Batch (`dag_daily_lakehouse_etl`)**:
   - `Ingest_GCS` -> `Spark_Bronze_to_Silver` -> `dbt_run_models` -> `dbt_test` -> `Great_Expectations_Quality_Gate`.
 - **Weekly ML (`dag_weekly_model_retraining`)**:
   - Triggers MLflow retraining jobs using Gold marts as feature stores.
 
 ## 9. Partitioning & Clustering Strategy
-- **Fact Tables (e.g., `transactions`, `digital_events`)**: 
+- **Fact Tables (e.g., `transactions`, `digital_events`)**:
   - Partitioned by `process_date` (Year/Month/Day).
   - Clustered by `customer_id` to speed up Customer 360 queries.
 - **Dimension Tables (e.g., `customers`, `branches`)**:
@@ -198,7 +198,7 @@ df = spark \
 parsed_df = df.selectExpr("CAST(value AS STRING)") \
   .select(from_json(col("value"), schema).alias("data")) \
   .select("data.*")
-  
+
 # Process and write stream to Silver Delta table / Redis for real-time serving
 ```
 

@@ -5,8 +5,8 @@ AI-First Banking Customer Service System - FastAPI Backend
 Main application entry point.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import AsyncGenerator
 
 import structlog
 from fastapi import FastAPI
