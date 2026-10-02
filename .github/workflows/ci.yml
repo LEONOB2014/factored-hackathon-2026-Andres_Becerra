@@ -37,9 +37,11 @@ jobs:
       # Running ruff/mypy separately here let CI resolve newer versions than the
       # hooks pinned, so a clean local commit could still fail CI.
       # eda-tests needs the EDA environment; the test-eda job installs it and runs them.
+      # no-commit-to-branch guards local commits; on a push to main CI checks out
+      # main itself, so the hook would fail every post-merge run.
       - name: Lint, format and type check (pre-commit)
         env:
-          SKIP: eda-tests
+          SKIP: eda-tests,no-commit-to-branch
         run: uvx pre-commit run --all-files --show-diff-on-failure
 
   # ============================================================================
