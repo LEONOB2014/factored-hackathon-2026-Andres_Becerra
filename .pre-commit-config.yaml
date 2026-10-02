@@ -1,11 +1,15 @@
 repos:
   # === Formatting & Linting ===
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.7.0
+    rev: v0.16.10
     hooks:
-      - id: ruff
+      # Scoped to real Python files: ruff >=0.16 also formats Python inside
+      # Markdown fences, which rewrites the illustrative code in docs/specs/.
+      - id: ruff-check
         args: [--fix]
+        types_or: [python, pyi, jupyter]
       - id: ruff-format
+        types_or: [python, pyi, jupyter]
 
   # === General file hygiene ===
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -32,7 +36,7 @@ repos:
 
   # === Type Checking ===
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.12.0
+    rev: v2.3.1
     hooks:
       - id: mypy
         additional_dependencies: [pydantic>=2.9.0, fastapi>=0.115.0]

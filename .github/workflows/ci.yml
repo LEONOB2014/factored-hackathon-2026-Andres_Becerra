@@ -27,17 +27,17 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v3
 
-      - name: Install dependencies
-        run: uv pip install --system -e ".[dev]"
+      - name: Cache pre-commit environments
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pre-commit
+          key: pre-commit-${{ env.PYTHON_VERSION }}-${{ hashFiles('.pre-commit-config.yaml') }}
 
-      - name: Lint with Ruff
-        run: ruff check backend/ agents/ ml/ data_engineering/
-
-      - name: Format check with Ruff
-        run: ruff format --check backend/ agents/ ml/ data_engineering/
-
-      - name: Type check with mypy
-        run: mypy backend/ agents/ --ignore-missing-imports
+      # Single source of truth: the same pinned hooks that run locally on commit.
+      # Running ruff/mypy separately here let CI resolve newer versions than the
+      # hooks pinned, so a clean local commit could still fail CI.
+      - name: Lint, format and type check (pre-commit)
+        run: uvx pre-commit run --all-files --show-diff-on-failure
 
   # ============================================================================
   # Unit Tests
