@@ -16,6 +16,7 @@ from pathlib import Path
 import nbformat
 
 ROOT = Path(__file__).resolve().parent.parent
+HTML_DIR = ROOT / "reports" / "notebooks"
 
 
 def parse(src: str):
@@ -42,21 +43,17 @@ def parse(src: str):
     return cells
 
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("source", type=Path)
-    ap.add_argument("--execute", action="store_true")
-    a = ap.parse_args()
-
-    nb = nbformat.v4.new_notebook(cells=parse(a.source.read_text()))
+def build(source: Path, execute: bool = False, html_dir: Path | None = HTML_DIR) -> Path:
+    """Write <source>.ipynb next to the source, optionally execute it, export HTML to html_dir."""
+    nb = nbformat.v4.new_notebook(cells=parse(source.read_text()))
     nb.metadata["kernelspec"] = {
         "name": "python3",
         "display_name": "Python 3",
         "language": "python",
     }
-    out = a.source.resolve().with_suffix(".ipynb")
+    out = source.resolve().with_suffix(".ipynb")
     nbformat.write(nb, out)
-    if a.execute:
+    if execute:
         subprocess.run(
             [
                 sys.executable,
@@ -73,22 +70,32 @@ def main():
             check=True,
             cwd=out.parent,
         )
-    subprocess.run(
-        [
-            sys.executable,
-            "-m",
-            "jupyter",
-            "nbconvert",
-            "--to",
-            "html",
-            "--output-dir",
-            str(ROOT / "reports" / "notebooks"),
-            str(out),
-        ],
-        check=True,
-        cwd=out.parent,
-    )
-    print("built", out)
+    if html_dir is not None:
+        subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "jupyter",
+                "nbconvert",
+                "--to",
+                "html",
+                "--output-dir",
+                str(html_dir),
+                str(out),
+            ],
+            check=True,
+            cwd=out.parent,
+        )
+    return out
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("source", type=Path)
+    ap.add_argument("--execute", action="store_true")
+    ap.add_argument("--html-dir", type=Path, default=HTML_DIR)
+    a = ap.parse_args()
+    print("built", build(a.source, a.execute, a.html_dir))
 
 
 if __name__ == "__main__":
