@@ -153,6 +153,14 @@ jobs:
       - name: Install dbt
         run: pip install dbt-postgres
 
+      # dbt's sources in models/staging/src_raw.yml point at raw.*, which only
+      # exists once this script has run — without it every test fails with
+      # 'relation "raw.<table>" does not exist'.
+      - name: Create database schemas
+        env:
+          PGPASSWORD: factored2026
+        run: psql -h localhost -U factored -d bankingdb -v ON_ERROR_STOP=1 -f scripts/init_db.sql
+
       - name: Run dbt tests
         working-directory: data_engineering/dbt
         env:
