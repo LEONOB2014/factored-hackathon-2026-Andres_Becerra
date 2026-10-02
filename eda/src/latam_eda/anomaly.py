@@ -54,7 +54,10 @@ def build_tx_features(
         ln(usd) log_usd,
         hour(ts - interval 6 hour) as "hour", dayofweek(ts - interval 6 hour) as dow,
         (dayofweek(ts - interval 6 hour) in (0, 6))::int is_weekend,
-        (transaction_country not in (cust_country, case cust_country when 'México' then 'Mexico' end))::int country_mismatch,
+        -- 'Mexico' (no accent) is domestic for 'México'; a NULL in a NOT IN list would make
+        -- every other customer's foreign transaction NULL instead of 1
+        (transaction_country <> cust_country
+         and transaction_country <> coalesce(case cust_country when 'México' then 'Mexico' end, cust_country))::int country_mismatch,
         (merchant_name is not null)::int has_merchant,
         ln(1 + coalesce(date_diff('second', lag(ts) over w, ts), 31536000)) log_gap_prev,
         count(*) over (partition by customer_id order by ts range between interval 24 hours preceding and current row) - 1 n_last_24h,
