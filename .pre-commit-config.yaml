@@ -27,6 +27,10 @@ repos:
         exclude: ^eda/(notebooks/.*\.ipynb|reports/notebooks/.*\.html)$
       - id: check-merge-conflict
       - id: detect-private-key
+      # Every change reaches main through a pull request. The repo is private on a
+      # free plan, so GitHub branch protection is unavailable; this is the guard.
+      - id: no-commit-to-branch
+        args: [--branch, main]
 
   # === GitHub Actions ===
   # Catches invalid workflow expressions before they reach CI — a job-level

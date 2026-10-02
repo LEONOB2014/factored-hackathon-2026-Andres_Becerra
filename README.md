@@ -144,7 +144,7 @@ make eda-test-notebooks                        # re-run all 11 notebooks (~6 min
 
 ## 🧪 Quality & Workflow
 
-- **Branches and PRs.** Work on `feat/…`, `fix/…`, `test/…` branches and merge through pull requests into `main`.
+- **Branches and PRs.** Work on `feat/…`, `fix/…`, `test/…`, `docs/…` branches and merge through pull requests into `main`; merged branches are kept. The `no-commit-to-branch` hook refuses commits made directly on `main`.
 - **Conventional Commits**, enforced by commitizen at the `commit-msg` hook (`feat(eda): …`, `fix: …`, `docs: …`).
 - **pre-commit** is the single quality gate, locally and in CI: ruff (lint + format), mypy (`backend/`, `agents/`), sqlfluff (dbt), actionlint, detect-secrets, file hygiene, plus `eda-lock` and `eda-tests` for the EDA workspace.
 - **CI** (`.github/workflows/ci.yml`) runs on pull requests into `main` and pushes to `main`:
