@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anomaly Explorer</title>
+<link rel="stylesheet" href="common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="nav"><a href="overlap.html">Overlap &amp; coverage</a><a href="timeshift.html">Time-shift explorer</a><a href="anomalies.html" aria-current="page">Anomaly explorer</a></div>
+      <h1>Which detector sees which anomaly?</h1>
+      <p class="sub">13 detectors scored 100,000 transactions that contain 1,000 <b>injected</b> anomalies of five known types. Choose a detector and a review budget: tiles and bars are exact over all 100,000 rows; the map shows a sample (all injected rows + 5,000 normal + each method's top alerts) projected onto two principal components.</p>
+    </div>
+    <div id="theme"></div>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Detector <select id="method"></select></label>
+    <label>Review budget <input id="k" type="range" min="0" max="1" step="1" value="12" aria-label="alerts reviewed"><b id="kval"></b> alerts (<span id="kpct"></span> of rows)</label>
+    <label>Map shows <span class="seg" id="show"><button data-v="all" aria-pressed="true">all</button><button data-v="inj" aria-pressed="false">injected only</button><button data-v="alert" aria-pressed="false">alerts only</button></span></label>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid">
+    <section class="card span-7" aria-labelledby="h1">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="h1">Map of transactions (PCA of robust-scaled features)</h2><span id="vt1"></span></div>
+      <p class="note">Ring = flagged by the chosen detector at this budget. Drag a rectangle to list the transactions inside it. Shape + colour identify the anomaly type.</p>
+      <div id="lg1"></div><div id="map"></div><div id="map-table" class="scroll"></div>
+    </section>
+    <section class="card span-5" aria-labelledby="h2">
+      <h2 id="h2">Recall by anomaly type at this budget</h2>
+      <p class="note">Share of each injected type that appears among the alerts (exact, all 100,000 rows).</p>
+      <div id="rec"></div>
+      <h2 style="margin-top:14px">What the alerts are made of</h2>
+      <p class="note" id="compNote"></p>
+      <div id="comp"></div>
+    </section>
+    <section class="card span-12" aria-labelledby="h3">
+      <h2 id="h3">Scorecard — recall per type at the top-1 % budget</h2>
+      <p class="note">Click a row to load that detector. Cells are exact recalls; the last columns are the worst type and the average precision.</p>
+      <div id="score"></div>
+    </section>
+    <section class="card span-12" aria-labelledby="h4">
+      <h2 id="h4">Selected transactions</h2>
+      <p class="note" id="selNote">Brush the map to populate this table (shows up to 40 highest-scoring rows for the chosen detector).</p>
+      <div id="sel" class="scroll"></div>
+    </section>
+  </div>
+  <p class="foot">Source: notebooks 08–10 (<code>data/derived/bench_scores_*.parquet</code>). Anomaly types: amount spike (above-cap value), foreign burst, velocity burst, low-and-slow (four mild shifts at once), dormant reactivation.</p>
+</div>
+
+<script src="data/anomalies.js"></script>
+<script src="common.js"></script>
+<script>
+const D = window.DATA_anomalies, N = D.n_total;
+const TYPES = D.types, LABEL = { amount_spike: "amount spike", foreign_burst: "foreign burst", velocity_burst: "velocity burst", low_and_slow: "low and slow", dormant_reactivation: "dormant reactivation", normal: "normal" };
+const SYMBOL = { amount_spike: d3.symbolCircle, foreign_burst: d3.symbolSquare, velocity_burst: d3.symbolTriangle, low_and_slow: d3.symbolDiamond, dormant_reactivation: d3.symbolCross };
+const tcol = () => ({ amount_spike: css("--s3"), foreign_burst: css("--s4"), velocity_burst: css("--s5"), low_and_slow: css("--s6"), dormant_reactivation: css("--s7"), normal: css("--ink-3") });
+const state = { method: D.scorecard.slice().sort((a, b) => b["mean recall"] - a["mean recall"]).find(r => r.method !== "ENSEMBLE greedy" && D.methods.includes(r.method)).method, ki: 6, show: "all", sel: [] };
+const totals = {}; for (const t of TYPES) totals[t] = D.rows.filter(r => r.type === t).length;
+const kOf = () => D.grid[state.ki];
+const flagged = r => r.s[state.method] >= 1 - kOf() / N;
+
+function tiles() {
+  const c = D.curves[state.method][String(kOf())], k = kOf(), tp = d3.sum(TYPES, t => c[t]), inj = d3.sum(TYPES, t => totals[t]);
+  const worst = d3.min(TYPES, t => c[t] / totals[t]), worstT = TYPES.find(t => c[t] / totals[t] === worst);
+  const items = [[fmtPct(tp / k), "precision of the alerts"], [fmtPct(tp / inj), "overall recall of injected anomalies"], [fmtPct(worst, 0), "worst type: " + LABEL[worstT]], [fmtInt(k - tp), "false alerts to review"]];
+  const host = d3.select("#tiles").html("");
+  for (const [v, l] of items) { const t = host.append("div").attr("class", "tile"); t.append("div").attr("class", "v").text(v); t.append("div").attr("class", "l").text(l); }
+}
+
+let delaunay = null, pts = [];
+function drawMap() {
+  const host = document.getElementById("map"); host.replaceChildren();
+  const W = host.clientWidth || 640, H = 430, m = { t: 8, r: 8, b: 8, l: 8 }, col = tcol();
+  const xs = d3.extent(D.rows, r => r.x), ys = d3.extent(D.rows, r => r.y);
+  const clip = (v, [a, b]) => v;                               // keep full range; PCA outliers (spikes) stay visible
+  const x = d3.scaleLinear(xs, [m.l, W - m.r]), y = d3.scaleLinear(ys, [H - m.b, m.t]);
+  const vis = D.rows.filter(r => state.show === "all" || (state.show === "inj" && r.type !== "normal") || (state.show === "alert" && flagged(r)));
+  pts = vis.map(r => [x(r.x), y(r.y), r]);
+  const svg = d3.select(host).append("svg").attr("width", W).attr("height", H).attr("role", "img").attr("aria-label", "PCA map of transactions");
+  svg.append("rect").attr("width", W).attr("height", H).attr("fill", css("--surface-1"));
+  const sym = t => d3.symbol().type(SYMBOL[t] || d3.symbolCircle).size(t === "normal" ? 8 : 46)();
+  const g = svg.append("g");
+  g.selectAll("path").data(pts.filter(p => p[2].type === "normal")).join("path").attr("d", sym("normal")).attr("transform", p => `translate(${p[0]},${p[1]})`).attr("fill", col.normal).attr("fill-opacity", .28);
+  g.selectAll("path.a").data(pts.filter(p => p[2].type !== "normal")).join("path").attr("class", "a").attr("d", p => sym(p[2].type)).attr("transform", p => `translate(${p[0]},${p[1]})`)
+    .attr("fill", p => col[p[2].type]).attr("fill-opacity", .85).attr("stroke", css("--surface-1")).attr("stroke-width", 1);
+  g.selectAll("circle.ring").data(pts.filter(p => flagged(p[2]))).join("circle").attr("class", "ring").attr("cx", p => p[0]).attr("cy", p => p[1]).attr("r", 7).attr("fill", "none").attr("stroke", css("--ink")).attr("stroke-width", 1.3);
+  delaunay = d3.Delaunay.from(pts, p => p[0], p => p[1]);
+  const brush = d3.brush().extent([[0, 0], [W, H]]).on("end", e => {
+    if (!e.selection) { state.sel = []; drawSel(); return; }
+    const [[x0, y0], [x1, y1]] = e.selection; state.sel = pts.filter(p => p[0] >= x0 && p[0] <= x1 && p[1] >= y0 && p[1] <= y1).map(p => p[2]); drawSel(); });
+  const gb = svg.append("g").call(brush);
+  gb.select(".overlay").on("pointermove", e => {                                    // nearest point: 24px hit radius via Delaunay
+    const [px, py] = d3.pointer(e), i = delaunay.find(px, py);
+    if (i < 0 || Math.hypot(pts[i][0] - px, pts[i][1] - py) > 24) return hideTip();
+    const r = pts[i][2]; showTip(e, r.id, [{ key: col[r.type], label: "type", value: LABEL[r.type] }, { label: "amount", value: "$" + d3.format(",.0f")(r.usd) }, { label: "hour (local)", value: r.hour }, { label: "txns in last 24 h", value: r.n24 }, { label: "gap since previous", value: r.gap_days.toFixed(1) + " d" }, { label: "foreign country", value: r.foreign ? "yes" : "no" }, { label: "detector rank", value: fmtPct(r.s[state.method], 2) }]);
+  }).on("pointerleave", hideTip);
+  legend(document.getElementById("lg1"), [{ label: "normal (sample)", color: col.normal }, ...TYPES.map(t => ({ label: LABEL[t] + " · " + ["●", "■", "▲", "◆", "✚"][TYPES.indexOf(t)], color: col[t] })), { label: "ring = flagged", color: "transparent" }]);
+  tableView(document.getElementById("map-table"), [{ h: "id", f: r => r.id }, { h: "type", f: r => LABEL[r.type] }, { h: "USD", f: r => r.usd }, { h: "hour", f: r => r.hour }, { h: "24h", f: r => r.n24 }, { h: "gap d", f: r => r.gap_days }, { h: "rank", f: r => r.s[state.method].toFixed(4) }],
+    pts.map(p => p[2]).sort((a, b) => b.s[state.method] - a.s[state.method]).slice(0, 200));
+}
+
+function drawRec() {
+  const host = document.getElementById("rec"); host.replaceChildren();
+  const c = D.curves[state.method][String(kOf())], col = tcol(), W = host.clientWidth || 420, rowH = 30, m = { t: 4, r: 54, b: 4, l: 130 }, H = m.t + m.b + rowH * TYPES.length;
+  const y = d3.scaleBand(TYPES, [m.t, H - m.b]).padding(0.3), x = d3.scaleLinear([0, 1], [m.l, W - m.r]);
+  const svg = d3.select(host).append("svg").attr("width", W).attr("height", H).attr("role", "img").attr("aria-label", "Recall by anomaly type");
+  svg.append("g").attr("class", "gridline").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(4).tickSize(-(H - m.t - m.b)).tickFormat(""));
+  for (const t of TYPES) {
+    const r = c[t] / totals[t], g = svg.append("g").attr("transform", `translate(0,${y(t)})`).attr("tabindex", 0)
+      .on("pointermove", e => showTip(e, LABEL[t], [{ key: col[t], label: "recall", value: fmtPct(r) }, { label: "found / total", value: fmtInt(c[t]) + " / " + fmtInt(totals[t]) }])).on("pointerleave", hideTip);
+    g.append("rect").attr("x", m.l).attr("width", W - m.l - m.r).attr("height", y.bandwidth()).attr("fill", css("--wash")).attr("rx", 3);
+    g.append("rect").attr("x", m.l).attr("width", Math.max(0, x(r) - m.l)).attr("height", y.bandwidth()).attr("fill", col[t]).attr("rx", 3);
+    g.append("text").attr("x", m.l - 8).attr("y", y.bandwidth() / 2).attr("dy", "0.35em").attr("text-anchor", "end").style("fill", css("--ink")).text(LABEL[t]);
+    g.append("text").attr("x", W - m.r + 6).attr("y", y.bandwidth() / 2).attr("dy", "0.35em").style("fill", css("--ink")).style("font-weight", 650).text(fmtPct(r, 0));
+  }
+  // composition
+  const ch = document.getElementById("comp"); ch.replaceChildren();
+  const k = kOf(), order = [...TYPES, "normal"], tot = d3.sum(order, t => c[t]), W2 = ch.clientWidth || 420; let acc = 0;
+  const s2 = d3.select(ch).append("svg").attr("width", W2).attr("height", 54).attr("role", "img").attr("aria-label", "Composition of alerts");
+  const x2 = d3.scaleLinear([0, tot], [0, W2]);
+  for (const t of order) { const w = x2(c[t]); s2.append("rect").attr("x", x2(acc)).attr("y", 6).attr("width", Math.max(0, w - 2)).attr("height", 26).attr("rx", 3).attr("fill", col[t === "normal" ? "normal" : t])
+      .attr("fill-opacity", t === "normal" ? .5 : 1).on("pointermove", e => showTip(e, LABEL[t], [{ key: col[t], label: "alerts", value: fmtInt(c[t]) + " (" + fmtPct(c[t] / tot) + ")" }])).on("pointerleave", hideTip); acc += c[t]; }
+  s2.append("text").attr("x", 0).attr("y", 48).text("true anomalies"); s2.append("text").attr("x", W2).attr("y", 48).attr("text-anchor", "end").text("false alerts (normal)");
+  document.getElementById("compNote").textContent = fmtInt(k) + " alerts: " + fmtInt(k - c.normal) + " true anomalies, " + fmtInt(c.normal) + " false alerts.";
+}
+
+function drawScore() {
+  const host = document.getElementById("score"); host.replaceChildren();
+  const rows = D.scorecard.slice().sort((a, b) => b["mean recall"] - a["mean recall"]), cols = [...TYPES, "worst type", "AP"];
+  const t = document.createElement("table"); t.className = "tv"; const hr = t.createTHead().insertRow();
+  for (const h of ["detector", ...TYPES.map(x => LABEL[x]), "worst type", "AP", "explainability"]) { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); }
+  const ramp = [css("--seq-0"), css("--seq-1"), css("--seq-2"), css("--seq-3"), css("--seq-4")], cs = d3.scaleLinear([0, .25, .5, .75, 1], ramp).clamp(true);
+  const tb = t.createTBody();
+  for (const r of rows) {
+    const tr = tb.insertRow(); tr.style.cursor = D.methods.includes(r.method) ? "pointer" : "default"; if (r.method === state.method) tr.style.outline = "2px solid " + css("--ink-3");
+    tr.insertCell().textContent = r.method;
+    for (const c of [...TYPES, "worst type"]) { const td = tr.insertCell(); td.textContent = fmtPct(r[c], 0); const bg = d3.color(cs(r[c])); td.style.background = bg.formatRgb(); const lum = (0.299 * bg.r + 0.587 * bg.g + 0.114 * bg.b) / 255; td.style.color = lum > 0.55 ? "#0b0b0b" : "#ffffff"; td.style.textAlign = "center"; }
+    tr.insertCell().textContent = r.AP.toFixed(3); tr.insertCell().textContent = r.explainability;
+    if (D.methods.includes(r.method)) tr.onclick = () => { state.method = r.method; document.getElementById("method").value = r.method; draw(); };
+  }
+  host.appendChild(t);
+}
+
+function drawSel() {
+  const rows = state.sel.slice().sort((a, b) => b.s[state.method] - a.s[state.method]).slice(0, 40);
+  document.getElementById("selNote").textContent = state.sel.length ? `${fmtInt(state.sel.length)} transactions in the brushed area — top ${rows.length} by detector rank (${state.method}).` : "Brush the map to populate this table (shows up to 40 highest-scoring rows for the chosen detector).";
+  tableView(document.getElementById("sel"), [{ h: "transaction", f: r => r.id }, { h: "type", f: r => LABEL[r.type] }, { h: "amount (USD)", f: r => d3.format(",.2f")(r.usd) }, { h: "hour", f: r => r.hour }, { h: "txns 24 h", f: r => r.n24 },
+    { h: "gap (days)", f: r => r.gap_days }, { h: "foreign", f: r => r.foreign ? "yes" : "no" }, { h: "detector rank", f: r => r.s[state.method].toFixed(4) }], rows);
+}
+
+function draw() { document.getElementById("kval").textContent = fmtInt(kOf()); document.getElementById("kpct").textContent = fmtPct(kOf() / N, 1); tiles(); drawMap(); drawRec(); drawScore(); drawSel(); }
+
+const msel = document.getElementById("method"); for (const m of D.methods) msel.add(new Option(m, m)); msel.value = state.method;
+msel.onchange = () => { state.method = msel.value; draw(); };
+const ks = document.getElementById("k"); ks.max = D.grid.length - 1; ks.value = state.ki; ks.oninput = () => { state.ki = +ks.value; draw(); };
+document.querySelectorAll("#show button").forEach(b => b.onclick = () => { document.querySelectorAll("#show button").forEach(x => x.setAttribute("aria-pressed", x === b)); state.show = b.dataset.v; drawMap(); });
+themeToggle(document.getElementById("theme"), draw);
+viewToggle(document.getElementById("vt1"), document.getElementById("map"), document.getElementById("map-table"));
+draw(); debounceResize(draw);
+</script>
+</body>
+</html>

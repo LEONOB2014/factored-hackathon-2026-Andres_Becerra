@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Time-Shift Explorer</title>
+<link rel="stylesheet" href="common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="nav"><a href="overlap.html">Overlap &amp; coverage</a><a href="timeshift.html" aria-current="page">Time-shift explorer</a><a href="anomalies.html">Anomaly explorer</a></div>
+      <h1>Is the backup shifted in time?</h1>
+      <p class="sub">For rows that share a key in both folders: <code>backup date − main date</code> in days. The offset is <b>not constant</b> — it drifts smoothly and differently per table. Drag on the left chart to brush a period; the histogram and tiles follow.</p>
+    </div>
+    <div id="theme"></div>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Table <select id="table"></select></label>
+    <label id="grpLabel" hidden>Rows <select id="group"><option value="all">all shared keys</option><option value="clones">clones only (same transaction re-dated)</option><option value="collisions">collisions only (same ID, different transaction)</option></select></label>
+    <label>Centre line <span class="seg" id="stat"><button data-v="p50" aria-pressed="true">median</button><button data-v="mean" aria-pressed="false">mean</button></span></label>
+    <label style="margin-left:auto"><button id="reset">Reset brush</button></label>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid">
+    <section class="card span-7" aria-labelledby="h1">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="h1">Offset over time (by main month)</h2><span id="vt1"></span></div>
+      <p class="note">Line = centre; band = 10th–90th percentile; dashed = no shift. Drag to brush.</p>
+      <div id="lg1"></div><div id="line"></div><div id="line-table" class="scroll"></div>
+    </section>
+    <section class="card span-5" aria-labelledby="h2">
+      <h2 id="h2">Offset distribution in the brushed window</h2>
+      <p class="note" id="histNote">Share of shared keys at each whole-day offset.</p>
+      <div id="hist"></div>
+    </section>
+  </div>
+  <p class="foot">Source: <code>data/derived/offsets_*.parquet</code> and <code>transaction_pairs.parquet</code> (notebook 03). A constant shift would be one vertical bar; a global calendar shift is rejected (weekday phase identical in both folders).</p>
+</div>
+
+<script src="data/timeshift.js"></script>
+<script src="common.js"></script>
+<script>
+const D = window.DATA_timeshift;
+const NAMES = { transactions: "transactions", digital_events: "digital events", call_center_interactions: "call-center interactions", campaign_sends: "campaign sends" };
+const state = { table: "transactions", group: "all", stat: "p50", brush: null };
+const parse = d3.timeParse("%Y-%m");
+
+function hist(table, group, from, to) {                     // aggregate offset histogram over [from, to] months
+  const g = D[table][group], out = new Map();
+  for (const [mo, h] of Object.entries(g)) { const d = parse(mo); if (from && (d < from || d > to)) continue; for (const [k, n] of Object.entries(h)) out.set(+k, (out.get(+k) || 0) + n); }
+  return out;
+}
+const stats = h => { const e = [...h.entries()].sort((a, b) => a[0] - b[0]), n = d3.sum(e, d => d[1]); let c = 0; const q = {};
+  for (const p of [0.1, 0.5, 0.9]) q[p] = null;
+  for (const [k, v] of e) { c += v; for (const p of [0.1, 0.5, 0.9]) if (q[p] === null && c / n >= p) q[p] = k; }
+  const mean = d3.sum(e, d => d[0] * d[1]) / n, sd = Math.sqrt(d3.sum(e, d => d[1] * (d[0] - mean) ** 2) / n);
+  return { n, mean, sd, p10: q[0.1], p50: q[0.5], p90: q[0.9], zero: (h.get(0) || 0) / n }; };
+const monthly = (table, group) => Object.keys(D[table][group]).sort().map(mo => ({ mo, date: parse(mo), ...stats(new Map(Object.entries(D[table][group][mo]).map(([k, v]) => [+k, v]))) }));
+
+function tiles(s) {
+  const items = [[fmtInt(s.n), "shared keys in window"], [s.mean.toFixed(2) + " d", "mean offset"], [s.p50 + " d", "median (p10 " + s.p10 + ", p90 " + s.p90 + ")"], [fmtPct(s.zero), "with no offset at all"]];
+  const host = d3.select("#tiles").html("");
+  for (const [v, l] of items) { const t = host.append("div").attr("class", "tile"); t.append("div").attr("class", "v").text(v); t.append("div").attr("class", "l").text(l); }
+}
+
+function drawLine() {
+  const host = document.getElementById("line"); host.replaceChildren();
+  const data = monthly(state.table, state.group), W = host.clientWidth || 640, H = 330, m = { t: 10, r: 14, b: 28, l: 44 };
+  const x = d3.scaleTime(d3.extent(data, d => d.date), [m.l, W - m.r]);
+  const lo = d3.min(data, d => Math.min(d.p10, 0)), hi = d3.max(data, d => Math.max(d.p90, 0)), pad = (hi - lo) * 0.08 || 1;
+  const y = d3.scaleLinear([lo - pad, hi + pad], [H - m.b, m.t]);
+  const svg = d3.select(host).append("svg").attr("width", W).attr("height", H).attr("role", "img").attr("aria-label", "Monthly offset between backup and main");
+  svg.append("g").attr("class", "gridline").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickSize(-(W - m.l - m.r)).tickFormat(""));
+  svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).ticks(W < 520 ? 4 : 8).tickSizeOuter(0));
+  svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(6).tickSizeOuter(0));
+  svg.append("text").attr("x", 4).attr("y", m.t + 4).text("days");
+  svg.append("line").attr("x1", m.l).attr("x2", W - m.r).attr("y1", y(0)).attr("y2", y(0)).attr("stroke", css("--neutral")).attr("stroke-dasharray", "4 4");
+  svg.append("path").datum(data).attr("fill", css("--main")).attr("fill-opacity", .18).attr("d", d3.area().x(d => x(d.date)).y0(d => y(d.p10)).y1(d => y(d.p90)).curve(d3.curveMonotoneX));
+  const key = state.stat;
+  svg.append("path").datum(data).attr("fill", "none").attr("stroke", css("--main")).attr("stroke-width", 2).attr("d", d3.line().x(d => x(d.date)).y(d => y(d[key])).curve(d3.curveMonotoneX));
+  svg.selectAll("circle").data(data).join("circle").attr("cx", d => x(d.date)).attr("cy", d => y(d[key])).attr("r", 3).attr("fill", css("--main")).attr("stroke", css("--surface-1")).attr("stroke-width", 1.5);
+  // crosshair + tooltip: hairline snaps to the nearest month
+  const hair = svg.append("line").attr("y1", m.t).attr("y2", H - m.b).attr("stroke", css("--ink-3")).attr("stroke-opacity", 0);
+  const brush = d3.brushX().extent([[m.l, m.t], [W - m.r, H - m.b]]).on("end", e => {
+    state.brush = e.selection ? e.selection.map(x.invert) : null; drawHist(); });
+  const gb = svg.append("g").call(brush);
+  if (state.brush) gb.call(brush.move, state.brush.map(x));
+  gb.select(".overlay").on("pointermove", e => {
+    const [px] = d3.pointer(e), d = data[d3.minIndex(data, q => Math.abs(x(q.date) - px))];
+    hair.attr("x1", x(d.date)).attr("x2", x(d.date)).attr("stroke-opacity", 1);
+    showTip(e, d.mo, [{ key: css("--main"), label: "median", value: d.p50 + " d" }, { label: "mean", value: d.mean.toFixed(2) + " d" }, { label: "p10 – p90", value: d.p10 + " … " + d.p90 }, { label: "shared keys", value: fmtInt(d.n) }]);
+  }).on("pointerleave", () => { hair.attr("stroke-opacity", 0); hideTip(); });
+  legend(document.getElementById("lg1"), [{ label: state.stat === "p50" ? "median offset" : "mean offset", color: css("--main"), line: true }, { label: "10th–90th percentile", color: css("--main") }]);
+  tableView(document.getElementById("line-table"), [{ h: "month", f: r => r.mo }, { h: "pairs", f: r => fmtInt(r.n) }, { h: "mean", f: r => r.mean.toFixed(2) }, { h: "p10", f: r => r.p10 }, { h: "median", f: r => r.p50 }, { h: "p90", f: r => r.p90 }], data);
+}
+
+function drawHist() {
+  const host = document.getElementById("hist"); host.replaceChildren();
+  const [a, b] = state.brush || [null, null];
+  const split = state.table === "transactions" && state.group === "all";
+  const groups = split ? [["clones", css("--s3")], ["collisions", css("--s4")]] : [[state.group, css("--main")]];
+  const hs = groups.map(([g, c]) => [g, c, hist(state.table, g, a, b)]);
+  const base = hist(state.table, state.group, a, b), s = stats(base); tiles(s);
+  document.getElementById("histNote").textContent = (state.brush ? d3.timeFormat("%Y-%m")(a) + " → " + d3.timeFormat("%Y-%m")(b) : "all months") + (split ? " · split into clones / collisions (share within each group)" : " · share of shared keys");
+  const keys = d3.range(d3.min(hs, h => d3.min(h[2].keys())), d3.max(hs, h => d3.max(h[2].keys())) + 1);
+  const W = host.clientWidth || 420, H = 330, m = { t: 10, r: 10, b: 34, l: 44 };
+  const share = (h, k) => (h.get(k) || 0) / d3.sum(h.values());
+  const x0 = d3.scaleBand(keys, [m.l, W - m.r]).padding(keys.length > 60 ? 0.05 : 0.2), x1 = d3.scaleBand(hs.map(h => h[0]), [0, x0.bandwidth()]).padding(0.08);
+  const y = d3.scaleLinear([0, d3.max(hs, h => d3.max(keys, k => share(h[2], k))) * 1.08 || 1], [H - m.b, m.t]);
+  const svg = d3.select(host).append("svg").attr("width", W).attr("height", H).attr("role", "img").attr("aria-label", "Histogram of offsets in the brushed window");
+  svg.append("g").attr("class", "gridline").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5).tickSize(-(W - m.l - m.r)).tickFormat(""));
+  svg.append("g").attr("class", "axis").attr("transform", `translate(${m.l},0)`).call(d3.axisLeft(y).ticks(5, "%").tickSizeOuter(0));
+  const step = Math.ceil(keys.length / 12);
+  svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x0).tickValues(keys.filter((_, i) => i % step === 0)).tickSizeOuter(0));
+  svg.append("text").attr("x", W - m.r).attr("y", H - 4).attr("text-anchor", "end").text("backup − main (days)");
+  for (const [g, c, h] of hs) {
+    svg.selectAll("rect." + g).data(keys).join("rect").attr("class", g).attr("x", k => x0(k) + x1(g)).attr("width", x1.bandwidth()).attr("y", k => y(share(h, k))).attr("height", k => y(0) - y(share(h, k))).attr("rx", 2).attr("fill", c);
+  }
+  svg.selectAll("rect.hit").data(keys).join("rect").attr("class", "hit").attr("x", k => x0(k) - (x0.step() - x0.bandwidth()) / 2).attr("width", x0.step()).attr("y", m.t).attr("height", H - m.t - m.b).attr("fill", "transparent")
+    .on("pointermove", (e, k) => showTip(e, "offset " + (k > 0 ? "+" : "") + k + " d", hs.map(([g, c, h]) => ({ key: c, label: g === "all" ? "share" : g, value: fmtPct(share(h, k), 2) + "  (" + fmtInt(h.get(k) || 0) + ")" })))).on("pointerleave", hideTip);
+  const lg = document.createElement("div"); host.appendChild(lg); legend(lg, split ? groups.map(([g, c]) => ({ label: g, color: c })) : []);
+}
+
+function draw() { drawLine(); drawHist(); }
+const sel = document.getElementById("table");
+for (const [k, v] of Object.entries(NAMES)) sel.add(new Option(v, k));
+sel.value = state.table;
+sel.onchange = () => { state.table = sel.value; state.group = "all"; document.getElementById("group").value = "all"; state.brush = null; document.getElementById("grpLabel").hidden = state.table !== "transactions"; draw(); };
+document.getElementById("group").onchange = e => { state.group = e.target.value; draw(); };
+document.querySelectorAll("#stat button").forEach(b => b.onclick = () => { document.querySelectorAll("#stat button").forEach(x => x.setAttribute("aria-pressed", x === b)); state.stat = b.dataset.v; drawLine(); });
+document.getElementById("reset").onclick = () => { state.brush = null; draw(); };
+document.getElementById("grpLabel").hidden = state.table !== "transactions";
+themeToggle(document.getElementById("theme"), draw);
+viewToggle(document.getElementById("vt1"), document.getElementById("line"), document.getElementById("line-table"));
+draw(); debounceResize(draw);
+</script>
+</body>
+</html>
