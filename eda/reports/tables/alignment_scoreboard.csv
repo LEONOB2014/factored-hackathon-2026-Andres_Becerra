@@ -1,0 +1,9 @@
+table,layer,comparable pairs,evidence,confidence
+customers,L1 exact ID (same person),3023,ID + identity fields agree (25 % of shared IDs are different people),high
+customers,L2 FS linkage (different ID),7531,"probabilistic score, validated on held-out fields",high
+products,L3 product_number,146398,natural key,high
+service_agents,L3 employee_code,631,natural key,high
+transactions,L1 exact ID + drift dates,61361,ID; 19 % are clones,low for non-clones
+transactions,L4 clones,11734,content + date window,high
+complaints,L1 exact ID,67095,ID; text identical; FKs differ,very high
+digital_events / interactions / sends,L1 exact ID + drift dates,1442089,ID only,low

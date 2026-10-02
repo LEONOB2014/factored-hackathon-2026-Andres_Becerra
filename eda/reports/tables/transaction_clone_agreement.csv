@@ -1,0 +1,10 @@
+field,agreement
+same customer,0.0
+same product,0.0
+same status,0.9998295551389126
+same response code,0.9998295551389126
+same amount_usd (when both set),1.0
+same city,0.2731378898926197
+same branch,0.9691494801431737
+same is_fraud,1.0
+same time of day,1.0

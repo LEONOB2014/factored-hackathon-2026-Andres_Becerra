@@ -137,8 +137,18 @@ ignore = [
     "B008",  # Depends() in FastAPI
 ]
 
+[tool.ruff.lint.per-file-ignores]
+# Exploratory notebooks and scripts: long DuckDB SQL, sys.path setup before
+# imports, prints and math-style names (X, N) are normal there. The B rules
+# are style or false positives here: lambdas in loops run in the same
+# iteration, zip() inputs come from one row, `display` is IPython's.
+"eda/**" = [
+    "E402", "E501", "E731", "E741", "S112", "S603", "S608", "T201", "N803", "N806", "C408",
+    "A004", "B007", "B018", "B023", "B905",
+]
+
 [tool.ruff.lint.isort]
-known-first-party = ["backend", "agents", "ml", "data_engineering"]
+known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda"]
 
 [tool.mypy]
 python_version = "3.11"

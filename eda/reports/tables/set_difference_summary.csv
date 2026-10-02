@@ -1,0 +1,13 @@
+table,main_keys,backup_keys,shared,only_main,only_backup,pct_main_shared,pct_backup_shared,in_backup,status
+transactions,4425008,1839229,61361,4363647,1777868,1.3866867585324139,3.3362349114764935,yes,truncated + diverged
+digital_events,15620994,15913650,1356688,14264306,14556962,8.685029902706576,8.525310032582091,yes,partial / diverged
+call_center_interactions,686296,684107,35972,650324,648135,5.241470152820358,5.258241766273405,yes,partial / diverged
+call_transcripts,171321,0,0,171321,0,0.0,,NO,absent from backup
+campaign_sends,1746801,1735997,49429,1697372,1686568,2.8296869534652203,2.8472975471731807,yes,partial / diverged
+complaints,67095,67095,67095,0,0,100.0,100.0,yes,identical key set
+satisfaction_surveys,212759,0,0,212759,0,0.0,,NO,absent from backup
+customers,150000,150000,4025,145975,145975,2.683333333333333,2.683333333333333,yes,partial / diverged
+products,400000,400000,128599,271401,271401,32.14975,32.14975,yes,partial / diverged
+branches,350,350,350,0,0,100.0,100.0,yes,identical key set
+service_agents,1200,1200,604,596,596,50.333333333333336,50.333333333333336,yes,partial / diverged
+marketing_campaigns,200,200,200,0,0,100.0,100.0,yes,identical key set

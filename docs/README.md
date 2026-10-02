@@ -7,6 +7,8 @@
 | [`specs/`](specs/) | Our own design specs (product, data engineering, ML, agents) |
 | [`research/`](research/) | Background research on LATAM banking AI, regulation and modelling |
 
+Exploratory data analysis (notebooks, scripts, reports) lives in [`../eda/`](../eda/).
+
 ## hackathon/
 
 - `Factored_AI_Data_Hackathon_2026_Rules.pdf` — rules and specifications

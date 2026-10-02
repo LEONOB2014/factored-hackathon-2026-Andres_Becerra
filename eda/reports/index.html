@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>LATAM Bank Study</title>
+<link rel="stylesheet" href="dashboards/common.css"></head>
+<body><div class="wrap">
+<header><div><h1>LATAM Bank dataset — main vs backup study</h1>
+<p class="sub">A CRISP-DM analysis of the two folders in the datathon bucket: what differs, whether it is a time shift, how the rows compare, and an anomaly-detection benchmark. Start with the report.</p></div></header>
+<div class="grid">
+<section class="card span-12"><h2>Report</h2><p class="note"><a href="notebooks/11_evaluation_and_report.html">11 · Evaluation &amp; report</a> — executive summary, hypothesis verdicts, recommendations.</p></section>
+<section class="card span-6"><h2>Notebooks</h2><div class="note" style="line-height:1.9">
+<a href="notebooks/01_business_and_data_understanding.html">01 · Business &amp; data understanding</a><br>
+<a href="notebooks/02_inventory_and_set_difference.html">02 · What is in one and not the other</a><br>
+<a href="notebooks/03_time_shift_diagnostics.html">03 · Time-shift diagnostics</a><br>
+<a href="notebooks/04_alignment_and_record_linkage.html">04 · Alignment &amp; record linkage</a><br>
+<a href="notebooks/05_comparable_rows_comparison.html">05 · Comparison of comparable rows</a><br>
+<a href="notebooks/06_statistical_equivalence.html">06 · Statistical equivalence</a><br>
+<a href="notebooks/07_anomaly_detection_classical.html">07 · Anomaly detection — classical</a><br>
+<a href="notebooks/08_anomaly_detection_ml.html">08 · Anomaly detection — machine learning</a><br>
+<a href="notebooks/09_anomaly_detection_deep_and_supervised.html">09 · Deep &amp; supervised</a><br>
+<a href="notebooks/10_method_comparison_and_consensus.html">10 · Method comparison &amp; consensus</a></div></section>
+<section class="card span-6"><h2>Interactive dashboards (D3.js)</h2><div class="note" style="line-height:1.9">
+<a href="dashboards/overlap.html">Overlap &amp; coverage</a> — key overlap per table, monthly coverage<br>
+<a href="dashboards/timeshift.html">Time-shift explorer</a> — drifting offsets, brush, clones vs collisions<br>
+<a href="dashboards/anomalies.html">Anomaly explorer</a> — detector × budget, PCA map, scorecard</div></section>
+</div></div></body></html>

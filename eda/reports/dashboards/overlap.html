@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Overlap and Coverage</title>
+<link rel="stylesheet" href="common.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="nav"><a href="overlap.html" aria-current="page">Overlap &amp; coverage</a><a href="timeshift.html">Time-shift explorer</a><a href="anomalies.html">Anomaly explorer</a></div>
+      <h1>What is in one folder and not the other?</h1>
+      <p class="sub">Primary-key overlap per table between <b style="color:var(--main)">main</b> and <b style="color:var(--backup)">backup</b>, and the monthly row coverage of the backup. Hover a bar or a cell; click a table to link both views.</p>
+    </div>
+    <div id="theme"></div>
+  </header>
+
+  <div class="filters" role="group" aria-label="Filters">
+    <label>Bars show
+      <span class="seg" id="metric"><button data-v="count" aria-pressed="true">Keys</button><button data-v="share" aria-pressed="false">Share of union</button></span>
+    </label>
+    <label>Heat-map shows
+      <span class="seg" id="hmetric"><button data-v="ratio" aria-pressed="true">Backup ÷ main</button><button data-v="main" aria-pressed="false">Main rows</button><button data-v="backup" aria-pressed="false">Backup rows</button></span>
+    </label>
+    <label id="selLabel" style="margin-left:auto">Linked table: <b id="sel">none</b> <button id="clear" hidden>clear</button></label>
+  </div>
+
+  <div class="tiles" id="tiles"></div>
+
+  <div class="grid">
+    <section class="card span-6" aria-labelledby="h-bars">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="h-bars">Primary-key overlap</h2><span id="vt1"></span></div>
+      <p class="note">Distinct primary keys per table: only in main, in both, only in backup. <code>daily_exchange_rates</code> has a composite key and is byte-identical.</p>
+      <div id="lg1"></div><div id="bars"></div><div id="bars-table" class="scroll"></div>
+    </section>
+    <section class="card span-6" aria-labelledby="h-heat">
+      <div style="display:flex;justify-content:space-between;align-items:center"><h2 id="h-heat">Monthly coverage of the fact tables</h2><span id="vt2"></span></div>
+      <p class="note">Each cell is one process month. Empty cells = the backup has no rows (absent tables, truncated transactions).</p>
+      <div id="lg2"></div><div id="heat"></div><div id="heat-table" class="scroll"></div>
+    </section>
+  </div>
+  <p class="foot">Source: <code>reports/tables/set_difference_summary.csv</code> and DuckDB counts by <code>process_date</code> (notebook 02). Colours: main = blue, backup = orange, shared = neutral grey, in every dashboard.</p>
+</div>
+
+<script src="data/overlap.js"></script>
+<script src="common.js"></script>
+<script>
+const D = window.DATA_overlap;
+const state = { metric: "count", hmetric: "ratio", sel: null };
+const rows = D.overlap.filter(r => r.backup_keys > 0 || r.main_keys > 0);
+
+function tiles() {
+  const get = t => D.overlap.find(r => r.table === t);
+  const absent = D.overlap.filter(r => r.backup_keys === 0).length;
+  const trx = D.coverage.filter(c => c.table === "transactions"), tm = d3.sum(trx, c => c.main), tb = d3.sum(trx, c => c.backup);
+  const items = [
+    [absent + " of 13", "tables missing from the backup"],
+    [fmtPct(tb / tm, 0), "of transaction volume present in the backup"],
+    [fmtPct(get("customers").shared / get("customers").main_keys), "of customer IDs exist in both"],
+    [fmtPct(get("complaints").shared / get("complaints").main_keys, 0), "of complaint IDs shared (control table)"],
+  ];
+  const host = d3.select("#tiles").html("");
+  for (const [v, l] of items) { const t = host.append("div").attr("class", "tile"); t.append("div").attr("class", "v").text(v); t.append("div").attr("class", "l").text(l); }
+}
+
+function drawBars() {
+  const host = document.getElementById("bars"); host.replaceChildren();
+  const W = host.clientWidth || 560, rowH = 26, m = { t: 6, r: 12, b: 26, l: 170 }, H = m.t + m.b + rowH * rows.length;
+  const share = state.metric === "share";
+  const seg = r => { const u = r.only_main + r.shared + r.only_backup; const k = share ? 1 / u : 1; return [["only main", r.only_main * k, css("--main")], ["both", r.shared * k, css("--neutral")], ["only backup", r.only_backup * k, css("--backup")]]; };
+  const x = share ? d3.scaleLinear([0, 1], [m.l, W - m.r]) : d3.scaleSymlog().constant(1e4).domain([0, d3.max(rows, r => r.only_main + r.shared + r.only_backup)]).range([m.l, W - m.r]);
+  const y = d3.scaleBand(rows.map(r => r.table), [m.t, H - m.b]).padding(0.28);
+  const svg = d3.select(host).append("svg").attr("width", W).attr("height", H).attr("role", "img").attr("aria-label", "Stacked bars of primary-key overlap per table");
+  const tv = share ? [0, .25, .5, .75, 1] : [0, 1e4, 1e5, 1e6, 5e6, 1.5e7];
+  const ax = d3.axisBottom(x).tickValues(tv).tickFormat(share ? d3.format(".0%") : d3.format("~s"));
+  svg.append("g").attr("class", "axis").attr("transform", `translate(0,${H - m.b})`).call(ax.tickSizeOuter(0));
+  svg.append("g").attr("class", "gridline").attr("transform", `translate(0,${H - m.b})`).call(d3.axisBottom(x).tickValues(tv).tickSize(-(H - m.t - m.b)).tickFormat(""));
+  const g = svg.selectAll("g.row").data(rows).join("g").attr("class", "row").attr("transform", d => `translate(0,${y(d.table)})`).style("cursor", "pointer")
+    .attr("opacity", d => !state.sel || state.sel === d.table ? 1 : .35).attr("tabindex", 0)
+    .on("click", (e, d) => select(d.table)).on("keydown", (e, d) => { if (e.key === "Enter") select(d.table); })
+    .on("pointermove", (e, d) => showTip(e, d.table, [
+      { key: css("--main"), label: "only in main", value: fmtInt(d.only_main) }, { key: css("--neutral"), label: "in both", value: fmtInt(d.shared) + " (" + fmtPct(d.shared / d.main_keys) + " of main)" },
+      { key: css("--backup"), label: "only in backup", value: fmtInt(d.only_backup) }, { label: "status", value: d.status }])).on("pointerleave", hideTip);
+  g.append("rect").attr("x", m.l).attr("width", W - m.l - m.r).attr("height", y.bandwidth()).attr("fill", "transparent");   // wide hit area
+  g.each(function (d) {
+    let acc = 0; const s = seg(d), el = d3.select(this);
+    for (const [, v, c] of s) { const x0 = x(acc), x1 = x(acc + v); if (x1 - x0 > 0.4) el.append("rect").attr("x", x0).attr("width", Math.max(0, x1 - x0 - 1)).attr("height", y.bandwidth()).attr("rx", 3).attr("fill", c); acc += v; }
+  });
+  g.append("text").attr("x", m.l - 8).attr("y", y.bandwidth() / 2).attr("dy", "0.35em").attr("text-anchor", "end").style("fill", css("--ink")).style("font-weight", d => state.sel === d.table ? 700 : 400).text(d => d.table);
+  legend(document.getElementById("lg1"), [{ label: "only in main", color: css("--main") }, { label: "in both", color: css("--neutral") }, { label: "only in backup", color: css("--backup") }]);
+  tableView(document.getElementById("bars-table"), [
+    { h: "table", f: r => r.table }, { h: "main keys", f: r => fmtInt(r.main_keys) }, { h: "backup keys", f: r => fmtInt(r.backup_keys) },
+    { h: "shared", f: r => fmtInt(r.shared) }, { h: "% of main shared", f: r => fmtPct(r.shared / r.main_keys) }, { h: "status", f: r => r.status }], rows);
+}
+
+function drawHeat() {
+  const host = document.getElementById("heat"); host.replaceChildren();
+  const months = D.months, tables = D.tables, W = host.clientWidth || 560, m = { t: 22, r: 8, b: 6, l: 150 }, cw = (W - m.l - m.r) / months.length, ch = 26, H = m.t + m.b + ch * tables.length;
+  const idx = {}; for (const c of D.coverage) idx[c.table + "|" + c.month] = c;
+  const val = c => state.hmetric === "ratio" ? (c.main ? c.backup / c.main : 0) : c[state.hmetric];
+  const mx = state.hmetric === "ratio" ? 1.2 : d3.max(D.coverage, c => c[state.hmetric]);
+  const ramp = [css("--seq-0"), css("--seq-1"), css("--seq-2"), css("--seq-3"), css("--seq-4")];
+  const color = d3.scaleLinear().domain(ramp.map((_, i) => i * mx / 4)).range(ramp).clamp(true);
+  const svg = d3.select(host).append("svg").attr("width", W).attr("height", H).attr("role", "img").attr("aria-label", "Heat map of monthly coverage");
+  const ticks = months.filter((_, i) => i % 6 === 0);
+  svg.selectAll("text.mx").data(ticks).join("text").attr("class", "mx").attr("x", d => m.l + months.indexOf(d) * cw).attr("y", 12).text(d => d);
+  tables.forEach((t, r) => {
+    svg.append("text").attr("x", m.l - 8).attr("y", m.t + r * ch + ch / 2).attr("dy", "0.35em").attr("text-anchor", "end").style("fill", css("--ink")).style("font-weight", state.sel === t ? 700 : 400).style("cursor", "pointer").text(t).on("click", () => select(t));
+    for (const [i, mo] of months.entries()) {
+      const c = idx[t + "|" + mo]; const v = val(c), empty = c.backup === 0;
+      svg.append("rect").attr("x", m.l + i * cw).attr("y", m.t + r * ch).attr("width", Math.max(1, cw - 1.5)).attr("height", ch - 2).attr("rx", 2)
+        .attr("fill", state.hmetric === "backup" && empty || state.hmetric === "ratio" && empty ? css("--wash") : color(v)).attr("stroke", empty ? css("--hair") : "none")
+        .attr("opacity", !state.sel || state.sel === t ? 1 : .3).style("cursor", "pointer")
+        .on("click", () => select(t))
+        .on("pointermove", e => showTip(e, t + " · " + mo, [{ key: css("--main"), label: "main rows", value: fmtInt(c.main) }, { key: css("--backup"), label: "backup rows", value: fmtInt(c.backup) }, { label: "ratio", value: c.main ? (c.backup / c.main).toFixed(2) : "–" }])).on("pointerleave", hideTip);
+    }
+  });
+  legend(document.getElementById("lg2"), [{ label: "low", color: ramp[0] }, { label: "mid", color: ramp[2] }, { label: "high", color: ramp[4] }, { label: "no rows in backup", color: css("--wash") }]);
+  tableView(document.getElementById("heat-table"), [{ h: "table", f: r => r.table }, { h: "month", f: r => r.month }, { h: "main rows", f: r => fmtInt(r.main) }, { h: "backup rows", f: r => fmtInt(r.backup) },
+    { h: "ratio", f: r => r.main ? (r.backup / r.main).toFixed(2) : "–" }], D.coverage.filter(c => !state.sel || c.table === state.sel));
+}
+
+function select(t) { state.sel = state.sel === t ? null : t; document.getElementById("sel").textContent = state.sel || "none"; document.getElementById("clear").hidden = !state.sel; draw(); }
+function draw() { drawBars(); drawHeat(); }
+
+for (const [id, key] of [["metric", "metric"], ["hmetric", "hmetric"]])
+  document.querySelectorAll(`#${id} button`).forEach(b => b.onclick = () => { document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b)); state[key] = b.dataset.v; draw(); });
+document.getElementById("clear").onclick = () => select(state.sel);
+themeToggle(document.getElementById("theme"), draw);
+viewToggle(document.getElementById("vt1"), document.getElementById("bars"), document.getElementById("bars-table"));
+viewToggle(document.getElementById("vt2"), document.getElementById("heat"), document.getElementById("heat-table"));
+tiles(); draw(); debounceResize(draw);
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+table,natural_key,main_distinct,backup_distinct,shared,pct_main_shared
+customers,document_number,150000,149926,10219,6.812666666666667
+customers,email,91289,91191,34745,38.06044539867892
+customers,mobile_phone,145285,145600,4703,3.23708572805176
+customers,"(first_name,last_name,date_of_birth)",150000,149999,9333,6.222
+products,product_number,399994,399988,146383,36.59629894448417
+service_agents,employee_code,1187,1191,610,51.39005897219882
+service_agents,email,1188,1184,601,50.58922558922559
+branches,branch_code,350,350,350,100.0

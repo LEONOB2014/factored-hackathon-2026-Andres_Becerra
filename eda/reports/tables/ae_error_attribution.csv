@@ -1,0 +1,6 @@
+,log_usd,hour,dow,is_weekend,channel_code,type_code,currency_code,status_code,country_mismatch,has_merchant,log_gap_prev,n_last_24h,ratio_to_cust_median,cust_n_trx
+amount_spike,0.15,0.01,0.02,0.01,0.0,0.04,0.01,0.04,0.02,0.02,0.07,0.05,0.4,0.16
+foreign_burst,0.03,0.02,0.04,0.04,0.02,0.02,0.28,0.03,0.3,0.03,0.02,0.08,0.05,0.05
+velocity_burst,0.05,0.02,0.06,0.08,0.01,0.02,0.03,0.02,0.04,0.05,0.14,0.33,0.07,0.07
+low_and_slow,0.1,0.02,0.04,0.04,0.01,0.02,0.26,0.02,0.3,0.03,0.02,0.08,0.04,0.03
+dormant_reactivation,0.13,0.04,0.01,0.03,0.1,0.03,0.02,0.05,0.01,0.01,0.32,0.17,0.01,0.07

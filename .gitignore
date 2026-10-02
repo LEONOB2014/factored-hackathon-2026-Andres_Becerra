@@ -34,6 +34,12 @@ data/gold/
 *.parquet
 !data_engineering/dbt/seeds/*.csv
 
+# EDA: data is downloaded/derived locally; summary tables are committed
+eda/data/
+eda/reports/dashboards/data/
+!eda/reports/tables/*.csv
+*.duckdb
+
 # ML artifacts
 ml/experiments/notebooks/.ipynb_checkpoints/
 mlruns/

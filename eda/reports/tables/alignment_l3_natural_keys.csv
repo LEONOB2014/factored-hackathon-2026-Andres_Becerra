@@ -1,0 +1,3 @@
+table,shared_ids,ids_with_same_natural_key,natural_key_pairs,natural_key_pairs_also_same_id,id_pairs_that_are_same_object_pct
+products,128599,121448,146398,121448,94.43930357156744
+service_agents,604,604,631,604,100.0

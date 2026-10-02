@@ -1,0 +1,21 @@
+rule,severity,table,description,viol_main,rate_main_%,viol_backup,rate_backup_%
+R01,A,transactions,Transaction dated before the product was opened,827610,18.7030170340935,537478,29.223005944338635
+R02,A,products,Product opened before the customer registered,199596,49.899,200074,50.0185
+R03,A,transactions,Approved transaction without a response code,203369,4.995945395868652,84330,4.982894013791148
+R04,A,transactions,Transaction currency differs from the product currency,0,0.0,0,0.0
+R05,B,customers,Customer under 18 at registration,3106,2.070666666666667,3002,2.001333333333333
+R06,B,customers,`last_updated` later than the end of the data (2026-06-17),9316,6.210666666666667,9325,6.216666666666667
+R07,B,products,`last_updated` later than the end of the data,25113,6.27825,25068,6.267
+R08,B,products,`credit_limit` present on a non-credit-card product,30274,7.5685,30507,7.62675
+R09,B,products,`days_past_due` present on a product that is not a loan,95033,23.75825,94484,23.621
+R10,B,transactions,Branch-channel transaction without `branch_id`,6570,4.958677685950414,2774,5.030009610328383
+R11,B,complaints,Resolved/closed case without a resolution date,772,4.788784814837789,772,4.788784814837789
+R12,B,complaints,Claimed amount without a currency,1040,4.781389361408671,1040,4.781389361408671
+R13,B,complaints,SLA breached although resolved in ≤ 5 days,508,3.764357169321971,508,3.764357169321971
+R14,C,transactions,Time stamp − 6 h does not reproduce `process_date` (UTC−6 convention),51,0.0011525402891926974,23,0.0012505239967399383
+R15,C,call_center_interactions,Time stamp − 6 h does not reproduce `process_date`,56938,8.29642020352734,57229,8.36550422667799
+R16,C,complaints,Time stamp − 6 h does not reproduce `process_date`,5665,8.443252105223936,5665,8.443252105223936
+R17,C,transactions,Currency label USD on a Mexican-country transaction (no MXN exists),2126409,99.07282688559755,880607,99.0691667388548
+R18,C,transactions,`amount_usd` missing although currency is not USD,99477,5.006318478492261,41680,5.039038036999693
+R19,C,transactions,ATM/POS transaction without coordinates,2056875,71.50629498747608,854194,71.43691061207696
+R20,C,digital_events,Event without a customer id,3745446,23.97700171960888,3815206,23.974424472072716
