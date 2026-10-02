@@ -9,7 +9,7 @@ All nodes read and write to this shared state.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from enum import Enum
+from enum import StrEnum
 from typing import Annotated, Any, TypedDict
 
 # NOTE: these stay runtime imports — LangGraph resolves AgentStateDict's
@@ -19,7 +19,7 @@ from langchain_core.messages import BaseMessage  # noqa: TCH002
 from langgraph.graph.message import add_messages  # noqa: TCH002
 
 
-class Language(str, Enum):
+class Language(StrEnum):
     """Supported languages for customer interactions."""
 
     ES_MX = "es-mx"  # Spanish (Mexico)
@@ -29,7 +29,7 @@ class Language(str, Enum):
     ES = "es"  # Spanish (generic)
 
 
-class Intent(str, Enum):
+class Intent(StrEnum):
     """Customer intent categories."""
 
     TRANSACTION_DISPUTE = "transaction_dispute"
@@ -41,7 +41,7 @@ class Intent(str, Enum):
     UNKNOWN = "unknown"
 
 
-class EscalationReason(str, Enum):
+class EscalationReason(StrEnum):
     """Reasons for escalating to a human agent."""
 
     HIGH_VALUE_DISPUTE = "high_value_dispute"
