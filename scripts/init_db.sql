@@ -495,7 +495,7 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA analytics TO factored;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ml TO factored;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA agent TO factored;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA audit TO factored;
-GRANT USAGE ON ALL SCHEMAS IN DATABASE bankingdb TO factored;
+GRANT USAGE ON SCHEMA raw, clean, analytics, ml, agent, audit TO factored;
 
 -- Done!
 SELECT 'Database initialization complete!' AS status;
