@@ -13,9 +13,10 @@ duckdb) stay out of the app and CI installs.
 | Path | Contents | In git |
 |---|---|---|
 | `src/latam_eda/` | Shared code: DuckDB loader, chart theme, anomaly features | yes |
-| `notebooks/` | Numbered notebook series; `# %%` `.py` sources plus executed `.ipynb` | yes |
+| `notebooks/` | Numbered notebook series; `# %%` `.py` sources (executed `.ipynb` pending) | `.py` yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
-| `reports/notebooks/` | HTML export of each notebook | yes |
+| `tests/` | pytest suite (see Tests below) | yes |
+| `reports/notebooks/` | HTML export of each notebook | pending |
 | `reports/dashboards/` | Interactive D3 dashboards (overlap, time shift, anomalies) | yes; `data/` is regenerated |
 | `reports/figures/` | Static PNG charts | yes |
 | `reports/tables/` | Summary CSVs the final report reads | yes |
@@ -52,3 +53,31 @@ uv run scripts/build_notebook.py notebooks/03_time_shift_diagnostics.py --execut
 uv run scripts/export_dashboard_data.py       # after notebooks 02–10
 uv run scripts/generate_erd.py                # writes docs/dataset/erd.md
 ```
+
+### Where the data lives
+
+Everything reads `data/` here by default. To use a copy elsewhere, set
+`LATAM_EDA_DATA` (e.g. `export LATAM_EDA_DATA=../../s3_preview/data`); the
+shared code, the scripts and the tests all honour it. On macOS, `cp -cR` clones
+an existing copy without using extra disk space.
+
+## Tests
+
+```bash
+uv run pytest                          # everything except notebook execution
+uv run pytest -m "not data"            # what CI runs: no dataset needed
+uv run pytest -m data                  # against the real dataset (skips when absent)
+uv run pytest -m notebooks [-k 02]     # execute notebooks, compare their tables to the committed ones
+```
+
+| Marker | Needs | Covers |
+|---|---|---|
+| _(none)_ | nothing | shared code, scripts on synthetic inputs, notebook sources, ERD vs dictionary, committed reports |
+| `data` | dataset | schemas vs dictionary, committed findings recomputed, full script runs |
+| `slow` | — | anything over a few seconds (kernels, full-data scripts) |
+| `notebooks` | dataset | each notebook run end to end in a scratch copy; opt-in |
+
+The `eda-tests` pre-commit hook runs the fast suite on every commit touching
+`eda/` or `docs/dataset/`; the `test-eda` CI job runs everything that needs no
+dataset. From the repo root, `make eda-test`, `make eda-test-data` and
+`make eda-test-notebooks` wrap the same commands.
