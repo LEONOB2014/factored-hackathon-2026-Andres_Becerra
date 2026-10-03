@@ -11,7 +11,8 @@ tables built on the dimensional core. dbt's own layer names (staging, intermedia
 | zone | contents | dbt | store (local) | store (GCP) | data class |
 |---|---|---|---|---|---|
 | landing | files exactly as received, SHA-256 manifest | — | `data/raw` | GCS (bucket lock) | restricted PII |
-| **bronze** | typed, partitioned, append-only Parquet + lineage columns; rejects quarantined | sources | `data/lake/bronze` + MinIO WORM manifests | GCS / Iceberg | restricted PII |
+| **bronze_raw** (bronze of record) | every landed record, every field as its original text; each file proven byte-exact against the landing SHA-256 and re-verified from storage | — (silver reads it from phase 3) | `data/lake/bronze_raw`, `holdout_raw` + MinIO WORM partitions and proofs | GCS (bucket lock) | restricted PII |
+| **bronze** (typed, transitional) | typed, partitioned, append-only Parquet + lineage columns; rejects quarantined; derived convenience until silver reads `bronze_raw` | sources | `data/lake/bronze` + MinIO WORM manifests | GCS / Iceberg | restricted PII |
 | quarantine | rejected rows; the untrusted backup folder | source `raw_backup` | `data/lake/quarantine` | GCS (restricted) | restricted PII |
 | **silver** | cleansed, conformed, PII tokenised for downstream (`stg_`, `int_`) | `models/silver` | DuckDB `silver` | BigQuery / Spark | restricted → confidential |
 | **gold** | Kimball core (`dim_` SCD2, `fct_`) + marts (`mart_`) | `models/gold` | DuckDB `gold` | BigQuery `published_<cc>` | confidential |
@@ -138,6 +139,7 @@ flowchart LR
 | store | holds | writer roles | reader roles | immutability |
 |---|---|---|---|---|
 | landing (`data/raw`) | files as received | ingestion only | bronze build | SHA-256 manifest in WORM |
+| bronze_raw (`data/lake/bronze_raw`) | original-text records, proof manifests | bronze build | auditors; silver from phase 3 | append-only by record-digest check; partitions and proofs in WORM; `bronze-raw-verify` rebuilds every file |
 | bronze (`data/lake/bronze`) | typed partitions | bronze build | dbt | append-only by digest check; manifests in WORM |
 | MinIO `bronze-worm`, `audit-anchors` | manifests, chain anchors | `latam-platform` user (put only) | auditors | **object lock COMPLIANCE** |
 | pg-core `bank_serving` | serving tables, online features, decisions | `publisher`, `scorer` (decisions append-only) | `app_reader` | decision log append-only (triggers) |
