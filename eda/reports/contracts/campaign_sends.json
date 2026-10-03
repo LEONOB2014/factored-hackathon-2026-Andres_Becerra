@@ -1,0 +1,460 @@
+{
+ "contract_version": "862654a6746f",
+ "table": "campaign_sends",
+ "header": [
+  "send_id",
+  "send_date",
+  "process_date",
+  "campaign_id",
+  "customer_id",
+  "send_channel",
+  "template_used",
+  "subject",
+  "send_status",
+  "was_delivered",
+  "was_opened",
+  "open_date",
+  "was_clicked",
+  "click_date",
+  "click_count",
+  "had_conversion",
+  "conversion_date",
+  "conversion_value",
+  "open_device",
+  "open_country",
+  "failure_reason",
+  "send_cost"
+ ],
+ "columns": {
+  "send_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "send_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "campaign_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "send_channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "Email",
+    "Push",
+    "SMS",
+    "Voice",
+    "WhatsApp"
+   ]
+  },
+  "template_used": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.100308,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    27
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "subject": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.680296,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    41
+   ],
+   "non_ascii_share": 0.319704,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "send_status": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "Blocked",
+    "Bounced",
+    "Failed",
+    "Sent"
+   ]
+  },
+  "was_delivered": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "was_opened": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.277209,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "",
+    "False",
+    "True"
+   ]
+  },
+  "open_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.721028,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "was_clicked": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "click_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.944016,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "click_count": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.944016,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "",
+    "1.0",
+    "2.0",
+    "3.0",
+    "4.0",
+    "5.0"
+   ]
+  },
+  "had_conversion": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "conversion_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.99439,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "conversion_value": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.99439,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1083,
+   "rows": 1746801
+  },
+  "open_device": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.74904,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "",
+    "Desktop",
+    "Mobile",
+    "Tablet"
+   ]
+  },
+  "open_country": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.748957,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.125424,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "",
+    "Argentina",
+    "Colombia",
+    "México"
+   ]
+  },
+  "failure_reason": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.942983,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    21
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1083,
+   "rows": 1746801,
+   "vocabulary": [
+    "",
+    "Invalid email address",
+    "SMTP error",
+    "User blocked sender"
+   ]
+  },
+  "send_cost": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.150036,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 4,
+   "files": 1083,
+   "rows": 1746801
+  }
+ }
+}

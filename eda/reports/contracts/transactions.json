@@ -1,0 +1,531 @@
+{
+ "contract_version": "62d0ac997f2e",
+ "table": "transactions",
+ "header": [
+  "transaction_id",
+  "transaction_date",
+  "process_date",
+  "product_id",
+  "customer_id",
+  "transaction_type",
+  "transaction_category",
+  "amount",
+  "currency",
+  "amount_usd",
+  "channel",
+  "branch_id",
+  "merchant_name",
+  "merchant_category",
+  "transaction_country",
+  "transaction_city",
+  "transaction_status",
+  "response_code",
+  "is_fraud",
+  "fraud_score",
+  "latitude",
+  "longitude"
+ ],
+ "columns": {
+  "transaction_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "transaction_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "product_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "transaction_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "Adjustment",
+    "Deposit",
+    "Payment",
+    "Purchase",
+    "Transfer",
+    "Withdrawal"
+   ]
+  },
+  "transaction_category": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.608704,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    13
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "",
+    "Entertainment",
+    "Food",
+    "Health",
+    "Other",
+    "Services",
+    "Transport"
+   ]
+  },
+  "amount": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "currency": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "ARS",
+    "COP",
+    "USD"
+   ]
+  },
+  "amount_usd": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.573435,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "ATM",
+    "App",
+    "Branch",
+    "POS",
+    "Transfer",
+    "Web"
+   ]
+  },
+  "branch_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.686344,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "merchant_name": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.767405,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    25
+   ],
+   "non_ascii_share": 0.066951,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "",
+    "Boutique Moda",
+    "Cable TV",
+    "Centro Comercial",
+    "Cine Premium",
+    "Clínica Médica",
+    "Conciertos Live",
+    "Empresa Telefónica",
+    "Estación de Servicio",
+    "Farmacia Salud",
+    "Ferretería",
+    "Gasolinera Express",
+    "Internet Plus",
+    "Laboratorio Central",
+    "Mercado Central",
+    "Restaurante El Buen Sabor",
+    "Servicios Públicos",
+    "Streaming Music",
+    "Super Ahorro",
+    "Taxi Seguro",
+    "Teatro Nacional",
+    "Tienda Don José",
+    "Tienda General",
+    "Uber",
+    "Óptica Visión"
+   ]
+  },
+  "merchant_category": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.767505,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    13
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "",
+    "Entertainment",
+    "Food",
+    "Health",
+    "Other",
+    "Services",
+    "Transport"
+   ]
+  },
+  "transaction_country": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    9
+   ],
+   "non_ascii_share": 0.475885,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "Argentina",
+    "Brazil",
+    "Colombia",
+    "Mexico",
+    "México",
+    "Spain",
+    "USA"
+   ]
+  },
+  "transaction_city": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.100025,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.288919,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "",
+    "Barcelona",
+    "Barranquilla",
+    "Bogotá",
+    "Brasília",
+    "Buenos Aires",
+    "Cali",
+    "Cartagena",
+    "Ciudad de México",
+    "Córdoba",
+    "Guadalajara",
+    "Houston",
+    "La Plata",
+    "Los Angeles",
+    "Madrid",
+    "Medellín",
+    "Mendoza",
+    "Miami",
+    "Monterrey",
+    "New York",
+    "Puebla",
+    "Querétaro",
+    "Rio de Janeiro",
+    "Rosario",
+    "Salvador",
+    "Sevilla",
+    "São Paulo",
+    "Tijuana",
+    "Valencia"
+   ]
+  },
+  "transaction_status": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "Approved",
+    "Declined",
+    "Pending",
+    "Reversed"
+   ]
+  },
+  "response_code": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "int_leading_zero": 0.939933,
+    "int": 0.060067
+   },
+   "empty_share": 0.049951,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    2
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "",
+    "00",
+    "05",
+    "14",
+    "51",
+    "54"
+   ]
+  },
+  "is_fraud": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 4425008,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "fraud_score": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.200035,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "latitude": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 0.999956,
+    "sci": 4.4e-05
+   },
+   "empty_share": 0.806254,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 7,
+   "files": 1097,
+   "rows": 4425008
+  },
+  "longitude": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 0.999956,
+    "sci": 4.4e-05
+   },
+   "empty_share": 0.806262,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 7,
+   "files": 1097,
+   "rows": 4425008
+  }
+ }
+}

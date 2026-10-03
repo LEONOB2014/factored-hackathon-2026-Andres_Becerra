@@ -15,6 +15,8 @@ duckdb) stay out of the app and CI installs.
 | `src/latam_eda/` | Shared code: DuckDB loader, chart theme, table profiling, anomaly features | yes |
 | `notebooks/` | Numbered notebook series; `# %%` `.py` sources plus executed `.ipynb` | yes |
 | `notebooks/medallion/` | Medallion re-analysis series (raw → bronze → silver → gold) | yes |
+| `notebooks/model_risk/` | Model-risk series: raw schema forensics, then keys, drift MRM, segmentation, text | yes |
+| `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
 | `reports/notebooks/` | HTML export of each notebook | yes |
@@ -67,6 +69,24 @@ explorer through all tables and options (about 6 minutes). Execution takes about
 Edit the `.py` source, then rebuild the `.ipynb` and HTML with
 `scripts/build_notebook.py`. Notebooks import shared code from `../src` (`../../src` in
 `medallion/`).
+
+### Model-risk series (`notebooks/model_risk/`)
+
+Methodology in [`docs/platform/09_data_and_model_risk_methodology.md`](../docs/platform/09_data_and_model_risk_methodology.md).
+
+| # | Topic | Status |
+|---|---|---|
+| 01 | Raw schema forensics: the schema inferred from the raw CSV text, file by file (L0–L4), change detection with permutation-calibrated tests, positive controls (synthetic mutations and the backup copy), propagation audit of the typed copies, inferred contracts | done |
+| 02+ | Keys and source systems, drift and concept-drift MRM, segmentation, text | planned |
+
+Notebook 01 reads cached fingerprints; build them first:
+
+```bash
+uv run scripts/raw_schema_scan.py        # every raw file of both copies, ~10 min, resumable
+uv run scripts/mutate_partitions.py      # detector scorecard from ten injected schema changes, ~3 min
+uv run scripts/build_notebook.py notebooks/model_risk/01_raw_schema_forensics.py --execute \
+    --html-dir "$PWD/reports/notebooks/model_risk"
+```
 
 ## Reproduce
 

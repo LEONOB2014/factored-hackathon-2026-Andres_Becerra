@@ -1,0 +1,357 @@
+{
+ "contract_version": "81bb3afa3093",
+ "table": "products",
+ "header": [
+  "product_id",
+  "customer_id",
+  "product_type",
+  "product_number",
+  "currency",
+  "current_balance",
+  "credit_limit",
+  "interest_rate",
+  "opening_date",
+  "expiration_date",
+  "opening_branch_id",
+  "product_status",
+  "opening_channel",
+  "has_linked_app",
+  "days_past_due",
+  "last_transaction_date",
+  "last_updated"
+ ],
+ "columns": {
+  "product_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000
+  },
+  "product_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    20
+   ],
+   "non_ascii_share": 0.444422,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000,
+   "vocabulary": [
+    "Cuenta Ahorro",
+    "Cuenta Corriente",
+    "Inversión",
+    "Préstamo Hipotecario",
+    "Préstamo Personal",
+    "Seguro",
+    "Tarjeta Crédito",
+    "Tarjeta Débito"
+   ]
+  },
+  "product_number": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "int": 0.845128,
+    "text": 0.099445,
+    "int_leading_zero": 0.055427
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000
+  },
+  "currency": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000,
+   "vocabulary": [
+    "ARS",
+    "COP",
+    "USD"
+   ]
+  },
+  "current_balance": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1,
+   "rows": 400000
+  },
+  "credit_limit": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.686708,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1,
+   "rows": 400000
+  },
+  "interest_rate": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.100165,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1,
+   "rows": 400000
+  },
+  "opening_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000
+  },
+  "expiration_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.667098,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000
+  },
+  "opening_branch_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    12,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000
+  },
+  "product_status": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000,
+   "vocabulary": [
+    "Active",
+    "Blocked",
+    "Closed",
+    "Suspended"
+   ]
+  },
+  "opening_channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000,
+   "vocabulary": [
+    "App",
+    "Branch",
+    "Call Center",
+    "Web"
+   ]
+  },
+  "has_linked_app": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 400000,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "days_past_due": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.686625,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1,
+   "rows": 400000,
+   "vocabulary": [
+    "",
+    "0.0",
+    "120.0",
+    "15.0",
+    "180.0",
+    "30.0",
+    "60.0",
+    "90.0"
+   ]
+  },
+  "last_transaction_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.235692,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1,
+   "rows": 400000
+  },
+  "last_updated": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1,
+   "rows": 400000
+  }
+ }
+}

@@ -13,7 +13,9 @@ import pytest
 from nbclient import NotebookClient
 
 import build_notebook
-from test_notebook_sources import MEDALLION
+from test_notebook_sources import SUBSERIES
+
+MEDALLION = SUBSERIES["medallion"]
 
 pytestmark = [pytest.mark.notebooks, pytest.mark.data, pytest.mark.slow]
 
