@@ -149,7 +149,9 @@ ignore = [
 
 # --- data platform (managed) ---
 # Platform code: long SQL in f-strings, CLI prints, typing-only imports kept at runtime.
-"platform/**" = ["E501", "S608", "T201", "TC001", "TC003"]
+"platform/**" = ["B905", "E501", "S608", "T201", "TC001", "TC002", "TC003"]
+"platform/libs/latam_platform/audit_ledger.py" = ["S107"]  # the default is an environment variable name, not a password
+"platform/libs/tests/test_audit_and_genai.py" = ["S106"]  # test-only tokens
 # --- end data platform ---
 
 [tool.ruff.lint.isort]
