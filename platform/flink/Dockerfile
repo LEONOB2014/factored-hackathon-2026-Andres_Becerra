@@ -7,3 +7,5 @@ RUN cd /opt/flink/lib \
  && wget -q ${MAVEN}/org/postgresql/postgresql/42.7.4/postgresql-42.7.4.jar \
  && sha256sum flink-sql-connector-kafka-3.2.0-1.19.jar flink-connector-jdbc-3.2.0-1.19.jar postgresql-42.7.4.jar > /opt/flink/lib/CONNECTORS.sha256
 COPY sql /opt/flink/sql
+# checkpoint dir owned by the flink user so the shared named volume inherits writable ownership
+RUN mkdir -p /opt/flink/checkpoints && chown -R flink:flink /opt/flink/checkpoints

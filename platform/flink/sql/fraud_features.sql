@@ -4,6 +4,9 @@
 --   sinks  : Kafka topic tx.features (scorer input) + Postgres online_features.tx_window_features (upsert)
 -- Flink evaluates one OVER frame per SELECT, so each window is its own view; the three views are joined on
 -- transaction_id (bounded state via table.exec.state.ttl). "minus the current row" == EXCLUDE CURRENT ROW.
+-- Each window partitions by CONCAT(customer_id, '|<window>'): identical grouping, but structurally distinct, because
+-- the planner merged windows sharing PARTITION BY/ORDER BY and silently compiled the 7-day frame as 24 h (caught by
+-- the stream/batch parity check; verified with EXPLAIN: 3 distinct RANGE frames after the change).
 SET 'pipeline.name' = 'fraud-online-features';
 SET 'table.exec.state.ttl' = '8 d';
 SET 'execution.checkpointing.interval' = '30 s';
@@ -96,7 +99,7 @@ CREATE TEMPORARY VIEW w1h AS
 SELECT transaction_id,
        COUNT(*) OVER w - 1 AS tx_count_1h
 FROM tx_raw
-WINDOW w AS (PARTITION BY customer_id ORDER BY transaction_ts_utc
+WINDOW w AS (PARTITION BY CONCAT(customer_id, '|1h') ORDER BY transaction_ts_utc
              RANGE BETWEEN INTERVAL '1' HOUR PRECEDING AND CURRENT ROW);
 
 CREATE TEMPORARY VIEW w24h AS
@@ -106,14 +109,14 @@ SELECT transaction_id,
        SUM(CASE WHEN transaction_status = 'Declined' THEN 1 ELSE 0 END) OVER w
          - CASE WHEN transaction_status = 'Declined' THEN 1 ELSE 0 END       AS declines_24h
 FROM tx_raw
-WINDOW w AS (PARTITION BY customer_id ORDER BY transaction_ts_utc
+WINDOW w AS (PARTITION BY CONCAT(customer_id, '|24h') ORDER BY transaction_ts_utc
              RANGE BETWEEN INTERVAL '24' HOUR PRECEDING AND CURRENT ROW);
 
 CREATE TEMPORARY VIEW w7d AS
 SELECT transaction_id,
        COUNT(*) OVER w - 1 AS tx_count_7d
 FROM tx_raw
-WINDOW w AS (PARTITION BY customer_id ORDER BY transaction_ts_utc
+WINDOW w AS (PARTITION BY CONCAT(customer_id, '|7d') ORDER BY transaction_ts_utc
              RANGE BETWEEN INTERVAL '7' DAY PRECEDING AND CURRENT ROW);
 
 CREATE TEMPORARY VIEW features AS
