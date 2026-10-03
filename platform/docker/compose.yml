@@ -121,6 +121,7 @@ services:
       - bash
       - -c
       - |
+        mkdir -p /opt/latam/data/tmp &&          # TMPDIR of the tasks; not part of a fresh data/ copy
         airflow db migrate &&
         airflow pools set duckdb_lakehouse 1 "DuckDB lakehouse has a single writer" &&
         airflow pools set neo4j_writer 2 "Neo4j write concurrency" &&
