@@ -1,0 +1,8 @@
+raw_name,country_name,iso2,home_currency,utc_offset_hours,is_bank_market
+México,Mexico,MX,MXN,-6,true
+Mexico,Mexico,MX,MXN,-6,true
+Colombia,Colombia,CO,COP,-5,true
+Argentina,Argentina,AR,ARS,-3,true
+Brazil,Brazil,BR,BRL,-3,false
+USA,United States,US,USD,-5,false
+Spain,Spain,ES,EUR,1,false

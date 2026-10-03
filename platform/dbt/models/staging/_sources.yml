@@ -1,0 +1,35 @@
+version: 2
+
+# Bronze layer = the Parquet files produced by eda/scripts/eda_overview.py (main) and
+# eda/scripts/build_backup_parquet.py (backup). They are read in place; nothing is copied.
+sources:
+  - name: raw
+    description: "Main folder (data/), authoritative. Bronze, read-only."
+    meta:
+      external_location: "{{ env_var('LATAM_PARQUET_DIR', '../../data/parquet') }}/{name}.parquet"
+    tables:
+      - name: customers
+      - name: products
+      - name: branches
+      - name: service_agents
+      - name: marketing_campaigns
+      - name: transactions
+        loaded_at_field: transaction_date
+      - name: call_center_interactions
+      - name: call_transcripts
+      - name: satisfaction_surveys
+      - name: digital_events
+      - name: complaints
+      - name: campaign_sends
+      - name: daily_exchange_rates
+
+  - name: raw_backup
+    description: "data_backup_20260831/. Quarantined: used only by the audit reconciliation models, never joined to main."
+    meta:
+      external_location: "{{ env_var('LATAM_BACKUP_PARQUET_DIR', '../../data/parquet_backup') }}/{name}.parquet"
+    tables:
+      - name: customers
+      - name: products
+      - name: transactions
+      - name: complaints
+      - name: call_center_interactions

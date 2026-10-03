@@ -1,0 +1,48 @@
+name: latam_bank
+version: "0.1.0"
+config-version: 2
+profile: latam_bank
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "logs"]
+
+vars:
+  # Reference "now" for every relative window. The data ends on 2026-06-17 (process_date).
+  as_of_date: "2026-06-17"
+  # Fraud model time split (out-of-time evaluation, never random).
+  fraud_train_end: "2025-07-01"
+  fraud_valid_end: "2026-01-01"
+  # Dormancy threshold used by feature and rule definitions.
+  dormancy_days: 90
+
+models:
+  latam_bank:
+    +materialized: table
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+    marts:
+      +schema: marts
+    audit:
+      +schema: audit
+    exports:
+      +schema: exports
+
+seeds:
+  latam_bank:
+    +schema: reference
+
+snapshots:
+  latam_bank:
+    +target_schema: snapshots
+
+data_tests:
+  latam_bank:
+    +store_failures: false
