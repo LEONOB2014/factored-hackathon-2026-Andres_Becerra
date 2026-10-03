@@ -73,18 +73,27 @@ def _stage(con: duckdb.DuckDBPyConnection, table: Table, src: str, run_id: str) 
     """)
 
 
-def _partition_digests(con, rel: str, part_col: str | None) -> dict[str, dict]:
+def _partition_digests(
+    con, rel: str, part_col: str | None, digest_col: str = "_row_md5"
+) -> dict[str, dict]:
+    """Rows and an order-independent digest per partition (md5 of the sorted per-row digests)."""
     key = f"cast({part_col} AS varchar)" if part_col else "'all'"
     rows = con.sql(f"""
-        SELECT {key} AS part, count(*) AS n, md5(string_agg(_row_md5, '' ORDER BY _row_md5)) AS digest
+        SELECT {key} AS part, count(*) AS n, md5(string_agg({digest_col}, '' ORDER BY {digest_col})) AS digest
         FROM {rel} GROUP BY ALL""").fetchall()
     return {p: {"rows": n, "digest": d} for p, n, d in rows}
 
 
 def _write(
-    con, rel: str, out_dir: Path, part_col: str | None, manifest_path: Path, force: bool
+    con,
+    rel: str,
+    out_dir: Path,
+    part_col: str | None,
+    manifest_path: Path,
+    force: bool,
+    digest_col: str = "_row_md5",
 ) -> dict:
-    new = _partition_digests(con, rel, part_col)
+    new = _partition_digests(con, rel, part_col, digest_col)
     old = json.loads(manifest_path.read_text())["partitions"] if manifest_path.exists() else {}
     changed = [p for p in new if p in old and old[p]["digest"] != new[p]["digest"]]
     if changed and not force:
