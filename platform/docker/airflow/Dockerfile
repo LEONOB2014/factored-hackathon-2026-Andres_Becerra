@@ -31,6 +31,9 @@ RUN python -m venv /opt/airflow/platform-venv \
     && /opt/airflow/platform-venv/bin/python -m spacy download es_core_news_sm \
     && echo "/opt/latam/platform/libs" > $(/opt/airflow/platform-venv/bin/python -c "import site; print(site.getsitepackages()[0])")/latam_platform.pth
 
+# Owned by the airflow user so the named volume mounted here inherits writable ownership.
+RUN mkdir -p /opt/airflow/config
+
 ENV LATAM_REPO_ROOT=/opt/latam \
     LATAM_DATA_DIR=/opt/latam/data \
     LATAM_LAKE_DIR=/opt/latam/data/lake \

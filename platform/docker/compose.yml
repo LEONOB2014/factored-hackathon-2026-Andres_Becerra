@@ -106,7 +106,15 @@ services:
   # ----------------------------------------------------------------------------- core: Airflow 3
   airflow-init:
     <<: *airflow
-    command: ["bash", "-c", "airflow db migrate && airflow connections create-default-connections || true"]
+    command:
+      - bash
+      - -c
+      - |
+        airflow db migrate &&
+        airflow pools set duckdb_lakehouse 1 "DuckDB lakehouse has a single writer" &&
+        airflow pools set neo4j_writer 2 "Neo4j write concurrency" &&
+        cd /opt/latam/platform/dbt && /opt/airflow/dbt-venv/bin/dbt deps --quiet || true &&
+        /opt/airflow/dbt-venv/bin/dbt parse --quiet --target-path target-airflow
     restart: "no"
 
   airflow-apiserver:
@@ -139,12 +147,11 @@ services:
   neo4j:
     image: neo4j:5-community
     profiles: [graph]
-    env_file: .env
+    # no env_file: Neo4j treats every NEO4J_* variable as a config key; the password is interpolated instead
     environment:
       NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
       NEO4J_server_memory_heap_max__size: 768m
       NEO4J_server_memory_pagecache_size: 512m
-      NEO4J_dbms_security_procedures_unrestricted: ""
       NEO4J_dbms_logs_query_enabled: INFO
     volumes: [neo4j-data:/data]
     ports: ["127.0.0.1:7474:7474", "127.0.0.1:7687:7687"]
@@ -166,7 +173,6 @@ services:
       mlflow server --host 0.0.0.0 --port 5000
       --backend-store-uri postgresql://mlflow:${MLFLOW_DB_PASSWORD}@pg-core:5432/mlflow
       --artifacts-destination s3://mlflow-artifacts --serve-artifacts
-      --allowed-hosts "mlflow,mlflow:5000,localhost,localhost:5001,127.0.0.1:5001"
     ports: ["127.0.0.1:5001:5000"]
     networks: [net_ml, net_data, net_ops]
     depends_on: {pg-core: {condition: service_healthy}}

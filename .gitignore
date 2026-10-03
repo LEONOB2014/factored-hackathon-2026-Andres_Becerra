@@ -88,6 +88,7 @@ scratch/
 
 # dbt (platform/dbt)
 platform/dbt/target/
+platform/dbt/target-airflow/
 platform/dbt/logs/
 platform/dbt/dbt_packages/
 platform/dbt/.user.yml
