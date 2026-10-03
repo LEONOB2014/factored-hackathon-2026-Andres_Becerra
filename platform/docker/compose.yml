@@ -205,7 +205,9 @@ services:
         jobmanager.rpc.address: flink-jobmanager
         jobmanager.memory.process.size: 768m
         state.backend.type: hashmap
-        table.exec.state.ttl: 30 d
+        table.exec.state.ttl: 8 d
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
     ports: ["127.0.0.1:8081:8081"]
     networks: [net_stream, net_data, net_ops]
     deploy: {resources: {limits: {memory: 896m}}}
@@ -219,9 +221,23 @@ services:
         jobmanager.rpc.address: flink-jobmanager
         taskmanager.numberOfTaskSlots: 4
         taskmanager.memory.process.size: 1280m
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
     depends_on: [flink-jobmanager]
     networks: [net_stream, net_data]
     deploy: {resources: {limits: {memory: 1408m}}}
+
+  flink-sql-gateway:                         # REST endpoint Airflow uses to submit Flink SQL jobs
+    image: latam/flink:1.19
+    profiles: [stream]
+    command: >
+      /opt/flink/bin/sql-gateway.sh start-foreground
+      -Dsql-gateway.endpoint.rest.address=0.0.0.0 -Dsql-gateway.endpoint.rest.port=8083
+      -Drest.address=flink-jobmanager -Drest.port=8081 -Djobmanager.rpc.address=flink-jobmanager
+      -Dexecution.target=remote
+    depends_on: [flink-jobmanager]
+    networks: [net_stream, net_data, net_ops]
+    deploy: {resources: {limits: {memory: 768m}}}
 
   fraud-scorer:
     build: {context: ../.., dockerfile: platform/services/fraud_scorer/Dockerfile}

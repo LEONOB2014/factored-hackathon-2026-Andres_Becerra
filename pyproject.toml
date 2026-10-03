@@ -159,8 +159,10 @@ ignore = [
 "platform/libs/latam_platform/ml/federated_gnn.py" = ["N812"]  # torch_geometric.utils imported as U by convention
 "platform/libs/latam_platform/ml/tgn.py" = ["B007"]
 "platform/libs/latam_platform/privacy.py" = ["N818"]  # public exception name kept for API stability
+"platform/libs/latam_platform/stream.py" = ["PTH123", "SIM115"]
 "platform/libs/tests/test_audit_and_genai.py" = ["S106"]  # test-only tokens
 "platform/libs/tests/test_privacy.py" = ["SIM117"]
+"platform/services/fraud_scorer/scorer.py" = ["S104"]  # the service binds 0.0.0.0 inside its container
 # --- end data platform ---
 
 [tool.ruff.lint.isort]
