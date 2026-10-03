@@ -19,6 +19,11 @@ LAKE = DATA / "lake"
 BRONZE = LAKE / "bronze"  # typed, partitioned, append-only
 HOLDOUT = LAKE / "holdout"  # post-cutoff facts, replayed or batch-loaded later
 QUARANTINE = LAKE / "quarantine"  # rejected rows and the untrusted backup folder
+# Lossless bronze of record: every record, every field as its original text, proven byte-exact against
+# the landing manifest (lakehouse/bronze_raw.py). The typed BRONZE above is derived and transitional.
+BRONZE_RAW = LAKE / "bronze_raw"
+HOLDOUT_RAW = LAKE / "holdout_raw"
+QUARANTINE_RAW = QUARANTINE / "backup_20260831_raw"
 MANIFESTS = LAKE / "manifests"  # landing + bronze partition manifests
 LAKEHOUSE_DB = LAKE / "lakehouse.duckdb"  # dbt dev target (silver/gold/features/graph)
 
