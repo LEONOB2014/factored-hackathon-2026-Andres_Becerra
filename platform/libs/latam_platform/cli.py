@@ -5,6 +5,7 @@ uv run python -m latam_platform.cli bronze-build [--table transactions] [--force
 uv run python -m latam_platform.cli quarantine-backup
 uv run python -m latam_platform.cli bronze-raw-build [--table transactions] [--source main] [--force]
 uv run python -m latam_platform.cli bronze-raw-verify [--table transactions] [--source main]
+uv run python -m latam_platform.cli archive-typed-bronze   # once: retire typed bronze to a read-only archive
 """
 
 from __future__ import annotations
@@ -88,10 +89,18 @@ def cmd_governance_check(_args) -> dict:
     return out
 
 
+def cmd_archive_typed_bronze(_args) -> dict:
+    """Retire typed bronze: move it into a read-only archive and record the move in the audit ledger."""
+    from latam_platform import ops
+
+    out = bronze.archive_typed()
+    if out["moved"]:
+        ops.ledger("bronze.typed_archived", out["archive"], out, actor="data-platform")
+    return out
+
+
 def cmd_lake_init(_args) -> list[str]:
     dirs = [
-        config.BRONZE,
-        config.HOLDOUT,
         config.QUARANTINE,
         config.BRONZE_RAW,
         config.HOLDOUT_RAW,
@@ -133,6 +142,7 @@ def main() -> None:
         r.set_defaults(fn=fn)
     sub.add_parser("governance-check").set_defaults(fn=cmd_governance_check)
     sub.add_parser("lake-init").set_defaults(fn=cmd_lake_init)
+    sub.add_parser("archive-typed-bronze").set_defaults(fn=cmd_archive_typed_bronze)
     args = p.parse_args()
     print(json.dumps(args.fn(args), indent=1, default=str))
 

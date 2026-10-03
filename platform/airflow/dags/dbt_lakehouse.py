@@ -2,8 +2,10 @@
 
 Each layer is a Cosmos task group (one Airflow task per model, tests after each group), so lineage, retries and
 failures are visible per model; Cosmos emits OpenLineage events to Marquez. All tasks share the single-writer
-DuckDB pool. After the build, two gates must pass before downstream assets update:
-  * data-quality gate: no enforced severity-A rule above its SLO (audit.dq_rule_summary);
+DuckDB pool. Silver types lossless bronze against the reviewed source contracts; a bronze partition whose schema
+drifted is held (audit.dq_partition_holds) and kept out of staging and everything built on it. After the build:
+  * drift holds: one compliance trigger (schema_drift_partition_held) per newly held partition;
+  * data-quality gate: no enforced severity-A rule above its SLO (audit.dq_rule_summary, row and cell rules);
   * governance gate: manifest check (owners, data classes, residency, contracts) from platform/policies.
 """
 
@@ -83,6 +85,19 @@ def dbt_lakehouse():
         a >> b
 
     @task.external_python(python=PLATFORM_PY, expect_airflow=False, pool=DUCKDB_POOL)
+    def drift_holds(lineage_run_id: str) -> dict:
+        """Open a review for every partition the circuit breaker newly held. Never fails the run: a held
+        partition is already contained (its rows are out of staging); the review decides its release."""
+        from latam_platform import drift_holds, ops
+
+        with ops.audit() as a:
+            out = drift_holds.raise_reviews(
+                ops.lakehouse(read_only=True), a, drift_holds.load_trigger()
+            )
+        ops.ledger("dq.drift_holds_evaluated", "audit.dq_partition_holds", out, lineage_run_id)
+        return out
+
+    @task.external_python(python=PLATFORM_PY, expect_airflow=False, pool=DUCKDB_POOL)
     def dq_gate(lineage_run_id: str) -> dict:
         from latam_platform import ops
 
@@ -112,6 +127,7 @@ def dbt_lakehouse():
 
     (
         groups[-1]
+        >> drift_holds(lineage_run_id="{{ run_id }}")
         >> dq_gate(lineage_run_id="{{ run_id }}")
         >> governance_gate(lineage_run_id="{{ run_id }}")
     )
