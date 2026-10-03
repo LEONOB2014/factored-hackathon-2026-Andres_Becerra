@@ -33,8 +33,7 @@ docker-compose.override.yml
 *.parquet
 !data_engineering/dbt/seeds/*.csv
 
-# EDA: data is downloaded/derived locally; summary tables are committed
-eda/data/
+# EDA: dashboard data is regenerated locally; summary tables are committed
 eda/reports/dashboards/data/
 !eda/reports/tables/*.csv
 *.duckdb
