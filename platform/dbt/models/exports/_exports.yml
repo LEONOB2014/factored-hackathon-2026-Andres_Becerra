@@ -1,0 +1,27 @@
+version: 2
+
+models:
+  - name: export_graph_nodes
+    description: "Heterogeneous graph nodes (customer, product, merchant, branch, agent, campaign, country, complaint, shared ip)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [node_type, node_id]}}
+  - name: export_graph_edges
+    description: "Typed, timestamped edges; broken FKs (R25, R26) excluded."
+  - name: export_temporal_tx_events
+    description: "TGN-format customer->merchant interaction stream with labels and out-of-time split."
+    columns:
+      - name: transaction_id
+        data_tests: [unique]
+  - name: export_kumo_relational_complaint90d
+    description: "Customer x quarterly cutoff entity table with 90-day complaint label (strictly after cutoff)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [customer_id, cutoff_ts]}}
+  - name: export_kumo_tabular_fraud
+    description: "All fraud + 1 % negatives from the PIT feature table, with sample weights."
+  - name: export_graphrag_entity_docs
+    description: "Deterministic PII-free entity documents for GraphRAG indexing."
+    columns:
+      - name: doc_id
+        data_tests: [unique, not_null]
+  - name: export_graphrag_triples
+    description: "Aggregated knowledge-graph triples with provenance."

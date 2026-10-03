@@ -1,0 +1,34 @@
+schema,model,rows
+audit,audit_backup_reconciliation,5
+audit,audit_partition_manifest,6568
+audit,audit_scd2_change_log,0
+audit,dq_integrity_findings,11849856
+audit,dq_rule_summary,26
+intermediate,int_customer_fairness_attributes,150000
+intermediate,int_customer_month_tx,5550000
+intermediate,int_customer_profile,150000
+intermediate,int_fx_usd,4388
+intermediate,int_products_enriched,400000
+intermediate,int_transactions_enriched,4425008
+marts,feat_credit_eligibility_pit,1800000
+marts,feat_fraud_realtime_pit,4425008
+marts,mart_account_payment_inquiry,400000
+marts,mart_aml_customer_month,2704376
+marts,mart_campaign_compliance_uplift,1746801
+marts,mart_card_support,140040
+marts,mart_collections_early_warning,131972
+marts,mart_credit_eligibility,150000
+marts,mart_customer_360,150000
+marts,mart_cx_journey,686296
+marts,mart_transaction_disputes,27133
+snapshots,snap_branches,350
+snapshots,snap_customers,150000
+snapshots,snap_products,400000
+snapshots,snap_service_agents,1200
+exports (parquet),graph_edges,4600546
+exports (parquet),graph_nodes,619112
+exports (parquet),graphrag_entity_docs,218495
+exports (parquet),graphrag_triples,4424783
+exports (parquet),kumo_relational_complaint90d,1103598
+exports (parquet),kumo_tabular_fraud,48529
+exports (parquet),temporal_tx_events,1029234

@@ -1,0 +1,51 @@
+unit_tests:
+  - name: amount_usd_is_repaired_per_currency
+    description: >
+      USD rows use the amount itself, non-USD rows keep the source USD amount when present and otherwise
+      convert with the latest rate on or before process_date (ASOF).
+    model: int_transactions_enriched
+    given:
+      - input: ref('stg_transactions')
+        rows:
+          - {transaction_id: t1, product_id: p1, customer_id: c1, transaction_ts_utc: "2025-01-02 12:00:00", process_date: "2025-01-02", amount: 100.0, currency: USD, amount_usd_source: null, transaction_utc_offset_hours: -6, transaction_country_code: MX, transaction_status: Approved, response_code: "00"}
+          - {transaction_id: t2, product_id: p2, customer_id: c2, transaction_ts_utc: "2025-01-02 12:00:00", process_date: "2025-01-02", amount: 400000.0, currency: COP, amount_usd_source: null, transaction_utc_offset_hours: -5, transaction_country_code: CO, transaction_status: Approved, response_code: "00"}
+          - {transaction_id: t3, product_id: p2, customer_id: c2, transaction_ts_utc: "2025-01-02 12:00:00", process_date: "2025-01-02", amount: 400000.0, currency: COP, amount_usd_source: 99.0, transaction_utc_offset_hours: -5, transaction_country_code: CO, transaction_status: Approved, response_code: "00"}
+      - input: ref('stg_products')
+        rows:
+          - {product_id: p1, product_family: deposit, currency: USD, opening_date: "2020-01-01"}
+          - {product_id: p2, product_family: deposit, currency: COP, opening_date: "2020-01-01"}
+      - input: ref('stg_customers')
+        rows:
+          - {customer_id: c1, country_code: MX}
+          - {customer_id: c2, country_code: CO}
+      - input: ref('int_fx_usd')
+        rows:
+          - {rate_date: "2025-01-01", currency: COP, usd_per_unit: 0.00025}
+          - {rate_date: "2025-01-03", currency: COP, usd_per_unit: 0.00050}
+      - input: ref('response_codes')
+        rows:
+          - {response_code: "00", meaning: Approved, suggested_action: NONE}
+    expect:
+      rows:
+        - {transaction_id: t1, amount_usd: 100.0, dq_r17_mx_usd_label: true, dq_r18_amount_usd_imputed: false}
+        - {transaction_id: t2, amount_usd: 100.0, dq_r17_mx_usd_label: false, dq_r18_amount_usd_imputed: true}
+        - {transaction_id: t3, amount_usd: 99.0, dq_r17_mx_usd_label: false, dq_r18_amount_usd_imputed: false}
+
+  - name: dispute_links_to_amount_matching_transaction
+    description: "The candidate whose amount is within 1 % of the claim wins over a more recent non-matching one."
+    model: mart_transaction_disputes
+    given:
+      - input: ref('stg_complaints')
+        rows:
+          - {complaint_id: k1, customer_id: c1, category: Transactions, created_ts_utc: "2025-03-01 00:00:00", claimed_amount: 250.0, affected_product_id: null, is_closed: false}
+      - input: ref('int_transactions_enriched')
+        rows:
+          - {transaction_id: t_match, customer_id: c1, product_id: p1, transaction_ts_utc: "2025-02-10 10:00:00", amount: 251.0}
+          - {transaction_id: t_recent, customer_id: c1, product_id: p1, transaction_ts_utc: "2025-02-28 10:00:00", amount: 80.0}
+          - {transaction_id: t_old, customer_id: c1, product_id: p1, transaction_ts_utc: "2024-10-01 10:00:00", amount: 250.0}
+      - input: ref('int_customer_profile')
+        rows:
+          - {customer_id: c1, country_code: MX, segment: Basic}
+    expect:
+      rows:
+        - {complaint_id: k1, linked_transaction_id: t_match, link_confidence: medium, n_candidates: 2}
