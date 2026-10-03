@@ -17,6 +17,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [06 Knowledge and GraphRAG](06_knowledge_and_graphrag.md) | document lifecycle, sync/prune/reconcile, Neo4j model |
 | [07 ML and graph learning](07_ml_and_graph_learning.md) | fraud ensemble + detector CI + HITL, TGN, federated GNN, MLflow records |
 | [08 Agentic interfaces](08_agentic_interfaces.md) | what the pending agent module will consume and must log |
+| [09 Data and model risk methodology](09_data_and_model_risk_methodology.md) | raw schema forensics without metadata, lossless bronze, cell-level findings, audited correction, drift MRM, keys, segmentation, text |
 | [ADRs](adr/README.md) | ten architecture decisions |
 | [Runbook](runbook.md) | start, run, demo and verify |
 | [Generated dbt lineage](generated/dbt_lineage.md) | zone- and model-level lineage from the manifest |

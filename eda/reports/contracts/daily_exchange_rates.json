@@ -1,0 +1,152 @@
+{
+ "contract_version": "65564f73c608",
+ "table": "daily_exchange_rates",
+ "header": [
+  "date",
+  "source_currency",
+  "target_currency",
+  "exchange_rate",
+  "buy_rate",
+  "sell_rate",
+  "source"
+ ],
+ "columns": {
+  "date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 13164
+  },
+  "source_currency": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 13164,
+   "vocabulary": [
+    "ARS",
+    "COP",
+    "MXN",
+    "USD"
+   ]
+  },
+  "target_currency": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 13164,
+   "vocabulary": [
+    "ARS",
+    "COP",
+    "MXN",
+    "USD"
+   ]
+  },
+  "exchange_rate": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 6,
+   "files": 1,
+   "rows": 13164
+  },
+  "buy_rate": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 6,
+   "files": 1,
+   "rows": 13164
+  },
+  "sell_rate": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 6,
+   "files": 1,
+   "rows": 13164
+  },
+  "source": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 13164,
+   "vocabulary": [
+    "Bloomberg",
+    "Central Bank",
+    "Internal",
+    "Reuters"
+   ]
+  }
+ }
+}

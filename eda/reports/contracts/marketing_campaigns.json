@@ -1,0 +1,285 @@
+{
+ "contract_version": "1b1774a56a41",
+ "table": "marketing_campaigns",
+ "header": [
+  "campaign_id",
+  "campaign_name",
+  "description",
+  "campaign_type",
+  "campaign_objective",
+  "promoted_product",
+  "target_segment",
+  "target_country",
+  "start_date",
+  "end_date",
+  "budget",
+  "campaign_status",
+  "expected_conversion_rate"
+ ],
+ "columns": {
+  "campaign_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200
+  },
+  "campaign_name": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    23,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200
+  },
+  "description": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.195,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    48
+   ],
+   "non_ascii_share": 0.805,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200
+  },
+  "campaign_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200,
+   "vocabulary": [
+    "Email",
+    "Mix",
+    "Push",
+    "SMS",
+    "Voice",
+    "WhatsApp"
+   ]
+  },
+  "campaign_objective": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200,
+   "vocabulary": [
+    "Acquisition",
+    "Cross-sell",
+    "Reactivation",
+    "Retention",
+    "Up-sell"
+   ]
+  },
+  "promoted_product": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.11,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    20
+   ],
+   "non_ascii_share": 0.555,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200,
+   "vocabulary": [
+    "",
+    "Cuenta Ahorro",
+    "Cuenta Corriente",
+    "Inversión",
+    "Préstamo Hipotecario",
+    "Préstamo Personal",
+    "Seguro",
+    "Tarjeta Crédito"
+   ]
+  },
+  "target_segment": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.395,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200,
+   "vocabulary": [
+    "",
+    "Basic",
+    "Plus",
+    "Premium",
+    "Student"
+   ]
+  },
+  "target_country": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.555,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200,
+   "vocabulary": [
+    "",
+    "Argentina",
+    "Colombia",
+    "Mexico"
+   ]
+  },
+  "start_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200
+  },
+  "end_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200
+  },
+  "budget": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.155,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1,
+   "rows": 200
+  },
+  "campaign_status": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 200,
+   "vocabulary": [
+    "Active",
+    "Completed",
+    "Paused"
+   ]
+  },
+  "expected_conversion_rate": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.07,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1,
+   "rows": 200
+  }
+ }
+}

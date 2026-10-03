@@ -58,7 +58,7 @@ def test_no_machine_specific_paths(src):
 
 def producers():
     out = {}
-    for src in SOURCES:
+    for src in SOURCES + SUB_SOURCES:
         for table in WRITES.findall(src.read_text()):
             out.setdefault(table, []).append(src.name)
     return out
@@ -110,18 +110,24 @@ def test_executed_notebook_matches_its_source(src):
             assert cell.source == ref.source
 
 
-# The medallion re-analysis (raw -> bronze -> silver -> gold) is its own series in a subfolder,
-# one level deeper, so its notebooks reach the shared code through ../../src.
-MEDALLION = sorted((NOTEBOOKS / "medallion").glob("[0-9][0-9]_*.py"))
+# Sub-series live one folder deeper and reach the shared code through ../../src:
+#   medallion/   the re-analysis layer by layer (raw -> bronze -> silver -> gold)
+#   model_risk/  schema forensics, keys, drift MRM, segmentation and text
+SUBSERIES = {
+    name: sorted((NOTEBOOKS / name).glob("[0-9][0-9]_*.py")) for name in ("medallion", "model_risk")
+}
+SUB_SOURCES = [p for paths in SUBSERIES.values() for p in paths]
 
 
-def test_medallion_series_is_numbered_from_01_without_gaps():
-    assert MEDALLION
-    assert [number(p) for p in MEDALLION] == list(range(1, len(MEDALLION) + 1))
+@pytest.mark.parametrize("series", SUBSERIES)
+def test_sub_series_is_numbered_from_01_without_gaps(series):
+    paths = SUBSERIES[series]
+    assert paths, f"{series}/ has no notebooks"
+    assert [number(p) for p in paths] == list(range(1, len(paths) + 1))
 
 
-@pytest.mark.parametrize("src", MEDALLION, ids=lambda p: p.stem)
-def test_medallion_notebook_is_well_formed(src):
+@pytest.mark.parametrize("src", SUB_SOURCES, ids=lambda p: f"{p.parent.name}/{p.stem}")
+def test_sub_series_notebook_is_well_formed(src):
     text = src.read_text()
     cells = build_notebook.parse(text)
     assert cells[0].cell_type == "markdown"
@@ -133,6 +139,6 @@ def test_medallion_notebook_is_well_formed(src):
     assert not re.search(r"/Users/|/home/|[A-Z]:\\\\", text)
 
 
-@pytest.mark.parametrize("src", MEDALLION, ids=lambda p: p.stem)
-def test_medallion_executed_notebook_matches_its_source(src):
+@pytest.mark.parametrize("src", SUB_SOURCES, ids=lambda p: f"{p.parent.name}/{p.stem}")
+def test_sub_series_executed_notebook_matches_its_source(src):
     test_executed_notebook_matches_its_source(src)

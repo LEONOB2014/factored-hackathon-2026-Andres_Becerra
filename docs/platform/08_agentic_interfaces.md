@@ -1,6 +1,6 @@
 # 08 · Agentic module (pending): the interfaces it will use
 
-[← 07 ML and graph learning](07_ml_and_graph_learning.md) · [index](README.md) · next: [ADRs →](adr/README.md)
+[← 07 ML and graph learning](07_ml_and_graph_learning.md) · [index](README.md) · next: [09 data and model risk methodology →](09_data_and_model_risk_methodology.md)
 
 The agentic module is not built yet. The platform already provides everything it consumes, behind
 least-privilege interfaces, and the audit trail it must write to.

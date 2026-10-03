@@ -13,6 +13,7 @@ import download_s3
 import eda_overview
 import explore_s3
 import run_nb_timed
+from latam_eda.csvio import CsvIntegrityError
 
 
 def write_partitioned(folder, rows_by_day, header):
@@ -107,6 +108,23 @@ def test_overview_converts_every_table_and_skips_cached_ones(tmp_path, monkeypat
     eda_overview.view_all(con)
     assert con.sql("select count(*) from transactions").fetchone()[0] == 1
     assert con.sql("select count(*) from customers").fetchone()[0] == 2
+
+
+def test_parquet_build_fails_loudly_on_a_malformed_row(tmp_path, monkeypatch):
+    """A row that does not parse must stop the build, not vanish from the Parquet copy."""
+    raw, pq = tmp_path / "raw", tmp_path / "parquet"
+    write_partitioned(
+        raw / "transactions",
+        {"2024-01-01": ["T1,10.5", "T2,3"], "2024-01-02": ['T3,"unterminated']},
+        "transaction_id,amount",
+    )
+    monkeypatch.setattr(eda_overview, "RAW", raw)
+    monkeypatch.setattr(eda_overview, "PQ", pq)
+    monkeypatch.setattr(eda_overview, "FACTS", {"transactions": ("transaction_id", None)})
+    monkeypatch.setattr(eda_overview, "DIMS", {})
+    with pytest.raises(CsvIntegrityError):
+        eda_overview.build_parquet(duckdb.connect(), rebuild=True)
+    assert not (pq / "transactions.parquet").exists()
 
 
 def test_markdown_table_helper():

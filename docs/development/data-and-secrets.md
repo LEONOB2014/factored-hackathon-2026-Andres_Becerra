@@ -52,5 +52,8 @@ Rules:
   confirm it is a placeholder or a hash, then ask the maintainer before updating the
   baseline or adding an exclusion. Executed notebooks and their HTML exports are excluded
   because their base64 chart data trips the detectors (approved 2026-10-02).
+  Lines of exactly the shape `"contract_version": "<12 hex>"` in the inferred schema contracts
+  (`eda/reports/contracts/`) are exempt through `--exclude-lines`: the value is a prefix of the
+  contract's own sha256, and the rest of each contract is still scanned (approved 2026-10-03).
 - A real secret that reaches a commit is rotated first, then removed from history with the
   maintainer.
