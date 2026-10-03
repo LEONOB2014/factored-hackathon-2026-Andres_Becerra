@@ -82,14 +82,13 @@ def bronze_build():
         return out
 
     @task.external_python(python=PLATFORM_PY, expect_airflow=False, outlets=[BRONZE])
-    def seal_manifests(results: list, lineage_run_id: str) -> str:
+    def seal_manifests(lineage_run_id: str) -> str:
         import json
 
         from latam_platform import config, ops
 
         doc = {
             "run_id": lineage_run_id,
-            "tables": results,
             "manifests": {
                 p.stem: json.loads(p.read_text())
                 for p in (config.MANIFESTS / "bronze").glob("*.json")
@@ -99,16 +98,18 @@ def bronze_build():
         ops.ledger(
             "bronze.manifests_sealed",
             "bronze",
-            {"worm_uri": uri, "tables": len(results)},
+            {"worm_uri": uri, "tables": len(doc["manifests"])},
             lineage_run_id,
         )
         return uri
 
     results = build.partial(lineage_run_id="{{ run_id }}").expand(table=TABLES)
     lake_init() >> results
-    seal_manifests(results, lineage_run_id="{{ run_id }}") << quarantine_backup(
-        lineage_run_id="{{ run_id }}"
-    )
+    # mapped results are not passed into the external venv (lazy XCom sequences are not picklable);
+    # sealing reads the manifests each build task wrote and runs only after all of them succeed
+    seal = seal_manifests(lineage_run_id="{{ run_id }}")
+    results >> seal
+    quarantine_backup(lineage_run_id="{{ run_id }}") >> seal
 
 
 bronze_build()

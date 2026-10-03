@@ -96,7 +96,7 @@ def publish_serving():
         return {"table": live, "rows": n, "digest": digest}
 
     @task.external_python(python=PLATFORM_PY, expect_airflow=False, outlets=[SERVING])
-    def load_online_state(results: list, lineage_run_id: str) -> int:
+    def load_online_state(lineage_run_id: str) -> int:
         from latam_platform import ops
 
         with ops.pg("bank_serving") as c:
@@ -118,7 +118,7 @@ def publish_serving():
         return n
 
     results = publish.partial(lineage_run_id="{{ run_id }}").expand(table=SERVING_TABLES)
-    load_online_state(results, lineage_run_id="{{ run_id }}")
+    results >> load_online_state(lineage_run_id="{{ run_id }}")
 
 
 publish_serving()

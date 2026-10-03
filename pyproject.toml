@@ -153,6 +153,7 @@ ignore = [
 "platform/airflow/dags/landing_ingest.py" = ["S607"]  # runs the container's python on PATH
 "platform/airflow/dags/ml_graph_learning.py" = ["E741"]
 "platform/airflow/dags/publish_serving.py" = ["SIM117"]
+"platform/dbt/scripts/mermaid_lineage.py" = ["B007"]
 "platform/libs/latam_platform/audit_ledger.py" = ["S107"]  # the default is an environment variable name, not a password
 "platform/libs/latam_platform/kb_pipeline.py" = ["DTZ011"]
 "platform/libs/latam_platform/lakehouse/bronze.py" = ["SIM108"]
