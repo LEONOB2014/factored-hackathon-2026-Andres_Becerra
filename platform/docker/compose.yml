@@ -40,7 +40,7 @@ x-airflow: &airflow
     LATAM_MLFLOW_URI: http://mlflow:5000
     LATAM_KAFKA_BOOTSTRAP: redpanda:9092
     LATAM_FLINK_REST: http://flink-jobmanager:8081
-    LATAM_DUCKDB_MEMORY: 2GB
+    LATAM_DUCKDB_MEMORY: 1536MB
     LATAM_DUCKDB_THREADS: "4"
     TMPDIR: /opt/latam/data/tmp
   volumes:

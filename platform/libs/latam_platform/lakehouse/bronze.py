@@ -28,24 +28,34 @@ class BronzeIntegrityError(RuntimeError):
     """An existing bronze partition would change: bronze is append-only."""
 
 
-def _connect() -> duckdb.DuckDBPyConnection:
+def _connect(file_backed: bool = False) -> duckdb.DuckDBPyConnection:
     import os
 
-    con = duckdb.connect()
-    con.sql("SET preserve_insertion_order = true")
-    con.sql(f"SET memory_limit = '{os.environ.get('LATAM_DUCKDB_MEMORY', '8GB')}'")
     tmp = config.DATA / "tmp" / "duckdb"
     tmp.mkdir(parents=True, exist_ok=True)
+    if file_backed:  # staging lives on disk, not in the capped RAM
+        db = tmp / f"bronze_stage_{os.getpid()}.duckdb"
+        db.unlink(missing_ok=True)
+        con = duckdb.connect(str(db))
+    else:
+        con = duckdb.connect()
+    con.sql("SET preserve_insertion_order = true")
+    con.sql(f"SET memory_limit = '{os.environ.get('LATAM_DUCKDB_MEMORY', '8GB')}'")
+    con.sql(f"SET threads = {os.environ.get('LATAM_DUCKDB_THREADS', '8')}")
     con.sql(f"SET temp_directory = '{tmp}'")
     return con
 
 
-def _read_csv_sql(src: str, table: Table) -> str:
+def _read_csv_sql(src, table: Table) -> str:
+    if isinstance(src, list):
+        src = "[" + ", ".join(f"'{p}'" for p in src) + "]"
+    else:
+        src = f"'{src}'"
     # union_by_name cannot be combined with rejects tables; every daily file shares one header
     # (checked by the landing reconciliation: a header drift would surface as rejected rows).
     multi = ", hive_partitioning=false" if table.kind == "fact" else ""
     return (
-        f"read_csv('{src}', header=true, sample_size=-1, filename=true, store_rejects=true, "
+        f"read_csv({src}, header=true, sample_size=-1, filename=true, store_rejects=true, "
         f"rejects_scan='rej_scan', rejects_table='rej_errors'{multi})"
     )
 
@@ -53,7 +63,7 @@ def _read_csv_sql(src: str, table: Table) -> str:
 def _stage(con: duckdb.DuckDBPyConnection, table: Table, src: str, run_id: str) -> None:
     con.sql("DROP TABLE IF EXISTS rej_scan; DROP TABLE IF EXISTS rej_errors")
     con.sql(f"""
-        CREATE OR REPLACE TEMP TABLE staged AS
+        CREATE OR REPLACE TABLE staged AS
         SELECT * EXCLUDE (filename),
                md5(cast(row(*columns(* EXCLUDE (filename))) AS varchar)) AS _row_md5,
                '{run_id}'                                             AS _ingest_run_id,
@@ -130,62 +140,83 @@ def _csv_records(files: list[Path]) -> int:
     return n
 
 
+def _fact_chunks(table: Table) -> list[list[str]]:
+    """Group a fact table's daily files by month (directory layout <table>/YYYY/MM/DD/*.csv)."""
+    files = sorted(Path(config.SOURCES["main"], table.name).glob("*/*/*/*.csv"))
+    chunks: dict[str, list[str]] = {}
+    for f in files:
+        chunks.setdefault(f"{f.parts[-4]}-{f.parts[-3]}", []).append(str(f))
+    return [chunks[k] for k in sorted(chunks)]
+
+
 def build_table(
     table: Table, run_id: str, landing_lines: dict[str, int] | None = None, force: bool = False
 ) -> dict:
-    """Build bronze (+ holdout) for one main-source table and return its reconciliation record."""
-    con = _connect()
-    _stage(con, table, config.raw_glob("main", table), run_id)
-    loaded = con.sql("SELECT count(*) FROM staged").fetchone()[0]
-    rejected = con.sql("SELECT count(DISTINCT (file_id, line)) FROM rej_errors").fetchone()[0]
-    if rejected:
-        qdir = config.QUARANTINE / "rejects"
-        qdir.mkdir(parents=True, exist_ok=True)
-        con.sql(
-            f"COPY (SELECT e.*, s.file_path FROM rej_errors e JOIN rej_scan s USING (scan_id, file_id)) "
-            f"TO '{qdir}/{table.name}__{run_id}.parquet' (FORMAT parquet)"
-        )
+    """Build bronze (+ holdout) for one main-source table and return its reconciliation record.
 
-    result = {"table": table.name, "run_id": run_id, "loaded": loaded, "rejected": rejected}
-    if table.kind == "fact":
-        cut = config.STREAM_CUTOFF.isoformat()
-        con.sql(f"CREATE TEMP VIEW hist AS SELECT * FROM staged WHERE process_date < DATE '{cut}'")
-        con.sql(f"CREATE TEMP VIEW hold AS SELECT * FROM staged WHERE process_date >= DATE '{cut}'")
-        m_b = _write(
-            con,
-            "hist",
-            config.BRONZE / table.name,
-            "process_date",
-            config.MANIFESTS / "bronze" / f"{table.name}.json",
-            force,
-        )
-        m_h = _write(
-            con,
-            "hold",
-            config.HOLDOUT / table.name,
-            "process_date",
-            config.MANIFESTS / "holdout" / f"{table.name}.json",
-            force,
-        )
-        result |= {
-            "bronze_rows": m_b["rows"],
-            "holdout_rows": m_h["rows"],
-            "partitions_written": len(m_b["written_now"]) + len(m_h["written_now"]),
-        }
-    else:
-        m = _write(
-            con,
-            "staged",
-            config.BRONZE / table.name,
-            None,
-            config.MANIFESTS / "bronze" / f"{table.name}.json",
-            force,
-        )
-        result |= {
-            "bronze_rows": m["rows"],
-            "holdout_rows": 0,
-            "partitions_written": len(m["written_now"]),
-        }
+    Facts are processed one month of files at a time in a file-backed DuckDB that can spill to disk, so memory
+    stays bounded regardless of table size (the scheduler container is memory-capped)."""
+    con = _connect(file_backed=True)
+    sources = _fact_chunks(table) if table.kind == "fact" else [[config.raw_glob("main", table)]]
+    loaded = rejected = bronze_rows = holdout_rows = written = 0
+    for files in sources:
+        src = files[0] if len(files) == 1 else files
+        _stage(con, table, src, run_id)
+        loaded += con.sql("SELECT count(*) FROM staged").fetchone()[0]
+        rej = con.sql("SELECT count(DISTINCT (file_id, line)) FROM rej_errors").fetchone()[0]
+        rejected += rej
+        if rej:
+            qdir = config.QUARANTINE / "rejects"
+            qdir.mkdir(parents=True, exist_ok=True)
+            con.sql(
+                f"COPY (SELECT e.*, s.file_path FROM rej_errors e JOIN rej_scan s USING (scan_id, file_id)) "
+                f"TO '{qdir}/{table.name}__{run_id}__{abs(hash(files[0]))}.parquet' (FORMAT parquet)"
+            )
+        if table.kind == "fact":
+            cut = config.STREAM_CUTOFF.isoformat()
+            con.sql(
+                f"CREATE OR REPLACE TEMP VIEW hist AS SELECT * FROM staged WHERE process_date < DATE '{cut}'"
+            )
+            con.sql(
+                f"CREATE OR REPLACE TEMP VIEW hold AS SELECT * FROM staged WHERE process_date >= DATE '{cut}'"
+            )
+            m_b = _write(
+                con,
+                "hist",
+                config.BRONZE / table.name,
+                "process_date",
+                config.MANIFESTS / "bronze" / f"{table.name}.json",
+                force,
+            )
+            m_h = _write(
+                con,
+                "hold",
+                config.HOLDOUT / table.name,
+                "process_date",
+                config.MANIFESTS / "holdout" / f"{table.name}.json",
+                force,
+            )
+            bronze_rows, holdout_rows = m_b["rows"], m_h["rows"]
+            written += len(m_b["written_now"]) + len(m_h["written_now"])
+        else:
+            m = _write(
+                con,
+                "staged",
+                config.BRONZE / table.name,
+                None,
+                config.MANIFESTS / "bronze" / f"{table.name}.json",
+                force,
+            )
+            bronze_rows, written = m["rows"], len(m["written_now"])
+    result = {
+        "table": table.name,
+        "run_id": run_id,
+        "loaded": loaded,
+        "rejected": rejected,
+        "bronze_rows": bronze_rows,
+        "holdout_rows": holdout_rows,
+        "partitions_written": written,
+    }
 
     if landing_lines is not None:  # reconcile against bytes received
         prefix = f"data/{table.name}"
@@ -209,7 +240,7 @@ def build_quarantine_backup(run_id: str) -> list[dict]:
         if not list(Path(config.SOURCES["backup_20260831"]).glob(table.name + "*")):
             out.append({"table": table.name, "status": "absent"})
             continue
-        con = _connect()
+        con = _connect(file_backed=True)
         _stage(con, table, src, run_id)
         con.sql(f"COPY staged TO '{qdir}/{table.name}.parquet' (FORMAT parquet, COMPRESSION zstd)")
         out.append(
