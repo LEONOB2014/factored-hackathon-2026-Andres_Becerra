@@ -25,7 +25,9 @@ duckdb) stay out of the app and CI installs.
 
 The strategy for the next phases (compliance, architecture, SCD, dbt, ML/AI/agents,
 deployment) is in [`docs/strategy/`](../docs/strategy/README.md); the dbt project it
-builds on is `platform/dbt/` (refresh `reports/tables/warehouse_*.csv` with
+builds on is the data platform in `platform/` (architecture, flows, audit and ADRs in
+[`docs/platform/`](../docs/platform/README.md)); its dbt lakehouse writes
+`data/lake/lakehouse.duckdb` (refresh `reports/tables/warehouse_*.csv` with
 `uv run scripts/warehouse_validation.py` after a dbt build).
 
 The ERD and the backup-vs-main summary are reference docs, so they live with the

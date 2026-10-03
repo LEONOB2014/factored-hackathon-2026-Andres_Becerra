@@ -20,6 +20,8 @@ with **running SQL** (`platform/dbt/`, dbt-duckdb, 42 models, `dbt build` green)
 | [11 Plan evaluation](11_plan_evaluation.md) | draft v0, scored critique, revised v1, residual weaknesses |
 | [Appendix](appendix_sources.md) | sources and glossary |
 
+> **Update (platform phase):** the dbt project now lives in `platform/dbt` with medallion schemas (silver, gold, features, graph, knowledge, privacy, serving, audit); `export_*` models were renamed (`graph_*`, `tgn_*`, `ml_kumo_*`, `kb_entity_*`) and batch marts stop at the stream cutoff (2026-05-17), so mart counts differ slightly from the figures below, which describe the full-history build. See [`docs/platform`](../platform/README.md).
+
 ## Executive summary
 
 **1. The data cannot yet support most of what a bank would want to learn from it, and the report says so precisely.**

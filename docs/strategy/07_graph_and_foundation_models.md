@@ -10,7 +10,7 @@ the neighbourhood. Graph features are also **harder to game** than single-transa
 attacker can change an amount; changing a neighbourhood is much harder.
 
 ## 7.2 The exported heterogeneous graph
-`export_graph_nodes` (619,112 nodes) and `export_graph_edges` (4,600,546 edges) are Parquet files under `data/exports/`.
+`export_graph_nodes` (619,112 nodes) and `export_graph_edges` (4,600,546 edges) are Parquet files under `data/lake/{graph,features,knowledge}/`.
 
 ```mermaid
 graph LR
@@ -49,8 +49,8 @@ can be built and tested now, and gain value the day counterparty and device data
 import json, pandas as pd, torch
 from torch_geometric.data import HeteroData
 
-nodes = pd.read_parquet("data/exports/graph_nodes.parquet")
-edges = pd.read_parquet("data/exports/graph_edges.parquet")
+nodes = pd.read_parquet("data/lake/{graph,features,knowledge}/graph_nodes.parquet")
+edges = pd.read_parquet("data/lake/{graph,features,knowledge}/graph_edges.parquet")
 data = HeteroData()
 idx = {t: dict(zip(g.node_id, g.node_idx)) for t, g in nodes.groupby("node_type")}
 for t, g in nodes.groupby("node_type"):
@@ -100,12 +100,12 @@ the question this dataset forces (labels leak; history is missing).
 ```python
 import pandas as pd, duckdb, sdm   # pip install structured-data-models  (CUDA required for KumoRelational)
 
-ent = pd.read_parquet("data/exports/kumo_relational_complaint90d.parquet")
+ent = pd.read_parquet("data/lake/{graph,features,knowledge}/kumo_relational_complaint90d.parquet")
 ctx, qry = ent[ent.split == "train"].sample(20_000, random_state=0), ent[ent.split == "test"].sample(5_000, random_state=0)
 
 def related(rows: pd.DataFrame) -> dict[str, pd.DataFrame]:
     """Point-in-time related tables: for each entity row keep only events before its cutoff."""
-    con = duckdb.connect("data/warehouse.duckdb", read_only=True)
+    con = duckdb.connect("data/lake/lakehouse.duckdb", read_only=True)
     con.register("q", rows[["customer_id", "cutoff_ts"]])
     tx = con.sql("""select t.* exclude (fraud_score, is_fraud), q.cutoff_ts
                     from intermediate.int_transactions_enriched t join q using (customer_id)

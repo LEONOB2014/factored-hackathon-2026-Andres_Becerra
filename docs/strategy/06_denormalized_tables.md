@@ -11,7 +11,7 @@ All transaction marts read one conformed fact. It repairs `amount_usd`, adds loc
 codes and **one boolean per data-quality rule**, so every consumer can filter or weight records explicitly.
 
 ```sql
--- platform/dbt/models/intermediate/int_transactions_enriched.sql (excerpt)
+-- platform/dbt/models/silver/conformed/int_transactions_enriched.sql (excerpt)
 fx as (
     select tx.*, f.usd_per_unit
     from tx
