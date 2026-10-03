@@ -17,6 +17,15 @@ never hardcoded machine paths:
 | Variable | Used by | Default |
 |---|---|---|
 | `LATAM_EDA_DATA` | `eda/` (code, scripts, tests) | `<repo>/data` |
+| `LATAM_HOST_DATA_DIR` | `platform/docker/compose.yml` (mounted as `/opt/latam/data`) | `<repo>/data` |
+
+**Running the platform stack from a worktree.** The Airflow services mount the checkout as
+`/opt/latam` and `data/` separately on top of it, because the `data` symlink of a worktree
+does not resolve inside a container. Copy `platform/docker/.env` from the main checkout
+(`cp -p`, keeps mode `600`) instead of regenerating it: the existing `latam-platform_*`
+volumes were initialised with those passwords. Then, from `platform/docker/`:
+`docker compose --profile core up -d`. The stack serves the DAGs of whichever checkout started
+it, so restart it from the checkout you are working in.
 
 **Getting it.** `eda/scripts/download_s3.py` downloads the bucket into `data/raw`
 (resumable, size-checked) with the AWS credentials from `.env`; the conversion scripts and

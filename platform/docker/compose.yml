@@ -49,7 +49,10 @@ x-airflow: &airflow
     LATAM_DUCKDB_THREADS: "4"
     TMPDIR: /opt/latam/data/tmp
   volumes:
-    - ../..:/opt/latam                       # repo (DAGs, dbt, library) + data/ lake
+    - ../..:/opt/latam                       # repo checkout: DAGs, dbt, library
+    # data/ lake mounted on its own: in a worktree, data/ is a symlink to the main checkout that
+    # does not resolve inside the container. Override with LATAM_HOST_DATA_DIR (platform/docker/.env).
+    - ${LATAM_HOST_DATA_DIR:-../../data}:/opt/latam/data
     - airflow-config:/opt/airflow/config
     - airflow-logs:/opt/airflow/logs
   networks: [net_ops, net_data, net_audit, net_ml, net_stream]
