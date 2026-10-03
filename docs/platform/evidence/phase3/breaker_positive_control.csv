@@ -1,0 +1,39 @@
+table_name,partition_date,mutation,expected,checks,held,rows_typed,rows_staging,rows_gold,as_expected
+campaign_sends,2023-07-01,,,B:empty_share:subject,False,,,,True
+campaign_sends,2023-11-19,,,B:empty_share:subject,False,,,,True
+campaign_sends,2023-12-31,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2024-01-01,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2024-01-02,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2024-01-03,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2024-01-04,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2024-01-05,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2024-01-06,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-10,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-16,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-18,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-19,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-20,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-21,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-22,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-02-23,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-10-31,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-01,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-02,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-03,,,B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-04,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-05,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-06,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-07,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-08,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-09,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-10,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-11,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-12,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2025-11-13,,,B:empty_share:subject;B:empty_share:was_opened,False,,,,True
+campaign_sends,2026-02-13,,,B:empty_share:subject,False,,,,True
+digital_events,2025-06-01,column browser dropped from the file,held: absent,A:absent:browser;B:empty_share:browser,True,9397,0,,True
+transactions,2024-12-30,transaction_type translated to Spanish,held: vocabulary,A:vocabulary:transaction_type,True,4956,0,0,True
+transactions,2025-03-13,amount written with a decimal comma,held: format,A:format:amount,True,5016,0,0,True
+transactions,2025-04-04,amount restated x1000 (unit change),held: scale,A:scale:amount,True,4254,0,0,True
+transactions,2025-05-01,5 records with a new channel 'Kiosk',"reported (B), not held",B:vocabulary:channel,False,5148,5148,5148,True
+transactions,2025-06-10,header gains column channel_v2,held: header_extra,A:header_extra:channel_v2,True,4156,0,0,True

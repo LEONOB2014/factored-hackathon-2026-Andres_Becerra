@@ -269,18 +269,24 @@ check, with the reason in the contract (`transactions.latitude` 47 %, `longitude
 45 %).
 
 ### C.4 Results (2026-10-03)
+Every number below is reproducible: the tables, the scripts that produce them (`platform/dbt/scripts/verify/`) and
+the commands are in [`evidence/phase3/`](evidence/phase3/README.md).
+
 **Parity.** The typed models reproduce typed bronze exactly: 23,413,140 rows in 15 models, same counts, same column
 types and identical order-independent hashes of every value. Built end to end (222 dbt nodes, 0 errors), the
-lakehouse from lossless bronze was compared relation by relation with one built from typed bronze by `develop`,
-in the same environment. 66 of 84 shared relations are identical. Of the other 18, 2 are the intended changes (the
-partition manifest now digests the records' landed bytes; the rule summary adds the C-rules) and 16 differ only in
-columns that **also differ between two builds of `develop` itself** (surrogate keys hashed with the snapshot time,
-floating-point sums in parallel aggregation, list order, ties in `mode()`): no change is attributable to the switch.
+lakehouse from lossless bronze was compared relation by relation with one built from typed bronze (commit
+`acac8e1`) in the same environment, and two builds of that baseline were compared with each other to measure the
+noise floor: they differ by themselves in 18 relations (surrogate keys hashed with the snapshot time,
+floating-point sums in parallel aggregation, list order, ties in `mode()`). Against the switch, 66 of 84 shared
+relations are identical and 15 of the 18 differences lie inside that noise. Of the other three, two are intended
+(the partition manifest now digests the records' landed bytes; the rule summary adds the C-rules) and one is a
+`mode()` tie the baseline pair happened not to show (`mart_customer_360.main_digital_channel`: all 2,045 differing
+customers have tied top channels). **No change is attributable to the switch.**
 
 **Findings on the real data** match the forensics of A: 1,078,689 `Mexico` variants (V2, `transactions` 0.92 %,
 `digital_events` 6.65 %), the 38,142 campaign subjects with a rendered `nan` (P, 2.25 %), and **no** grammar,
-cast, format, required, key or unknown-vocabulary breach. No partition is held. Severity B reports 46 empty-share
-shifts in `campaign_sends` (`was_opened` 29, `subject` 17). The gate passes; the only SLO breaches are the three row
+cast, format, required, key or unknown-vocabulary breach. No partition is held. Severity B reports empty-share
+shifts in 32 `campaign_sends` partitions (`was_opened`, `subject`). The gate passes; the only SLO breaches are the three row
 rules already known and not enforced in dev (R21, R25, R26).
 
 **Positive control.** Mutated copies of real partitions in a scratch lake:

@@ -21,6 +21,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [ADRs](adr/README.md) | ten architecture decisions |
 | [Runbook](runbook.md) | start, run, demo and verify |
 | [Generated dbt lineage](generated/dbt_lineage.md) | zone- and model-level lineage from the manifest |
+| [Phase 3 evidence](evidence/phase3/README.md) | parity, real-data findings and circuit-breaker control behind 09 §C, with the scripts that reproduce them |
 
 ## Repository map
 ```
