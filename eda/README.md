@@ -59,8 +59,10 @@ need pandas use a reproducible 200k-row sample; PII is profiled by shape only.
 | 03 | Silver: did conformance fix the raw findings | planned |
 | 04 | Gold: Kimball facts and dimensions reconciled with raw totals | planned |
 
-The interactive explorers in 01 need a live kernel (`uv run jupyter lab`); the HTML export
-shows the static figures only. Execution takes about a minute and ~6 GB of RAM.
+The six interactive explorers in 01 (column, cross-matrix, number by category, time, scatter,
+SQL slice) need a live kernel (`uv run jupyter lab`); the HTML export shows the other charts,
+which are interactive Plotly too. `uv run pytest -m notebooks -k explorers` drives every
+explorer through all tables and options (about 6 minutes). Execution takes about a minute and ~6 GB of RAM.
 
 Edit the `.py` source, then rebuild the `.ipynb` and HTML with
 `scripts/build_notebook.py`. Notebooks import shared code from `../src` (`../../src` in
