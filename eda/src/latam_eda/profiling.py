@@ -65,6 +65,8 @@ def kind(name: str, dtype: str) -> str:
         return "identifier"
     if dtype == "BOOLEAN":
         return "boolean"
+    if dtype == "TIME":  # time of day (branch opening hours): a handful of levels, not a timeline
+        return "categorical"
     if dtype.startswith(NUMERIC):
         return "numeric"
     if dtype.startswith(TEMPORAL):

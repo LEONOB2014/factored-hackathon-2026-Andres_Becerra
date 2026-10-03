@@ -47,6 +47,12 @@ def test_overview_separates_nulls_from_disguised_missing(con):
     assert ov.loc["customer_id", "distinct"] == 3
 
 
+def test_time_of_day_is_categorical_not_temporal():
+    assert p.kind("opening_time", "TIME") == "categorical"
+    assert p.kind("event_date", "TIMESTAMP") == "temporal"
+    assert p.kind("process_date", "DATE") == "temporal"
+
+
 def test_overview_handles_an_all_null_text_column():
     con = duckdb.connect()
     con.sql("create table e as select 1 as id, null::varchar as note")
