@@ -55,3 +55,55 @@ def register():
     )
     pio.templates.default = "latam"
     pio.renderers.default = "plotly_mimetype+notebook_connected"
+
+
+# plotly colorscales built from the same ramps (light = low; gray midpoint for correlations)
+SEQ_SCALE = [[i / len(SEQ_BLUE), c] for i, c in enumerate(["#f4f8fd", *SEQ_BLUE])]
+DIV_SCALE = [[i / (len(DIV) - 1), c] for i, c in enumerate(DIV)]
+
+
+def register_mpl():
+    """matplotlib/seaborn rcParams matching the plotly template (missingno draws with these)."""
+    import matplotlib as mpl
+    from cycler import cycler
+
+    mpl.rcParams.update(
+        {
+            "figure.facecolor": SURFACE,
+            "axes.facecolor": SURFACE,
+            "savefig.facecolor": SURFACE,
+            "axes.edgecolor": GRID,
+            "axes.labelcolor": INK2,
+            "axes.titlecolor": INK,
+            "axes.titlesize": 12,
+            "axes.titlelocation": "left",
+            "axes.grid": True,
+            "axes.axisbelow": True,
+            "axes.spines.top": False,
+            "axes.spines.right": False,
+            "axes.prop_cycle": cycler(color=CATEGORICAL),
+            "grid.color": GRID,
+            "grid.linewidth": 0.8,
+            "text.color": INK,
+            "xtick.color": INK2,
+            "ytick.color": INK2,
+            "legend.frameon": False,
+            "font.family": "sans-serif",
+            "font.sans-serif": ["Inter", "Helvetica Neue", "Arial", "DejaVu Sans"],
+            "font.size": 10,
+        }
+    )
+
+
+def cmap_seq():
+    """Sequential blue matplotlib colormap (light = low) for counts and rates."""
+    from matplotlib.colors import LinearSegmentedColormap
+
+    return LinearSegmentedColormap.from_list("latam_seq", ["#f4f8fd", *SEQ_BLUE])
+
+
+def cmap_div():
+    """Diverging blue <-> red matplotlib colormap with a gray midpoint, for correlations."""
+    from matplotlib.colors import LinearSegmentedColormap
+
+    return LinearSegmentedColormap.from_list("latam_div", DIV)
