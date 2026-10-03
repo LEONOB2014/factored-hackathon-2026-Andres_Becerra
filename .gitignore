@@ -85,3 +85,10 @@ data_engineering/dbt/dbt_packages/
 *.bak
 *.tmp
 scratch/
+
+# dbt (platform/dbt)
+platform/dbt/target/
+platform/dbt/logs/
+platform/dbt/dbt_packages/
+platform/dbt/.user.yml
+!platform/dbt/seeds/*.csv
