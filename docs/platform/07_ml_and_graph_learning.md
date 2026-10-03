@@ -16,13 +16,13 @@ flowchart LR
   CH --> SC[stream scorer loads @champion]
 ```
 
-Measured on the lakehouse (sample of 150k training rows, out-of-time test):
+Measured by the Airflow run (200k training rows, out-of-time valid/test; MLflow experiment `fraud_ensemble`, version 1):
 
 | check | result |
 |---|---|
 | detector CI recall at 2 % budget: amount spike, velocity burst, geo-impossible, dormant reactivation, foreign night burst | 1.00 each (floors 0.5–0.8) |
-| AUC against `is_fraud` (out of time) | 0.48, base rate 0.08 % |
-| decisions on test | 99.0 % approve, 1.0 % step-up, 0.01 % decline |
+| AUC against `is_fraud` (out of time) | valid 0.49, test 0.54; base rate 0.09 % |
+| decisions on test | 99.4 % approve, 0.6 % step-up, 0.01 % decline |
 
 The label result is the expected and honest one: `is_fraud` encodes the legacy score, so no behavioural model
 can learn it. The ensemble is therefore promoted on detector CI and capacity, and the model card says so.

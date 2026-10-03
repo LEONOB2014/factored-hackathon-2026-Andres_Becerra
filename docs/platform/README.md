@@ -35,9 +35,29 @@ platform/
 knowledge/                 governed KB documents
 ```
 
-## What was verified on the running stack
-* Raw layer: 13 tables reconcile with the landing files (0 rejected, 0 lost); rebuilding rewrites no partition.
-* Audit: writer cannot update/delete/truncate; owner blocked by triggers; superuser bypass detected by chain
-  verification; WORM objects cannot be deleted or have retention shortened, even by root.
-* 26 library tests (PII guard, ledger, crypto-shredding, GenAI audit, DP budget, KB governance) and 19 DAG
-  integrity tests pass; dbt build green with governance tests; Terraform validates and tflint is clean.
+## What was verified on the running stack (end-to-end Airflow run, 2026-10-03)
+| step | result |
+|---|---|
+| landing → bronze (Airflow) | 12,505 files fingerprinted; 13 tables reconcile (0 rejected, 0 lost); manifests sealed in object-locked MinIO |
+| dbt lakehouse (Cosmos, 90+ tasks) | all layers green; data-quality gate and governance gate passed |
+| serving publication | 7 tables swapped into Postgres with digests (e.g. customer_360 150,000 rows; recent_transactions 4.28 M) |
+| knowledge base | 9 approved documents active and reconciled across registry, pgvector and Neo4j; draft, superseded, retired and expired versions never indexed |
+| graph | 14k nodes / 93k edges for the 2 % demo sample in Neo4j |
+| regulatory triggers | 10,634 events (consent, complaint SLA at risk, AML typologies) |
+| monitoring | PSI ≤ 0.02 on every monitored feature; disparate-impact ratio of the eligibility policy 0.86 (threshold 0.8) |
+| fraud model | registered in MLflow with lineage tags; detector CI recall 1.0 on all 5 types; label AUC 0.49 / 0.54 (no signal, as expected); **waiting for model-risk approval** |
+| stream demo | 38,149 events replayed in 135 s; **Flink vs dbt parity: 0 mismatches on all 5 features for 7,789 transactions** |
+| audit | every step in the hash-chained ledger; `verify_chain` reports 0 problems; anchors in WORM |
+| tests | 26 library tests, 19 DAG integrity tests, dbt tests incl. governance; Terraform validate + tflint clean |
+
+## Problems the end-to-end run surfaced (and how they were fixed)
+| problem | root cause | fix |
+|---|---|---|
+| bronze tasks killed (SIGKILL) | whole-table staging in RAM inside a 4 GB scheduler | month-by-month build in a file-backed DuckDB (peak ~0.5 GB) |
+| scheduler at 3.7 GB while idle | LocalExecutor pre-forks one ~220 MB worker per `parallelism` slot (default 32) | `parallelism = 4` |
+| dbt in Cosmos could not find bronze | Cosmos runs dbt from a temp copy; relative lake paths broke | operators inherit the container env (`append_env`), absolute `LATAM_LAKE_DIR` |
+| inquiry mart out of memory | ordered list aggregate over 4.3 M rows does not spill | normalized `serving_recent_transactions` (rank 1–20 per product) |
+| Flink job restarting | JobManager checkpoint storage caps state at 5 MB | filesystem checkpoints on a shared volume |
+| last streamed windows never emitted | idle source after a finite replay holds the watermark | one warm-up sentinel per partition flushes the watermark |
+| 1,865 parity mismatches on `tx_count_7d` | the planner merged windows with the same PARTITION BY/ORDER BY and compiled 7 days as 24 h | distinct equivalent partition keys per window; EXPLAIN shows 3 frames |
+| outbound telemetry from Cosmos | default usage metrics to an external endpoint | disabled (`AIRFLOW__COSMOS__ENABLE_TELEMETRY=False`, `DO_NOT_TRACK=1`) |
