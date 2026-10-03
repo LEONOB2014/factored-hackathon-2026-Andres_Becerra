@@ -10,6 +10,7 @@ build/
 # Environment
 .env
 .env.local
+CLAUDE.local.md
 
 # IDEs
 .vscode/
@@ -25,11 +26,9 @@ Thumbs.db
 # Docker
 docker-compose.override.yml
 
-# Data (don't commit raw data to Git)
-data/raw/
-data/bronze/
-data/silver/
-data/gold/
+# Data never enters git. One shared data/ lives in the main checkout; worktrees
+# symlink to it, so the pattern has no trailing slash (it must match the link too).
+/data
 *.csv
 *.parquet
 !data_engineering/dbt/seeds/*.csv
