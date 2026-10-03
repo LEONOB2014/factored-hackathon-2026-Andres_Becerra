@@ -151,6 +151,7 @@ ignore = [
 # Platform code: long SQL in f-strings, CLI prints, typing-only imports kept at runtime.
 "platform/**" = ["B905", "E501", "S608", "T201", "TC001", "TC002", "TC003"]
 "platform/libs/latam_platform/audit_ledger.py" = ["S107"]  # the default is an environment variable name, not a password
+"platform/libs/latam_platform/kb_pipeline.py" = ["DTZ011"]
 "platform/libs/latam_platform/privacy.py" = ["N818"]  # public exception name kept for API stability
 "platform/libs/tests/test_audit_and_genai.py" = ["S106"]  # test-only tokens
 "platform/libs/tests/test_privacy.py" = ["SIM117"]
