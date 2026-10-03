@@ -136,7 +136,7 @@ make db-init
 
 ```bash
 make eda-setup                                 # eda/ has its own uv environment
-export LATAM_EDA_DATA=/path/to/data            # or download into eda/data/ (see eda/README.md)
+export LATAM_EDA_DATA=/path/to/data            # or keep the dataset in data/ (see eda/README.md)
 make eda-test                                  # tests that need no dataset (what CI runs)
 make eda-test-data                             # findings recomputed from the real data
 make eda-test-notebooks                        # re-run all 11 notebooks (~6 min)

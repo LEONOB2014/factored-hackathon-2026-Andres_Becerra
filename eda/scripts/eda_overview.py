@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Initial EDA of the LATAM Bank dataset (data/raw/data).
+Initial EDA of the LATAM Bank dataset (<repo>/data/raw/data).
 
-1. Converts the CSVs (12k daily files) to typed Parquet in data/parquet/ (cached;
+1. Converts the CSVs (12k daily files) to typed Parquet in <repo>/data/parquet/ (cached;
    use --rebuild to redo). Later analyses should read the Parquet files.
 2. Profiles every table with DuckDB: rows, date range, nulls, duplicates,
    orphan foreign keys, category distributions.

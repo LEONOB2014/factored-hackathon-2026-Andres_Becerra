@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Convert data/raw/data_backup_20260831 CSVs to Parquet in data/parquet_backup/."""
+"""Convert <repo>/data/raw/data_backup_20260831 CSVs to Parquet in <repo>/data/parquet_backup/."""
 
 import os
 from pathlib import Path

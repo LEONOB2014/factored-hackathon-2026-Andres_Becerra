@@ -1,7 +1,7 @@
 """Against the real dataset: schemas, the committed findings, and full script runs.
 
 Every test here is marked `data` and skipped when the dataset is absent (CI).
-Point LATAM_EDA_DATA at a copy, or place it under eda/data/.
+Point LATAM_EDA_DATA at a copy, or place it in the repository-level data/.
 """
 
 import json

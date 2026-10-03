@@ -144,7 +144,7 @@ fig.show()
 # %% [markdown]
 # ## 2 · H1b — row-level offsets for rows that share a key
 # For every key present in both folders we compute `offset = backup_date − main_date` (days of `process_date`
-# and seconds of the event timestamp). Results are cached in `data/derived/` for later notebooks.
+# and seconds of the event timestamp). Results are cached in the repository's `data/derived/` for later notebooks.
 
 # %%
 offsets = {}
