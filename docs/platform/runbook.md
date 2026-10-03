@@ -56,7 +56,12 @@ Tamper demonstrations (safe on the local stack): see [04 §4.1](04_audit_and_lin
 recreate the audit volume (`docker compose rm -sf pg-audit && docker volume rm latam-platform_pg-audit-data`)
 because a detected tamper stays in the chain by design.
 
-## 6 · Memory notes (8 GB Docker allocation)
+## 6 · Host and container share one lakehouse file
+When Airflow builds dbt, silver views store the container path (`/opt/latam/data/lake/...`). Query tables from the
+host, or rebuild locally (`cd platform/dbt && DBT_PROFILES_DIR=. uv run dbt build`) before using views; never run host
+dbt while an Airflow dbt run is active (DuckDB has a single writer).
+
+## 7 · Memory notes (8 GB Docker allocation)
 Tasks run inside the scheduler (LocalExecutor, 4 GB limit). DuckDB is capped at 1.5 GB per task and every heavy
 DuckDB task shares the one-slot `duckdb_lakehouse` pool; the bronze build processes one month of files at a time
 in a file-backed database. Start the stream profile without the obs profile if memory is tight.

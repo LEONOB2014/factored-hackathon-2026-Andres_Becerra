@@ -1,4 +1,4 @@
-"""dbt lakehouse build with Cosmos: silver -> gold -> features/graph/knowledge -> privacy/serving -> audit.
+"""dbt lakehouse build with Cosmos: seeds -> silver -> snapshots -> gold -> features/graph/knowledge -> privacy/serving -> audit.
 
 Each layer is a Cosmos task group (one Airflow task per model, tests after each group), so lineage, retries and
 failures are visible per model; Cosmos emits OpenLineage events to Marquez. All tasks share the single-writer
@@ -35,9 +35,10 @@ PROFILE = ProfileConfig(
     profile_name="latam_bank", target_name="dev", profiles_yml_filepath=f"{DBT_DIR}/profiles.yml"
 )
 EXECUTION = ExecutionConfig(dbt_executable_path=DBT_BIN)
-LAYERS = {
-    "seeds_snapshots": ["resource_type:seed", "resource_type:snapshot"],
+LAYERS = {  # order matters: snapshots read freshly built silver views
+    "seeds": ["resource_type:seed"],
     "silver": ["path:models/silver"],
+    "snapshots": ["resource_type:snapshot"],
     "gold": ["path:models/gold"],
     "features_graph_knowledge": [
         "path:models/features",
@@ -58,7 +59,9 @@ def layer(group_id: str, select: list[str]) -> DbtTaskGroup:
         render_config=RenderConfig(
             load_method=LoadMode.DBT_MANIFEST, select=select, test_behavior=TestBehavior.AFTER_ALL
         ),
-        operator_args={"pool": DUCKDB_POOL, "full_refresh": False},
+        # append_env: Cosmos runs dbt from a temp copy of the project, so it must inherit the container's
+        # absolute LATAM_LAKE_DIR / LATAM_DUCKDB_PATH instead of resolving relative paths from the copy.
+        operator_args={"pool": DUCKDB_POOL, "full_refresh": False, "append_env": True},
         default_args={"retries": 1},
     )
 
