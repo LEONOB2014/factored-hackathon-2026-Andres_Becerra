@@ -1,0 +1,4 @@
+rule_id,severity,table_name,rule_description,violations,table_rows,rate_pct,baseline_rate_pct,max_rate_pct,slo_breached
+C04,C,digital_events,Variant spelling of a vocabulary value (e.g. Mexico for México),1038174,15620994,6.646,6.65,7.31,False
+C04,C,transactions,Variant spelling of a vocabulary value (e.g. Mexico for México),40515,4425008,0.916,0.92,1.01,False
+C06,B,campaign_sends,Null rendered into free text (nan / None),38142,1697343,2.247,2.25,2.47,False
