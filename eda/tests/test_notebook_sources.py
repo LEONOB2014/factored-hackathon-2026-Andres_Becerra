@@ -108,3 +108,31 @@ def test_executed_notebook_matches_its_source(src):
     for cell, ref in zip(nb.cells, built, strict=True):
         if cell.cell_type == "markdown":
             assert cell.source == ref.source
+
+
+# The medallion re-analysis (raw -> bronze -> silver -> gold) is its own series in a subfolder,
+# one level deeper, so its notebooks reach the shared code through ../../src.
+MEDALLION = sorted((NOTEBOOKS / "medallion").glob("[0-9][0-9]_*.py"))
+
+
+def test_medallion_series_is_numbered_from_01_without_gaps():
+    assert MEDALLION
+    assert [number(p) for p in MEDALLION] == list(range(1, len(MEDALLION) + 1))
+
+
+@pytest.mark.parametrize("src", MEDALLION, ids=lambda p: p.stem)
+def test_medallion_notebook_is_well_formed(src):
+    text = src.read_text()
+    cells = build_notebook.parse(text)
+    assert cells[0].cell_type == "markdown"
+    assert cells[0].source.startswith(f"# {src.name[:2]} · ")
+    for cell in cells:
+        if cell.cell_type == "code":
+            ast.parse(cell.source)
+    assert text.index('sys.path.insert(0, "../../src")') < text.index("from latam_eda")
+    assert not re.search(r"/Users/|/home/|[A-Z]:\\\\", text)
+
+
+@pytest.mark.parametrize("src", MEDALLION, ids=lambda p: p.stem)
+def test_medallion_executed_notebook_matches_its_source(src):
+    test_executed_notebook_matches_its_source(src)

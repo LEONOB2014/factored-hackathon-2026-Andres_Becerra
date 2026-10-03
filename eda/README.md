@@ -12,8 +12,9 @@ duckdb) stay out of the app and CI installs.
 
 | Path | Contents | In git |
 |---|---|---|
-| `src/latam_eda/` | Shared code: DuckDB loader, chart theme, anomaly features | yes |
+| `src/latam_eda/` | Shared code: DuckDB loader, chart theme, table profiling, anomaly features | yes |
 | `notebooks/` | Numbered notebook series; `# %%` `.py` sources plus executed `.ipynb` | yes |
+| `notebooks/medallion/` | Medallion re-analysis series (raw → bronze → silver → gold) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
 | `reports/notebooks/` | HTML export of each notebook | yes |
@@ -35,7 +36,8 @@ data dictionary in [`docs/dataset/`](../docs/dataset/).
 
 ## Notebook series
 
-Keep one flat, numbered series; the number range shows the topic.
+Two numbered series, each without gaps. The main-vs-backup study is the flat series in
+`notebooks/`; the number range shows the topic.
 
 | Range | Topic |
 |---|---|
@@ -44,8 +46,27 @@ Keep one flat, numbered series; the number range shows the topic.
 | 07–10 | Anomaly detection: classical, ML, deep and supervised, method consensus |
 | 11 | Evaluation and final report |
 
+### Medallion re-analysis (`notebooks/medallion/`)
+
+The data followed through the platform's layers, one notebook per layer, each judged
+against the one before. Exact statistics come from DuckDB over the full tables; views that
+need pandas use a reproducible 200k-row sample; PII is profiled by shape only.
+
+| # | Layer | Status |
+|---|---|---|
+| 01 | Raw: complete profile of the 13 Parquet tables (types, nulls vs disguised missing, distributions, associations, time, referential integrity, banking views, ipywidgets explorers, findings) | done |
+| 02 | Bronze: what ingestion changed | planned |
+| 03 | Silver: did conformance fix the raw findings | planned |
+| 04 | Gold: Kimball facts and dimensions reconciled with raw totals | planned |
+
+The six interactive explorers in 01 (column, cross-matrix, number by category, time, scatter,
+SQL slice) need a live kernel (`uv run jupyter lab`); the HTML export shows the other charts,
+which are interactive Plotly too. `uv run pytest -m notebooks -k explorers` drives every
+explorer through all tables and options (about 6 minutes). Execution takes about a minute and ~6 GB of RAM.
+
 Edit the `.py` source, then rebuild the `.ipynb` and HTML with
-`scripts/build_notebook.py`. Notebooks import shared code from `../src`.
+`scripts/build_notebook.py`. Notebooks import shared code from `../src` (`../../src` in
+`medallion/`).
 
 ## Reproduce
 
@@ -57,6 +78,8 @@ uv run scripts/download_s3.py                 # AWS credentials in eda/.env (git
 uv run scripts/eda_overview.py                # CSV → data/parquet + reports/eda_overview.md
 uv run scripts/build_backup_parquet.py        # data/parquet_backup
 uv run scripts/build_notebook.py notebooks/03_time_shift_diagnostics.py --execute
+uv run scripts/build_notebook.py notebooks/medallion/01_raw_tables_profile.py --execute \
+    --html-dir "$PWD/reports/notebooks/medallion"   # absolute: the build runs from the notebook folder
 uv run scripts/export_dashboard_data.py       # after notebooks 02–10
 uv run scripts/generate_erd.py                # writes docs/dataset/erd.md
 ```
