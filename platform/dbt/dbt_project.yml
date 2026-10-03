@@ -1,0 +1,84 @@
+name: latam_lakehouse
+version: "0.2.0"
+config-version: 2
+profile: latam_bank
+
+model-paths: ["models"]
+macro-paths: ["macros"]
+seed-paths: ["seeds"]
+snapshot-paths: ["snapshots"]
+test-paths: ["tests"]
+target-path: "target"
+clean-targets: ["target", "logs"]
+
+vars:
+  # Demo data split (single source of truth also in platform/libs/latam_platform/config.py).
+  # Facts with process_date >= stream_cutoff live in the holdout zone and are replayed as a stream.
+  stream_cutoff: "2026-05-18"
+  # Last business date delivered by the source (used by audit rules such as "timestamp after data end").
+  data_end: "2026-06-17"
+  # Reference "now" for batch windows = last day of the historical zone. Airflow overrides it per run.
+  as_of_date: "2026-05-17"
+  # Fraud model out-of-time split with a 7-day embargo before each boundary.
+  fraud_train_end: "2025-07-01"
+  fraud_valid_end: "2026-01-01"
+  embargo_days: 7
+  dormancy_days: 90
+
+# Governance defaults. Every model inherits owner, data class, residency and retention; folders
+# narrow them. platform/libs/latam_platform/governance checks the manifest against policies/*.yaml.
+models:
+  latam_lakehouse:
+    +materialized: table
+    +meta:
+      owner: data-platform
+      residency: customer_country        # rows stay in the region allowed for the customer's country
+      retention_days: 3650
+    silver:
+      +schema: silver
+      +meta: {data_class: confidential, zone: silver}
+      staging:
+        +materialized: view
+        +meta: {data_class: restricted_pii}
+      conformed:
+        +meta: {data_class: confidential}
+    gold:
+      +schema: gold
+      +meta: {data_class: confidential, zone: gold}
+    features:
+      +schema: features
+      +group: ml
+      +meta: {data_class: confidential, zone: features, pit_required: true}
+    graph:
+      +schema: graph
+      +group: ml
+      +meta: {data_class: confidential, zone: graph}
+    knowledge:
+      +schema: knowledge
+      +group: platform
+      +meta: {data_class: internal, zone: knowledge}
+    privacy:
+      +schema: privacy
+      +group: platform
+      +meta: {data_class: confidential, zone: privacy}
+    serving:
+      +schema: serving
+      +group: platform
+      +access: public
+      +meta: {data_class: confidential, zone: serving}
+    audit:
+      +schema: audit
+      +group: platform
+      +meta: {data_class: confidential, zone: audit, retention_days: 3650}
+
+seeds:
+  latam_lakehouse:
+    +schema: reference
+
+snapshots:
+  latam_lakehouse:
+    +target_schema: snapshots
+
+data_tests:
+  latam_lakehouse:
+    +store_failures: false

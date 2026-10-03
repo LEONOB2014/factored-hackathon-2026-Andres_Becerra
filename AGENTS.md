@@ -135,7 +135,7 @@ and published as a GitHub release. Full procedure: [releasing](docs/development/
 - Data never enters git: raw downloads, Parquet, DuckDB files, lake zones, model caches.
 - One shared `data/` lives in the main checkout; worktrees symlink to it.
 - Code finds it through environment variables, never hardcoded paths: `LATAM_EDA_DATA`
-  for the EDA (default `eda/data` today; moving to `<repo>/data` with the data platform).
+  for the EDA. Defaults resolve to `<repo>/data`.
 - Large generated artefacts are reproducible from scripts; document the command that
   regenerates anything you add. Details: [data and secrets](docs/development/data-and-secrets.md).
 

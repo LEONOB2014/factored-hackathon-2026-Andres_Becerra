@@ -1,0 +1,2 @@
+model,train_rows,test_rows,test_auc_weighted,test_ap_weighted,test_base_rate
+HistGBT on PIT behavioural features (no fraud_score),32954,7559,0.5044375115032466,0.000859730984469889,0.0008661266900602267

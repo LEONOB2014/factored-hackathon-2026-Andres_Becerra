@@ -1,0 +1,27 @@
+rule_id,severity,table_name,description,baseline_rate_pct,max_rate_pct,enforce_in_dev
+R01,A,transactions,Transaction dated before the product was opened,18.70,20.00,true
+R02,A,products,Product opened before the customer registered,49.90,52.00,true
+R03,A,transactions,Approved transaction without a response code,4.60,5.11,true
+R04,A,transactions,Transaction currency differs from the product currency,0.00,0.00,true
+R05,B,customers,Customer under 18 at registration,2.07,2.50,true
+R06,B,customers,last_updated later than the end of the data,6.21,7.00,true
+R07,B,products,last_updated later than the end of the data,6.28,7.00,true
+R08,B,products,credit_limit present on a deposit/investment/insurance product (v2: loans and credit cards may carry a limit),0.00,0.00,true
+R09,B,products,days_past_due present on a deposit/investment/insurance product (v2: loans and credit cards may be past due),0.00,0.00,true
+R10,B,transactions,Branch-channel transaction without branch_id,0.15,0.21,true
+R11,B,complaints,Resolved/closed case without a resolution date,1.15,1.32,true
+R12,B,complaints,Claimed amount without a currency,1.55,1.76,true
+R13,B,complaints,SLA breached although resolved in 5 days or less,0.76,0.88,true
+R15,C,call_center_interactions,Timestamp minus 6 h does not reproduce process_date (UTC-6 convention),8.30,9.00,true
+R16,C,complaints,Timestamp minus 6 h does not reproduce process_date (UTC-6 convention),8.44,9.00,true
+R17,C,transactions,USD label on a transaction of a Mexican customer (no MXN exists),50.09,55.15,true
+R18,C,transactions,amount_usd missing although currency is not USD,2.25,2.52,true
+R19,C,transactions,ATM/POS transaction without coordinates,46.48,51.18,true
+R20,C,digital_events,Event without a customer id,23.98,25.00,true
+R21,A,campaign_sends,Campaign send to a customer who does not accept marketing (current flag),50.06,0.00,false
+R22,B,products,Card active after its expiration date,14.17,15.63,true
+R23,B,customers,registration_branch_id does not exist in branches,100.00,100.00,true
+R24,B,service_agents,assigned_branch_id does not exist in branches,69.25,100.00,true
+R25,A,complaints,affected_product_id belongs to a different customer than the complainant (semantic FK),66.43,0.00,false
+R26,A,digital_events,product_id belongs to a different customer than the event (semantic FK),7.00,0.00,false
+R27,C,call_transcripts,Transcript contains unrendered template placeholders such as {monto},100.00,100.00,true

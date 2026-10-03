@@ -1,0 +1,23 @@
+_format_version: "3.0"
+# Declarative gateway: the only path from outside to application services. Key auth, rate limiting,
+# request ids (propagated to logs and audit records) and a size limit. Agent APIs will be added here.
+services:
+  - name: fraud-scorer
+    url: http://fraud-scorer:8080
+    routes:
+      - name: score
+        paths: [/fraud]
+        strip_path: true
+    plugins:
+      - name: key-auth
+        config: {key_names: [x-api-key], hide_credentials: true}
+      - name: rate-limiting
+        config: {minute: 600, policy: local}
+      - name: correlation-id
+        config: {header_name: x-request-id, generator: uuid, echo_downstream: true}
+      - name: request-size-limiting
+        config: {allowed_payload_size: 1}
+consumers:
+  - username: demo-client
+    keyauth_credentials:
+      - key: "{vault://env/scorer-api-key}"

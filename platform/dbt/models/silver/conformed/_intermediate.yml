@@ -1,0 +1,42 @@
+version: 2
+
+models:
+  - name: int_fx_usd
+    description: "USD per unit of currency per day (USD = 1)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [rate_date, currency]}}
+
+  - name: int_transactions_enriched
+    description: >
+      Conformed transaction fact. `amount_usd` is repaired (USD rows carry no amount_usd in the source;
+      5 % of non-USD rows have it missing and are recomputed from the daily rate). Mexican transactions keep
+      the USD label: their magnitudes are USD-scale, so relabelling them MXN would inflate them ~17x.
+      `direction` is an assumption (the source has no counterparty or sign).
+    config: {meta: {grain: transaction_id, pit_safe: true}}
+    columns:
+      - name: transaction_id
+        data_tests: [unique, not_null]
+      - name: amount_usd
+        data_tests:
+          - not_null
+      - name: fraud_score
+        description: "Legacy score. Deterministically implies the label (score >= 35 -> fraud). NEVER use as a feature."
+
+  - name: int_products_enriched
+    config: {meta: {grain: product_id, pit_safe: false}}
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+
+  - name: int_customer_profile
+    description: "Pseudonymized customer profile (tokens instead of direct identifiers)."
+    config: {meta: {grain: customer_id, pit_safe: false}}
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: monthly_income_usd
+        description: "Income is stored in the home currency (MXN for Mexico, although Mexican accounts are USD)."
+
+  - name: int_customer_fairness_attributes
+    description: "Protected/proxy attributes for bias measurement only. Never join into a feature table."
+    config: {meta: {grain: customer_id, access: model_risk_only}}

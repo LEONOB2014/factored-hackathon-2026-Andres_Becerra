@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: dq_integrity_findings
+    description: "Row-level findings for every data-quality rule (long format)."
+
+  - name: dq_rule_summary
+    description: "Violation rate per rule vs its SLO (seed dq_rule_slo)."
+    columns:
+      - name: rule_id
+        data_tests: [unique, not_null]
+    data_tests:
+      - dq_slo_breach:
+          name: dq_slo_breach_severity_a
+          arguments: {severities: [A]}
+          config: {severity: error}
+      - dq_slo_breach:
+          name: dq_slo_breach_severity_bc
+          arguments: {severities: [B, C]}
+          config: {severity: warn}
+      - dq_slo_breach:
+          name: dq_slo_breach_not_enforced_in_dev
+          arguments: {severities: [A, B, C], enforced_only: false}
+          config: {severity: warn}
+
+  - name: audit_partition_manifest
+    description: "Per-partition row counts, MD5 digests and a cumulative chain digest (tamper evidence)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [table_name, process_date]}}
+
+  - name: audit_backup_reconciliation
+    description: >
+      Key overlap and record identity between main and the backup folder. A valid backup has
+      only_main = only_backup = shared_changed = 0. The test below is expected to warn on this dataset.
+    data_tests:
+      - backup_is_faithful:
+          config: {severity: warn}

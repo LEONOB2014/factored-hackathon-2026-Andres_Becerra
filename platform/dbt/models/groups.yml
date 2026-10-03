@@ -1,0 +1,13 @@
+version: 2
+
+groups:
+  - name: platform
+    owner: {name: Data Platform, email: data-platform@latambank.example}
+  - name: risk
+    owner: {name: Risk Analytics (fraud, AML, credit), email: risk-analytics@latambank.example}
+  - name: cx
+    owner: {name: Customer Experience Analytics, email: cx-analytics@latambank.example}
+  - name: marketing
+    owner: {name: Marketing Analytics, email: marketing-analytics@latambank.example}
+  - name: ml
+    owner: {name: ML Engineering, email: ml-engineering@latambank.example}

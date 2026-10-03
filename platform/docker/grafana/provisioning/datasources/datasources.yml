@@ -1,0 +1,12 @@
+apiVersion: 1
+datasources:
+  - name: Prometheus
+    type: prometheus
+    url: http://prometheus:9090
+    isDefault: true
+  - name: bank_serving
+    type: postgres
+    url: pg-core:5432
+    user: app_reader
+    jsonData: {database: bank_serving, sslmode: disable}
+    secureJsonData: {password: "$APP_READER_DB_PASSWORD"}

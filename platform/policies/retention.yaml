@@ -1,0 +1,18 @@
+# Retention per record class. Periods are PLACEHOLDERS to be confirmed per country by compliance/legal.
+version: 1
+record_classes:
+  landing_raw:            {retention_days: 3650, storage: worm, action_at_expiry: legal_review_then_delete}
+  bronze:                 {retention_days: 3650, storage: worm, action_at_expiry: legal_review_then_delete}
+  transactions_ledger:    {retention_days: 3650, action_at_expiry: archive}
+  aml_alerts_and_cases:   {retention_days: 3650, action_at_expiry: archive}
+  complaints:             {retention_days: 1825, action_at_expiry: archive}
+  marketing_sends:        {retention_days: 730, action_at_expiry: delete}
+  digital_events:         {retention_days: 730, action_at_expiry: aggregate_then_delete}
+  genai_logs:             {retention_days: 1825, storage: worm, pii: crypto_shredded, action_at_expiry: archive}
+  audit_ledger:           {retention_days: 3650, storage: worm, action_at_expiry: never_without_legal}
+  kb_document_versions:   {retention_days: 3650, action_at_expiry: archive}
+  model_artifacts:        {retention_days: 3650, action_at_expiry: archive}
+erasure:
+  method: crypto_shredding        # destroy per-subject keys; immutable stores stay verifiable
+  propagate_to: [silver, gold, features, graph, serving, knowledge_vectors, neo4j]
+  exceptions: [aml_alerts_and_cases, transactions_ledger]   # legal hold overrides erasure (verify per country)

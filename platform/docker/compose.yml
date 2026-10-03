@@ -1,0 +1,347 @@
+# LATAM Bank data platform: local demo stack.
+#
+#   cd platform/docker && python bootstrap_env.py          # once: random secrets into .env (git-ignored)
+#   docker compose --profile core up -d                    # Postgres x2, MinIO (WORM), Airflow 3
+#   docker compose --profile graph --profile ml up -d      # + Neo4j, MLflow
+#   docker compose --profile stream up -d                  # + Redpanda, Flink, fraud scorer, Kong
+#   docker compose --profile obs up -d                     # + Marquez lineage, Prometheus, Grafana
+#
+# Compartments are separate Docker networks. `internal: true` networks have no route outside the host
+# network namespace; only UIs are published, and only on 127.0.0.1. The audit database is reachable
+# exclusively on net_audit. In GCP the same boundaries become VPC subnets + VPC Service Controls.
+name: latam-platform
+
+x-airflow: &airflow
+  build: {context: ./airflow}
+  image: latam/airflow:3.1.0
+  profiles: [core]
+  env_file: .env
+  environment: &airflow-env
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__PARALLELISM: "4"           # LocalExecutor pre-forks one ~220 MB worker per slot (default 32)
+    AIRFLOW__CORE__MAX_ACTIVE_TASKS_PER_DAG: "4"
+    AIRFLOW__COSMOS__ENABLE_TELEMETRY: "False"  # no outbound usage telemetry from a bank platform
+    DO_NOT_TRACK: "1"
+    SCARF_ANALYTICS: "false"
+    AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:${AIRFLOW_DB_PASSWORD}@pg-core:5432/airflow
+    AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+    AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: "true"
+    AIRFLOW__CORE__EXECUTION_API_SERVER_URL: http://airflow-apiserver:8080/execution/
+    AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
+    AIRFLOW__API__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
+    AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin,auditor:viewer"
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/config/simple_auth_passwords.json
+    AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "30"
+    AIRFLOW__CORE__DAGS_FOLDER: /opt/latam/platform/airflow/dags
+    AIRFLOW__CORE__PLUGINS_FOLDER: /opt/latam/platform/airflow/plugins
+    AIRFLOW__OPENLINEAGE__NAMESPACE: latam-bank-local
+    AIRFLOW__OPENLINEAGE__TRANSPORT: '{"type": "http", "url": "http://marquez:5000", "endpoint": "api/v1/lineage"}'
+    PYTHONPATH: /opt/latam/platform/airflow/include
+    LATAM_PG_CORE_HOST: pg-core
+    LATAM_PG_AUDIT_HOST: pg-audit
+    LATAM_S3_ENDPOINT: http://minio:9000
+    LATAM_NEO4J_URI: bolt://neo4j:7687
+    LATAM_MLFLOW_URI: http://mlflow:5000
+    LATAM_KAFKA_BOOTSTRAP: redpanda:9092
+    LATAM_FLINK_REST: http://flink-jobmanager:8081
+    LATAM_DUCKDB_MEMORY: 2560MB
+    LATAM_DUCKDB_THREADS: "4"
+    TMPDIR: /opt/latam/data/tmp
+  volumes:
+    - ../..:/opt/latam                       # repo (DAGs, dbt, library) + data/ lake
+    - airflow-config:/opt/airflow/config
+    - airflow-logs:/opt/airflow/logs
+  networks: [net_ops, net_data, net_audit, net_ml, net_stream]
+  depends_on:
+    pg-core: {condition: service_healthy}
+
+services:
+  # ----------------------------------------------------------------------------- core: stores
+  pg-core:
+    image: pgvector/pgvector:pg16
+    profiles: [core]
+    env_file: .env
+    environment:
+      POSTGRES_PASSWORD: ${PG_CORE_SUPERUSER_PASSWORD}
+    volumes:
+      - pg-core-data:/var/lib/postgresql/data
+      - ./postgres-core:/docker-entrypoint-initdb.d:ro
+    ports: ["127.0.0.1:5433:5432"]
+    networks: [net_data, net_ops]
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U postgres"], interval: 5s, retries: 20}
+    command: ["postgres", "-c", "shared_buffers=256MB", "-c", "log_statement=ddl", "-c", "log_connections=on"]
+    deploy: {resources: {limits: {memory: 768m}}}
+
+  pg-audit:
+    image: postgres:16
+    profiles: [core]
+    env_file: .env
+    environment:
+      POSTGRES_PASSWORD: ${PG_AUDIT_SUPERUSER_PASSWORD}
+    volumes:
+      - pg-audit-data:/var/lib/postgresql/data
+      - ./postgres-audit:/docker-entrypoint-initdb.d:ro
+    networks: [net_audit]                    # no published port: reachable only from the audit network
+    healthcheck: {test: ["CMD-SHELL", "pg_isready -U postgres"], interval: 5s, retries: 20}
+    command: ["postgres", "-c", "shared_buffers=128MB", "-c", "log_statement=all", "-c", "log_connections=on"]
+    deploy: {resources: {limits: {memory: 384m}}}
+
+  minio:
+    # MinIO's own images are no longer public (2025); Chainguard's signed, daily-rebuilt build is used.
+    image: cgr.dev/chainguard/minio:latest
+    profiles: [core]
+    env_file: .env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes: [minio-data:/data]
+    ports: ["127.0.0.1:9001:9001"]
+    networks: [net_data, net_ml, net_ops]
+    deploy: {resources: {limits: {memory: 384m}}}
+
+  minio-init:                                # buckets with object lock (WORM) + least-privilege users
+    image: bitnamilegacy/minio-client:latest
+    profiles: [core]
+    env_file: .env
+    depends_on: [minio]
+    networks: [net_data]
+    volumes: [./minio:/init:ro]
+    entrypoint: ["/bin/sh", "/init/init.sh"]
+    restart: on-failure
+
+  # ----------------------------------------------------------------------------- core: Airflow 3
+  airflow-init:
+    <<: *airflow
+    command:
+      - bash
+      - -c
+      - |
+        airflow db migrate &&
+        airflow pools set duckdb_lakehouse 1 "DuckDB lakehouse has a single writer" &&
+        airflow pools set neo4j_writer 2 "Neo4j write concurrency" &&
+        cd /opt/latam/platform/dbt && /opt/airflow/dbt-venv/bin/dbt deps --quiet || true &&
+        /opt/airflow/dbt-venv/bin/dbt parse --quiet --target-path target-airflow
+    restart: "no"
+
+  airflow-apiserver:
+    <<: *airflow
+    command: api-server
+    ports: ["127.0.0.1:8080:8080"]
+    healthcheck: {test: ["CMD", "curl", "-fsS", "http://localhost:8080/api/v2/version"], interval: 15s, retries: 20}
+    depends_on: {airflow-init: {condition: service_completed_successfully}}
+    deploy: {resources: {limits: {memory: 1g}}}
+
+  airflow-scheduler:
+    <<: *airflow
+    command: scheduler                       # LocalExecutor: tasks (bronze, dbt, ML) run in this container
+    depends_on: {airflow-init: {condition: service_completed_successfully}}
+    deploy: {resources: {limits: {memory: 4g}}}
+
+  airflow-dag-processor:
+    <<: *airflow
+    command: dag-processor
+    depends_on: {airflow-init: {condition: service_completed_successfully}}
+    deploy: {resources: {limits: {memory: 768m}}}
+
+  airflow-triggerer:
+    <<: *airflow
+    command: triggerer
+    depends_on: {airflow-init: {condition: service_completed_successfully}}
+    deploy: {resources: {limits: {memory: 512m}}}
+
+  # ----------------------------------------------------------------------------- graph
+  neo4j:
+    image: neo4j:5-community
+    profiles: [graph]
+    # no env_file: Neo4j treats every NEO4J_* variable as a config key; the password is interpolated instead
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD}
+      NEO4J_server_memory_heap_max__size: 768m
+      NEO4J_server_memory_pagecache_size: 512m
+      NEO4J_dbms_logs_query_enabled: INFO
+    volumes: [neo4j-data:/data]
+    ports: ["127.0.0.1:7474:7474", "127.0.0.1:7687:7687"]
+    networks: [net_data, net_ops]
+    healthcheck: {test: ["CMD-SHELL", "wget -qO- http://localhost:7474 || exit 1"], interval: 10s, retries: 30}
+    deploy: {resources: {limits: {memory: 1536m}}}
+
+  # ----------------------------------------------------------------------------- ml
+  mlflow:
+    build: {context: ./mlflow}
+    image: latam/mlflow:3.1.0
+    profiles: [ml]
+    env_file: .env
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: ${MINIO_MLFLOW_USER}
+      AWS_SECRET_ACCESS_KEY: ${MINIO_MLFLOW_PASSWORD}
+    command: >
+      mlflow server --host 0.0.0.0 --port 5000
+      --backend-store-uri postgresql://mlflow:${MLFLOW_DB_PASSWORD}@pg-core:5432/mlflow
+      --artifacts-destination s3://mlflow-artifacts --serve-artifacts
+    ports: ["127.0.0.1:5001:5000"]
+    networks: [net_ml, net_data, net_ops]
+    depends_on: {pg-core: {condition: service_healthy}}
+    deploy: {resources: {limits: {memory: 768m}}}
+
+  # ----------------------------------------------------------------------------- stream
+  redpanda:
+    image: redpandadata/redpanda:v24.2.7
+    profiles: [stream]
+    command: >
+      redpanda start --mode dev-container --smp 1 --memory 512M --overprovisioned
+      --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:19092
+      --advertise-kafka-addr internal://redpanda:9092,external://localhost:19092
+    ports: ["127.0.0.1:19092:19092"]
+    networks: [net_stream, net_ops]
+    healthcheck: {test: ["CMD-SHELL", "rpk cluster health | grep -q 'Healthy:.*true'"], interval: 10s, retries: 20}
+    deploy: {resources: {limits: {memory: 1g}}}
+
+  flink-jobmanager:
+    build: {context: ../flink}
+    image: latam/flink:1.19
+    profiles: [stream]
+    command: jobmanager
+    env_file: .env
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        jobmanager.memory.process.size: 768m
+        state.backend.type: hashmap
+        state.checkpoint-storage: filesystem
+        state.checkpoints.dir: file:///opt/flink/checkpoints
+        table.exec.state.ttl: 8 d
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
+    ports: ["127.0.0.1:8081:8081"]
+    volumes: [flink-checkpoints:/opt/flink/checkpoints]
+    networks: [net_stream, net_data, net_ops]
+    deploy: {resources: {limits: {memory: 896m}}}
+
+  flink-taskmanager:
+    image: latam/flink:1.19
+    profiles: [stream]
+    command: taskmanager
+    environment:
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: flink-jobmanager
+        taskmanager.numberOfTaskSlots: 4
+        taskmanager.memory.process.size: 1792m
+        state.backend.type: hashmap
+        state.checkpoint-storage: filesystem
+        state.checkpoints.dir: file:///opt/flink/checkpoints
+        metrics.reporter.prom.factory.class: org.apache.flink.metrics.prometheus.PrometheusReporterFactory
+        metrics.reporter.prom.port: 9249
+    depends_on: [flink-jobmanager]
+    volumes: [flink-checkpoints:/opt/flink/checkpoints]   # shared with the JobManager (checkpoint storage)
+    networks: [net_stream, net_data]
+    deploy: {resources: {limits: {memory: 1920m}}}
+
+  flink-sql-gateway:                         # REST endpoint Airflow uses to submit Flink SQL jobs
+    image: latam/flink:1.19
+    profiles: [stream]
+    command: >
+      /opt/flink/bin/sql-gateway.sh start-foreground
+      -Dsql-gateway.endpoint.rest.address=0.0.0.0 -Dsql-gateway.endpoint.rest.port=8083
+      -Drest.address=flink-jobmanager -Drest.port=8081 -Djobmanager.rpc.address=flink-jobmanager
+      -Dexecution.target=remote
+    depends_on: [flink-jobmanager]
+    networks: [net_stream, net_data, net_ops]
+    deploy: {resources: {limits: {memory: 768m}}}
+
+  fraud-scorer:
+    build: {context: ../.., dockerfile: platform/services/fraud_scorer/Dockerfile}
+    image: latam/fraud-scorer:0.1
+    profiles: [stream]
+    env_file: .env
+    environment:
+      LATAM_KAFKA_BOOTSTRAP: redpanda:9092
+      LATAM_PG_CORE_HOST: pg-core
+      LATAM_MLFLOW_URI: http://mlflow:5000
+      LATAM_PG_AUDIT_HOST: pg-audit
+    networks: [net_stream, net_app, net_data, net_ml, net_audit]
+    depends_on: [redpanda]
+    deploy: {resources: {limits: {memory: 512m}}}
+
+  kong:                                      # API gateway: only entry point to app services
+    image: kong:3.7
+    profiles: [stream]
+    env_file: .env                           # SCORER_API_KEY read through Kong's env vault
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /kong/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 127.0.0.1:8001
+      KONG_LOG_LEVEL: notice
+    volumes: [./kong:/kong:ro]
+    ports: ["127.0.0.1:8000:8000"]
+    networks: [net_edge, net_app]
+    deploy: {resources: {limits: {memory: 256m}}}
+
+  # ----------------------------------------------------------------------------- observability
+  marquez:
+    image: marquezproject/marquez:0.51.1
+    profiles: [obs]
+    env_file: .env
+    environment:
+      MARQUEZ_PORT: 5000
+      MARQUEZ_ADMIN_PORT: 5001
+      POSTGRES_HOST: pg-core
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: marquez
+      POSTGRES_USER: marquez
+      POSTGRES_PASSWORD: ${MARQUEZ_DB_PASSWORD}
+      MARQUEZ_CONFIG: /opt/marquez/marquez.yml
+    volumes: [./marquez/marquez.yml:/opt/marquez/marquez.yml:ro]
+    networks: [net_ops, net_data]
+    depends_on: {pg-core: {condition: service_healthy}}
+    deploy: {resources: {limits: {memory: 768m}}}
+
+  marquez-web:
+    image: marquezproject/marquez-web:0.51.1
+    profiles: [obs]
+    environment: {MARQUEZ_HOST: marquez, MARQUEZ_PORT: 5000, WEB_PORT: 3000}
+    ports: ["127.0.0.1:3000:3000"]
+    networks: [net_ops]
+    depends_on: [marquez]
+    deploy: {resources: {limits: {memory: 256m}}}
+
+  prometheus:
+    image: prom/prometheus:v2.53.0
+    profiles: [obs]
+    volumes: [./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro]
+    ports: ["127.0.0.1:9090:9090"]
+    networks: [net_ops, net_stream, net_app]
+    deploy: {resources: {limits: {memory: 384m}}}
+
+  grafana:
+    image: grafana/grafana:11.1.0
+    profiles: [obs]
+    env_file: .env
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes: [./grafana/provisioning:/etc/grafana/provisioning:ro]
+    ports: ["127.0.0.1:3001:3000"]
+    networks: [net_ops, net_data]
+    deploy: {resources: {limits: {memory: 256m}}}
+
+networks:
+  net_edge: {}                       # public-facing: gateway only
+  net_app: {internal: true}          # gateway <-> application services
+  net_data: {internal: true}         # stores (Postgres, Neo4j, MinIO)
+  net_audit: {internal: true}        # audit DB only
+  net_ml: {internal: true}           # MLflow, artifacts
+  net_stream: {internal: true}       # Redpanda, Flink, scorer
+  net_ops: {}                        # UIs and orchestration (published on 127.0.0.1 only)
+
+volumes:
+  pg-core-data: {}
+  pg-audit-data: {}
+  minio-data: {}
+  neo4j-data: {}
+  airflow-config: {}
+  airflow-logs: {}
+  flink-checkpoints: {}

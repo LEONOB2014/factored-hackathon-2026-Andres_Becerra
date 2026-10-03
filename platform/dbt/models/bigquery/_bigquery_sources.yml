@@ -1,0 +1,12 @@
+version: 2
+
+# Tables loaded into BigQuery by the publish_bigquery DAG (Parquet exports of gold/serving/privacy,
+# one dataset per residency region, CMEK-encrypted, policy-tagged). Only used by the bq_* targets.
+sources:
+  - name: published
+    schema: "published_{{ target.schema.split('_')[-1] }}"
+    tables:
+      - name: serving_customer_360
+      - name: fct_transaction
+      - name: fct_complaint
+      - name: dim_customer

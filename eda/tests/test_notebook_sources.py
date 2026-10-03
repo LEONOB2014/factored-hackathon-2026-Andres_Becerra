@@ -16,6 +16,8 @@ from conftest import NOTEBOOKS, TABLES
 SOURCES = sorted(NOTEBOOKS.glob("[0-9][0-9]_*.py"))
 WRITES = re.compile(r'to_csv\(OUT / "([\w.]+\.csv)"')
 READS = re.compile(r'read_csv\((?:OUT|T) / "([\w.]+\.csv)"')
+SCRIPTS = NOTEBOOKS.parent / "scripts"
+SCRIPT_WRITES = re.compile(r'to_csv\(\s*OUT / "([\w.]+\.csv)"')
 
 
 def number(path):
@@ -62,6 +64,17 @@ def producers():
     return out
 
 
+def script_producers():
+    """Tables written by scripts (e.g. warehouse_validation.py) rather than notebooks."""
+    out = {}
+    for src in sorted(SCRIPTS.glob("*.py")):
+        text = src.read_text()
+        if "to_csv(" in text:
+            for table in sorted(set(SCRIPT_WRITES.findall(text))):
+                out.setdefault(table, []).append(src.name)
+    return out
+
+
 def test_every_written_table_is_committed():
     committed = {p.name for p in TABLES.glob("*.csv")}
     assert set(producers()) <= committed
@@ -69,6 +82,8 @@ def test_every_written_table_is_committed():
 
 def test_every_committed_table_has_exactly_one_producer():
     made = producers()
+    for table, scripts in script_producers().items():
+        made.setdefault(table, []).extend(scripts)
     for path in TABLES.glob("*.csv"):
         assert len(made.get(path.name, [])) == 1, (path.name, made.get(path.name))
 

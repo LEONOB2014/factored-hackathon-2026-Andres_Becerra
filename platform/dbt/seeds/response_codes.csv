@@ -1,0 +1,7 @@
+response_code,meaning,customer_message_es,customer_message_en,customer_actionable,suggested_action
+00,Approved,Transacción aprobada,Transaction approved,false,NONE
+05,Do not honor (issuer declined),La transacción fue rechazada por el banco emisor; verifique con su asesor,The issuing bank declined the transaction; contact support,false,REVIEW_RISK_BLOCK
+14,Invalid card number,El número de tarjeta no es válido,The card number is invalid,true,VERIFY_CARD_DATA
+51,Insufficient funds,Fondos insuficientes en la cuenta,Insufficient funds,true,EXPLAIN_BALANCE
+54,Expired card,La tarjeta está vencida,The card has expired,true,REISSUE_CARD
+<missing>,No response code recorded,Sin código de respuesta registrado,No response code recorded,false,DATA_QUALITY_TICKET

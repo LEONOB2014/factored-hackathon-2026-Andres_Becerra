@@ -21,7 +21,14 @@ duckdb) stay out of the app and CI installs.
 | `reports/figures/` | Static PNG charts | yes |
 | `reports/tables/` | Summary CSVs the final report reads | yes |
 | `reports/eda_overview.md` | Initial EDA of the main data | yes |
-| `data/` | Raw download, Parquet, backup Parquet, derived tables, DuckDB file | no |
+| `../data/` | Raw download, Parquet, backup Parquet, derived tables (repository-level, shared with the data platform) | no |
+
+The strategy for the next phases (compliance, architecture, SCD, dbt, ML/AI/agents,
+deployment) is in [`docs/strategy/`](../docs/strategy/README.md); the dbt project it
+builds on is the data platform in `platform/` (architecture, flows, audit and ADRs in
+[`docs/platform/`](../docs/platform/README.md)); its dbt lakehouse writes
+`data/lake/lakehouse.duckdb` (refresh `reports/tables/warehouse_*.csv` with
+`uv run scripts/warehouse_validation.py` after a dbt build).
 
 The ERD and the backup-vs-main summary are reference docs, so they live with the
 data dictionary in [`docs/dataset/`](../docs/dataset/).
@@ -56,10 +63,11 @@ uv run scripts/generate_erd.py                # writes docs/dataset/erd.md
 
 ### Where the data lives
 
-Everything reads `data/` here by default. To use a copy elsewhere, set
-`LATAM_EDA_DATA` (e.g. `export LATAM_EDA_DATA=../../s3_preview/data`); the
-shared code, the scripts and the tests all honour it. On macOS, `cp -cR` clones
-an existing copy without using extra disk space.
+Everything reads the repository-level `data/` folder by default, the same one the
+data platform uses (worktrees link to it; see
+[data and secrets](../docs/development/data-and-secrets.md)). To use another copy, set
+`LATAM_EDA_DATA`; the shared code, the scripts and the tests all honour it. On macOS,
+`cp -cR` clones an existing copy without using extra disk space.
 
 ## Tests
 
