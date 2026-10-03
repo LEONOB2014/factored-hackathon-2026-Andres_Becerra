@@ -144,10 +144,13 @@ make eda-test-notebooks                        # re-run all 11 notebooks (~6 min
 
 ## 🧪 Quality & Workflow
 
-- **Branches and PRs.** Work on `feat/…`, `fix/…`, `test/…`, `docs/…` branches and merge through pull requests into `main`; merged branches are kept. The `no-commit-to-branch` hook refuses commits made directly on `main`.
+The repository standards for people and coding agents are in [`AGENTS.md`](AGENTS.md) (imported by `CLAUDE.md`), with step-by-step guides in [`docs/development/`](docs/development/).
+
+- **Branches.** `main` is production and `develop` is integration; neither takes direct commits (the `no-commit-to-branch` hook refuses them). Work happens on short-lived `<type>/<description>` branches from `develop`, each in its own git worktree, merged back by pull request; releases go `develop` → `main`. Merged branches are kept.
+- **Versions.** Semantic Versioning, 0.x until the hackathon submission; releases are tagged on `main` and logged in [`CHANGELOG.md`](CHANGELOG.md).
 - **Conventional Commits**, enforced by commitizen at the `commit-msg` hook (`feat(eda): …`, `fix: …`, `docs: …`).
 - **pre-commit** is the single quality gate, locally and in CI: ruff (lint + format), mypy (`backend/`, `agents/`), sqlfluff (dbt), actionlint, detect-secrets, file hygiene, plus `eda-lock` and `eda-tests` for the EDA workspace.
-- **CI** (`.github/workflows/ci.yml`) runs on pull requests into `main` and pushes to `main`:
+- **CI** (`.github/workflows/ci.yml`) runs on pull requests into `main` or `develop` and on pushes to either:
 
 | Job | What it checks |
 |---|---|
