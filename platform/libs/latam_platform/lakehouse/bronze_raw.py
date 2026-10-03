@@ -235,6 +235,21 @@ def build_table_raw(
     return {"table": table.name, "source": source, "run_id": run_id, "proven": True, **totals}
 
 
+def _close_file(name, digest, count, proof, landing_sha, problems) -> None:
+    """Compare one rebuilt file with the landing sha256 and its proven record count."""
+    p = proof.get(name)
+    if p is None:
+        problems.append(f"{name}: stored but not in the proof manifest")
+        return
+    got = digest.hexdigest()
+    if got != landing_sha.get(name):
+        problems.append(
+            f"{name}: rebuilt sha256 {got[:12]} != landing {str(landing_sha.get(name))[:12]}"
+        )
+    if count != p["records"]:
+        problems.append(f"{name}: {count} stored records != {p['records']} proven")
+
+
 def verify_table_raw(table: Table, source: str = "main") -> dict:
     """Rebuild every file of a table from the *stored* Parquet and compare with the landing sha256.
 
@@ -262,65 +277,47 @@ def verify_table_raw(table: Table, source: str = "main") -> dict:
             "verified": False,
             "problems": ["no stored partitions"],
         }
+    # One stored Parquet file at a time: a source file never spans two partitions, so memory stays flat
+    # (one global ORDER BY over 15.6M rows needed 5.5 GB, above the scheduler's 4 GB limit).
     con = _connect()
-    listing = "[" + ", ".join(f"'{g}'" for g in globs) + "]"
-    data_cols = [
-        c
-        for c in (
-            r[0]
-            for r in con.sql(
-                f"DESCRIBE SELECT * FROM read_parquet({listing}, union_by_name=true, hive_partitioning=false)"
-            ).fetchall()
-        )
-        if c not in LINEAGE
-    ]
-    cur = con.execute(
-        f"""SELECT _source_file, _record_no, _raw_record, {", ".join(f'"{c}"' for c in data_cols)}
-            FROM read_parquet({listing}, union_by_name=true, hive_partitioning=false)
-            ORDER BY _source_file, _record_no"""
-    )
+    parts = sorted(f for g in globs for f in Path(g.split("**")[0]).rglob("*.parquet"))
     seen: set[str] = set()
-    current, digest, count, prev_no = None, None, 0, 0
-
-    def close(name):
-        p = proof.get(name)
-        if p is None:
-            problems.append(f"{name}: stored but not in the proof manifest")
-            return
-        got = digest.hexdigest()
-        if got != landing_sha.get(name):
-            problems.append(
-                f"{name}: rebuilt sha256 {got[:12]} != landing {str(landing_sha.get(name))[:12]}"
-            )
-        if count != p["records"]:
-            problems.append(f"{name}: {count} stored records != {p['records']} proven")
-
-    while batch := cur.fetchmany(50_000):
-        for row in batch:
-            name, record_no, raw = row[0], row[1], row[2]
-            if name != current:
-                if current is not None:
-                    close(current)
-                current, count, prev_no = name, 0, 0
-                seen.add(name)
-                p = proof.get(name, {})
-                digest = hashlib.sha256()
-                digest.update(
-                    (rr.BOM if p.get("bom") else b"") + base64.b64decode(p.get("header_b64", ""))
-                )
-                header = p.get("header", [])
-                index = [data_cols.index(c) for c in header if c in data_cols]
-                term = base64.b64decode(p.get("terminator", "DQo="))
-            if record_no != prev_no + 1:
-                problems.append(f"{name}: record {prev_no + 1} missing before {record_no}")
-            prev_no = record_no
-            count += 1
-            if raw is not None:
-                digest.update(bytes(raw))
-            else:
-                digest.update(rr.canonical([row[3 + i] for i in index], term))
-    if current is not None:
-        close(current)
+    for part in parts:
+        cols = [r[0] for r in con.sql(f"DESCRIBE SELECT * FROM read_parquet('{part}')").fetchall()]
+        data_cols = [c for c in cols if c not in LINEAGE]
+        cur = con.execute(
+            f"""SELECT _source_file, _record_no, _raw_record, {", ".join(f'"{c}"' for c in data_cols)}
+                FROM read_parquet('{part}') ORDER BY _source_file, _record_no"""
+        )
+        current, digest, count, prev_no, index, term = None, None, 0, 0, [], b"\r\n"
+        while batch := cur.fetchmany(50_000):
+            for row in batch:
+                name, record_no, raw = row[0], row[1], row[2]
+                if name != current:
+                    if current is not None:
+                        _close_file(current, digest, count, proof, landing_sha, problems)
+                    if name in seen:
+                        problems.append(f"{name}: stored in more than one partition")
+                    current, count, prev_no = name, 0, 0
+                    seen.add(name)
+                    p = proof.get(name, {})
+                    digest = hashlib.sha256()
+                    digest.update(
+                        (rr.BOM if p.get("bom") else b"")
+                        + base64.b64decode(p.get("header_b64", ""))
+                    )
+                    index = [data_cols.index(c) for c in p.get("header", []) if c in data_cols]
+                    term = base64.b64decode(p.get("terminator", "DQo="))
+                if record_no != prev_no + 1:
+                    problems.append(f"{name}: record {prev_no + 1} missing before {record_no}")
+                prev_no = record_no
+                count += 1
+                if raw is not None:
+                    digest.update(bytes(raw))
+                else:
+                    digest.update(rr.canonical([row[3 + i] for i in index], term))
+        if current is not None:
+            _close_file(current, digest, count, proof, landing_sha, problems)
     for name in sorted(expected - seen):
         problems.append(f"{name}: landed but not stored")
     return {
