@@ -13,4 +13,5 @@ select
     open_comments,
     comment_sentiment,
     response_time_hours
-from {{ source('raw', 'satisfaction_surveys') }}
+from {{ ref('typed_satisfaction_surveys') }} src
+where {{ not_held('src', 'satisfaction_surveys') }}

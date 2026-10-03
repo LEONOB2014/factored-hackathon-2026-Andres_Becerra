@@ -27,4 +27,5 @@ select
                                                    as mentioned_product_ids,
     has_transcript,
     has_recording
-from {{ source('raw', 'call_center_interactions') }}
+from {{ ref('typed_call_center_interactions') }} src
+where {{ not_held('src', 'call_center_interactions') }}

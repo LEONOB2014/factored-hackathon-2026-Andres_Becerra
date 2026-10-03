@@ -19,4 +19,5 @@ select
     cast(duration_seconds as integer)              as duration_seconds,
     -- generator artefact: unrendered template slots such as {monto} / {moneda}
     regexp_matches(full_text, '\{[a-z_]+\}')       as has_unrendered_placeholder
-from {{ source('raw', 'call_transcripts') }}
+from {{ ref('typed_call_transcripts') }} src
+where {{ not_held('src', 'call_transcripts') }}

@@ -32,5 +32,6 @@ select
     c.last_updated,
     c.accepts_marketing,
     {{ row_hash(cols_customers()) }}               as row_hash
-from {{ source('raw', 'customers') }} c
+from {{ ref('typed_customers') }} c
 left join {{ ref('country_codes') }} cc on cc.raw_name = c.country
+where {{ not_held('c', 'customers') }}

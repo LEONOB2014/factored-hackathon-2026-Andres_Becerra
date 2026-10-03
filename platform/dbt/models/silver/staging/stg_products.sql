@@ -29,4 +29,5 @@ select
     last_transaction_date,
     last_updated,
     {{ row_hash(cols_products()) }}                as row_hash
-from {{ source('raw', 'products') }}
+from {{ ref('typed_products') }} src
+where {{ not_held('src', 'products') }}

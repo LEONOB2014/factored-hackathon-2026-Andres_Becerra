@@ -25,4 +25,5 @@ select
     t.longitude
 from {{ src }} t
 left join {{ ref('country_codes') }} cc on cc.raw_name = t.transaction_country
+where {{ not_held('t', 'transactions') }}
 {% endmacro %}
