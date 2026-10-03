@@ -8,6 +8,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 
 | chapter | content |
 |---|---|
+| [00 Plan](00_plan.md) | the approved implementation plan: decisions, phases, verification and risks |
 | [01 Architecture](01_architecture.md) | naming (medallion + Kimball), zones, system context, orchestration, local vs cloud vs hybrid, storage compartments and networks |
 | [02 Data flows](02_data_flows.md) | batch flow and gates, streaming sequence and latency budget, asset graph, lineage producers |
 | [03 Data split](03_data_split.md) | historical vs stream holdout, ML splits with embargo, warm-up week |
