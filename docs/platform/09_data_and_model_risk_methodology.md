@@ -12,7 +12,7 @@ segmentation and text.
 | section | scope | status |
 |---|---|---|
 | [A](#a-raw-schema-forensics) | schema evolution without metadata, from the raw CSV text | **implemented** (evidence: `eda/notebooks/model_risk/01_raw_schema_forensics`) |
-| [B](#b-lossless-bronze-with-a-byte-exact-proof) | bronze that preserves every record and every original value, with a completeness proof | designed |
+| [B](#b-lossless-bronze-with-a-byte-exact-proof) | bronze that preserves every record and every original value, with a completeness proof | **implemented** (`platform/libs/latam_platform/lakehouse/bronze_raw.py`) |
 | [C](#c-contract-driven-silver-and-cell-level-findings) | contract-driven typing in silver, cell-level findings, drift circuit breaker | designed |
 | [D](#d-audited-correction-and-restore) | four-eyes correction and restore over an append-only ledger | designed |
 | [E–H](#e-h-later-phases) | keys and source systems, drift MRM, segmentation, text | designed |
@@ -152,14 +152,51 @@ whole entities moved between currencies while every marginal distribution was pr
 are necessary but not sufficient; entity-level restatements need record linkage on natural keys (E).**
 
 ## B. Lossless bronze with a byte-exact proof
-Designed; built in the next phase. Bronze keeps every record with every field as its **original text** (no trim,
-`''` kept, no typing) plus `_source_file`, `_source_sha256`, `_record_no`, `_record_sha256`, `_parse_status` and the
-partition date from the path. A quote-aware splitter (RFC 4180, byte level) yields each record's exact bytes; the
-verbatim bytes are stored only for records that do not parse or do not re-serialise canonically. **Proof per file:**
-header + Σ(raw or canonical record bytes) must hash to the landing manifest's sha256 and the record count must equal
-the independent grammar count; otherwise nothing is written and an audit event is raised. Partitions and proofs are
-copied to the object-locked `bronze-worm` bucket. The current typed bronze is kept read-only as `bronze_v1_typed`
-for parity checks.
+
+### B.1 What is stored
+`data/lake/bronze_raw/` (and `holdout_raw/` for facts from the stream cutoff, `quarantine/backup_20260831_raw/` for
+the untrusted copy) is the **bronze of record**. Every landed record is kept with every field as the **exact text that
+was written**: no trim, `''` stays `''`, nothing is typed. Each row carries `_source_file`, `_source_sha256`,
+`_record_no`, `_record_sha256`, `_parse_status` (`ok`, `ragged`, `quote_error`, `encoding_error`), `_partition_date`
+(from the Hive path, never from the content), `_ingest_run_id`, `_ingested_at`, and `_raw_record`: the record's exact
+bytes, kept **only** when the record does not parse or its minimal-quoting re-serialisation would differ. The typed
+`data/lake/bronze/` remains a derived convenience that dbt reads until silver switches to `bronze_raw` (section C).
+
+### B.2 The proof
+`raw_records.py` splits a file on its bytes: a record ends at a newline outside quotes (RFC 4180), so quoted LF/CRLF
+stay inside a record. For every file, **before anything is written** (`bronze_raw.build_table_raw`):
+
+1. `sha256(file)` equals the landing manifest (the file did not change after it landed);
+2. `sha256(BOM + header + Σ records)`, each record rebuilt from its stored fields (or its kept bytes), equals the same
+   value: the stored parts **are** the file;
+3. an independent strict CSV parser (Python `csv`, no shared code with the splitter) counts the same records.
+
+Any failure raises `BronzeIntegrityError` and the run stops. **Verification is independent of the build**:
+`verify_table_raw` rebuilds every file again from the Parquet **on disk** (one partition at a time, flat memory) and
+compares with the landing sha256, so a changed value, a deleted record, a file stored twice or a landed file never
+stored all fail. Partitions are append-only (a changed partition digest is refused); new partitions and the proof
+manifests (`manifests/bronze_raw_proof/`) are copied to the object-locked `bronze-worm` bucket (`seal_raw`).
+
+### B.3 Results (backfill, 2026-10-03)
+| copy | files | records | rebuilt byte-exact at build | re-verified from storage | records needing raw bytes |
+|---|---|---|---|---|---|
+| main | 7,671 | 23,495,188 | 7,671 | 7,671 (0 problems) | 0 |
+| backup | 4,833 | 20,804,992 | 4,833 | 4,833 (0 problems) | 0 |
+| **total** | **12,504** | **44,300,180** | **all** | **all** | **0** |
+
+Every record parsed `ok` and re-serialises canonically, so the lossless zone costs about the same as the fields alone.
+Build: 8.4 min (main, 8 workers, peak 1.8 GB); verification: 3.7 min (peak 0.9 GB).
+
+**Parity with typed bronze** (main, joined on primary keys): 552.9 M cells compared, **0 value mismatches** (each typed
+value equals `try_cast` of its raw text). The only difference: **171.9 M cells where typed bronze holds NULL for an
+empty string**, which the lossless zone keeps as written.
+
+**On the running stack** (Airflow 3.1 scheduler, 4 GB limit): `build_raw` re-proved all 1,097 transaction files and
+wrote 0 partitions (append-only no-op); `verify_raw` passed for transactions and for the 15.6 M digital events. The 24
+proof manifests were sealed to `bronze-worm` with COMPLIANCE retention, a delete was refused, and
+`audit_ledger.verify_all` reported no break in any chain. The bulk partition upload (≈ 3.1 GB locked for the
+retention period) was not run on the demo laptop; it is covered by a unit test of `worm_sync` and runs on the
+first scheduled `bronze_build`.
 
 ## C. Contract-driven silver and cell-level findings
 Designed. Contracts promoted from A (`platform/contracts/<table>.yml`) drive typing macros

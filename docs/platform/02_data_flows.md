@@ -8,7 +8,9 @@
 flowchart LR
   S3[(S3)] -->|download_s3.py| LND[landing<br/>data/raw]
   LND -->|SHA-256 manifest| M1[(MinIO WORM<br/>manifests/landing)]
-  LND -->|month-chunked read_csv<br/>rejects → quarantine| BR[bronze<br/>partitioned Parquet]
+  LND -->|byte-exact split + proof<br/>sha256 rebuild = landing| BRR[bronze_raw<br/>original text, bronze of record]
+  BRR -->|new partitions + proofs| M3[(MinIO WORM<br/>lake/bronze_raw, proofs)]
+  LND -->|month-chunked read_csv<br/>rejects → quarantine| BR[bronze<br/>typed, transitional]
   BR -->|partition digests| M2[(MinIO WORM<br/>manifests/bronze)]
   LND -->|backup folder| QU[quarantine]
   BR --> STG[silver: stg_* views]
@@ -32,7 +34,8 @@ flowchart LR
   GATE -->|pass| SERV
 ```
 
-Gates that stop the flow: landing modified/deleted file (incident), bronze not reconciling or rewriting a
+Gates that stop the flow: landing modified/deleted file (incident), a landed file that lossless bronze cannot rebuild
+byte-exact (at build or at verification from storage), bronze not reconciling or rewriting a
 partition, severity-A data-quality SLO breach, governance check failure (missing owner/class/residency,
 restricted column outside silver, serving without contract), restricted column at publish time, detector CI
 failure, model-risk rejection, stream/batch parity mismatch, broken audit chain.

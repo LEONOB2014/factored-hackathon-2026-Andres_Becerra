@@ -3,6 +3,8 @@
 uv run python -m latam_platform.cli landing-manifest
 uv run python -m latam_platform.cli bronze-build [--table transactions] [--force]
 uv run python -m latam_platform.cli quarantine-backup
+uv run python -m latam_platform.cli bronze-raw-build [--table transactions] [--source main] [--force]
+uv run python -m latam_platform.cli bronze-raw-verify [--table transactions] [--source main]
 """
 
 from __future__ import annotations
@@ -12,7 +14,7 @@ import json
 from datetime import UTC, datetime
 
 from latam_platform import config
-from latam_platform.lakehouse import bronze, landing
+from latam_platform.lakehouse import bronze, bronze_raw, landing
 
 
 def cmd_landing_manifest(_args) -> dict:
@@ -50,6 +52,32 @@ def cmd_quarantine_backup(_args) -> list[dict]:
     return bronze.build_quarantine_backup(datetime.now(UTC).strftime("quarantine-%Y%m%dT%H%M%SZ"))
 
 
+def _tables(args) -> list:
+    return [config.TABLES[t] for t in args.table] if args.table else list(config.TABLES.values())
+
+
+def cmd_bronze_raw_build(args) -> list[dict]:
+    """Lossless bronze of record: prove every file byte-exact, then write it as text (bronze_raw.py)."""
+    run_id = datetime.now(UTC).strftime("bronze-raw-%Y%m%dT%H%M%SZ")
+    return [
+        bronze_raw.build_table_raw(
+            t, run_id, source=args.source, force=args.force, workers=args.workers
+        )
+        for t in _tables(args)
+    ]
+
+
+def cmd_bronze_raw_verify(args) -> list[dict]:
+    """Rebuild every file from the stored lossless bronze and compare with the landing manifest."""
+    out = [bronze_raw.verify_table_raw(t, source=args.source) for t in _tables(args)]
+    failed = [
+        r["table"] for r in out if not r["verified"] and r.get("problems") != ["no proof manifest"]
+    ]
+    if failed:
+        raise SystemExit("BRONZE RAW VERIFICATION FAILED: " + json.dumps(out, indent=1))
+    return out
+
+
 def cmd_governance_check(_args) -> dict:
     from latam_platform import governance
 
@@ -65,6 +93,9 @@ def cmd_lake_init(_args) -> list[str]:
         config.BRONZE,
         config.HOLDOUT,
         config.QUARANTINE,
+        config.BRONZE_RAW,
+        config.HOLDOUT_RAW,
+        config.QUARANTINE_RAW,
         config.MANIFESTS,
         config.LAKE / "graph",
         config.LAKE / "features",
@@ -87,6 +118,19 @@ def main() -> None:
     )
     b.set_defaults(fn=cmd_bronze_build)
     sub.add_parser("quarantine-backup").set_defaults(fn=cmd_quarantine_backup)
+    for name, fn in (
+        ("bronze-raw-build", cmd_bronze_raw_build),
+        ("bronze-raw-verify", cmd_bronze_raw_verify),
+    ):
+        r = sub.add_parser(name)
+        r.add_argument("--table", action="append")
+        r.add_argument("--source", default="main", choices=list(config.SOURCES))
+        if name == "bronze-raw-build":
+            r.add_argument(
+                "--force", action="store_true", help="dev only: allow rewriting changed partitions"
+            )
+            r.add_argument("--workers", type=int, default=4)
+        r.set_defaults(fn=fn)
     sub.add_parser("governance-check").set_defaults(fn=cmd_governance_check)
     sub.add_parser("lake-init").set_defaults(fn=cmd_lake_init)
     args = p.parse_args()

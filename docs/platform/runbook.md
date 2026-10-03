@@ -65,3 +65,18 @@ dbt while an Airflow dbt run is active (DuckDB has a single writer).
 Tasks run inside the scheduler (LocalExecutor, 4 GB limit). DuckDB is capped at 1.5 GB per task and every heavy
 DuckDB task shares the one-slot `duckdb_lakehouse` pool; the bronze build processes one month of files at a time
 in a file-backed database. Start the stream profile without the obs profile if memory is tight.
+
+## 8 · Lossless bronze (bronze of record)
+Every landed record is stored with every field as its original text in `data/lake/bronze_raw` (facts after the
+stream cutoff in `holdout_raw`), after proving that each file rebuilds byte-exact from what will be stored. The
+`bronze_build` DAG runs this as `build_raw` → `verify_raw` → `seal_raw`. Outside Airflow, from `platform/`:
+
+```bash
+uv run python -m latam_platform.cli bronze-raw-build --workers 8                  # prove + write every file
+uv run python -m latam_platform.cli bronze-raw-verify                             # rebuild every file from storage
+uv run python -m latam_platform.cli bronze-raw-build --source backup_20260831     # the quarantined copy
+uv run python -m latam_platform.cli bronze-raw-verify --source backup_20260831
+```
+
+`bronze-raw-verify` exits non-zero if any landed file cannot be rebuilt byte-exact from what is stored. The build
+runs a process pool (`--workers`); in the scheduler container the DAG uses 2 workers.
