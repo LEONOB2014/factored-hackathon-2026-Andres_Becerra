@@ -37,7 +37,7 @@ Untested SQL in a bank fails silently like this.
 | `audit/` | table | DQ findings, SLO summary, manifests, reconciliation, change logs |
 | `exports/` | external Parquet | ML and graph hand-offs. Contracts enforced because Python consumers break silently. |
 
-Naming: `stg_`, `int_`, `mart_`, `feat_` (ML features, PIT-safe), `dq_`, `audit_`, `export_`. Column suffixes: `_pit`
+Naming: `stg_`, `int_`, `mart_`, `feat_` (ML features, PIT-safe), `dq_`, `audit_`, and `graph_`/`tgn_`/`ml_kumo_`/`kb_entity_` for the Parquet exports in the lake. Column suffixes: `_pit`
 (point-in-time safe), `_current` (not safe for back-testing), `_utc` / `_local`, `_usd`.
 
 ## 5.3 What to add next (in order)

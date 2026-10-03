@@ -199,7 +199,7 @@ Guards that run in `dbt build`:
 - `assert_fraud_velocity_is_point_in_time` recomputes the 24-hour velocity by brute-force self-join on a deterministic
   sample and fails on any mismatch.
 - `assert_login_context_not_from_future` checks the login join.
-- `assert_no_label_leaking_columns` fails if any `feat_*` or `export_kumo_*` table exposes `fraud_score`.
+- `assert_no_label_leaking_columns` fails if any `feat_*` or `ml_kumo_*` table exposes `fraud_score`.
 
 **The Flink SQL twin** for online serving uses the same names and windows, so training/serving parity is testable:
 
@@ -366,16 +366,16 @@ counterparty identifiers on every transfer, which is the single highest-value sc
 | path | primary dataset | complementary | first model | readiness |
 |---|---|---|---|---|
 | Service copilot (inquiries, cards, disputes) | `mart_account_payment_inquiry`, `mart_card_support`, `mart_transaction_disputes` | `mart_customer_360`, GraphRAG docs | none (deterministic) + LLM explanation | **now** |
-| Real-time fraud | `feat_fraud_realtime_pit` | `export_temporal_tx_events`, graph | rules + unsupervised ensemble → GBDT → GNN/TGN | rules now; ML on real labels |
+| Real-time fraud | `feat_fraud_realtime_pit` | `tgn_tx_events`, graph | rules + unsupervised ensemble → GBDT → GNN/TGN | rules now; ML on real labels |
 | AML monitoring | `mart_aml_customer_month` | fund-flow graph (§6.12) | robust peer z + isolation forest; GNN for mule rings | after counterparty data |
 | Credit eligibility and pricing | `feat_credit_eligibility_pit` | snapshots, bureau | scorecard + monotone GBDT | after 12–24 months of history |
 | Collections | `mart_collections_early_warning` | `mart_cx_journey` | roll-rate GBDT; contact-strategy uplift | after DPD history |
 | CX and escalation | `mart_cx_journey` | `mart_customer_360` | GBDT escalation risk; TFT for volume | now (signals are weak) |
 | Marketing | `mart_campaign_compliance_uplift` | 360 | uplift learners | after holdouts |
-| Relational foundation models | `export_kumo_relational_complaint90d` + related tables | — | Kumo-Relational ICL baseline | **now** (probe) |
-| Tabular foundation models | `export_kumo_tabular_fraud` | — | Kumo-Tabular ICL vs GBDT | now (as a probe; labels leak) |
-| GNN / TGN | `export_graph_nodes/edges`, `export_temporal_tx_events` | — | HGT / R-GCN, TGN | pipeline now, value later |
-| GraphRAG | `export_graphrag_entity_docs`, `export_graphrag_triples` | regulation corpus | hybrid retrieval + KG | **now** |
+| Relational foundation models | `ml_kumo_relational_complaint90d` + related tables | — | Kumo-Relational ICL baseline | **now** (probe) |
+| Tabular foundation models | `ml_kumo_tabular_fraud` | — | Kumo-Tabular ICL vs GBDT | now (as a probe; labels leak) |
+| GNN / TGN | `graph_nodes/edges`, `tgn_tx_events` | — | HGT / R-GCN, TGN | pipeline now, value later |
+| GraphRAG | `kb_entity_docs`, `kb_entity_triples` | regulation corpus | hybrid retrieval + KG | **now** |
 
 ## 6.15 Processing checklist (applies to every ML dataset)
 1. **Point-in-time:** features only from rows before the anchor; dimensions via SCD2 as-of joins; `*_current` columns
