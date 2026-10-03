@@ -10,11 +10,17 @@ models:
         data_tests: [unique, not_null]
 
   - name: mart_account_payment_inquiry
-    description: "One row per product with balance, pending/declined detail and the last 20 transactions."
+    description: "One row per product with balance, pending and declined detail; history in mart_product_recent_transactions."
     config: {meta: {grain: product_id, consumers: [contact_center, chatbot, agent_copilot]}}
     columns:
       - name: product_id
         data_tests: [unique, not_null]
+
+  - name: mart_product_recent_transactions
+    description: "Last 20 transactions per product (rank 1 = latest)."
+    config: {meta: {grain: [product_id, recency_rank]}}
+    data_tests:
+      - unique_combination: {arguments: {columns: [product_id, recency_rank]}}
 
   - name: mart_card_support
     description: "One row per card with decline diagnostics and a rule-based next best action."

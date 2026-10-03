@@ -16,11 +16,12 @@ import yaml
 
 DESCRIPTIONS = {
     "serving_customer_360": "Customer 360 published to Postgres (bank_serving.serving.customer_360) for agent and app lookups. Tokens only.",
-    "serving_account_inquiry": "Per-product inquiry answers (balance, pending, declines with decoded reasons, last 20 transactions as JSON).",
+    "serving_account_inquiry": "Per-product inquiry answers (balance, pending, declines with decoded reasons; history in serving_recent_transactions).",
     "serving_card_support": "Per-card diagnostics and rule-based next best action.",
     "serving_dispute_case": "Per-dispute case view with SLA clocks and probabilistic transaction link with evidence.",
     "serving_credit_eligibility": "Latest eligibility with adverse-action reason codes (illustrative policy).",
     "serving_online_fraud_state": "Per-customer warm-start state for the streaming fraud scorer as of the stream cutoff.",
+    "serving_recent_transactions": "Last 20 transactions per product for inquiry answers (rank 1 = latest).",
 }
 GRAIN = {
     "serving_customer_360": "customer_id",
@@ -29,6 +30,7 @@ GRAIN = {
     "serving_dispute_case": "complaint_id",
     "serving_credit_eligibility": "customer_id",
     "serving_online_fraud_state": "customer_id",
+    "serving_recent_transactions": None,
 }
 
 

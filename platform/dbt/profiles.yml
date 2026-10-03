@@ -15,7 +15,8 @@ latam_bank:
       settings:
         memory_limit: "{{ env_var('LATAM_DUCKDB_MEMORY', '10GB') }}"
         threads: "{{ env_var('LATAM_DUCKDB_THREADS', '8') }}"
-        temp_directory: "{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/../tmp/duckdb"
+        # spill files go to the default <database>.tmp directory next to the lakehouse file (set once per
+        # process by DuckDB; dbt-duckdb re-applies settings per thread, so it must not be overridden here)
         preserve_insertion_order: false
     ci:
       type: duckdb

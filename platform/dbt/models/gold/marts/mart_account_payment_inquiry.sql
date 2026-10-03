@@ -1,13 +1,10 @@
 -- Account & payment inquiries ("what is my balance", "why was my payment declined", "did my transfer go
--- through"): one row per product with the answer-ready context an agent or a copilot needs in one read.
+-- through"): one row per product with the answer-ready context an agent or a copilot needs in one read. The last 20 transactions
+-- per product live in mart_product_recent_transactions (one row each, rank 1 = latest): normalized rows serve and
+-- index better than nested lists and keep memory bounded.
 with recent as (
     select
         product_id,
-        list(struct_pack(
-                ts := transaction_ts_local, type := transaction_type, amount := amount, currency := currency,
-                status := transaction_status, reason := response_meaning, merchant := merchant_name,
-                channel := channel, country := transaction_country_code)
-             order by transaction_ts_utc desc)[1:20]                                         as last_20_transactions,
         count(*) filter (where transaction_status = 'Pending')                               as pending_count,
         sum(amount) filter (where transaction_status = 'Pending')                            as pending_amount,
         count(*) filter (where transaction_status = 'Declined'
@@ -65,8 +62,10 @@ select
     r.last_deposit_ts,
     r.last_payment_ts,
     r.last_payment_amount,
-    r.last_20_transactions
+    rt.n_recent_transactions
 from {{ ref('int_products_enriched') }} p
 join {{ ref('int_customer_profile') }} c using (customer_id)
 left join recent r using (product_id)
+left join (select product_id, count(*) as n_recent_transactions
+           from {{ ref('mart_product_recent_transactions') }} group by 1) rt using (product_id)
 left join decline_mix d using (product_id)

@@ -27,6 +27,7 @@ SERVING_TABLES = [
     "serving_dispute_case",
     "serving_credit_eligibility",
     "serving_online_fraud_state",
+    "serving_recent_transactions",
 ]
 
 

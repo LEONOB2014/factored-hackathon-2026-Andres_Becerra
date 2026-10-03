@@ -2,7 +2,7 @@
 version: 2
 models:
 - name: serving_account_inquiry
-  description: Per-product inquiry answers (balance, pending, declines with decoded reasons, last 20 transactions as JSON).
+  description: Per-product inquiry answers (balance, pending, declines with decoded reasons; history in serving_recent_transactions).
   config:
     contract:
       enforced: true
@@ -58,8 +58,8 @@ models:
     data_type: DOUBLE
   - name: declines_by_code_90d_json
     data_type: JSON
-  - name: last_20_transactions_json
-    data_type: JSON
+  - name: n_recent_transactions
+    data_type: BIGINT
   - name: as_of_ts
     data_type: TIMESTAMP
 - name: serving_card_support
@@ -322,4 +322,41 @@ models:
   - name: last_lon
     data_type: DOUBLE
   - name: state_as_of_ts
+    data_type: TIMESTAMP
+- name: serving_recent_transactions
+  description: Last 20 transactions per product for inquiry answers (rank 1 = latest).
+  config:
+    contract:
+      enforced: true
+    meta:
+      grain: [product_id, recency_rank]
+      publish_to: postgres.bank_serving
+  columns:
+  - name: product_id
+    data_type: VARCHAR
+    constraints:
+    - type: not_null
+  - name: recency_rank
+    data_type: BIGINT
+  - name: transaction_id
+    data_type: VARCHAR
+  - name: transaction_ts_local
+    data_type: TIMESTAMP
+  - name: transaction_type
+    data_type: VARCHAR
+  - name: amount
+    data_type: DOUBLE
+  - name: currency
+    data_type: VARCHAR
+  - name: transaction_status
+    data_type: VARCHAR
+  - name: decline_or_status_reason
+    data_type: VARCHAR
+  - name: merchant_name
+    data_type: VARCHAR
+  - name: channel
+    data_type: VARCHAR
+  - name: transaction_country_code
+    data_type: VARCHAR
+  - name: as_of_ts
     data_type: TIMESTAMP

@@ -9,7 +9,8 @@ exposures:
     owner: {name: Data Platform, email: data-platform@latambank.example}
     description: "publish_serving DAG copies serving_* contracts into Postgres bank_serving for low-latency reads."
     depends_on: [ref('serving_customer_360'), ref('serving_account_inquiry'), ref('serving_card_support'),
-                 ref('serving_dispute_case'), ref('serving_credit_eligibility'), ref('serving_online_fraud_state')]
+                 ref('serving_dispute_case'), ref('serving_credit_eligibility'), ref('serving_online_fraud_state'),
+                 ref('serving_recent_transactions')]
   - name: fraud_ensemble_model
     type: ml
     maturity: medium
