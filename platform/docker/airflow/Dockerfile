@@ -16,7 +16,8 @@ RUN pip install --no-cache-dir \
       "apache-airflow-providers-openlineage" \
       "apache-airflow-providers-postgres" \
       "apache-airflow-providers-amazon" \
-      "pyyaml"
+      "pyyaml" \
+      "pytest"
 
 # dbt in its own venv.
 RUN python -m venv /opt/airflow/dbt-venv \

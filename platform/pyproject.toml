@@ -40,4 +40,4 @@ url = "https://download.pytorch.org/whl/cpu"
 explicit = true
 
 [tool.pytest.ini_options]
-testpaths = ["libs/tests"]
+testpaths = ["libs/tests", "airflow/tests"]

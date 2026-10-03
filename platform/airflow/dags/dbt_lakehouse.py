@@ -29,6 +29,7 @@ PROJECT = ProjectConfig(
     dbt_project_path=DBT_DIR,
     manifest_path=f"{DBT_DIR}/target-airflow/manifest.json",
     dbt_vars={"as_of_date": "2026-05-17"},
+    install_dbt_deps=False,
 )
 PROFILE = ProfileConfig(
     profile_name="latam_bank", target_name="dev", profiles_yml_filepath=f"{DBT_DIR}/profiles.yml"
@@ -57,7 +58,7 @@ def layer(group_id: str, select: list[str]) -> DbtTaskGroup:
         render_config=RenderConfig(
             load_method=LoadMode.DBT_MANIFEST, select=select, test_behavior=TestBehavior.AFTER_ALL
         ),
-        operator_args={"pool": DUCKDB_POOL, "install_deps": False, "full_refresh": False},
+        operator_args={"pool": DUCKDB_POOL, "full_refresh": False},
         default_args={"retries": 1},
     )
 
