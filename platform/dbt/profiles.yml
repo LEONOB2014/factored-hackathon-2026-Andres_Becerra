@@ -1,5 +1,10 @@
-# Local development profile. Run dbt from inside platform/dbt/:  cd platform/dbt && uv run dbt build
-# Paths are relative to platform/dbt/. The DuckDB file lives under data/lake/ (git-ignored).
+# dbt targets.
+#   dev    : DuckDB lakehouse on the laptop (default). Run from platform/dbt:  DBT_PROFILES_DIR=. uv run dbt build
+#   ci     : DuckDB in a throwaway file for pull-request builds.
+#   bq_mx  : BigQuery analytics layer for Mexican data, region northamerica-south1 (not applied; see ADR-006).
+#   bq_br  : BigQuery analytics layer for Brazilian data / CO-AR pending legal, region southamerica-east1.
+# The BigQuery targets only build models/bigquery (views over tables loaded by the publish_bigquery DAG);
+# heavy transformations stay in the lakehouse. Credentials come from ADC / Workload Identity, never files.
 latam_bank:
   target: dev
   outputs:
@@ -10,3 +15,25 @@ latam_bank:
       settings:
         memory_limit: "10GB"
         preserve_insertion_order: false
+    ci:
+      type: duckdb
+      path: "{{ env_var('LATAM_CI_DUCKDB_PATH', '/tmp/latam_ci.duckdb') }}"
+      threads: 4
+    bq_mx:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('LATAM_GCP_PROJECT_MX', 'latam-bank-mx-analytics') }}"
+      dataset: analytics_mx
+      location: northamerica-south1
+      threads: 8
+      priority: interactive
+      job_execution_timeout_seconds: 600
+    bq_br:
+      type: bigquery
+      method: oauth
+      project: "{{ env_var('LATAM_GCP_PROJECT_BR', 'latam-bank-br-analytics') }}"
+      dataset: analytics_br
+      location: southamerica-east1
+      threads: 8
+      priority: interactive
+      job_execution_timeout_seconds: 600

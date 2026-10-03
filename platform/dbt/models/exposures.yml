@@ -1,0 +1,43 @@
+version: 2
+
+# Downstream consumers. `dbt ls --select +exposure:<name>` lists exactly what each consumer depends on,
+# which is the impact analysis an auditor or change board asks for.
+exposures:
+  - name: postgres_serving
+    type: application
+    maturity: high
+    owner: {name: Data Platform, email: data-platform@latambank.example}
+    description: "publish_serving DAG copies serving_* contracts into Postgres bank_serving for low-latency reads."
+    depends_on: [ref('serving_customer_360'), ref('serving_account_inquiry'), ref('serving_card_support'),
+                 ref('serving_dispute_case'), ref('serving_credit_eligibility'), ref('serving_online_fraud_state')]
+  - name: fraud_ensemble_model
+    type: ml
+    maturity: medium
+    owner: {name: ML Engineering, email: ml-engineering@latambank.example}
+    description: "ml_fraud_ensemble DAG trains on the train split, validates out of time, registers in MLflow."
+    depends_on: [ref('ml_fraud_train'), ref('ml_fraud_valid'), ref('ml_fraud_test')]
+  - name: stream_fraud_scorer
+    type: application
+    maturity: medium
+    owner: {name: ML Engineering, email: ml-engineering@latambank.example}
+    description: "Flink features + Python scorer; warm-started from serving_online_fraud_state; parity-checked against feat_fraud_stream_parity."
+    depends_on: [ref('serving_online_fraud_state'), ref('feat_fraud_stream_parity')]
+  - name: graph_learning
+    type: ml
+    maturity: low
+    owner: {name: ML Engineering, email: ml-engineering@latambank.example}
+    description: "Temporal GNN and federated GNN pipelines."
+    depends_on: [ref('tgn_tx_events'), ref('tgn_node_features'), ref('fgl_silo_nodes'), ref('fgl_silo_edges')]
+  - name: knowledge_graph_rag
+    type: application
+    maturity: medium
+    owner: {name: Data Platform, email: data-platform@latambank.example}
+    description: "kb_sync and graph_load DAGs: pgvector + Neo4j indexes for GraphRAG."
+    depends_on: [ref('kb_entity_docs'), ref('kb_entity_triples'), ref('graph_nodes'), ref('graph_edges')]
+  - name: agentic_module
+    type: application
+    maturity: low
+    owner: {name: AI Engineering, email: ai-engineering@latambank.example}
+    description: "PENDING. Agents will read serving tables, the KB, Neo4j and MLflow models through read-only tools and log to genai audit tables."
+    depends_on: [ref('serving_customer_360'), ref('serving_account_inquiry'), ref('serving_card_support'),
+                 ref('serving_dispute_case'), ref('serving_credit_eligibility'), ref('kb_entity_docs')]

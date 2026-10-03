@@ -50,6 +50,32 @@ def cmd_quarantine_backup(_args) -> list[dict]:
     return bronze.build_quarantine_backup(datetime.now(UTC).strftime("quarantine-%Y%m%dT%H%M%SZ"))
 
 
+def cmd_governance_check(_args) -> dict:
+    from latam_platform import governance
+
+    rep = governance.check_manifest()
+    out = {"checked_models": rep.checked_models, "errors": rep.errors, "warnings": rep.warnings}
+    if not rep.ok:
+        raise SystemExit("GOVERNANCE CHECK FAILED: " + json.dumps(out, indent=1))
+    return out
+
+
+def cmd_lake_init(_args) -> list[str]:
+    dirs = [
+        config.BRONZE,
+        config.HOLDOUT,
+        config.QUARANTINE,
+        config.MANIFESTS,
+        config.LAKE / "graph",
+        config.LAKE / "features",
+        config.LAKE / "knowledge",
+        config.LAKE / "stream_landing",
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
+    return [str(d) for d in dirs]
+
+
 def main() -> None:
     p = argparse.ArgumentParser(prog="latam_platform")
     sub = p.add_subparsers(dest="cmd", required=True)
@@ -61,6 +87,8 @@ def main() -> None:
     )
     b.set_defaults(fn=cmd_bronze_build)
     sub.add_parser("quarantine-backup").set_defaults(fn=cmd_quarantine_backup)
+    sub.add_parser("governance-check").set_defaults(fn=cmd_governance_check)
+    sub.add_parser("lake-init").set_defaults(fn=cmd_lake_init)
     args = p.parse_args()
     print(json.dumps(args.fn(args), indent=1, default=str))
 

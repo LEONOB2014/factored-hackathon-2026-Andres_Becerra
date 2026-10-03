@@ -1,0 +1,40 @@
+# Data classification policy (policy-as-code). Enforced by:
+#  - dbt test tests/governance/assert_no_restricted_pii_outside_silver.sql (column names below, via seed)
+#  - latam_platform.governance.check_manifest (every model declares data_class/owner/residency)
+#  - latam_platform.pii_guard (free text: KB documents, GenAI logs, complaint/transcript text)
+version: 1
+classes:
+  public:          {description: "Published or non-sensitive reference data", storage: any}
+  internal:        {description: "Internal policies, KB documents without personal data", storage: any_permitted_region}
+  confidential:    {description: "Tokenized customer-level financial data (gold, features, graph, serving)", storage: residency_region}
+  restricted_pii:  {description: "Direct identifiers and raw personal data (landing, bronze, silver staging only)", storage: in_country_or_approved_region, encryption: cmek, access: break_glass}
+zones:
+  landing:   {allowed_classes: [restricted_pii]}
+  bronze:    {allowed_classes: [restricted_pii]}
+  silver:    {allowed_classes: [restricted_pii, confidential]}
+  gold:      {allowed_classes: [confidential, internal, public]}
+  features:  {allowed_classes: [confidential]}
+  graph:     {allowed_classes: [confidential]}
+  knowledge: {allowed_classes: [internal, public]}
+  privacy:   {allowed_classes: [confidential, public]}
+  serving:   {allowed_classes: [confidential]}
+  audit:     {allowed_classes: [confidential]}
+restricted_columns:          # direct identifiers: must never appear outside landing/bronze/silver
+  - {column: first_name, type: name}
+  - {column: last_name, type: name}
+  - {column: email, type: email}
+  - {column: mobile_phone, type: phone}
+  - {column: landline_phone, type: phone}
+  - {column: phone, type: phone}
+  - {column: address, type: address}
+  - {column: postal_code, type: address}
+  - {column: document_number, type: national_id}
+  - {column: date_of_birth, type: date_of_birth}
+  - {column: ip_address, type: online_identifier}
+  - {column: full_text, type: free_text}
+  - {column: customer_text, type: free_text}
+  - {column: agent_text, type: free_text}
+  - {column: open_comments, type: free_text}
+  - {column: description, type: free_text}
+protected_attributes:        # allowed only in silver.int_customer_fairness_attributes (bias measurement)
+  [gender, marital_status, detected_accent, customer_detected_accent, age_band]

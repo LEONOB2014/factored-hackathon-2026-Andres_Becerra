@@ -1,0 +1,17 @@
+# Data residency policy. Personal and confidential data of a country's customers may only be stored and
+# processed in the regions listed for that country. Enforced in Terraform (org policy
+# gcp.resourceLocations per environment), in dbt (meta.residency) and by the publish_serving DAG.
+# CO and AR: no in-country BigQuery/GCP region exists (verified 2026-10); southamerica-east1 is the
+# proposed region under a documented international-transfer basis. LEGAL SIGN-OFF REQUIRED.
+version: 1
+countries:
+  MX: {allowed_regions: [northamerica-south1], primary: northamerica-south1, basis: in_country, regulator_refs: [LFPDPPP-2025, CNBV]}
+  BR: {allowed_regions: [southamerica-east1], primary: southamerica-east1, basis: in_country, regulator_refs: [LGPD, CMN-4893]}
+  CO: {allowed_regions: [southamerica-east1], primary: southamerica-east1, basis: international_transfer_pending_legal, regulator_refs: [Ley-1581, SFC-cloud]}
+  AR: {allowed_regions: [southamerica-east1], primary: southamerica-east1, basis: international_transfer_pending_legal, regulator_refs: [Ley-25326, BCRA-A7724]}
+cross_border:
+  allowed_outputs: [dp_aggregates, model_weights_without_memorization_risk, public_reference]
+  forbidden_outputs: [row_level_customer_data, embeddings_of_customer_text, raw_logs_with_pii]
+local_demo:
+  region_label: local-docker
+  note: "All containers run on one laptop; residency is simulated by silo columns and per-country schemas."

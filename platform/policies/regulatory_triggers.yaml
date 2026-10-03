@@ -1,0 +1,65 @@
+# Regulatory triggers: conditions that must produce an action within a deadline. Evaluated by the
+# compliance_triggers DAG (batch) and fraud_scorer (stream); each firing is appended to
+# audit.compliance.trigger_event with its evidence. Deadlines are PLACEHOLDERS pending legal confirmation.
+version: 1
+triggers:
+  - id: consent_revoked
+    source: gold.fct_campaign_send + silver.stg_customers.accepts_marketing
+    condition: "send scheduled or sent to a customer without current marketing consent"
+    action: suppress_and_record
+    deadline_hours: 24
+    regulation_refs: [LFPDPPP-2025, Ley-1581, Ley-25326, LGPD]
+  - id: data_subject_erasure
+    source: audit.dsar.request
+    condition: "approved erasure / cancellation (ARCO) request"
+    action: crypto_shred_and_propagate
+    deadline_hours: 480
+    regulation_refs: [LFPDPPP-2025, LGPD, Ley-1581, Ley-25326]
+  - id: complaint_sla_at_risk
+    source: gold.mart_transaction_disputes
+    condition: "open dispute older than 80% of its SLA"
+    action: alert_owner
+    deadline_hours: 4
+    regulation_refs: [CONDUSEF, SFC-SAC, BCRA-usuarios, BCB-ouvidoria]
+  - id: aml_typology_hit
+    source: gold.mart_aml_customer_month
+    condition: "len(typology_hits) > 0"
+    action: open_case
+    deadline_hours: 72
+    regulation_refs: [UIF-MX, UIAF-CO, UIF-AR, COAF-BR]
+  - id: fraud_block_decision
+    source: stream:tx.decisions
+    condition: "decision in (DECLINE, STEP_UP)"
+    action: record_decision_with_reasons
+    deadline_hours: 0
+    regulation_refs: [MED-2.0, PCI-DSS]
+  - id: pii_outside_pii_zone
+    source: dbt test assert_no_restricted_pii_outside_silver + pii_guard scans
+    condition: "restricted column or detected PII outside landing/bronze/silver"
+    action: block_publish_and_open_incident
+    deadline_hours: 1
+    regulation_refs: [LFPDPPP-2025, LGPD, Ley-1581, Ley-25326]
+  - id: residency_violation
+    source: governance.check_manifest + terraform org policy
+    condition: "model or dataset location not in residency.yaml allowed_regions"
+    action: block_publish_and_open_incident
+    deadline_hours: 1
+    regulation_refs: [LGPD, CMN-4893, LFPDPPP-2025]
+  - id: model_drift_or_fairness_breach
+    source: monitoring.drift_report
+    condition: "PSI > 0.25 on a top feature, or approval-rate ratio < 0.8 across protected groups"
+    action: model_risk_review_hitl
+    deadline_hours: 72
+    regulation_refs: [SR-11-7-benchmark, PL-2338]
+  - id: kb_document_expired
+    source: knowledge.kb.document_version
+    condition: "status in (superseded, retired) or now() > effective_to"
+    action: prune_from_active_index
+    deadline_hours: 1
+    regulation_refs: [internal-kb-governance]
+  - id: retention_expired
+    source: retention.yaml
+    condition: "record older than retention_days and no legal hold"
+    action: archive_or_delete_per_policy
+    deadline_hours: 168
+    regulation_refs: [retention-policy]

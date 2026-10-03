@@ -20,7 +20,7 @@ select
     s.rule_id,
     s.severity,
     s.table_name,
-    s.description,
+    s.description                                           as rule_description,
     coalesce(c.violations, 0)                               as violations,
     d.n                                                     as table_rows,
     round(100.0 * coalesce(c.violations, 0) / d.n, 3)       as rate_pct,

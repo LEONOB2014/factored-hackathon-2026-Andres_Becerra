@@ -1,0 +1,17 @@
+column_name,pii_type
+first_name,name
+last_name,name
+email,email
+mobile_phone,phone
+landline_phone,phone
+phone,phone
+address,address
+postal_code,address
+document_number,national_id
+date_of_birth,date_of_birth
+ip_address,online_identifier
+full_text,free_text
+customer_text,free_text
+agent_text,free_text
+open_comments,free_text
+description,free_text

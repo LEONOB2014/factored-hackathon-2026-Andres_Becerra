@@ -1,0 +1,11 @@
+# Knowledge base governance: what may enter the active retrieval index (pgvector + Neo4j).
+version: 1
+servable_statuses: [approved]
+required_front_matter: [doc_id, version, status, effective_from, owner, approver, country, language, classification]
+allowed_classifications: [public, internal]          # confidential or restricted documents are rejected
+pii_scan: block_on_any_detection
+effective_window: "effective_from <= now() < coalesce(effective_to, +infinity)"
+on_supersede: archive_previous_version_and_remove_from_active_index
+reconciliation: "active versions in registry == pgvector active chunks == Neo4j :Active versions"
+embedding_model: {name: intfloat/multilingual-e5-small, dimension: 384, normalize: true, runs: local}
+chunking: {strategy: markdown_headings, max_tokens: 350, overlap_tokens: 40}
