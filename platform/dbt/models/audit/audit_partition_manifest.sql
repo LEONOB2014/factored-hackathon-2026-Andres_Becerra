@@ -9,7 +9,8 @@ with partitions as (
     {% for t in tables %}
     select '{{ t }}' as table_name, process_date, count(*) as row_count,
            md5(string_agg(row_md5, '' order by row_md5)) as partition_digest
-    from (select process_date, md5(cast(row(*columns(*)) as varchar)) as row_md5 from {{ source('raw', t) }})
+    -- _row_md5 is computed at bronze ingestion over the source columns only (lineage columns excluded)
+    from (select process_date, _row_md5 as row_md5 from {{ source('raw', t) }})
     group by all
     {% if not loop.last %}union all{% endif %}
     {% endfor %}

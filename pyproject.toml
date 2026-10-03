@@ -111,7 +111,7 @@ include = ["agents*", "backend*", "data_engineering*", "ml*"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["backend", "agents", "ml", "data_engineering", "eda/src", "eda/scripts", "eda/tests"]
+src = ["backend", "agents", "ml", "data_engineering", "eda/src", "eda/scripts", "eda/tests", "platform/libs"]
 
 [tool.ruff.lint]
 select = [
@@ -147,8 +147,13 @@ ignore = [
     "A004", "B007", "B018", "B023", "B905",
 ]
 
+# --- data platform (managed) ---
+# Platform code: long SQL in f-strings, CLI prints, typing-only imports kept at runtime.
+"platform/**" = ["E501", "S608", "T201", "TC001", "TC003"]
+# --- end data platform ---
+
 [tool.ruff.lint.isort]
-known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda"]
+known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda", "latam_platform"]
 
 [tool.mypy]
 python_version = "3.11"

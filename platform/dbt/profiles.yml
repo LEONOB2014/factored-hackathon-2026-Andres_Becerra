@@ -1,11 +1,11 @@
 # Local development profile. Run dbt from inside platform/dbt/:  cd platform/dbt && uv run dbt build
-# Paths are relative to platform/dbt/. The DuckDB file lives under data/ (git-ignored).
+# Paths are relative to platform/dbt/. The DuckDB file lives under data/lake/ (git-ignored).
 latam_bank:
   target: dev
   outputs:
     dev:
       type: duckdb
-      path: "{{ env_var('LATAM_DUCKDB_PATH', '../../data/warehouse.duckdb') }}"
+      path: "{{ env_var('LATAM_DUCKDB_PATH', '../../data/lake/lakehouse.duckdb') }}"
       threads: 6
       settings:
         memory_limit: "10GB"

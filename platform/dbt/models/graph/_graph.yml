@@ -1,0 +1,26 @@
+version: 2
+
+models:
+  - name: graph_nodes
+    description: "Heterogeneous graph nodes (customer, product, merchant, branch, agent, campaign, country, complaint, tokenized shared IP)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [node_type, node_id]}}
+  - name: graph_edges
+    description: "Typed, timestamped edges; broken FKs (R25, R26) excluded; IPs tokenized."
+  - name: tgn_tx_events
+    description: "TGN-format customer->merchant interaction stream with labels and out-of-time split."
+    columns:
+      - name: transaction_id
+        data_tests: [unique]
+  - name: tgn_node_features
+    description: "Static node features aligned with tgn_tx_events integer ids."
+    columns:
+      - name: node_idx
+        data_tests: [unique, not_null]
+  - name: fgl_silo_nodes
+    description: "Federated graph learning silos per country (customer nodes local, merchants replicated)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [silo, node_type, node_key]}}
+      - unique_combination: {arguments: {columns: [silo, local_idx]}}
+  - name: fgl_silo_edges
+    description: "Silo-local customer->merchant edges before the PIT cutoff."

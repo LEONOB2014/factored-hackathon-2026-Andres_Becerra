@@ -14,15 +14,15 @@ from sklearn.metrics import average_precision_score, roc_auc_score
 ROOT = Path(__file__).resolve().parents[1]  # eda/
 REPO = ROOT.parent
 OUT = ROOT / "reports" / "tables"
-EXPORTS = REPO / "data" / "exports"
+LAKE = REPO / "data" / "lake"
 
 
 def connect() -> duckdb.DuckDBPyConnection:
-    # staging views read ../data/parquet relative to platform/dbt/, so resolve from there
+    # staging views read ../../data/lake relative to platform/dbt/, so resolve from there
     import os
 
     os.chdir(REPO / "platform" / "dbt")
-    return duckdb.connect(str(REPO / "data" / "warehouse.duckdb"), read_only=True)
+    return duckdb.connect(str(LAKE / "lakehouse.duckdb"), read_only=True)
 
 
 def main() -> None:
@@ -33,15 +33,21 @@ def main() -> None:
     rels = q("""
         select table_schema as schema, table_name as model
         from information_schema.tables
-        where table_schema in ('intermediate', 'marts', 'audit', 'snapshots')
+        where table_schema in ('silver', 'gold', 'features', 'graph', 'knowledge', 'privacy', 'serving', 'audit', 'snapshots')
         order by 1, 2""")
     rels["rows"] = [
         con.sql(f'select count(*) from "{s}"."{m}"').fetchone()[0]
         for s, m in rels.itertuples(index=False)
     ]
-    for f in sorted(EXPORTS.glob("*.parquet")):
+    for f in sorted(
+        [
+            *LAKE.glob("graph/*.parquet"),
+            *LAKE.glob("features/*.parquet"),
+            *LAKE.glob("knowledge/*.parquet"),
+        ]
+    ):
         n = con.sql(f"select count(*) from '{f}'").fetchone()[0]
-        rels.loc[len(rels)] = ["exports (parquet)", f.stem, n]
+        rels.loc[len(rels)] = [f"lake/{f.parent.name} (parquet)", f.stem, n]
     rels.to_csv(OUT / "warehouse_model_inventory.csv", index=False)
 
     # 2. data-quality rules and reconciliation (straight from the audit layer)
@@ -55,84 +61,84 @@ def main() -> None:
     # 3. use-case mart facts quoted in the report
     facts = {}
     one = lambda sql: con.sql(sql).fetchone()[0]  # noqa: E731
-    facts["disputes_total"] = one("select count(*) from marts.mart_transaction_disputes")
+    facts["disputes_total"] = one("select count(*) from gold.mart_transaction_disputes")
     facts["disputes_linked_medium_or_better"] = one(
-        "select count(*) from marts.mart_transaction_disputes where link_confidence in ('high','medium')"
+        "select count(*) from gold.mart_transaction_disputes where link_confidence in ('high','medium')"
     )
     facts["disputes_via_regulator_pct"] = one(
-        "select 100*avg(came_via_regulator::int) from marts.mart_transaction_disputes"
+        "select 100*avg(came_via_regulator::int) from gold.mart_transaction_disputes"
     )
     facts["disputes_sla_breached_pct"] = one(
-        "select 100*avg(sla_breached::int) from marts.mart_transaction_disputes"
+        "select 100*avg(sla_breached::int) from gold.mart_transaction_disputes"
     )
-    facts["cards_total"] = one("select count(*) from marts.mart_card_support")
+    facts["cards_total"] = one("select count(*) from gold.mart_card_support")
     facts["cards_active_but_expired"] = one(
-        "select count(*) from marts.mart_card_support where is_active_but_expired"
+        "select count(*) from gold.mart_card_support where is_active_but_expired"
     )
     facts["credit_eligible_card_pct"] = one(
-        "select 100*avg(eligible_credit_card::int) from marts.mart_credit_eligibility"
+        "select 100*avg(eligible_credit_card::int) from gold.mart_credit_eligibility"
     )
     facts["credit_eligible_loan_pct"] = one(
-        "select 100*avg(eligible_personal_loan::int) from marts.mart_credit_eligibility"
+        "select 100*avg(eligible_personal_loan::int) from gold.mart_credit_eligibility"
     )
     facts["tx_per_customer_month"] = one(
-        "select avg(n_tx) from intermediate.int_customer_month_tx where month_start >= date '2023-07-01'"
+        "select avg(n_tx) from silver.int_customer_month_tx where month_start >= date '2023-07-01'"
     )
     facts["sends_without_current_consent_pct"] = one(
-        "select 100*avg(sent_without_current_consent::int) from marts.mart_campaign_compliance_uplift"
+        "select 100*avg(sent_without_current_consent::int) from gold.mart_campaign_compliance_uplift"
     )
     facts["conv_rate_with_consent_pct"] = one(
-        "select 100*avg(outcome_converted::int) from marts.mart_campaign_compliance_uplift where accepts_marketing_current"
+        "select 100*avg(outcome_converted::int) from gold.mart_campaign_compliance_uplift where accepts_marketing_current"
     )
     facts["conv_rate_without_consent_pct"] = one(
-        "select 100*avg(outcome_converted::int) from marts.mart_campaign_compliance_uplift where not accepts_marketing_current"
+        "select 100*avg(outcome_converted::int) from gold.mart_campaign_compliance_uplift where not accepts_marketing_current"
     )
     facts["sends_promoting_already_held_product_pct"] = one(
-        "select 100*avg(already_held_promoted_product::int) from marts.mart_campaign_compliance_uplift"
+        "select 100*avg(already_held_promoted_product::int) from gold.mart_campaign_compliance_uplift"
     )
     facts["cx_repeat_contact_7d_pct"] = one(
-        "select 100*avg(repeat_contact_7d::int) from marts.mart_cx_journey"
+        "select 100*avg(repeat_contact_7d::int) from gold.mart_cx_journey"
     )
     facts["cx_complaint_within_14d_pct"] = one(
-        "select 100*avg(complaint_within_14d::int) from marts.mart_cx_journey"
+        "select 100*avg(complaint_within_14d::int) from gold.mart_cx_journey"
     )
     facts["transcripts_with_placeholders_pct"] = one(
-        "select 100*avg(transcript_is_template_artifact::int) from marts.mart_cx_journey where transcript_id is not null"
+        "select 100*avg(transcript_is_template_artifact::int) from gold.mart_cx_journey where transcript_id is not null"
     )
     facts["aml_customer_months_with_hits"] = one(
-        "select count(*) from marts.mart_aml_customer_month where len(typology_hits) > 0"
+        "select count(*) from gold.mart_aml_customer_month where len(typology_hits) > 0"
     )
     facts["shared_ip_nodes"] = one(
-        f"select count(*) from '{EXPORTS}/graph_nodes.parquet' where node_type = 'ip'"
+        f"select count(*) from '{LAKE}/graph/graph_nodes.parquet' where node_type = 'ip'"
     )
-    facts["graph_edges"] = one(f"select count(*) from '{EXPORTS}/graph_edges.parquet'")
+    facts["graph_edges"] = one(f"select count(*) from '{LAKE}/graph/graph_edges.parquet'")
     facts["kumo_complaint90d_rows"] = one(
-        f"select count(*) from '{EXPORTS}/kumo_relational_complaint90d.parquet'"
+        f"select count(*) from '{LAKE}/features/ml_kumo_relational_complaint90d.parquet'"
     )
     facts["kumo_complaint90d_positive_pct"] = one(
-        f"select 100*avg(label_complaint_90d::int) from '{EXPORTS}/kumo_relational_complaint90d.parquet'"
+        f"select 100*avg(label_complaint_90d::int) from '{LAKE}/features/ml_kumo_relational_complaint90d.parquet'"
     )
     pd.Series(facts, name="value").rename_axis("fact").to_csv(OUT / "warehouse_use_case_facts.csv")
 
     # 4. NBA, eligibility reasons, AML typologies, collections buckets
     q(
-        "select next_best_action, count(*) as cards from marts.mart_card_support group by 1 order by 2 desc"
+        "select next_best_action, count(*) as cards from gold.mart_card_support group by 1 order by 2 desc"
     ).to_csv(OUT / "warehouse_card_next_best_action.csv", index=False)
     q("""select reason, count(*) as customers from
-         (select unnest(decline_reasons) as reason from marts.mart_credit_eligibility) group by 1 order by 2 desc""").to_csv(
+         (select unnest(decline_reasons) as reason from gold.mart_credit_eligibility) group by 1 order by 2 desc""").to_csv(
         OUT / "warehouse_credit_decline_reasons.csv", index=False
     )
     q("""select typology, count(*) as customer_months from
-         (select unnest(typology_hits) as typology from marts.mart_aml_customer_month) group by 1 order by 2 desc""").to_csv(
+         (select unnest(typology_hits) as typology from gold.mart_aml_customer_month) group by 1 order by 2 desc""").to_csv(
         OUT / "warehouse_aml_typology_hits.csv", index=False
     )
     q("""select dpd_bucket, count(*) as products, round(avg(early_warning_score), 1) as avg_ews
-         from marts.mart_collections_early_warning group by 1 order by 1""").to_csv(
+         from gold.mart_collections_early_warning group by 1 order by 1""").to_csv(
         OUT / "warehouse_collections_buckets.csv", index=False
     )
 
     # 5. fraud: point-in-time behavioural features only (no fraud_score), out-of-time evaluation
-    df = con.sql(f"select * from '{EXPORTS}/kumo_tabular_fraud.parquet'").df()
+    df = con.sql(f"select * from '{LAKE}/features/ml_kumo_tabular_fraud.parquet'").df()
     cat = ["transaction_type", "channel", "transaction_category", "product_family"]
     for c in cat:
         df[c] = df[c].astype("category")

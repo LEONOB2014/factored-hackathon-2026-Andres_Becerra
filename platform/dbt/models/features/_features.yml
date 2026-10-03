@@ -1,0 +1,37 @@
+version: 2
+
+models:
+  - name: feat_credit_eligibility_pit
+    description: "Customer x month-end credit features. *_pit columns are point-in-time safe; *_current are not."
+    config: {meta: {grain: [customer_id, snapshot_date], consumers: [credit_models]}}
+    data_tests:
+      - unique_combination: {arguments: {columns: [customer_id, snapshot_date]}}
+
+  - name: feat_fraud_realtime_pit
+    description: "Transaction-level point-in-time fraud features with out-of-time split. No fraud_score."
+    config: {meta: {grain: transaction_id, consumers: [fraud_models, kumo_tabular, streaming_parity_tests]}}
+    columns:
+      - name: transaction_id
+        data_tests: [unique, not_null]
+      - name: split
+        data_tests:
+          - accepted_values: {arguments: {values: [train, embargo, valid, test, stream_holdout]}}
+
+  - name: feat_fraud_stream_parity
+    description: "Batch fraud features over history + holdout, restricted to the replayed transactions. Reference for Flink parity."
+    config: {meta: {grain: transaction_id, consumers: [stream_parity_dag]}}
+    columns:
+      - name: transaction_id
+        data_tests: [unique, not_null]
+  - name: ml_fraud_train
+    description: "Training split (before fraud_train_end minus embargo)."
+  - name: ml_fraud_valid
+    description: "Validation split (embargo rows removed)."
+  - name: ml_fraud_test
+    description: "Out-of-time test split, ends at the stream cutoff."
+  - name: ml_kumo_relational_complaint90d
+    description: "Customer x quarterly cutoff entity table with 90-day complaint label (strictly after cutoff)."
+    data_tests:
+      - unique_combination: {arguments: {columns: [customer_id, cutoff_ts]}}
+  - name: ml_kumo_tabular_fraud
+    description: "All fraud + 1 % negatives from the PIT feature table, with sample weights."

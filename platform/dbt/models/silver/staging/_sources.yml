@@ -1,0 +1,44 @@
+version: 2
+
+# Bronze zone = typed, partitioned, append-only Parquet written by `latam_platform.cli bronze-build`
+# (data/lake/bronze/<table>/<partition>/part-*.parquet). Read in place; dbt never writes to bronze.
+# Each row carries _row_md5, _ingest_run_id, _source_file and _ingested_at for lineage.
+sources:
+  - name: raw
+    description: "Main folder (data/), authoritative. Bronze, read-only."
+    meta:
+      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/bronze/{name}/*/*.parquet', union_by_name = true)"
+    tables:
+      - name: customers
+      - name: products
+      - name: branches
+      - name: service_agents
+      - name: marketing_campaigns
+      - name: transactions
+        loaded_at_field: transaction_date
+      - name: call_center_interactions
+      - name: call_transcripts
+      - name: satisfaction_surveys
+      - name: digital_events
+      - name: complaints
+      - name: campaign_sends
+      - name: daily_exchange_rates
+
+  - name: raw_backup
+    description: "Quarantine zone copy of data_backup_20260831/: used only by audit reconciliation, never joined to main."
+    meta:
+      external_location: "{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/quarantine/backup_20260831/{name}.parquet"
+    tables:
+      - name: customers
+      - name: products
+      - name: transactions
+      - name: complaints
+      - name: call_center_interactions
+
+  - name: holdout
+    description: "Holdout zone: facts with process_date >= var('stream_cutoff'). Replayed as a stream in the demo."
+    meta:
+      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/holdout/{name}/*/*.parquet', union_by_name = true)"
+    tables:
+      - name: transactions
+      - name: digital_events
