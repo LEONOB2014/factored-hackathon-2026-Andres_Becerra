@@ -13,7 +13,7 @@ segmentation and text.
 |---|---|---|
 | [A](#a-raw-schema-forensics) | schema evolution without metadata, from the raw CSV text | **implemented** (evidence: `eda/notebooks/model_risk/01_raw_schema_forensics`) |
 | [B](#b-lossless-bronze-with-a-byte-exact-proof) | bronze that preserves every record and every original value, with a completeness proof | **implemented** (`platform/libs/latam_platform/lakehouse/bronze_raw.py`) |
-| [C](#c-contract-driven-silver-and-cell-level-findings) | contract-driven typing in silver, cell-level findings, drift circuit breaker | designed |
+| [C](#c-contract-driven-silver-and-cell-level-findings) | contract-driven typing in silver, cell-level findings, drift circuit breaker | **implemented** (`platform/contracts/sources`, `platform/dbt/models/silver/{typed,quality}`) |
 | [D](#d-audited-correction-and-restore) | four-eyes correction and restore over an append-only ledger | designed |
 | [E–H](#e-h-later-phases) | keys and source systems, drift MRM, segmentation, text | designed |
 
@@ -159,8 +159,8 @@ the untrusted copy) is the **bronze of record**. Every landed record is kept wit
 was written**: no trim, `''` stays `''`, nothing is typed. Each row carries `_source_file`, `_source_sha256`,
 `_record_no`, `_record_sha256`, `_parse_status` (`ok`, `ragged`, `quote_error`, `encoding_error`), `_partition_date`
 (from the Hive path, never from the content), `_ingest_run_id`, `_ingested_at`, and `_raw_record`: the record's exact
-bytes, kept **only** when the record does not parse or its minimal-quoting re-serialisation would differ. The typed
-`data/lake/bronze/` remains a derived convenience that dbt reads until silver switches to `bronze_raw` (section C).
+bytes, kept **only** when the record does not parse or its minimal-quoting re-serialisation would differ. Silver
+reads this zone directly (section C); the typed bronze it replaced is archived read-only.
 
 ### B.2 The proof
 `raw_records.py` splits a file on its bytes: a record ends at a newline outside quotes (RFC 4180), so quoted LF/CRLF
@@ -199,14 +199,108 @@ retention period) was not run on the demo laptop; it is covered by a unit test o
 first scheduled `bronze_build`.
 
 ## C. Contract-driven silver and cell-level findings
-Designed. Contracts promoted from A (`platform/contracts/<table>.yml`) drive typing macros
-(`try_strptime`/`try_cast` over the accepted formats). **Rows are never dropped**: a cell that fails becomes NULL in
-silver and is recorded in `dq_cell_findings` (table, bronze key, entity, column, issue code, detector, severity,
-masked raw value, typed value, contract version, partition, run). Issue codes: `G` grammar, `T` cast failure,
-`F` minority format, `N` empty in a required field, `V1` unknown and `V2` variant vocabulary, `U` unit/scale,
-`R` range, `K` key format, `I` row invariants (the existing R01–R22 rules), `D` drift context. A
-`schema_drift_scan` task fingerprints each new partition before silver; a severe change holds the partition
-(`_dq_status = 'held'`) and raises a `compliance.trigger_event`.
+
+### C.1 Source contracts
+`platform/contracts/sources/<table>.yml` is the reviewed statement of what each source column **is**. It was seeded
+once by `platform/dbt/scripts/generate_source_contracts.py` from the inferred contracts of A, the types typed bronze
+had (so silver keeps exactly the types it had), and lossless bronze, and is changed only by pull request.
+
+| per column | meaning | count (260 columns, 13 tables) |
+|---|---|---|
+| `type` | DuckDB target type | 93 typed, 167 text |
+| `required`, `empty_share` | an empty or absent value is a finding; the baseline empty share | 157 required |
+| `formats` | value classes of A accepted for the column: numbers accept every lossless spelling (`int`, `dec_dot`, `sci`), temporal and other typed columns only what the source has used | 95 |
+| `key_pattern` | identifier shape, `^PREFIX-[0-9A-Z]{n}$` when every value shares one prefix and length | 36 |
+| `vocabulary`, `variants` | closed set of a low-cardinality column (not PII, not free text, not multi-valued) and its other spellings, mapped to the most frequent one | 92 (variants: `Mexico` → `México` twice) |
+| `scale` | baseline median and MAD of the daily log10 median magnitude | 36 (3 multimodal columns excluded, below) |
+| `scan` | placeholder leaks searched in free text: a null rendered into a sentence, an unrendered `{slot}` | 10 |
+| `pii` | restricted class: the value appears in findings only as a shape | 24 |
+
+The value classes live in `platform/contracts/value_classes.yml`, which a test keeps identical to the forensics
+(`latam_eda.raw_forensics.CLASSES`): a format means in silver exactly what A measured.
+
+### C.2 Typing without loss and cell-level findings
+`scripts/generate_silver_from_contracts.py` turns the contracts into SQL. **One function produces every predicate**,
+so the typed models, the findings and the partition profile cannot disagree; a platform test fails CI when the
+generated files are stale. `silver.typed_<table>` (13 tables plus the two holdout slices) reads lossless bronze:
+`''` and absent fields become NULL, every other value is cast explicitly (`try_cast` to the contract type), and
+`_dq_issues` lists each breach as `<column>:<code>`. **Every bronze record is kept.** Staging reads the typed models
+instead of typed bronze, with the same column names and types, so nothing downstream changes.
+
+| code | rule | breach | severity, SLO |
+|---|---|---|---|
+| G | C07 | record breaks the CSV grammar (`_parse_status` not ok) | A, 0 % |
+| T | C01 | non-empty value does not cast to the contract type | A, 0.1 % |
+| F | C08 | value casts but in a format the contract does not accept | B, 0.1 % |
+| N | C02 | required value empty or absent | B, 0.1 % |
+| K | C05 | identifier breaks the key pattern | A, 0.1 % |
+| V1 / V2 | C03 / C04 | value outside the vocabulary / variant spelling | B, 0.1 % / C, measured |
+| P / S | C06 / C09 | null rendered into free text / unrendered template slot | B, measured / C, 0 % |
+| — | C10 | rows of a held partition | B, 0 % |
+
+`audit.dq_cell_findings` holds one row per flagged cell with its lineage (`source_file`, `record_no`,
+`record_sha256`, entity key, contract version); personal data and free text appear only as a shape (`A` letter,
+`9` digit). `audit.dq_rule_summary` adds the C-rules per table next to the row rules (R01–R27), counted over the rows
+that flow on to gold, and the existing `dq_gate` blocks on enforced severity-A breaches. `audit.dq_findings` shows
+both in one shape: the work list for phase D.
+
+### C.3 Schema-drift circuit breaker
+Inside the silver layer, between the typed models and staging:
+
+* `dq_partition_profile`: per partition and contract column, from the raw text: absent, empty, cast failures,
+  foreign formats, broken keys, new and variant vocabulary, placeholders, log10 median magnitude;
+* `dq_partition_header`: the header of every landed file (from the proof manifests of B) against the contract:
+  missing and unknown columns, changed order;
+* `dq_schema_drift`: every failed check with observed value and threshold. **Severity A** (holds): a header change,
+  a grammar failure, an absent column, a required column more than 0.1 % empty, more than 0.1 % of values that do
+  not cast or are in a foreign format, more than 0.1 % broken keys, more than 20 % new vocabulary, or a scale step
+  (|Δ log10 median| ≥ 0.5 and robust z > 6 against the contract baseline). **Severity B** (reported): new vocabulary
+  below 20 %, an empty share moved by 30 points or more;
+* `dq_partition_holds`: severity-A partitions minus reviewed releases (seed `dq_partition_releases`). Staging
+  excludes their rows (macro `not_held`), so nothing built on a partition whose schema changed reaches gold,
+  features or serving; the rows stay in bronze and in the typed models. The `drift_holds` task of `dbt_lakehouse`
+  opens one `schema_drift_partition_held` trigger per new hold (`latam_platform.drift_holds`, idempotent).
+
+**A statistic must be stable before it can hold data.** The scale check first ran with every numeric column and
+held 523 transaction partitions on `latitude`: the daily median magnitude of coordinates is bimodal (cities vs the
+null-island points of A), so it jumps by a factor of 4 on about half of the days. The contract generator now
+measures this: a column whose own history crosses the scale threshold in more than 5 % of partitions gets no scale
+check, with the reason in the contract (`transactions.latitude` 47 %, `longitude` 50 %, `campaign_sends.send_cost`
+45 %).
+
+### C.4 Results (2026-10-03)
+**Parity.** The typed models reproduce typed bronze exactly: 23,413,140 rows in 15 models, same counts, same column
+types and identical order-independent hashes of every value. Built end to end (222 dbt nodes, 0 errors), the
+lakehouse from lossless bronze was compared relation by relation with one built from typed bronze by `develop`,
+in the same environment. 66 of 84 shared relations are identical. Of the other 18, 2 are the intended changes (the
+partition manifest now digests the records' landed bytes; the rule summary adds the C-rules) and 16 differ only in
+columns that **also differ between two builds of `develop` itself** (surrogate keys hashed with the snapshot time,
+floating-point sums in parallel aggregation, list order, ties in `mode()`): no change is attributable to the switch.
+
+**Findings on the real data** match the forensics of A: 1,078,689 `Mexico` variants (V2, `transactions` 0.92 %,
+`digital_events` 6.65 %), the 38,142 campaign subjects with a rendered `nan` (P, 2.25 %), and **no** grammar,
+cast, format, required, key or unknown-vocabulary breach. No partition is held. Severity B reports 46 empty-share
+shifts in `campaign_sends` (`was_opened` 29, `subject` 17). The gate passes; the only SLO breaches are the three row
+rules already known and not enforced in dev (R21, R25, R26).
+
+**Positive control.** Mutated copies of real partitions in a scratch lake:
+
+| mutation | check | outcome |
+|---|---|---|
+| `amount` with a decimal comma (`transactions` 2025-03-13) | format, 5,016 values do not cast | held |
+| `amount` × 1,000 (2025-04-04) | scale, × 1,405, robust z 58 | held |
+| `transaction_type` translated to Spanish (2024-12-30) | vocabulary, 100 % new | held |
+| `browser` dropped from the file (`digital_events` 2025-06-01) | absent, 9,397 of 9,397 | held |
+| an unknown column in a landed header (2025-06-10) | header_extra | held |
+| 5 rows with a new channel `Kiosk` (2025-05-01) | vocabulary, 0.1 % | **reported, not held** |
+
+Exactly the 5 severe partitions were held; staging and gold lost exactly their rows (18,382 transactions, 9,397
+digital events) while the typed models kept all 4,294,318 and 15,187,552; the gate reported them as C10 and not as
+cast failures; `drift_holds` opened 5 reviews and none on a second run.
+
+**Cost.** The typed, breaker and findings models build in 24 s on their own (profile 22 s, findings 23 s, in
+parallel); a full build (222 nodes) takes 3 min 39 s, against 1 min 48–57 s for the 193 nodes of the typed-bronze build: every
+read of a staging view now casts from text, and the profile and findings scan all 23.4 M records.
 
 ## D. Audited correction and restore
 Designed. Corrections never touch bronze. A steward explores findings in a notebook workbench (pattern groups,

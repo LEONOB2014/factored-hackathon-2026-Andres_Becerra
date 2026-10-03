@@ -11,10 +11,10 @@ tables built on the dimensional core. dbt's own layer names (staging, intermedia
 | zone | contents | dbt | store (local) | store (GCP) | data class |
 |---|---|---|---|---|---|
 | landing | files exactly as received, SHA-256 manifest | — | `data/raw` | GCS (bucket lock) | restricted PII |
-| **bronze_raw** (bronze of record) | every landed record, every field as its original text; each file proven byte-exact against the landing SHA-256 and re-verified from storage | — (silver reads it from phase 3) | `data/lake/bronze_raw`, `holdout_raw` + MinIO WORM partitions and proofs | GCS (bucket lock) | restricted PII |
-| **bronze** (typed, transitional) | typed, partitioned, append-only Parquet + lineage columns; rejects quarantined; derived convenience until silver reads `bronze_raw` | sources | `data/lake/bronze` + MinIO WORM manifests | GCS / Iceberg | restricted PII |
-| quarantine | rejected rows; the untrusted backup folder | source `raw_backup` | `data/lake/quarantine` | GCS (restricted) | restricted PII |
-| **silver** | cleansed, conformed, PII tokenised for downstream (`stg_`, `int_`) | `models/silver` | DuckDB `silver` | BigQuery / Spark | restricted → confidential |
+| **bronze_raw** (bronze of record) | every landed record, every field as its original text; each file proven byte-exact against the landing SHA-256 and re-verified from storage | sources `bronze_raw`, `holdout_raw` | `data/lake/bronze_raw`, `holdout_raw` + MinIO WORM partitions and proofs | GCS (bucket lock) | restricted PII |
+| quarantine | the untrusted backup folder, lossless | source `quarantine_raw` | `data/lake/quarantine/backup_20260831_raw` | GCS (restricted) | restricted PII |
+| archive | the retired typed bronze (read-only, not deleted) | — | `data/lake/archive/bronze_typed_v1` | — | restricted PII |
+| **silver** | `typed_` (lossless bronze typed against the reviewed source contracts, every record kept, breaches in `_dq_issues`), schema-drift circuit breaker (`dq_partition_*`, `dq_schema_drift`), cleansed and conformed (`stg_`, `int_`), PII tokenised for downstream | `models/silver` | DuckDB `silver` (+ `audit` for the breaker) | BigQuery / Spark | restricted → confidential |
 | **gold** | Kimball core (`dim_` SCD2, `fct_`) + marts (`mart_`) | `models/gold` | DuckDB `gold` | BigQuery `published_<cc>` | confidential |
 | features | point-in-time ML features and splits (`feat_`, `ml_`) | `models/features` | DuckDB + Parquet | BigQuery / feature store | confidential |
 | graph | GNN/TGN/federated exports (`graph_`, `tgn_`, `fgl_`) | `models/graph` | Parquet → Neo4j | Neo4j (in region) | confidential |
@@ -35,7 +35,7 @@ flowchart LR
     CORE[Core banking / card switch<br/>future CDC]
   end
   subgraph Lake["Lakehouse (DuckDB local / BigQuery+GCS cloud)"]
-    L[landing] --> B[bronze] --> SV[silver] --> G[gold]
+    L[landing] --> B[bronze_raw] --> SV[silver] --> G[gold]
     G --> F[features] & GR[graph] & K[knowledge] & P[privacy] & SE[serving]
     B -.quarantine.-> Q[quarantine]
   end
@@ -139,8 +139,8 @@ flowchart LR
 | store | holds | writer roles | reader roles | immutability |
 |---|---|---|---|---|
 | landing (`data/raw`) | files as received | ingestion only | bronze build | SHA-256 manifest in WORM |
-| bronze_raw (`data/lake/bronze_raw`) | original-text records, proof manifests | bronze build | auditors; silver from phase 3 | append-only by record-digest check; partitions and proofs in WORM; `bronze-raw-verify` rebuilds every file |
-| bronze (`data/lake/bronze`) | typed partitions | bronze build | dbt | append-only by digest check; manifests in WORM |
+| bronze_raw (`data/lake/bronze_raw`) | original-text records, proof manifests | bronze build | dbt (silver `typed_` models), auditors | append-only by record-digest check; partitions and proofs in WORM; `bronze-raw-verify` rebuilds every file |
+| archive (`data/lake/archive/bronze_typed_v1`) | the retired typed bronze | `archive-typed-bronze` (once) | auditors | read-only files and directories; moved, never copied or deleted; per-zone SHA-256 in `ARCHIVE_*.json` and the ledger |
 | MinIO `bronze-worm`, `audit-anchors` | manifests, chain anchors | `latam-platform` user (put only) | auditors | **object lock COMPLIANCE** |
 | pg-core `bank_serving` | serving tables, online features, decisions | `publisher`, `scorer` (decisions append-only) | `app_reader` | decision log append-only (triggers) |
 | pg-core `knowledge` | KB registry, chunks (pgvector) | `publisher` | `app_reader` reads **only** `kb.active_chunk` | registry/events append-only |
