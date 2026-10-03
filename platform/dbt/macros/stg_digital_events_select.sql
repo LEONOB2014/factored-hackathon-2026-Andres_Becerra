@@ -25,4 +25,5 @@ select
     e.utm_campaign
 from {{ src }} e
 left join {{ ref('country_codes') }} cc on cc.raw_name = e.ip_country
+where {{ not_held('e', 'digital_events') }}
 {% endmacro %}

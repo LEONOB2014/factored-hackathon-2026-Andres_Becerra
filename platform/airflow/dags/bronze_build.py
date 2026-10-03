@@ -1,15 +1,15 @@
-"""Bronze build: landing CSV -> lossless bronze of record + typed, partitioned, append-only Parquet.
+"""Bronze build: landing CSV -> lossless bronze of record (partitioned, append-only Parquet).
 
 Triggered by the landing asset. One mapped task per table (sequential: DuckDB memory is capped per task).
 
-* Lossless bronze (bronze_raw): every record with every field as its original text. Each file is proven
-  byte-exact against the landing manifest before it is written (build_raw), then rebuilt from the stored
-  Parquet and checked again (verify_raw); any mismatch fails the run. New partitions and the proof
-  manifests are copied to the object-locked bucket (seal_raw). This is the bronze of record.
-* Typed bronze (bronze): derived and transitional until silver reads bronze_raw. A table that does not
-  reconcile (loaded + rejected != landing records) or would rewrite an existing partition fails the run.
+Every record with every field as its original text. Each file is proven byte-exact against the landing
+manifest before it is written (build_raw), then rebuilt from the stored Parquet and checked again
+(verify_raw); any mismatch fails the run. New partitions and the proof manifests are copied to the
+object-locked bucket (seal_raw), then the partition manifests are sealed and the bronze asset published.
+Silver types this zone against the reviewed source contracts (dbt models/silver/typed). The typed bronze
+this DAG used to build is retired and archived read-only (docs/platform/runbook.md §9).
 
-Every step is recorded in the audit ledger; partition manifests go to the object-locked bucket.
+Every step is recorded in the audit ledger.
 """
 
 from __future__ import annotations
@@ -61,47 +61,22 @@ def bronze_build():
 
         return cli.cmd_lake_init(None)
 
-    @task.external_python(python=PLATFORM_PY, expect_airflow=False, pool=DUCKDB_POOL)
-    def build(table: str, lineage_run_id: str) -> dict:
-        from latam_platform import config, ops
-        from latam_platform.lakehouse import bronze, landing
-
-        manifest = landing.latest_manifest() or {"files": []}
-        lines = {f["path"]: f["lines"] for f in manifest["files"]}
-        res = bronze.build_table(config.TABLES[table], f"bronze-{lineage_run_id}", lines or None)
-        ops.ledger("bronze.table_built", f"bronze/{table}", res, lineage_run_id)
-        if not res.get("reconciled", True):
-            raise RuntimeError(f"{table} does not reconcile with landing: {res}")
-        return res
-
-    @task.external_python(python=PLATFORM_PY, expect_airflow=False, pool=DUCKDB_POOL)
-    def quarantine_backup(lineage_run_id: str) -> list:
-        from latam_platform import ops
-        from latam_platform.lakehouse import bronze
-
-        out = bronze.build_quarantine_backup(f"quarantine-{lineage_run_id}")
-        ops.ledger(
-            "quarantine.backup_refreshed",
-            "quarantine/backup_20260831",
-            {"tables": out},
-            lineage_run_id,
-        )
-        return out
-
     @task.external_python(python=PLATFORM_PY, expect_airflow=False, outlets=[BRONZE])
     def seal_manifests(lineage_run_id: str) -> str:
         import json
 
         from latam_platform import config, ops
 
-        doc = {
+        doc = {  # per-partition record counts and digests of the lossless zones (append-only)
             "run_id": lineage_run_id,
             "manifests": {
                 p.stem: json.loads(p.read_text())
-                for p in (config.MANIFESTS / "bronze").glob("*.json")
+                for p in (config.MANIFESTS / "bronze_raw").glob("*.json")
             },
         }
-        uri = ops.worm_put_json("bronze-worm", f"manifests/bronze/{lineage_run_id}.json", doc)
+        uri = ops.worm_put_json(
+            "bronze-worm", f"manifests/bronze_raw_partitions/{lineage_run_id}.json", doc
+        )
         ops.ledger(
             "bronze.manifests_sealed",
             "bronze",
@@ -173,14 +148,8 @@ def bronze_build():
     init >> raw_built >> raw_verified >> raw_sealed
     init >> quarantine_backup_raw(lineage_run_id="{{ run_id }}") >> raw_sealed
 
-    results = build.partial(lineage_run_id="{{ run_id }}").expand(table=TABLES)
-    init >> results
-    # mapped results are not passed into the external venv (lazy XCom sequences are not picklable);
-    # sealing reads the manifests each build task wrote and runs only after all of them succeed
-    seal = seal_manifests(lineage_run_id="{{ run_id }}")
-    results >> seal
-    quarantine_backup(lineage_run_id="{{ run_id }}") >> seal
-    raw_sealed >> seal  # the bronze asset is published only once the lossless copy is sealed
+    # the bronze asset is published only once the lossless copy is proven, verified and sealed
+    raw_sealed >> seal_manifests(lineage_run_id="{{ run_id }}")
 
 
 bronze_build()

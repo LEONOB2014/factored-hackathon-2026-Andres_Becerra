@@ -62,9 +62,8 @@ def test_lakehouse_writers_use_duckdb_pool(bag):
             for t in dag.tasks
             if t.task_id.split(".")[-1]
             in (
-                "build",
-                "quarantine_backup",
                 "publish",
+                "drift_holds",
                 "dq_gate",
                 "build_raw",
                 "verify_raw",
@@ -82,3 +81,12 @@ def test_lossless_bronze_is_proven_and_sealed_before_the_bronze_asset(bag):
     assert "build_raw" in dag.get_task("verify_raw").upstream_task_ids
     assert "verify_raw" in dag.get_task("seal_raw").upstream_task_ids
     assert "seal_raw" in dag.get_task("seal_manifests").upstream_task_ids
+    assert not ids & {"build", "quarantine_backup"}, (
+        "typed bronze is retired: silver types lossless bronze"
+    )
+
+
+def test_drift_holds_are_raised_before_the_quality_gates(bag):
+    dag = bag.get_dag("dbt_lakehouse")
+    assert "drift_holds" in dag.get_task("dq_gate").upstream_task_ids
+    assert "dq_gate" in dag.get_task("governance_gate").upstream_task_ids

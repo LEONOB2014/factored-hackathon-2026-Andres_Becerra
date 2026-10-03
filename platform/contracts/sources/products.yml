@@ -1,0 +1,152 @@
+# Source contract: products. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/products.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: products
+kind: dimension
+entity_key:
+- product_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 81bb3afa3093
+  rows: 400000
+  files: 1
+columns:
+  product_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^PRD-[0-9A-Z]{12}$
+  customer_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  product_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Cuenta Ahorro
+    - Cuenta Corriente
+    - Inversión
+    - Préstamo Hipotecario
+    - Préstamo Personal
+    - Seguro
+    - Tarjeta Crédito
+    - Tarjeta Débito
+  product_number:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+  currency:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - ARS
+    - COP
+    - USD
+  current_balance:
+    type: DOUBLE
+    required: true
+    empty_share: 0.0
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 3.921
+      mad: 0.0
+      partitions: 1
+  credit_limit:
+    type: DOUBLE
+    required: false
+    empty_share: 0.686708
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 4.9687
+      mad: 0.0
+      partitions: 1
+  interest_rate:
+    type: DOUBLE
+    required: false
+    empty_share: 0.100165
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.4216
+      mad: 0.0
+      partitions: 1
+  opening_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  expiration_date:
+    type: DATE
+    required: false
+    empty_share: 0.667098
+    formats:
+    - date_iso
+  opening_branch_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^SUC-[0-9A-Z]{8}$
+  product_status:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Active
+    - Blocked
+    - Closed
+    - Suspended
+  opening_channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - App
+    - Branch
+    - Call Center
+    - Web
+  has_linked_app:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  days_past_due:
+    type: DOUBLE
+    required: false
+    empty_share: 0.686625
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 1.9542
+      mad: 0.0
+      partitions: 1
+  last_transaction_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.235692
+    formats:
+    - ts_space
+  last_updated:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space

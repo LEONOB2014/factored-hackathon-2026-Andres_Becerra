@@ -80,3 +80,36 @@ uv run python -m latam_platform.cli bronze-raw-verify --source backup_20260831
 
 `bronze-raw-verify` exits non-zero if any landed file cannot be rebuilt byte-exact from what is stored. The build
 runs a process pool (`--workers`); in the scheduler container the DAG uses 2 workers.
+
+## 9 · Contract-driven silver, findings and held partitions
+Silver types lossless bronze against the reviewed **source contracts** in `platform/contracts/sources/<table>.yml`
+(types, accepted formats, key patterns, vocabularies and variants, scale baselines). From them,
+`scripts/generate_silver_from_contracts.py` writes the `typed_*` models, the partition profile, the cell findings
+and the seed `source_contract_columns`; a platform test fails CI when they are out of date. To change a contract:
+
+```bash
+# edit platform/contracts/sources/<table>.yml in a pull request, then from platform/dbt:
+uv run python scripts/generate_silver_from_contracts.py           # regenerate (or --check)
+DBT_PROFILES_DIR=. uv run dbt build -s +dq_rule_summary            # typed, breaker, findings, summary
+```
+
+**Findings.** Every cell that breaks its contract is one row of `audit.dq_cell_findings` (lineage: `source_file`,
+`record_no`, `record_sha256`; personal data only as a shape), summarised per rule and table in
+`audit.dq_rule_summary` (C01–C10) next to the row rules (R01–R27). The `dq_gate` task blocks on enforced
+severity-A rules above their SLO.
+
+**Held partitions.** `audit.dq_partition_holds` lists partitions whose schema drifted (`audit.dq_schema_drift`
+says which check, column, observed value and threshold). Their rows stay in bronze and in `silver.typed_*`; staging
+and everything built on it exclude them. The `drift_holds` task opens one `schema_drift_partition_held` trigger per
+new hold (24 h review deadline). To release a reviewed partition, add a row to `seeds/dq_partition_releases.csv`
+(`released_by` and `approved_by` must be different people) in a pull request and rebuild; if the change is
+legitimate and permanent, update the contract instead. Phase 4 moves releases to the four-eyes ledger flow.
+
+**Retiring typed bronze (once, after this change is deployed).** The typed bronze is no longer built or read.
+Move it into the read-only archive (nothing is copied or deleted; per-zone SHA-256 recorded in
+`ARCHIVE_*.json` and the audit ledger), then re-parse the dbt manifest Cosmos renders:
+
+```bash
+docker compose exec airflow-scheduler /opt/airflow/platform-venv/bin/python -m latam_platform.cli archive-typed-bronze
+docker compose exec airflow-scheduler bash -lc 'cd /opt/latam/platform/dbt && /opt/airflow/dbt-venv/bin/dbt parse --quiet --target-path target-airflow'
+```

@@ -37,6 +37,13 @@ models:
     silver:
       +schema: silver
       +meta: {data_class: confidential, zone: silver}
+      typed:                             # lossless bronze typed against the source contracts (generated)
+        +materialized: view
+        +meta: {data_class: restricted_pii}
+      quality:                           # schema-drift circuit breaker: runs between typed and staging
+        +schema: audit
+        +group: platform
+        +meta: {data_class: confidential, zone: audit}
       staging:
         +materialized: view
         +meta: {data_class: restricted_pii}

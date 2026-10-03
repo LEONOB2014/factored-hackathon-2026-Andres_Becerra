@@ -108,3 +108,12 @@ def test_variants_and_key_shapes():
 def test_partition_date_from_hive_path(tmp_path):
     assert rf.partition_date(tmp_path / "t/year=2024/month=03/day=09/x.csv") == "2024-03-09"
     assert rf.partition_date(tmp_path / "customers.csv") is None
+
+
+def test_platform_source_contracts_use_the_same_value_classes():
+    """Silver checks formats with platform/contracts/value_classes.yml: it must mean what the forensics measured."""
+    from pathlib import Path
+
+    yaml = pytest.importorskip("yaml")
+    shared = Path(__file__).resolve().parents[2] / "platform" / "contracts" / "value_classes.yml"
+    assert yaml.safe_load(shared.read_text())["classes"] == dict(rf.CLASSES)

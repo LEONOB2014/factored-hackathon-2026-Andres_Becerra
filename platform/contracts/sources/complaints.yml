@@ -1,0 +1,218 @@
+# Source contract: complaints. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/complaints.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: complaints
+kind: fact
+entity_key:
+- complaint_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: a40acd22798b
+  rows: 67095
+  files: 1097
+columns:
+  complaint_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CMP-[0-9A-Z]{20}$
+  creation_date:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space
+  process_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  customer_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  case_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Claim
+    - Complaint
+    - Request
+    - Suggestion
+  category:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Branch
+    - Fees
+    - Service
+    - Technical
+    - Transactions
+  subcategory:
+    type: VARCHAR
+    required: false
+    empty_share: 0.099829
+    vocabulary:
+    - Atención en sucursal
+    - Calidad de servicio
+    - Cargo no reconocido
+    - Cobro indebido
+    - Problema con app
+  reception_channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - App
+    - Branch
+    - Call Center
+    - Email
+    - Regulator
+    - Web
+  affected_product_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.335718
+    key_pattern: ^PRD-[0-9A-Z]{12}$
+  related_branch_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.714166
+    key_pattern: ^SUC-[0-9A-Z]{8}$
+  origin_interaction_id:
+    type: VARCHAR
+    required: false
+    empty_share: 1.0
+    note: always empty in the source so far
+  description:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    pii: free_text
+    scan:
+    - null_word
+    - slot
+  claimed_amount:
+    type: DOUBLE
+    required: false
+    empty_share: 0.675818
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 3.4074
+      mad: 0.0525
+      partitions: 90
+  currency:
+    type: VARCHAR
+    required: false
+    empty_share: 0.675445
+    vocabulary:
+    - ARS
+    - COP
+    - MXN
+    - USD
+  priority:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Critical
+    - High
+    - Low
+    - Medium
+  status:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Closed
+    - Escalated
+    - In Process
+    - Open
+    - Rejected
+    - Resolved
+  assigned_agent_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.344512
+    key_pattern: ^AGT-[0-9A-Z]{10}$
+  assignment_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.344705
+    formats:
+    - ts_space
+  first_response_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.391117
+    formats:
+    - ts_space
+  resolution_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.771235
+    formats:
+    - ts_space
+  closing_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.963023
+    formats:
+    - ts_space
+  sla_breached:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  resolution_days:
+    type: DOUBLE
+    required: false
+    empty_share: 0.771026
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 1.2788
+      mad: 0.0
+      partitions: 1
+  resolution:
+    type: VARCHAR
+    required: false
+    empty_share: 0.771816
+    scan:
+    - null_word
+    - slot
+  compensation_granted:
+    type: DOUBLE
+    required: false
+    empty_share: 0.930829
+    formats:
+    - int
+    - dec_dot
+    - sci
+  resolution_satisfaction:
+    type: DOUBLE
+    required: false
+    empty_share: 0.962978
+    formats:
+    - int
+    - dec_dot
+    - sci
+  is_repeat_complainer:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool

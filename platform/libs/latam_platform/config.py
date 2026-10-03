@@ -16,15 +16,20 @@ DATA = Path(os.environ.get("LATAM_DATA_DIR", REPO_ROOT / "data"))
 
 LANDING = DATA / "raw"  # as received from S3, never modified
 LAKE = DATA / "lake"
-BRONZE = LAKE / "bronze"  # typed, partitioned, append-only
-HOLDOUT = LAKE / "holdout"  # post-cutoff facts, replayed or batch-loaded later
+BRONZE = (
+    LAKE / "bronze"
+)  # RETIRED typed bronze (archived to ARCHIVE_TYPED; silver reads BRONZE_RAW)
+HOLDOUT = LAKE / "holdout"  # RETIRED typed holdout (archived to ARCHIVE_TYPED)
 QUARANTINE = LAKE / "quarantine"  # rejected rows and the untrusted backup folder
 # Lossless bronze of record: every record, every field as its original text, proven byte-exact against
-# the landing manifest (lakehouse/bronze_raw.py). The typed BRONZE above is derived and transitional.
+# the landing manifest (lakehouse/bronze_raw.py). Silver types it against platform/contracts/sources.
 BRONZE_RAW = LAKE / "bronze_raw"
 HOLDOUT_RAW = LAKE / "holdout_raw"
 QUARANTINE_RAW = QUARANTINE / "backup_20260831_raw"
 MANIFESTS = LAKE / "manifests"  # landing + bronze partition manifests
+ARCHIVE_TYPED = (
+    LAKE / "archive" / "bronze_typed_v1"
+)  # read-only: the typed bronze silver read until phase 3
 LAKEHOUSE_DB = LAKE / "lakehouse.duckdb"  # dbt dev target (silver/gold/features/graph)
 
 # Demo split (see docs/platform/03_data_split.md). Facts with process_date >= STREAM_CUTOFF are held out.

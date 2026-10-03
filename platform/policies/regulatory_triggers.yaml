@@ -33,6 +33,12 @@ triggers:
     action: record_decision_with_reasons
     deadline_hours: 0
     regulation_refs: [MED-2.0, PCI-DSS]
+  - id: schema_drift_partition_held
+    source: audit.dq_partition_holds (dbt_lakehouse drift_holds)
+    condition: "a bronze partition broke its source contract (header, grammar, format, key, vocabulary or scale)"
+    action: data_steward_review_hitl
+    deadline_hours: 24
+    regulation_refs: [BCBS-239, SOX-ITGC]
   - id: pii_outside_pii_zone
     source: dbt test assert_no_restricted_pii_outside_silver + pii_guard scans
     condition: "restricted column or detected PII outside landing/bronze/silver"
