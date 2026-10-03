@@ -1,0 +1,182 @@
+# Source contract: call_center_interactions. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/call_center_interactions.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: call_center_interactions
+kind: fact
+entity_key:
+- interaction_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 19d571761cbd
+  rows: 686296
+  files: 1097
+columns:
+  interaction_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^INT-[0-9A-Z]{16}$
+  interaction_date:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space
+  process_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  customer_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  agent_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^AGT-[0-9A-Z]{10}$
+  interaction_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Chat
+    - Email
+    - Inbound Call
+    - Outbound Call
+    - Video
+  channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - App
+    - Email
+    - Phone
+    - Web
+    - Web Chat
+    - WhatsApp
+  contact_reason:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Comercial
+    - Producto
+    - Queja
+    - Retención
+    - Transaccional
+    - Técnico
+  reason_category:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Comercial
+    - Producto
+    - Queja
+    - Retención
+    - Transaccional
+    - Técnico
+  duration_seconds:
+    type: DOUBLE
+    required: false
+    empty_share: 0.140222
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 2.4639
+      mad: 0.009
+      partitions: 1066
+  wait_time_seconds:
+    type: DOUBLE
+    required: false
+    empty_share: 0.299605
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 2.0828
+      mad: 0.0072
+      partitions: 1066
+  was_resolved:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  requires_followup:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  detected_sentiment:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Muy Negativo
+    - Muy Positivo
+    - Negativo
+    - Neutral
+    - Positivo
+  sentiment_score:
+    type: DOUBLE
+    required: true
+    empty_share: 0.0
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: -0.6383
+      mad: 0.0185
+      partitions: 1066
+  customer_detected_accent:
+    type: VARCHAR
+    required: false
+    empty_share: 0.298341
+    vocabulary:
+    - argentine
+    - colombian
+    - mexican
+  agent_used_accent:
+    type: VARCHAR
+    required: false
+    empty_share: 0.298341
+    vocabulary:
+    - argentine
+    - colombian
+    - mexican
+  was_escalated:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  mentioned_products:
+    type: VARCHAR
+    required: false
+    empty_share: 0.600258
+  has_transcript:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  has_recording:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
