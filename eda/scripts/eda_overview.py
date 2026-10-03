@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 from rich.console import Console
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
 RAW = DATA / "raw" / "data"
 PQ = DATA / "parquet"
 REPORTS = ROOT / "reports"

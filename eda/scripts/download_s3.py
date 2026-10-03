@@ -38,7 +38,7 @@ console = Console()
 BUCKET = os.getenv("S3_BUCKET", "factored-datathon-2026-s3-157725502942-us-east-2-an")
 REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-2")
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
 DEFAULT_DEST = DATA / "raw"
 
 

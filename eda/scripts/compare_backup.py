@@ -9,7 +9,7 @@ from pathlib import Path
 import duckdb
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
 MAIN = DATA / "parquet"
 BACKUP = DATA / "parquet_backup"
 PARTITION_COLS = ("day", "month", "year")

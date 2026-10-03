@@ -1,6 +1,6 @@
 """Shared fixtures for the EDA test suite.
 
-Tests marked `data` read the real dataset (eda/data/, or wherever LATAM_EDA_DATA
+Tests marked `data` read the real dataset (the repository's data/, or wherever LATAM_EDA_DATA
 points) and are skipped when it has not been downloaded, as in CI.
 """
 

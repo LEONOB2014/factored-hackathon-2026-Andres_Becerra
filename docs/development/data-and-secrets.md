@@ -16,7 +16,7 @@ never hardcoded machine paths:
 
 | Variable | Used by | Default |
 |---|---|---|
-| `LATAM_EDA_DATA` | `eda/` (code, scripts, tests) | `eda/data` (moves to `data/` with the data platform) |
+| `LATAM_EDA_DATA` | `eda/` (code, scripts, tests) | `<repo>/data` |
 
 **Getting it.** `eda/scripts/download_s3.py` downloads the bucket into `data/raw`
 (resumable, size-checked) with the AWS credentials from `.env`; the conversion scripts and
