@@ -97,7 +97,9 @@ def overview(con, rel: str) -> pd.DataFrame:
         exprs.append(f"approx_count_distinct({q(c)}) as {q('nd_' + c)}")
         if dtype.upper() == "VARCHAR":
             tokens = ", ".join(f"'{p}'" for p in PLACEHOLDERS)
-            exprs.append(f"count_if(lower(trim({q(c)})) in ({tokens})) as {q('ph_' + c)}")
+            exprs.append(
+                f"coalesce(count_if(lower(trim({q(c)})) in ({tokens})), 0) as {q('ph_' + c)}"
+            )
     r = con.sql(f"select {', '.join(exprs)} from {rel}").df().iloc[0]
     n = int(r["__n"])
     out = cols.copy()

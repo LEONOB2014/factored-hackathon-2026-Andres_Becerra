@@ -47,6 +47,13 @@ def test_overview_separates_nulls_from_disguised_missing(con):
     assert ov.loc["customer_id", "distinct"] == 3
 
 
+def test_overview_handles_an_all_null_text_column():
+    con = duckdb.connect()
+    con.sql("create table e as select 1 as id, null::varchar as note")
+    ov = p.overview(con, "e").set_index("column")
+    assert ov.loc["note", "nulls"] == 1 and ov.loc["note", "placeholders"] == 0
+
+
 def test_pk_check_counts_duplicates(con):
     assert p.pk_check(con, "t", "transaction_id") == {
         "pk": "transaction_id",
