@@ -54,10 +54,10 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import seaborn as sns
 from IPython.display import Markdown, display
 from itables import init_notebook_mode, show
 from plotly.subplots import make_subplots
+from scipy.stats import gaussian_kde
 
 from latam_eda import profiling as p
 from latam_eda import theme
@@ -66,7 +66,7 @@ from latam_eda.data import DIMS, FACTS, PK, connect
 warnings.filterwarnings("ignore", category=FutureWarning)
 theme.register()
 theme.register_mpl()
-init_notebook_mode(all_interactive=False, connected=True)  # DataTables from the CDN, like plotly.js
+init_notebook_mode(all_interactive=False, connected=False)  # DataTables embedded: works offline
 pd.options.display.float_format = "{:,.2f}".format
 pd.options.display.max_columns = 40
 con = connect()
@@ -120,6 +120,12 @@ def kinds(t, *ks):
     return p.cols_of(con, rel(t), *ks)
 
 
+def has_cols(t, *cols):
+    """True when every picked column exists in table t (widgets fire mid-update with stale picks)."""
+    names = set(p.columns(con, rel(t))["column"])
+    return all(c in names for c in cols if c and c != "(none)")
+
+
 def missing_view(df):
     """Placeholders ('', 'N/A', 'None'...) turned into NaN, for the 'missing data' views."""
     out = df.copy()
@@ -132,6 +138,108 @@ def missing_view(df):
 
 def h(text):
     display(Markdown(text))
+
+
+def rgba(colour, alpha):
+    """'#rrggbb' -> 'rgba(r,g,b,a)' for translucent fills."""
+    return f"rgba({int(colour[1:3], 16)},{int(colour[3:5], 16)},{int(colour[5:7], 16)},{alpha})"
+
+
+def kde(x, log=False, points=256, n=20_000):
+    """Gaussian KDE of a numeric series on a grid (on log10 values when `log`), from up to n values."""
+    x = pd.Series(x).dropna().astype(float)
+    if log:
+        x = x[x > 0]
+    if x.nunique() < 3:
+        return np.array([]), np.array([])
+    x = x.sample(min(len(x), n), random_state=0)
+    v = np.log10(x) if log else x
+    grid = np.linspace(v.min(), v.max(), points)
+    dens = gaussian_kde(v)(grid)
+    return (10**grid if log else grid), dens
+
+
+def kde_fig(groups, title, log=False, height=360, xaxis_title=None):
+    """Overlaid filled KDE curves for {label: series}; click legend items to hide or isolate them."""
+    fig = go.Figure()
+    for i, (label, x) in enumerate(list(groups.items())[:8]):  # one fixed palette slot each
+        gx, gy = kde(x, log=log)
+        if not len(gx):
+            continue
+        c = theme.CATEGORICAL[i]
+        fig.add_scatter(
+            x=gx,
+            y=gy,
+            mode="lines",
+            name=str(label),
+            fill="tozeroy",
+            line=dict(color=c, width=2),
+            fillcolor=rgba(c, 0.15),
+            hovertemplate=f"{label}: %{{x:,.2f}}<extra></extra>",
+        )
+    fig.update_layout(
+        title=title,
+        height=height,
+        xaxis_title=xaxis_title,
+        yaxis_title="density" + (" (per log10 unit)" if log else ""),
+        hovermode="x unified",
+    )
+    if log:
+        fig.update_xaxes(type="log")
+    return fig
+
+
+def dist_fig(df, x, by, kind="box", log=False, title="", n=20_000, order=None, color=None):
+    """Interactive horizontal box or violin plot of `x` per level of `by`, on up to n sampled rows."""
+    cols = [x, by] + ([color] if color and color != by else [])
+    d = df[cols].dropna()
+    if log:
+        d = d[d[x] > 0]
+    d = d.sample(min(len(d), n), random_state=0)
+    order = order or d.groupby(by)[x].median().sort_values().index.tolist()
+    extra = {"points": False} if kind == "box" else {"points": False, "box": True}
+    fn = px.box if kind == "box" else px.violin
+    fig = fn(
+        d,
+        x=x,
+        y=by,
+        color=color,
+        orientation="h",
+        category_orders={by: order},
+        color_discrete_sequence=theme.CATEGORICAL if color else [theme.BLUE],
+        log_x=log,
+        **extra,
+    )
+    fig.update_layout(title=title, height=max(300, 48 * len(order) + 150), yaxis_title="")
+    if kind == "violin":  # full-height violins, clipped to the observed range
+        fig.update_traces(width=0.85, scalemode="width", spanmode="hard")
+    fig.update_yaxes(type="category")
+    return fig
+
+
+def matrix_fig(m, title, scale, zmin, zmax):
+    """Lower-triangle heatmap of a symmetric matrix (diagonal dropped), values on hover and in cells."""
+    m = m.iloc[1:, :-1].copy()
+    m = m.mask(np.triu(np.ones(m.shape, dtype=bool), 1))
+    fig = go.Figure(
+        go.Heatmap(
+            z=m.values,
+            x=m.columns,
+            y=m.index,
+            colorscale=scale,
+            zmin=zmin,
+            zmax=zmax,
+            texttemplate="%{z:.2f}" if len(m) <= 14 else None,
+            hovertemplate="%{y} × %{x}: %{z:.3f}<extra></extra>",
+            hoverongaps=False,
+            xgap=1,
+            ygap=1,
+        )
+    )
+    fig.update_layout(title=title, height=max(360, 34 * len(m) + 170))
+    fig.update_xaxes(tickangle=-35, showgrid=False)
+    fig.update_yaxes(autorange="reversed", showgrid=False)
+    return fig
 
 
 def fmt_overview(ov):
@@ -296,31 +404,50 @@ def show_distributions(t, cols=None, per_row=3):
     if not smooth:
         return
     rows = -(-len(smooth) // per_row)
-    fig, axes = plt.subplots(rows, per_row, figsize=(5.3 * per_row, 2.6 * rows), squeeze=False)
-    for ax, c in zip(axes.flat, smooth):
-        x = s[c].dropna().astype(float)
-        x = x[x > 0] if c in MONEY else x
-        x = x.sample(min(len(x), 50_000), random_state=0)
-        sns.kdeplot(
-            x=x,
-            ax=ax,
-            fill=True,
-            color=theme.BLUE,
-            alpha=0.25,
-            linewidth=1.4,
-            cut=0,
-            log_scale=c in MONEY,
-            warn_singular=False,
+    fig = make_subplots(
+        rows=rows,
+        cols=per_row,
+        vertical_spacing=0.12 / max(rows, 1) * 3,
+        subplot_titles=[f"{c} (log10)" if c in MONEY else c for c in smooth],
+    )
+    for i, c in enumerate(smooth):
+        r, k = divmod(i, per_row)
+        gx, gy = kde(s[c], log=c in MONEY)
+        if not len(gx):
+            continue
+        med = s[c].dropna().astype(float)
+        med = (med[med > 0] if c in MONEY else med).median()
+        fig.add_scatter(
+            x=gx,
+            y=gy,
+            mode="lines",
+            fill="tozeroy",
+            line=dict(color=theme.BLUE, width=1.6),
+            fillcolor=rgba(theme.BLUE, 0.18),
+            showlegend=False,
+            row=r + 1,
+            col=k + 1,
+            hovertemplate=f"{c}: %{{x:,.2f}}<extra></extra>",
         )
-        ax.axvline(x.median(), color=theme.INK2, linewidth=0.8, linestyle="--")
-        ax.set_title(f"{c}  (median {x.median():,.2f})", fontsize=10)
-        ax.set_xlabel("")
-        ax.set_ylabel("")
-    for ax in axes.flat[len(smooth) :]:
-        ax.axis("off")
-    fig.suptitle(f"{t}: kernel density (sample; dashed = median)", x=0.01, ha="left", fontsize=12)
-    plt.tight_layout()
-    plt.show()
+        # the median as a trace (data coordinates also on log axes)
+        fig.add_scatter(
+            x=[med, med],
+            y=[0, gy.max()],
+            mode="lines",
+            showlegend=False,
+            line=dict(color=theme.INK2, width=1, dash="dash"),
+            row=r + 1,
+            col=k + 1,
+            hovertemplate=f"median {med:,.2f}<extra></extra>",
+        )
+        if c in MONEY:
+            fig.update_xaxes(type="log", row=r + 1, col=k + 1)
+    fig.update_layout(
+        title=f"{t}: kernel density (sample; dashed = median)", height=240 * rows + 80
+    )
+    fig.update_yaxes(showticklabels=False)
+    fig.update_annotations(font_size=12)
+    fig.show()
 
 
 def show_categories(t, per_row=3, top=12):
@@ -379,57 +506,17 @@ def show_associations(t):
     s = smp(t)
     num = [c for c in kinds(t, "numeric", "boolean") if s[c].nunique() > 1]
     cats = [c for c in kinds(t, "categorical", "boolean") if 2 <= s[c].nunique() <= 60]
-    panels = [x for x in (("num", num), ("cat", cats)) if len(x[1]) >= 2]
-    if not panels:
-        return
-    fig, axes = plt.subplots(
-        1,
-        len(panels),
-        figsize=(8 * len(panels), 0.42 * max(len(num), len(cats)) + 3),
-        squeeze=False,
-    )
-    for ax, (which, cols) in zip(axes.flat, panels):
-        # lower triangle without the all-1 diagonal, so the colour scale is spent on the pairs
-        if which == "num":
-            m = p.spearman_matrix(s, cols).iloc[1:, :-1]
-            sns.heatmap(
-                m,
-                ax=ax,
-                cmap=theme.cmap_div(),
-                vmin=-1,
-                vmax=1,
-                annot=len(cols) <= 12,
-                fmt=".2f",
-                mask=np.triu(np.ones_like(m, dtype=bool), 1),
-                cbar_kws={"shrink": 0.6},
-                annot_kws={"size": 8},
-                linewidths=0.5,
-                linecolor=theme.SURFACE,
-            )
-            ax.set_title("Spearman rank correlation (sample)")
-        else:
-            m = p.cramers_v_matrix(s.sample(min(len(s), 50_000), random_state=0), cols).iloc[
-                1:, :-1
-            ]
-            sns.heatmap(
-                m,
-                ax=ax,
-                cmap=theme.cmap_seq(),
-                vmin=0,
-                vmax=1,
-                annot=len(cols) <= 12,
-                fmt=".2f",
-                mask=np.triu(np.ones_like(m, dtype=bool), 1),
-                cbar_kws={"shrink": 0.6},
-                annot_kws={"size": 8},
-                linewidths=0.5,
-                linecolor=theme.SURFACE,
-            )
-            ax.set_title("Cramér's V, bias-corrected (sample)")
-        ax.tick_params(labelsize=8)
-        ax.grid(False)
-    plt.tight_layout()
-    plt.show()
+    if len(num) >= 2:
+        matrix_fig(
+            p.spearman_matrix(s, num),
+            f"{t}: Spearman rank correlation (sample)",
+            theme.DIV_SCALE,
+            -1,
+            1,
+        ).show()
+    if len(cats) >= 2:
+        m = p.cramers_v_matrix(s.sample(min(len(s), 50_000), random_state=0), cats)
+        matrix_fig(m, f"{t}: Cramér's V, bias-corrected (sample)", theme.SEQ_SCALE, 0, 1).show()
 
 
 def show_time(t):
@@ -797,37 +884,24 @@ fig.show()
 
 # %%
 s = smp(t)
-fig, axes = plt.subplots(1, 2, figsize=(15, 4.2))
-order = s.groupby("segment")["credit_score"].median().sort_values().index
-sns.violinplot(
-    data=s,
-    x="credit_score",
-    y="segment",
+order = s.groupby("segment")["credit_score"].median().sort_values().index.tolist()
+dist_fig(
+    s,
+    "credit_score",
+    "segment",
+    kind="violin",
     order=order,
-    ax=axes[0],
-    color=theme.SEQ_BLUE[1],
-    inner="quartile",
-    cut=0,
-    linewidth=0.8,
-)
-axes[0].set_title("Credit score by segment (sample)")
-sns.boxplot(
-    data=s,
-    x="estimated_monthly_income",
-    y="segment",
-    hue="country",
+    title="Credit score by segment (sample; inner box = quartiles)",
+).show()
+dist_fig(
+    s,
+    "estimated_monthly_income",
+    "segment",
+    log=True,
     order=order,
-    ax=axes[1],
-    palette=theme.CATEGORICAL[: s["country"].nunique()],
-    log_scale=True,
-    fliersize=1,
-    linewidth=0.8,
-)
-axes[1].set_title("Monthly income by segment and country (local currency, log, sample)")
-for ax in axes:
-    ax.set_ylabel("")
-plt.tight_layout()
-plt.show()
+    color="country",
+    title="Monthly income by segment and country (local currency, log; click a country to isolate it)",
+).show()
 heat(
     p.crosstab(con, rel(t), "segment", "country", normalize="column"),
     "Segment mix within each country (% of the country's customers, exact)",
@@ -871,35 +945,19 @@ show_associations(t)
 
 # %%
 s = smp(t)
-fig, axes = plt.subplots(1, 2, figsize=(15, 4.6))
-order = s.groupby("product_type")["current_balance"].median().sort_values().index
-sns.boxplot(
-    data=s[s["current_balance"] > 0],
-    x="current_balance",
-    y="product_type",
+order = s.groupby("product_type")["current_balance"].median().sort_values().index.tolist()
+dist_fig(
+    s,
+    "current_balance",
+    "product_type",
+    log=True,
     order=order,
-    ax=axes[0],
-    color=theme.SEQ_BLUE[1],
-    log_scale=True,
-    fliersize=1,
-    linewidth=0.8,
-)
-axes[0].set_title("Current balance by product type (positive balances, log, sample)")
-sns.boxplot(
-    data=s,
-    x="interest_rate",
-    y="product_type",
-    order=order,
-    ax=axes[1],
-    color=theme.SEQ_BLUE[1],
-    fliersize=1,
-    linewidth=0.8,
-)
-axes[1].set_title("Interest rate by product type (sample)")
-for ax in axes:
-    ax.set_ylabel("")
-plt.tight_layout()
-plt.show()
+    color="currency",
+    title="Current balance by product type and currency (positive balances, log, sample)",
+).show()
+dist_fig(
+    s, "interest_rate", "product_type", order=order, title="Interest rate by product type (sample)"
+).show()
 
 dpd = con.sql(
     """select product_type,
@@ -1011,20 +1069,12 @@ display(
     ).hide(axis="index")
 )
 s = smp(t)
-fig, ax = plt.subplots(figsize=(12, 3.8))
-for i, (c, g) in enumerate(s.groupby("currency")):
-    sns.kdeplot(
-        x=g["amount"],
-        ax=ax,
-        log_scale=True,
-        label=c,
-        color=theme.CATEGORICAL[i],
-        linewidth=1.6,
-        cut=0,
-    )
-ax.set_title("amount by currency (log scale, sample): one distribution per currency")
-ax.legend()
-plt.show()
+kde_fig(
+    {c: g["amount"] for c, g in s.groupby("currency")},
+    "amount by currency (log scale, sample): one distribution per currency",
+    log=True,
+    xaxis_title="amount, in the transaction currency",
+).show()
 heat(
     p.crosstab(con, rel(t), "transaction_country", "currency", normalize="row"),
     "Currency used per transaction country (% of the country's rows, exact)",
@@ -1054,20 +1104,25 @@ fr = con.sql(
        (select fraud_score, is_fraud from m_transactions where not is_fraud and fraud_score is not null
         order by hash(transaction_id, 42) limit 50000)"""
 ).df()
-fig, ax = plt.subplots(figsize=(12, 3.8))
-sns.kdeplot(
-    data=fr,
-    x="fraud_score",
-    hue="is_fraud",
-    common_norm=False,
-    fill=True,
-    alpha=0.25,
-    cut=0,
-    palette={False: theme.BLUE, True: theme.RED},
-    ax=ax,
+# a 1-point-bin histogram, not a KDE: smoothing would blur the hard edge at 30
+fig = go.Figure()
+for i, (label, flag) in enumerate([("legitimate (50k sample)", False), ("fraud (all)", True)]):
+    fig.add_histogram(
+        x=fr.loc[fr["is_fraud"] == flag, "fraud_score"],
+        xbins=dict(start=0, end=100, size=1),
+        histnorm="probability density",
+        name=label,
+        marker_color=theme.CATEGORICAL[i],
+        opacity=0.6,
+    )
+fig.update_layout(
+    barmode="overlay",
+    title="fraud_score by label (each histogram normalised to its own total)",
+    height=360,
+    xaxis_title="fraud_score",
+    yaxis_title="density",
 )
-ax.set_title("fraud_score by label (all fraud rows vs 50k legitimate; each curve normalised)")
-plt.show()
+fig.show()
 leak = con.sql(
     """select max(fraud_score) filter (where not is_fraud) as legit_max,
               count(*) filter (where fraud_score > 30 and is_fraud) as tp,
@@ -1092,7 +1147,7 @@ heat(
 # %%
 geo = con.sql(
     """select latitude, longitude, transaction_country from m_transactions
-       where latitude is not null order by hash(transaction_id, 7) limit 8000"""
+       where latitude is not null order by hash(transaction_id, 7) limit 20000"""
 ).df()
 fig = px.scatter(
     geo,
@@ -1104,7 +1159,7 @@ fig = px.scatter(
     render_mode="svg",
 )
 fig.update_traces(marker_size=4)
-fig.update_layout(title="Transaction coordinates (8k rows with coordinates)", height=480)
+fig.update_layout(title="Transaction coordinates (20k rows with coordinates)", height=480)
 fig.show()
 nk, nn = con.sql(
     """select count(*) filter (where abs(latitude) <= 1.5 and abs(longitude) <= 1.5), count(latitude)
@@ -1225,35 +1280,25 @@ core(t)
 
 # %%
 s = smp(t)
-fig, axes = plt.subplots(1, 2, figsize=(15, 4))
-order = ["Junior", "Mid-Senior", "Senior", "Specialist"]
-order = [o for o in order if o in set(s["experience_level"])] or None
-sns.boxplot(
-    data=s,
-    x="avg_csat",
-    y="experience_level",
-    order=order,
-    ax=axes[0],
-    color=theme.SEQ_BLUE[1],
-    fliersize=2,
-    linewidth=0.8,
-)
-axes[0].set_title("Average CSAT by experience level")
-sns.scatterplot(
-    data=s,
+order = [
+    o for o in ["Junior", "Mid-Senior", "Senior", "Specialist"] if o in set(s["experience_level"])
+]
+dist_fig(
+    s, "avg_csat", "experience_level", order=order or None, title="Average CSAT by experience level"
+).show()
+fig = px.scatter(
+    s,
     x="total_monthly_interactions",
     y="avg_csat",
-    hue="agent_type",
-    ax=axes[1],
-    s=14,
-    alpha=0.6,
-    palette=theme.CATEGORICAL[: s["agent_type"].nunique()],
+    color="agent_type",
+    hover_data=["agent_id", "experience_level", "specialty", "native_accent"],
+    opacity=0.65,
+    color_discrete_sequence=theme.CATEGORICAL,
+    render_mode="svg",
 )
-axes[1].set_title("Workload vs CSAT")
-for ax in axes:
-    ax.set_ylabel(ax.get_ylabel() if ax is axes[1] else "")
-plt.tight_layout()
-plt.show()
+fig.update_traces(marker_size=6)
+fig.update_layout(title="Workload vs CSAT, one dot per agent (hover for details)", height=440)
+fig.show()
 heat(
     p.crosstab(con, rel(t), "specialty", "agent_type"),
     "Agents by specialty and type (count)",
@@ -1293,36 +1338,21 @@ rate_bars(
     "Service outcomes (%, exact, 95% Wilson CI)",
 )
 s = smp(t)
-fig, axes = plt.subplots(1, 2, figsize=(15, 4.2))
-order = s.groupby("channel")["wait_time_seconds"].median().sort_values().index
-sns.violinplot(
-    data=s,
-    x="wait_time_seconds",
-    y="channel",
-    order=order,
-    ax=axes[0],
-    color=theme.SEQ_BLUE[1],
-    cut=0,
-    inner="quartile",
-    linewidth=0.8,
-)
-axes[0].set_title("Wait time by channel (s, sample)")
-sns.violinplot(
-    data=s,
-    x="duration_seconds",
-    y="channel",
-    order=order,
-    ax=axes[1],
-    color=theme.SEQ_BLUE[1],
-    cut=0,
-    inner="quartile",
-    linewidth=0.8,
-)
-axes[1].set_title("Handle time by channel (s, sample)")
-for ax in axes:
-    ax.set_ylabel("")
-plt.tight_layout()
-plt.show()
+# each chart orders its own channels: wait time exists only for phone calls
+dist_fig(
+    s,
+    "wait_time_seconds",
+    "channel",
+    kind="violin",
+    title="Wait time by channel (s, sample)",
+).show()
+dist_fig(
+    s,
+    "duration_seconds",
+    "channel",
+    kind="violin",
+    title="Handle time by channel (s, sample)",
+).show()
 heat(
     p.crosstab(con, rel(t), "reason_category", "detected_sentiment", normalize="row"),
     "Detected sentiment by reason category (% of the reason's contacts, exact)",
@@ -1380,20 +1410,12 @@ fig.update_layout(
     yaxis_title="transcripts",
 )
 fig.show()
-s = smp(t)
-fig, ax = plt.subplots(figsize=(12, 3.8))
-sns.boxplot(
-    data=s,
-    x="accent_confidence",
-    y="audio_quality",
-    ax=ax,
-    color=theme.SEQ_BLUE[1],
-    fliersize=1,
-    linewidth=0.8,
-)
-ax.set_title("Accent-detection confidence by audio quality (sample)")
-ax.set_ylabel("")
-plt.show()
+dist_fig(
+    smp(t),
+    "accent_confidence",
+    "audio_quality",
+    title="Accent-detection confidence by audio quality (sample)",
+).show()
 
 # %% [markdown]
 # ### 5.3 `satisfaction_surveys` (fact)
@@ -1470,36 +1492,29 @@ heat(
     "SLA breach rate by category × priority (%, exact)",
 )
 s = smp(t)
-fig, axes = plt.subplots(1, 2, figsize=(15, 4.2))
 pri = [x for x in ["Low", "Medium", "High", "Critical"] if x in set(s["priority"])]
-sns.boxplot(
-    data=s,
-    x="resolution_days",
-    y="priority",
-    order=pri,
-    ax=axes[0],
-    color=theme.SEQ_BLUE[1],
-    fliersize=1,
-    linewidth=0.8,
-)
-axes[0].set_title("Resolution days by priority (sample)")
+dist_fig(
+    s, "resolution_days", "priority", order=pri, title="Resolution days by priority (sample)"
+).show()
 comp = s[(s["claimed_amount"] > 0) & (s["compensation_granted"] > 0)]
-sns.scatterplot(
-    data=comp,
+fig = px.scatter(
+    comp,
     x="claimed_amount",
     y="compensation_granted",
-    hue="currency",
-    s=8,
-    alpha=0.4,
-    ax=axes[1],
-    palette=theme.CATEGORICAL[: comp["currency"].nunique()],
+    color="currency",
+    log_x=True,
+    log_y=True,
+    opacity=0.45,
+    hover_data=["complaint_id", "category", "priority", "status"],
+    color_discrete_sequence=theme.CATEGORICAL,
+    render_mode="svg",
 )
-axes[1].set(
-    xscale="log", yscale="log", title="Claimed vs compensation granted (both > 0, log-log, sample)"
+fig.update_traces(marker_size=4)
+fig.update_layout(
+    title=f"Claimed vs compensation granted (both > 0, log-log, {len(comp):,} complaints)",
+    height=460,
 )
-axes[0].set_ylabel("")
-plt.tight_layout()
-plt.show()
+fig.show()
 lc = (
     con.sql(
         """select avg(date_diff('hour', creation_date, assignment_date)) / 24 assign_days,
@@ -1669,7 +1684,7 @@ rate_bars(
 
 # %% [markdown]
 # ## 8 · Interactive explorers
-# Four tools to keep exploring on your own. They query **the full tables live** through DuckDB (the KDE, box
+# Six tools to keep exploring on your own. They query **the full tables live** through DuckDB (the KDE, box
 # and violin views use the cached sample). **Run the notebook in JupyterLab** to use them; the HTML export
 # cannot run widgets.
 
@@ -1695,6 +1710,8 @@ def _cols(*_):
 
 def _draw_col(*_):
     t, c = w_t.value, w_c.value
+    if not has_cols(t, c):
+        return
     if c is None:
         return
     out_col.clear_output(wait=True)
@@ -1737,21 +1754,19 @@ def _draw_col(*_):
         else:
             x = smp(t)[c].dropna().astype(float)
             x = x[x > 0] if w_log.value else x
-            fig, ax = plt.subplots(figsize=(11, 3.6))
             if w_k.value == "KDE":
-                sns.kdeplot(
-                    x=x,
-                    ax=ax,
-                    fill=True,
-                    color=theme.BLUE,
-                    alpha=0.25,
-                    log_scale=w_log.value,
-                    cut=0,
-                )
+                kde_fig({c: x}, f"{t}.{c}: KDE (sample of {len(x):,})", log=w_log.value).show()
             else:
-                sns.boxplot(x=x, ax=ax, color=theme.SEQ_BLUE[1], log_scale=w_log.value, fliersize=1)
-            ax.set_title(f"{t}.{c}: {w_k.value} (sample of {len(x):,})")
-            plt.show()
+                fig = px.box(
+                    x=x,
+                    points="suspectedoutliers",
+                    log_x=w_log.value,
+                    color_discrete_sequence=[theme.BLUE],
+                )
+                fig.update_layout(
+                    title=f"{t}.{c}: box (sample of {len(x):,}; dots = outliers)", height=300
+                )
+                fig.show()
 
 
 w_t.observe(_cols, "value")
@@ -1779,6 +1794,8 @@ def _xcols(*_):
 
 
 def _draw_x(*_):
+    if not has_cols(x_t.value, x_r.value, x_c.value):
+        return
     if not (x_r.value and x_c.value) or x_r.value == x_c.value:
         return
     out_x.clear_output(wait=True)
@@ -1816,6 +1833,8 @@ def _gcols(*_):
 
 
 def _draw_g(*_):
+    if not has_cols(g_t.value, g_y.value, g_by.value):
+        return
     if not (g_y.value and g_by.value):
         return
     out_g.clear_output(wait=True)
@@ -1824,34 +1843,25 @@ def _draw_g(*_):
         s = s[s[g_y.value] > 0]
     order = s.groupby(g_by.value)[g_y.value].median().sort_values().index
     with out_g:
-        fig, ax = plt.subplots(figsize=(12, max(3.5, 0.38 * len(order) + 1.5)))
+        title = f"{g_t.value}: {g_y.value} by {g_by.value} (sample of {len(s):,})"
         if g_k.value == "KDE":
-            sns.kdeplot(
-                data=s,
-                x=g_y.value,
-                hue=g_by.value,
-                common_norm=False,
-                log_scale=g_log.value,
-                ax=ax,
-                cut=0,
-                palette=dict(zip(order, (theme.CATEGORICAL * 4)[: len(order)])),
-            )
+            top = s[g_by.value].value_counts().index[:8]  # one palette slot per level, max 8
+            kde_fig(
+                {lvl: s.loc[s[g_by.value] == lvl, g_y.value] for lvl in top},
+                title + " · 8 most frequent levels",
+                log=g_log.value,
+                height=420,
+            ).show()
         else:
-            fn = sns.boxplot if g_k.value == "box" else sns.violinplot
-            kw = {"fliersize": 1} if g_k.value == "box" else {"cut": 0, "inner": "quartile"}
-            fn(
-                data=s,
-                x=g_y.value,
-                y=g_by.value,
-                order=order,
-                ax=ax,
-                color=theme.SEQ_BLUE[1],
-                log_scale=g_log.value,
-                linewidth=0.8,
-                **kw,
-            )
-        ax.set_title(f"{g_t.value}: {g_y.value} by {g_by.value} (sample of {len(s):,})")
-        plt.show()
+            dist_fig(
+                s,
+                g_y.value,
+                g_by.value,
+                kind=g_k.value,
+                log=g_log.value,
+                order=order.tolist(),
+                title=title,
+            ).show()
 
 
 g_t.observe(_gcols, "value")
@@ -1887,6 +1897,8 @@ def _tscols(*_):
 
 
 def _draw_ts(*_):
+    if not has_cols(ts_t.value, ts_d.value, ts_v.value, ts_split.value):
+        return
     if not ts_d.value:
         return
     out_ts.clear_output(wait=True)
@@ -1927,8 +1939,193 @@ _tscols()
 h("### 8.4 Time explorer")
 display(widgets.VBox([widgets.HBox([ts_t, ts_d, ts_v]), ts_grain, ts_agg, ts_split, out_ts]))
 
+# %%
+out_sc = widgets.Output()
+sc_t = widgets.Dropdown(options=TABLES, value="transactions", description="table")
+sc_x, sc_y = widgets.Dropdown(description="x"), widgets.Dropdown(description="y")
+sc_c = widgets.Dropdown(description="colour")
+sc_n = widgets.IntSlider(value=5000, min=1000, max=50000, step=1000, description="points")
+sc_lx, sc_ly = widgets.Checkbox(description="log x"), widgets.Checkbox(description="log y")
+
+
+def _sccols(*_):
+    nums = p.cols_of(con, rel(sc_t.value), "numeric")
+    sc_x.options, sc_y.options = nums, nums
+    if len(nums) > 1:
+        sc_y.value = nums[1]
+    s = smp(sc_t.value)
+    sc_c.options = ["(none)"] + [
+        c for c in p.cols_of(con, rel(sc_t.value), "categorical", "boolean") if s[c].nunique() <= 8
+    ]
+
+
+def _draw_sc(*_):
+    if not has_cols(sc_t.value, sc_x.value, sc_y.value, sc_c.value):
+        return
+    if not (sc_x.value and sc_y.value):
+        return
+    out_sc.clear_output(wait=True)
+    colour = sc_c.value if sc_c.value and sc_c.value != "(none)" else None
+    d = smp(sc_t.value)[[c for c in {sc_x.value, sc_y.value, colour} if c]].dropna()
+    if sc_lx.value:
+        d = d[d[sc_x.value] > 0]
+    if sc_ly.value:
+        d = d[d[sc_y.value] > 0]
+    d = d.sample(min(len(d), sc_n.value), random_state=0)
+    rho = d[sc_x.value].corr(d[sc_y.value], method="spearman") if len(d) > 2 else float("nan")
+    with out_sc:
+        fig = px.scatter(
+            d,
+            x=sc_x.value,
+            y=sc_y.value,
+            color=colour,
+            log_x=sc_lx.value,
+            log_y=sc_ly.value,
+            opacity=0.5,
+            marginal_x="histogram",
+            marginal_y="histogram",
+            color_discrete_sequence=theme.CATEGORICAL,
+            render_mode="webgl",  # live kernel only; fast for 50k points
+        )
+        fig.update_traces(marker_size=4, selector=dict(type="scattergl"))
+        fig.update_layout(
+            title=f"{sc_t.value}: {sc_y.value} vs {sc_x.value} "
+            f"({len(d):,} sampled rows, Spearman ρ = {rho:.2f})",
+            height=560,
+        )
+        fig.show()
+
+
+sc_t.observe(_sccols, "value")
+for w in (sc_t, sc_x, sc_y, sc_c, sc_n, sc_lx, sc_ly):
+    w.observe(_draw_sc, "value")
+_sccols()
+h("### 8.5 Scatter explorer")
+display(
+    widgets.VBox(
+        [widgets.HBox([sc_t, sc_x, sc_y]), widgets.HBox([sc_c, sc_n, sc_lx, sc_ly]), out_sc]
+    )
+)
+
 # %% [markdown]
-# ### 8.5 Row browser
+# ### 8.6 Slice explorer
+# Profile any **slice** of a table against the whole table, exactly, on the full data. Write a DuckDB `WHERE`
+# clause (e.g. `currency = 'COP' and amount > 1e6`, `is_fraud`, `channel in ('ATM', 'POS')`), pick a column,
+# and press **Run**. Categorical columns show the slice's share next to the table's share and the **lift**
+# (slice ÷ table: above 1 means over-represented in the slice); numeric columns show both distributions on
+# the same bins.
+
+# %%
+import duckdb
+
+out_sl = widgets.Output()
+sl_t = widgets.Dropdown(options=TABLES, value="transactions", description="table")
+sl_w = widgets.Text(value="is_fraud", description="where", layout=widgets.Layout(width="60%"))
+sl_c = widgets.Dropdown(description="column")
+sl_log = widgets.Checkbox(value=False, description="log (numeric)")
+sl_go = widgets.Button(description="Run", button_style="primary")
+
+
+def _slcols(*_):
+    cols = p.columns(con, rel(sl_t.value))
+    sl_c.options = cols.loc[
+        cols["kind"].isin(["numeric", "categorical", "boolean"]), "column"
+    ].tolist()
+
+
+def _draw_sl(*_):
+    t, c, where = sl_t.value, sl_c.value, sl_w.value.strip() or "true"
+    if not has_cols(t, c):
+        return
+    piece = f"(select * from {rel(t)} where {where})"
+    out_sl.clear_output(wait=True)
+    with out_sl:
+        try:
+            n_all = con.sql(f"select count(*) from {rel(t)}").fetchone()[0]
+            n_sl = con.sql(f"select count(*) from {piece}").fetchone()[0]
+        except duckdb.Error as e:
+            h(f"**Query error:** `{e}`")
+            return
+        h(f"**Slice:** {n_sl:,} of {n_all:,} rows ({n_sl / max(n_all, 1):.2%}) where `{where}`")
+        if not n_sl:
+            return
+        kind = p.columns(con, rel(t)).set_index("column").loc[c, "kind"]
+        if kind == "numeric":
+            x = f"{p.q(c)}::double"
+            v = f"log10(case when {x} > 0 then {x} end)" if sl_log.value else x
+            lo, hi = con.sql(f"select min({v}), max({v}) from {rel(t)}").fetchone()
+            if lo is None:
+                h("No values to plot.")
+                return
+            w = (hi - lo) / 50 if hi > lo else 1.0
+            frames = []
+            for label, src in (("table", rel(t)), ("slice", piece)):
+                b = con.sql(f"""select least(floor(({v} - {lo}) / {w}), 49)::int b, count(*) n
+                                from {src} where {v} is not null group by 1""").df()
+                b["share"] = 100 * b["n"] / b["n"].sum()
+                frames.append(b.assign(group=label))
+            d = pd.concat(frames)
+            d["x"] = lo + (d["b"] + 0.5) * w
+            if sl_log.value:
+                d["x"] = 10 ** d["x"]
+            fig = px.bar(
+                d,
+                x="x",
+                y="share",
+                color="group",
+                barmode="overlay",
+                opacity=0.6,
+                color_discrete_sequence=[theme.SEQ_BLUE[1], theme.ORANGE],
+                log_x=sl_log.value,
+            )
+            fig.update_layout(
+                title=f"{t}.{c}: slice vs table (% of each group's rows, same bins)",
+                height=380,
+                bargap=0,
+                xaxis_title=c,
+                yaxis_title="% of rows",
+            )
+        else:
+            whole = p.value_counts(con, rel(t), c, top=1000)[["value", "share_pct"]]
+            part = p.value_counts(con, piece, c, top=1000)[["value", "share_pct"]]
+            d = part.merge(whole, on="value", how="left", suffixes=("_slice", "_table"))
+            d = d[~d["value"].str.startswith("(other")].head(20)
+            d["lift"] = d["share_pct_slice"] / d["share_pct_table"]
+            long = d.melt(
+                id_vars=["value", "lift"],
+                value_vars=["share_pct_table", "share_pct_slice"],
+                var_name="group",
+                value_name="share",
+            )
+            long["group"] = long["group"].str.replace("share_pct_", "")
+            fig = px.bar(
+                long.iloc[::-1],
+                x="share",
+                y="value",
+                color="group",
+                barmode="group",
+                orientation="h",
+                hover_data={"lift": ":.2f"},
+                color_discrete_sequence=[theme.ORANGE, theme.SEQ_BLUE[1]],
+            )
+            fig.update_yaxes(type="category")
+            fig.update_layout(
+                title=f"{t}.{c}: share in the slice vs the table (%; hover for lift)",
+                height=max(340, 30 * len(d) + 160),
+                xaxis_title="% of rows",
+                yaxis_title="",
+            )
+        fig.show()
+
+
+sl_t.observe(_slcols, "value")
+sl_go.on_click(_draw_sl)
+_slcols()
+sl_c.value = "transaction_type"
+display(widgets.VBox([widgets.HBox([sl_t, sl_c, sl_log]), widgets.HBox([sl_w, sl_go]), out_sl]))
+
+# %% [markdown]
+# ### 8.7 Row browser
 # The cached sample of any table (PII and free-text columns removed), with column search and SearchBuilder
 # filters. Change `TABLE` and re-run the cell.
 
@@ -1996,6 +2193,9 @@ show(
 #     channel, country and merchant category, so categorical signal is weak.
 # 13. **6% of credit products are over their limit**, and ≈15% of credit products with a recorded DPD are
 #     past due; worth reconciling with collections rules in gold.
+# 14. **Call-center timings exist only for voice:** wait time is recorded for phone calls alone, and handle
+#     time for phone plus part of App and Web; Email, WhatsApp and Web Chat contacts have neither. Service
+#     KPIs (wait, AHT) are comparable only on the phone channel until those channels are instrumented.
 
 # %%
 ev = {}
@@ -2052,6 +2252,13 @@ ev["placeholder cells (all tables)"] = int(gaps["placeholders"].sum())
 ev["fraud rate %"] = con.sql("select 100 * avg(is_fraud::int) from m_transactions").fetchone()[0]
 ev["fraud_score > 30: precision % / recall %"] = (
     f"{100 * leak[1] / leak[2]:.1f} / {100 * leak[1] / leak[3]:.1f}"
+)
+ev["contacts with a wait time, by channel (%)"] = ", ".join(
+    f"{ch} {v:.0f}"
+    for ch, v in con.sql(
+        """select channel, 100 * avg((wait_time_seconds is not null)::int) from m_call_center_interactions
+           group by 1 order by count(*) desc"""
+    ).fetchall()
 )
 ev["credit products over limit %"] = 100 * (util["utilisation"] > 1).mean()
 ev["credit products with recorded DPD that are past due %"] = con.sql(
