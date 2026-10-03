@@ -23,6 +23,11 @@ duckdb) stay out of the app and CI installs.
 | `reports/eda_overview.md` | Initial EDA of the main data | yes |
 | `../data/` | Raw download, Parquet, backup Parquet, derived tables (repository-level, shared with the data platform) | no |
 
+The strategy for the next phases (compliance, architecture, SCD, dbt, ML/AI/agents,
+deployment) is in [`docs/strategy/`](../docs/strategy/README.md); the dbt project it
+builds on is `platform/dbt/` (refresh `reports/tables/warehouse_*.csv` with
+`uv run scripts/warehouse_validation.py` after a dbt build).
+
 The ERD and the backup-vs-main summary are reference docs, so they live with the
 data dictionary in [`docs/dataset/`](../docs/dataset/).
 
