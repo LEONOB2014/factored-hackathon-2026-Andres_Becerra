@@ -57,8 +57,12 @@ def publish_serving():
             (config.REPO_ROOT / "platform/policies/data_classification.yaml").read_text()
         )
         restricted = {c["column"] for c in policy["restricted_columns"]}
-        con = ops.lakehouse(read_only=True)
-        cols = [r[0] for r in con.sql(f"describe serving.{table}").fetchall()]
+        import duckdb
+
+        con = duckdb.connect()  # neutral session: lakehouse read-only, Postgres read-write
+        con.sql(f"SET memory_limit = '{os.environ.get('LATAM_DUCKDB_MEMORY', '2GB')}'")
+        con.sql(f"ATTACH '{config.LAKEHOUSE_DB}' AS lh (READ_ONLY)")
+        cols = [r[0] for r in con.sql(f"describe lh.serving.{table}").fetchall()]
         leaked = restricted & set(cols)
         if leaked:
             ops.ledger(
@@ -67,7 +71,7 @@ def publish_serving():
             raise RuntimeError(f"{table}: restricted columns {leaked}")
         digest, n = con.sql(
             f"select md5(string_agg(md5(cast(t as varchar)), '' order by md5(cast(t as varchar)))), count(*) "
-            f"from serving.{table} t"
+            f"from lh.serving.{table} t"
         ).fetchone()
         con.sql("INSTALL postgres; LOAD postgres;")
         host = os.environ.get("LATAM_PG_CORE_HOST", "pg-core")
@@ -77,7 +81,7 @@ def publish_serving():
         )
         live = table.removeprefix("serving_")
         con.sql(f"DROP TABLE IF EXISTS pg.serving.{live}__new")
-        con.sql(f"CREATE TABLE pg.serving.{live}__new AS SELECT * FROM serving.{table}")
+        con.sql(f"CREATE TABLE pg.serving.{live}__new AS SELECT * FROM lh.serving.{table}")
         with ops.pg("bank_serving") as pgc:  # atomic swap
             with pgc.transaction():
                 pgc.execute(f"DROP TABLE IF EXISTS serving.{live}")

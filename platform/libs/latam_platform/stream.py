@@ -59,12 +59,18 @@ def export_holdout(con, days: int | None = None) -> dict:
     return {"transactions": n_tx, "logins": n_lg}
 
 
-def ensure_topics(bootstrap: str) -> list[str]:
+def ensure_topics(bootstrap: str, recreate: bool = True) -> list[str]:
+    """Each demo run starts from empty topics so Flink windows never mix events from a previous replay."""
     from confluent_kafka.admin import AdminClient, NewTopic
 
     admin = AdminClient({"bootstrap.servers": bootstrap})
     wanted = {"tx.raw": 3, "tx.logins": 1, "tx.features": 3, "tx.decisions": 3}
     existing = set(admin.list_topics(timeout=10).topics)
+    if recreate and existing & set(wanted):
+        for f in admin.delete_topics(sorted(existing & set(wanted))).values():
+            f.result()
+        time.sleep(3)
+        existing = set(admin.list_topics(timeout=10).topics)
     new = [
         NewTopic(t, num_partitions=p, replication_factor=1)
         for t, p in wanted.items()
@@ -116,12 +122,38 @@ def replay(bootstrap: str, seconds_per_day: float = 30.0, max_events: int | None
             p.produce("tx.raw", key=row.customer_id, value=json.dumps(rec, default=str))
         sent[row.kind] += 1
         p.poll(0)
+    flush_watermark(p, ev.ts.max())
     p.flush(30)
     return {
         **sent,
         "wall_seconds": round(time.time() - t0, 1),
         "data_span": [str(ev.ts.min()), str(ev.ts.max())],
     }
+
+
+def flush_watermark(producer, last_ts, partitions: int = 3) -> None:
+    """Event-time windows close only when the watermark passes them. After a finite replay the source goes idle, so
+    one sentinel per partition, timestamped beyond the longest window and marked warm-up (never stored or scored),
+    advances the watermark and makes Flink emit the last real transactions."""
+    import pandas as pd
+
+    ts = (pd.Timestamp(last_ts) + pd.Timedelta(days=8)).isoformat(timespec="milliseconds")
+    for part in range(partitions):
+        rec = dict.fromkeys(TX_FIELDS)
+        rec.update(
+            {
+                "transaction_id": f"__watermark_{part}_{ts}",
+                "customer_id": f"__watermark_{part}",
+                "transaction_ts_utc": ts,
+                "amount_usd": 0.0,
+                "transaction_status": "Approved",
+                "local_hour": 0,
+                "transaction_country_code": "XX",
+                "customer_country_code": "XX",
+                "is_warmup": True,
+            }
+        )
+        producer.produce("tx.raw", key=rec["customer_id"], value=json.dumps(rec), partition=part)
 
 
 def _split_statements(sql: str) -> list[str]:

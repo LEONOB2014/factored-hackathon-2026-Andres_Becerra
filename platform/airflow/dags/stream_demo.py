@@ -54,8 +54,21 @@ def stream_demo():
     def setup(exported: dict) -> list:
         import os
 
+        import requests
+
         from latam_platform import ops, stream
 
+        for job in requests.get("http://flink-jobmanager:8081/jobs/overview", timeout=10).json()[
+            "jobs"
+        ]:
+            if job["name"] == "fraud-online-features" and job["state"] in (
+                "RUNNING",
+                "RESTARTING",
+                "CREATED",
+            ):
+                requests.patch(
+                    f"http://flink-jobmanager:8081/jobs/{job['jid']}?mode=cancel", timeout=10
+                )
         with ops.pg("bank_serving") as pg:  # fresh run: clear previous window features
             pg.execute("TRUNCATE online_features.tx_window_features")
         topics = stream.ensure_topics(os.environ["LATAM_KAFKA_BOOTSTRAP"])
