@@ -40,6 +40,9 @@ x-airflow: &airflow
     LATAM_MLFLOW_URI: http://mlflow:5000
     LATAM_KAFKA_BOOTSTRAP: redpanda:9092
     LATAM_FLINK_REST: http://flink-jobmanager:8081
+    LATAM_DUCKDB_MEMORY: 2GB
+    LATAM_DUCKDB_THREADS: "4"
+    TMPDIR: /opt/latam/data/tmp
   volumes:
     - ../..:/opt/latam                       # repo (DAGs, dbt, library) + data/ lake
     - airflow-config:/opt/airflow/config
@@ -127,9 +130,9 @@ services:
 
   airflow-scheduler:
     <<: *airflow
-    command: scheduler
+    command: scheduler                       # LocalExecutor: tasks (bronze, dbt, ML) run in this container
     depends_on: {airflow-init: {condition: service_completed_successfully}}
-    deploy: {resources: {limits: {memory: 2g}}}
+    deploy: {resources: {limits: {memory: 4g}}}
 
   airflow-dag-processor:
     <<: *airflow
@@ -262,6 +265,8 @@ services:
       POSTGRES_DB: marquez
       POSTGRES_USER: marquez
       POSTGRES_PASSWORD: ${MARQUEZ_DB_PASSWORD}
+      MARQUEZ_CONFIG: /opt/marquez/marquez.yml
+    volumes: [./marquez/marquez.yml:/opt/marquez/marquez.yml:ro]
     networks: [net_ops, net_data]
     depends_on: {pg-core: {condition: service_healthy}}
     deploy: {resources: {limits: {memory: 768m}}}

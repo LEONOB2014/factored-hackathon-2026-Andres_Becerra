@@ -13,7 +13,9 @@ latam_bank:
       path: "{{ env_var('LATAM_DUCKDB_PATH', '../../data/lake/lakehouse.duckdb') }}"
       threads: 6
       settings:
-        memory_limit: "10GB"
+        memory_limit: "{{ env_var('LATAM_DUCKDB_MEMORY', '10GB') }}"
+        threads: "{{ env_var('LATAM_DUCKDB_THREADS', '8') }}"
+        temp_directory: "{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/../tmp/duckdb"
         preserve_insertion_order: false
     ci:
       type: duckdb

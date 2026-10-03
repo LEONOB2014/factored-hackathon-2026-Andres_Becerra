@@ -31,6 +31,9 @@ RUN python -m venv /opt/airflow/platform-venv \
     && /opt/airflow/platform-venv/bin/python -m spacy download es_core_news_sm \
     && echo "/opt/latam/platform/libs" > $(/opt/airflow/platform-venv/bin/python -c "import site; print(site.getsitepackages()[0])")/latam_platform.pth
 
+# Airflow's external-python runner serializes task arguments with pendulum/cloudpickle inside the target venv.
+RUN /opt/airflow/platform-venv/bin/pip install --no-cache-dir pendulum cloudpickle
+
 # Owned by the airflow user so the named volume mounted here inherits writable ownership.
 RUN mkdir -p /opt/airflow/config
 

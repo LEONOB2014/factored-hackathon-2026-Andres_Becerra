@@ -24,11 +24,11 @@ LAKE = f"{REPO}/data/lake"
 LANDING = Asset("lake://landing/raw")
 BRONZE = Asset("lake://bronze")
 LAKEHOUSE = Asset("duckdb://lakehouse/gold")
-SERVING = Asset("postgres://pg-core/bank_serving/serving")
-KNOWLEDGE = Asset("postgres://pg-core/knowledge/kb")
+SERVING = Asset("postgres://pg-core:5432/bank_serving/serving/publication_log")
+KNOWLEDGE = Asset("postgres://pg-core:5432/knowledge/kb/active_set_snapshot")
 GRAPH = Asset("neo4j://neo4j/latam")
 FRAUD_MODEL = Asset("mlflow://models/fraud_ensemble")
-STREAM_DECISIONS = Asset("postgres://pg-core/bank_serving/decisions")
+STREAM_DECISIONS = Asset("postgres://pg-core:5432/bank_serving/decisions/fraud_decision_log")
 
 DEFAULT_ARGS = {
     "owner": "data-platform",
@@ -37,8 +37,9 @@ DEFAULT_ARGS = {
 }
 
 DUCKDB_POOL = (
-    "duckdb_lakehouse"  # DuckDB allows one writer: every lakehouse-writing task uses this pool
+    "duckdb_lakehouse"  # one slot: DuckDB allows one writer, and heavy DuckDB jobs must not
 )
+# run concurrently inside the memory-capped scheduler (LocalExecutor)
 
 
 def _ledger_event(event_type: str, context, extra: dict | None = None) -> None:

@@ -29,8 +29,14 @@ class BronzeIntegrityError(RuntimeError):
 
 
 def _connect() -> duckdb.DuckDBPyConnection:
+    import os
+
     con = duckdb.connect()
     con.sql("SET preserve_insertion_order = true")
+    con.sql(f"SET memory_limit = '{os.environ.get('LATAM_DUCKDB_MEMORY', '8GB')}'")
+    tmp = config.DATA / "tmp" / "duckdb"
+    tmp.mkdir(parents=True, exist_ok=True)
+    con.sql(f"SET temp_directory = '{tmp}'")
     return con
 
 
