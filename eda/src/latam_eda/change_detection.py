@@ -34,15 +34,20 @@ def longest_run(present: np.ndarray) -> int:
 
 
 def classify_presence(
-    present: pd.Series, k: int = 7, stable_share: float = 0.98, dense: float = 0.9
+    present: pd.Series, k: int = 7, stable_share: float = 0.98, alpha: float = 0.001
 ) -> dict:
     """Classify a daily boolean presence series (index = dates).
 
+    Within its own span (first to last day seen) a value recurs with daily rate p. Under a stationary
+    presence, a run of L absent days has probability (1 - p)^L, so an absence before the first sighting
+    (or after the last) is significant when (1 - p)^L < alpha. That separates a late-born value
+    (e.g. a channel launched months after the table starts, even if it is sparse afterwards) from a
+    rare value that merely skipped a few days.
+
     stable        present on >= stable_share of the days;
-    born / died   dense presence (>= `dense` of the days in its span) after / before an absence of
-                  at least k days: evolution;
-    episode       dense presence with >= k absent days on both sides: born, then died;
-    intermittent  recurring on many days with scattered gaps (a rare but normal value): not a change;
+    born / died   significant absence before the first / after the last sighting: evolution;
+    episode       significant absence on both sides: born, then died;
+    intermittent  no significant absence: a rare but normal value, not a change;
     transient     present on fewer than k days in total: an isolated incident;
     absent        never present.
     """
@@ -53,17 +58,19 @@ def classify_presence(
     days = s.index
     first, last = int(on.argmax()), len(on) - 1 - int(on[::-1].argmax())
     coverage = float(on.mean())
+    rate = float(on[first : last + 1].mean())
     lead, trail = first, len(on) - 1 - last
-    span = on[first : last + 1]
+    late = lead >= k and (1 - rate) ** lead < alpha
+    early = trail >= k and (1 - rate) ** trail < alpha
     if coverage >= stable_share:
         kind = "stable"
     elif on.sum() < k:
         kind = "transient"
-    elif span.mean() >= dense and lead >= k and trail >= k:
+    elif late and early:
         kind = "episode"
-    elif span.mean() >= dense and lead >= k:
+    elif late:
         kind = "born"
-    elif span.mean() >= dense and trail >= k:
+    elif early:
         kind = "died"
     else:
         kind = "intermittent"
@@ -272,7 +279,7 @@ def scale_steps(log10_median: pd.Series, tol: float = 0.15, min_step: float = 0.
                 "label": label,
             }
         )
-    return pd.DataFrame(rows)
+    return pd.DataFrame(rows, columns=["date", "step_log10", "factor", "label"])
 
 
 # ------------------------------------------------------------------------------ table findings
@@ -295,6 +302,32 @@ def _presence(df: pd.DataFrame, by: str, flag: pd.Series) -> pd.Series:
     return flag.groupby(df[by]).any().sort_index()
 
 
+def _share_transition(add, col, signal, share, index, alpha, min_delta) -> None:
+    """One finding per (column, signal): material change points of a daily share, as one transition.
+
+    A gradual ramp yields several nested change points; reporting them together (level of the first
+    segment -> level of the last, over the dates of the first and last change point) is what a reviewer
+    needs. Splits whose prefix/suffix means differ by less than `min_delta` are immaterial.
+    """
+    bounds = binseg(share, alpha=alpha)
+    cps = [cp for cp in bounds if abs(share[cp:].mean() - share[:cp].mean()) >= min_delta]
+    if not cps:
+        return
+    first_seg, last_seg = share[: bounds[0]].mean(), share[bounds[-1] :].mean()
+    add(
+        "L2",
+        col,
+        signal,
+        {
+            "kind": "share_shift",
+            "first_seen": index[min(cps)],
+            "last_seen": index[max(cps)],
+            "coverage": 1.0,
+        },
+        f"{first_seg:.4f} -> {last_seg:.4f} ({len(cps)} change point(s))",
+    )
+
+
 def detect_table(
     files: pd.DataFrame,
     lexical: pd.DataFrame,
@@ -302,6 +335,7 @@ def detect_table(
     k: int = 7,
     share_alpha: float = 0.01,
     max_values: int = 50,
+    min_share_delta: float = 0.05,
 ) -> pd.DataFrame:
     """Classified findings for one table from its cached fingerprints (see scripts/raw_schema_scan.py).
 
@@ -380,21 +414,9 @@ def detect_table(
                 # sustained shift of the class share (PELT with a permutation-calibrated penalty)
                 share = (daily[f"n_{c}"] / daily["n"].where(daily["n"] > 0)).fillna(0).to_numpy()
                 if 0 < share.mean() < 1 and share.std() > 0:
-                    cps = binseg(share, alpha=share_alpha)
-                    for cp in cps:
-                        before, after = share[:cp].mean(), share[cp:].mean()
-                        add(
-                            "L2",
-                            col,
-                            f"share:{c}",
-                            {
-                                "kind": "share_shift",
-                                "first_seen": daily.index[cp],
-                                "last_seen": None,
-                                "coverage": 1.0,
-                            },
-                            f"{before:.4f} -> {after:.4f}",
-                        )
+                    _share_transition(
+                        add, col, f"share:{c}", share, daily.index, share_alpha, min_share_delta
+                    )
                 continue
             add("L2", col, f"class:{c}", res)
         if len(stable_formats) > 1:
@@ -414,35 +436,37 @@ def detect_table(
         if daily["n_empty"].sum():
             share = (daily["n_empty"] / daily["n"].where(daily["n"] > 0)).fillna(0).to_numpy()
             if share.std() > 0:
-                for cp in binseg(share, alpha=share_alpha):
-                    add(
-                        "L2",
-                        col,
-                        "share:empty",
-                        {
-                            "kind": "share_shift",
-                            "first_seen": daily.index[cp],
-                            "last_seen": None,
-                            "coverage": 1.0,
-                        },
-                        f"{share[:cp].mean():.4f} -> {share[cp:].mean():.4f}",
-                    )
+                _share_transition(
+                    add, col, "share:empty", share, daily.index, share_alpha, min_share_delta
+                )
         # scale steps of numeric columns
         loc = g.groupby("partition_date")["log10_median"].median().dropna()
         if len(loc) >= 30 and loc.std() > 0:
-            for _, s in scale_steps(loc).iterrows():
-                add(
-                    "L3",
-                    col,
-                    "scale",
-                    {
-                        "kind": "scale_step",
-                        "first_seen": s["date"],
-                        "last_seen": None,
-                        "coverage": 1.0,
-                    },
-                    f"x{s['factor']} {s['label']}".strip(),
-                )
+            steps = scale_steps(loc)
+            for kind, part in (
+                ("unit_change", steps[steps["label"] != ""]),
+                ("level_shift", steps[steps["label"] == ""]),
+            ):
+                # a factor near 10^k or an FX rate is a unit change; any other step is drift (phase F)
+                if len(part):
+                    add(
+                        "L3",
+                        col,
+                        "scale",
+                        {
+                            "kind": kind,
+                            "first_seen": part["date"].min(),
+                            "last_seen": part["date"].max(),
+                            "coverage": 1.0,
+                        },
+                        f"{len(part)} step(s), factors "
+                        + ", ".join(f"x{f:g}" for f in part["factor"].head(5))
+                        + (
+                            " " + ", ".join(sorted(set(part["label"]) - {""}))
+                            if kind == "unit_change"
+                            else ""
+                        ),
+                    )
 
     # L3: vocabularies
     if vocabulary is not None and len(vocabulary):
@@ -469,7 +493,13 @@ def detect_table(
                     unstable.append((value, res))
             if len(unstable) > max_values:
                 # e.g. numbers pouring into a code column after a column swap: one finding, not thousands
-                first = min(r["first_seen"] for _, r in unstable)
+                # dated by the earliest change: a value that died changed the day after it was last seen
+                first = min(
+                    pd.Timestamp(r["last_seen"]) + pd.Timedelta(days=1)
+                    if r["kind"] == "died"
+                    else pd.Timestamp(r["first_seen"])
+                    for _, r in unstable
+                )
                 add(
                     "L3",
                     col,

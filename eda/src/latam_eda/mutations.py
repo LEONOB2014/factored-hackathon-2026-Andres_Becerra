@@ -94,7 +94,7 @@ def transactions_catalogue() -> list[Mutation]:
             "L2|transaction_date|class:ts_tz|born",
             row=_tz_suffix("transaction_date"),
         ),
-        Mutation("unit_x1000", "amount", "L3|amount|scale|scale_step", row=_scale("amount", 1000)),
+        Mutation("unit_x1000", "amount", "L3|amount|scale|unit_change", row=_scale("amount", 1000)),
         Mutation(
             "swap_columns", "amount", "L2|amount|class:text|born", row=_swap("amount", "currency")
         ),

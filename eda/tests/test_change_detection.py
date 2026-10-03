@@ -22,6 +22,8 @@ def presence(on_days):
         ({30, 31, 90}, "transient"),
         (set(range(60, 140)), "episode"),
         (set(range(0, 200, 3)), "intermittent"),
+        (set(range(150, 200, 3)), "born"),  # sparse, but absent for 150 days before: a late birth
+        (set(range(2, 200, 3)), "intermittent"),  # a 2-day lead is normal for a 1-in-3 value
         (set(), "absent"),
     ],
 )
@@ -143,3 +145,40 @@ def test_detect_table_end_to_end_on_crafted_partitions(tmp_path):
     assert one("L2", "amount", "class:dec_dot", "died")["change_date"] == day20
     # nothing is reported before the change: the first 20 days are clean
     assert (found["change_date"].dropna() >= day20).all()
+
+
+def test_a_burst_is_dated_by_its_earliest_change(tmp_path):
+    """60 values die and 60 new ones are born on day 20: one burst finding, dated day 20."""
+    days = pd.date_range("2024-01-01", periods=40)
+    rows = []
+    for i, day in enumerate(days):
+        values = [f"new{j}" for j in range(60)] if i >= 20 else [f"old{j}" for j in range(60)]
+        rows += [
+            {"file": f"f{i}", "column": "code", "value": v, "n": 1, "partition_date": day}
+            for v in values
+        ]
+    voc = pd.DataFrame(rows)
+    files = pd.DataFrame(
+        {
+            "partition_date": days,
+            "bom": True,
+            "crlf": 1,
+            "lf": 0,
+            "utf8_errors": 0,
+            "nul_bytes": 0,
+            "ragged": 0,
+            "grammar_error": None,
+            "header": '["code"]',
+        }
+    )
+    lex = pd.DataFrame(columns=["file", "column", "partition_date", "n", "log10_median"])
+    found = cd.detect_table(files, lex, voc, max_values=50)
+    burst = found[found.signal == "vocabulary_burst"]
+    assert len(burst) == 1
+    assert burst["change_date"].iloc[0] == days[20]
+
+
+def test_scale_steps_on_an_immaterial_step_returns_an_empty_frame_with_columns():
+    loc = np.r_[np.full(100, 3.0), np.full(100, 3.003)]  # x1.007: significant, immaterial
+    steps = cd.scale_steps(pd.Series(loc, index=DAYS))
+    assert steps.empty and list(steps.columns) == ["date", "step_log10", "factor", "label"]
