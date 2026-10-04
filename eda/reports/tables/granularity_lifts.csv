@@ -1,0 +1,8 @@
+signal,months with A,P(B | A) %,P(B | not A) %,relative risk,rr_low,rr_high,p_value,business use
+digital error → contact,228865,11.95,11.91,1.003,0.992,1.015,0.600312011990564,service: fix the digital failure before the customer calls
+unresolved contact → complaint,144810,1.28,1.23,1.035,0.988,1.083,0.1457075966426087,service: close the loop on unresolved contacts
+complaint → dormant,30572,38.81,38.58,1.006,0.992,1.02,0.4088459203304937,retention: a complaint as an attrition trigger
+declined for funds → dormant,76007,35.14,38.69,0.908,0.899,0.917,1.8161005012000516e-87,retention / credit: financial stress
+3+ campaign sends → dormant,11371,38.43,38.59,0.996,0.973,1.019,0.7357856137002643,marketing: contact fatigue
+conversion → more activity,3842,9.55,9.8,0.975,0.884,1.074,0.6064426896362932,marketing: does a conversion deepen the relationship
+escalated contact → dormant,31000,38.76,38.58,1.005,0.991,1.019,0.528215455546186,service: escalation as an attrition trigger
