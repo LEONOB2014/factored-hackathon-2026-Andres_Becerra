@@ -1,0 +1,7 @@
+grain,target,kind,train_rows,test_rows,test_positives,base_rate,metric,value,ci_low,ci_high,baseline,p_value,best_single_feature,best_single_value,verdict,note
+customer × month,dormant next month (active now),classification,300249,119802,46423.0,0.38749770454583393,AUC,0.6776110680158896,0.6744345834742416,0.6807875525575375,0.5,0.0,tx_6m,0.6575261515544699,"weak signal: rules, not models",
+customer × month,contacts the bank next month,classification,635460,211820,25406.0,0.1199414597299594,AUC,0.5018233589215866,0.49803596982866727,0.5056107480145059,0.5,0.17268683433244808,sends_3m,0.5030394039072966,no evidence of signal,
+customer × month,complains next month,classification,635460,211820,2588.0,0.012217920876215654,AUC,0.5030579920439735,0.4918454037405784,0.5142705803473686,0.5,0.2964812939816457,sessions_3m,0.5073710829220552,no evidence of signal,
+customer × month,adopts digital next month (no session in 3 months),classification,272437,106046,25165.0,0.23730267996907004,AUC,0.49841191212391456,0.49433014209618015,0.5024936821516489,0.5,0.7771412917736391,age_years,0.5029680630139272,no evidence of signal,
+customer × month,converts next month (when sent a campaign),classification,176873,59190,386.0,0.006521371853353607,AUC,0.48183770586964403,0.4533150087977798,0.5103604029415082,0.5,0.8939958372839405,tenure_days,0.554166660792523,no evidence of signal,
+customer × month,contacts next month (count),count,635460,211820,,,deviance explained %,-0.005155567194448096,,,,0.010720980750215794,negative binomial,,no gain over the run rate,

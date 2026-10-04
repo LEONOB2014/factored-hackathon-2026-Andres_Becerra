@@ -1,0 +1,25 @@
+-- Every channel a customer reaches the bank through, from every process, mapped to one channel family so that
+-- volumes of different processes can be compared and rolled up: physical (branch, ATM), merchant (card at POS),
+-- self-service digital (app, web, transfers, digital sessions), assisted (calls, chat, email, messaging) and
+-- outbound (campaign sends).
+-- grain: process, channel
+with c as (
+    select distinct 'transaction' as process, channel from {int_transactions_enriched}
+    union all select distinct 'contact', channel from {fct_interaction}
+    union all select distinct 'digital_session', channel from {fct_digital_session}
+    union all select distinct 'complaint_intake', reception_channel from {fct_complaint}
+    union all select distinct 'campaign_send', send_channel from {fct_campaign_send}
+)
+select
+    process,
+    channel,
+    case
+        when process = 'campaign_send' then 'outbound'
+        when channel in ('ATM', 'Branch') then 'physical'
+        when channel = 'POS' then 'merchant'
+        when process = 'transaction' or process = 'digital_session' then 'digital'
+        when channel in ('App', 'Web') then 'digital'
+        when channel = 'Regulator' then 'regulator'
+        else 'assisted'
+    end as channel_family
+from c

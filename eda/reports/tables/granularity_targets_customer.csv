@@ -1,0 +1,2 @@
+grain,target,kind,train_rows,test_rows,test_positives,base_rate,metric,value,ci_low,ci_high,baseline,p_value,best_single_feature,best_single_value,verdict,note
+customer (lifetime),time to first 90-day lapse,survival,94377,40138,27697,0.6900443470028402,concordance,0.7049886991626537,0.7020698682254802,0.7079835609866459,0.5,0.0,tx_first3,,learnable: rank customers by lapse risk,
