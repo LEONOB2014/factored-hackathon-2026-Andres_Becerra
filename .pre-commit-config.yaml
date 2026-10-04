@@ -45,7 +45,16 @@ repos:
     rev: v1.5.0
     hooks:
       - id: detect-secrets
-        args: [--baseline, .secrets.baseline]
+        # Contract versions are a 12-hex prefix of the contract's own sha256 (an integrity id, not a
+        # secret): in eda/reports/contracts/*.json, in platform/contracts/sources/*.yml
+        # (phase1_contract) and in the dbt models generated from them ('<id>' AS contract_version).
+        # Only lines of exactly these shapes are exempt (approved by the maintainer 2026-10-03, extended
+        # to the source contracts the same day); the rest of every file is still scanned.
+        args:
+          - --baseline
+          - .secrets.baseline
+          - --exclude-lines
+          - '"contract_version": "[0-9a-f]{12}"|phase1_contract: ["'']?[0-9a-f]{12}["'']?$|''[0-9a-f]{12}'' AS _?contract_version'
         # Executed notebooks and their HTML exports embed base64 chart data that trips the
         # entropy and AWS-key detectors (checked: no real credentials). Their code is still
         # scanned through the .py sources in eda/notebooks/.

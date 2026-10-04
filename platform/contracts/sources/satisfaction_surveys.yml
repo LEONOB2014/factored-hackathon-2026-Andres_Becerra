@@ -1,0 +1,179 @@
+# Source contract: satisfaction_surveys. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/satisfaction_surveys.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: satisfaction_surveys
+kind: fact
+entity_key:
+- survey_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 670eda57180a
+  rows: 212759
+  files: 1097
+columns:
+  survey_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^SRV-[0-9A-Z]{20}$
+  survey_date:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space
+  process_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  interaction_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^INT-[0-9A-Z]{16}$
+  customer_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  agent_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^AGT-[0-9A-Z]{10}$
+  survey_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - CES
+    - CSAT
+    - NPS
+  send_channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - App
+    - Email
+    - IVR
+    - SMS
+    - Web
+  main_score:
+    type: BIGINT
+    required: true
+    empty_share: 0.0
+    formats:
+    - int
+    scale:
+      log10_median: 0.4771
+      mad: 0.0
+      partitions: 1066
+  nps_category:
+    type: VARCHAR
+    required: false
+    empty_share: 0.716139
+    vocabulary:
+    - Detractor
+    - Passive
+  question_1_text:
+    type: VARCHAR
+    required: false
+    empty_share: 0.429857
+    vocabulary:
+    - ¿Cómo calificaría la atención brindada?
+    - ¿El agente resolvió su consulta satisfactoriamente?
+    - ¿Qué tan satisfecho está con el servicio recibido?
+  question_1_response:
+    type: DOUBLE
+    required: false
+    empty_share: 0.429542
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.4771
+      mad: 0.0
+      partitions: 1066
+  question_2_text:
+    type: VARCHAR
+    required: false
+    empty_share: 0.617544
+    vocabulary:
+    - ¿El tiempo de espera fue aceptable?
+  question_2_response:
+    type: DOUBLE
+    required: false
+    empty_share: 0.616956
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.4771
+      mad: 0.0
+      partitions: 1060
+  question_3_text:
+    type: VARCHAR
+    required: false
+    empty_share: 0.811317
+    vocabulary:
+    - ¿Volvería a contactarnos por este canal?
+  question_3_response:
+    type: DOUBLE
+    required: false
+    empty_share: 0.81151
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.4771
+      mad: 0.0
+      partitions: 747
+  open_comments:
+    type: VARCHAR
+    required: false
+    empty_share: 0.524363
+    pii: free_text
+    scan:
+    - null_word
+    - slot
+  comment_sentiment:
+    type: VARCHAR
+    required: false
+    empty_share: 0.524077
+    vocabulary:
+    - Negative
+    - Neutral
+    - Positive
+  response_time_hours:
+    type: DOUBLE
+    required: true
+    empty_share: 0.0
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 1.2653
+      mad: 0.0129
+      partitions: 1066
+  campaign_response_rate:
+    type: DOUBLE
+    required: false
+    empty_share: 0.150579
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 1.4767
+      mad: 0.012
+      partitions: 1066

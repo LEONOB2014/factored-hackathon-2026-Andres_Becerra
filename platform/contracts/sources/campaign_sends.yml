@@ -1,0 +1,168 @@
+# Source contract: campaign_sends. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/campaign_sends.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: campaign_sends
+kind: fact
+entity_key:
+- send_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 862654a6746f
+  rows: 1746801
+  files: 1083
+columns:
+  send_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^SND-[0-9A-Z]{20}$
+  send_date:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space
+  process_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  campaign_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CMP-[0-9A-Z]{12}$
+  customer_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  send_channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Email
+    - Push
+    - SMS
+    - Voice
+    - WhatsApp
+  template_used:
+    type: VARCHAR
+    required: false
+    empty_share: 0.100308
+  subject:
+    type: VARCHAR
+    required: false
+    empty_share: 0.680296
+    scan:
+    - null_word
+    - slot
+  send_status:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Blocked
+    - Bounced
+    - Failed
+    - Sent
+  was_delivered:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  was_opened:
+    type: BOOLEAN
+    required: false
+    empty_share: 0.277209
+    formats:
+    - bool
+  open_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.721028
+    formats:
+    - ts_space
+  was_clicked:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  click_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.944016
+    formats:
+    - ts_space
+  click_count:
+    type: DOUBLE
+    required: false
+    empty_share: 0.944016
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.4771
+      mad: 0.0
+      partitions: 1044
+  had_conversion:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  conversion_date:
+    type: TIMESTAMP
+    required: false
+    empty_share: 0.99439
+    formats:
+    - ts_space
+  conversion_value:
+    type: DOUBLE
+    required: false
+    empty_share: 0.99439
+    formats:
+    - int
+    - dec_dot
+    - sci
+  open_device:
+    type: VARCHAR
+    required: false
+    empty_share: 0.74904
+    vocabulary:
+    - Desktop
+    - Mobile
+    - Tablet
+  open_country:
+    type: VARCHAR
+    required: false
+    empty_share: 0.748957
+    vocabulary:
+    - Argentina
+    - Colombia
+    - México
+  failure_reason:
+    type: VARCHAR
+    required: false
+    empty_share: 0.942983
+    vocabulary:
+    - Invalid email address
+    - SMTP error
+    - User blocked sender
+  send_cost:
+    type: DOUBLE
+    required: false
+    empty_share: 0.150036
+    formats:
+    - int
+    - dec_dot
+    - sci
+    note: 'no scale check: unstable daily median (45% of baseline partitions move by >= 0.5 in log10)'

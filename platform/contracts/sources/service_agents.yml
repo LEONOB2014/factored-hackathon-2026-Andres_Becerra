@@ -1,0 +1,149 @@
+# Source contract: service_agents. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/service_agents.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: service_agents
+kind: dimension
+entity_key:
+- agent_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 7298ae18ad73
+  rows: 1200
+  files: 1
+columns:
+  agent_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^AGT-[0-9A-Z]{10}$
+  employee_code:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+  first_name:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    pii: name
+  last_name:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    pii: name
+  email:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    pii: email
+  phone:
+    type: VARCHAR
+    required: false
+    empty_share: 0.0575
+    pii: phone
+  native_accent:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - argentine
+    - colombian
+    - mexican
+  country_of_origin:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Argentina
+    - Colombia
+    - Mexico
+  assigned_branch_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.305833
+    key_pattern: ^SUC-[0-9A-Z]{8}$
+  agent_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Digital
+    - Hybrid
+    - In-Person
+    - Phone
+  experience_level:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Junior
+    - Mid-Senior
+    - Senior
+    - Specialist
+  languages:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+  specialty:
+    type: VARCHAR
+    required: false
+    empty_share: 0.396667
+    vocabulary:
+    - Cobranza
+    - Créditos
+    - Fraudes
+    - Inversiones
+    - Quejas y Reclamos
+    - Retención
+    - Soporte Técnico
+    - Ventas
+  hire_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  avg_csat:
+    type: DOUBLE
+    required: false
+    empty_share: 0.111667
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.6304
+      mad: 0.0
+      partitions: 1
+  total_monthly_interactions:
+    type: DOUBLE
+    required: false
+    empty_share: 0.0925
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 2.6551
+      mad: 0.0
+      partitions: 1
+  agent_status:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Active
+    - Inactive
+    - Leave
+    - Vacation
+  work_shift:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Afternoon
+    - Morning
+    - Night
+    - Rotating

@@ -1,0 +1,456 @@
+{
+ "contract_version": "19d571761cbd",
+ "table": "call_center_interactions",
+ "header": [
+  "interaction_id",
+  "interaction_date",
+  "process_date",
+  "customer_id",
+  "agent_id",
+  "interaction_type",
+  "channel",
+  "contact_reason",
+  "reason_category",
+  "duration_seconds",
+  "wait_time_seconds",
+  "was_resolved",
+  "requires_followup",
+  "detected_sentiment",
+  "sentiment_score",
+  "customer_detected_accent",
+  "agent_used_accent",
+  "was_escalated",
+  "mentioned_products",
+  "has_transcript",
+  "has_recording"
+ ],
+ "columns": {
+  "interaction_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    20,
+    20
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296
+  },
+  "interaction_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 686296
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296
+  },
+  "agent_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    14,
+    14
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296
+  },
+  "interaction_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    13
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "Chat",
+    "Email",
+    "Inbound Call",
+    "Outbound Call",
+    "Video"
+   ]
+  },
+  "channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "App",
+    "Email",
+    "Phone",
+    "Web",
+    "Web Chat",
+    "WhatsApp"
+   ]
+  },
+  "contact_reason": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    13
+   ],
+   "non_ascii_share": 0.179918,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "Comercial",
+    "Producto",
+    "Queja",
+    "Retención",
+    "Transaccional",
+    "Técnico"
+   ]
+  },
+  "reason_category": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    13
+   ],
+   "non_ascii_share": 0.179918,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "Comercial",
+    "Producto",
+    "Queja",
+    "Retención",
+    "Transaccional",
+    "Técnico"
+   ]
+  },
+  "duration_seconds": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.140222,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 686296
+  },
+  "wait_time_seconds": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.299605,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 686296
+  },
+  "was_resolved": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "requires_followup": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "detected_sentiment": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "Muy Negativo",
+    "Muy Positivo",
+    "Negativo",
+    "Neutral",
+    "Positivo"
+   ]
+  },
+  "sentiment_score": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 686296
+  },
+  "customer_detected_accent": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.298341,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "",
+    "argentine",
+    "colombian",
+    "mexican"
+   ]
+  },
+  "agent_used_accent": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.298341,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "",
+    "argentine",
+    "colombian",
+    "mexican"
+   ]
+  },
+  "was_escalated": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "mentioned_products": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.600258,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    50
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296
+  },
+  "has_transcript": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "has_recording": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 686296,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  }
+ }
+}

@@ -1,0 +1,597 @@
+{
+ "contract_version": "148da07feb58",
+ "table": "digital_events",
+ "header": [
+  "event_id",
+  "event_date",
+  "process_date",
+  "customer_id",
+  "session_id",
+  "event_type",
+  "event_category",
+  "channel",
+  "platform",
+  "browser",
+  "app_version",
+  "page_url",
+  "page_title",
+  "action",
+  "element_id",
+  "product_id",
+  "event_value",
+  "duration_seconds",
+  "ip_address",
+  "ip_country",
+  "ip_city",
+  "is_mobile",
+  "referrer",
+  "utm_source",
+  "utm_medium",
+  "utm_campaign"
+ ],
+ "columns": {
+  "event_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "event_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.23977,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "session_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    32,
+    32
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "event_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "Click",
+    "Error",
+    "FormSubmit",
+    "Login",
+    "Logout",
+    "PageView",
+    "Purchase"
+   ]
+  },
+  "event_category": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    14
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "Authentication",
+    "Navigation",
+    "Product",
+    "Transaction"
+   ]
+  },
+  "channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "Android App",
+    "Desktop Web",
+    "Mobile Web",
+    "iOS App"
+   ]
+  },
+  "platform": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.049967,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "Android",
+    "Linux",
+    "MacOS",
+    "Windows",
+    "iOS"
+   ]
+  },
+  "browser": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.620174,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "Chrome",
+    "Edge",
+    "Firefox",
+    "Safari",
+    "Samsung Internet"
+   ]
+  },
+  "app_version": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.429833,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "page_url": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.049958,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    21
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "page_title": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.049922,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    18
+   ],
+   "non_ascii_share": 0.449634,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "action": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.099957,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    17
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "initiate_payment",
+    "initiate_transfer",
+    "login",
+    "logout",
+    "view_accounts",
+    "view_help",
+    "view_home",
+    "view_product",
+    "view_products",
+    "view_transactions"
+   ]
+  },
+  "element_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.150006,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    17
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "accounts_page",
+    "cc_product",
+    "help_page",
+    "home_page",
+    "loans_product",
+    "login_form",
+    "logout_btn",
+    "payment_form",
+    "products_page",
+    "savings_product",
+    "transactions_page",
+    "transfer_form"
+   ]
+  },
+  "product_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.907795,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "event_value": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.949138,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "duration_seconds": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.636721,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "ip_address": {
+   "type": "ip",
+   "coverage": 1.0,
+   "formats": {
+    "ipv4": 1.0
+   },
+   "empty_share": 0.049988,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    15
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994
+  },
+  "ip_country": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    9
+   ],
+   "non_ascii_share": 0.399648,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "Argentina",
+    "Colombia",
+    "Mexico",
+    "México"
+   ]
+  },
+  "ip_city": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.279782,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.235015,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "Barranquilla",
+    "Bogotá",
+    "Buenos Aires",
+    "Cali",
+    "Cartagena",
+    "Ciudad de México",
+    "Córdoba",
+    "Guadalajara",
+    "La Plata",
+    "Medellín",
+    "Mendoza",
+    "Monterrey",
+    "Puebla",
+    "Querétaro",
+    "Rosario",
+    "Tijuana"
+   ]
+  },
+  "is_mobile": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "referrer": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "url": 1.0
+   },
+   "empty_share": 0.932941,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    27
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "https://email.marketing.com",
+    "https://www.facebook.com",
+    "https://www.google.com",
+    "https://www.instagram.com"
+   ]
+  },
+  "utm_source": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.946287,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "direct",
+    "email",
+    "facebook",
+    "google"
+   ]
+  },
+  "utm_medium": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.946282,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "cpc",
+    "email",
+    "organic",
+    "social"
+   ]
+  },
+  "utm_campaign": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.946296,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 15620994,
+   "vocabulary": [
+    "",
+    "new_users",
+    "retention",
+    "spring_promo"
+   ]
+  }
+ }
+}

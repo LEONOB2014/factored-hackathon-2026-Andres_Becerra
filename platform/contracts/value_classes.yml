@@ -1,0 +1,26 @@
+# Value classes of raw text: a class is a FORMAT, not a type (several classes can map to one type).
+# Identical to latam_eda.raw_forensics.CLASSES (eda/tests/test_raw_forensics.py checks the two agree), so the
+# formats a source contract accepts mean exactly what the raw forensics measured. RE2 syntax, full match.
+classes:
+  bool: '(?i)(true|false)'
+  ipv4: '([0-9]{1,3}\.){3}[0-9]{1,3}'
+  url: '(?i)https?://\S+'
+  int_leading_zero: '[+-]?0[0-9]+'
+  int: '[+-]?[0-9]+'
+  dec_dot: '[+-]?[0-9]*\.[0-9]+'
+  dec_comma: '[+-]?[0-9]+,[0-9]+'
+  dec_thousands: '[+-]?[0-9]{1,3}([.,][0-9]{3})+([.,][0-9]+)?'
+  sci: '[+-]?[0-9]*\.?[0-9]+[eE][+-]?[0-9]+'
+  date_iso: '[0-9]{4}-[0-9]{2}-[0-9]{2}'
+  date_dmy: '[0-9]{1,2}/[0-9]{1,2}/[0-9]{4}'
+  ts_space: '[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?'
+  ts_t: '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?'
+  ts_tz: '[0-9]{4}-[0-9]{2}-[0-9]{2}[ T][0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?(Z|[+-][0-9]{2}:?[0-9]{2})'
+  time: '[0-9]{2}:[0-9]{2}(:[0-9]{2}(\.[0-9]+)?)?'
+  ipv6: '[0-9a-fA-F]{0,4}(:[0-9a-fA-F]{0,4}){2,7}'
+  json: '\s*[\{\[].*[\}\]]\s*'
+# Placeholder leaks scanned in free text (contract `scan`): a null rendered into a sentence, and an
+# unrendered template slot.
+scans:
+  null_word: '(^|[^A-Za-z])(nan|NaN|None|null|NULL|undefined)([^A-Za-z]|$)'
+  slot: '\{[a-z_]+\}'

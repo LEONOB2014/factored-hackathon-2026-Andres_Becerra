@@ -1,0 +1,12 @@
+mutation,expected,detected,delay_days,new_findings,false_alarms_before_change,baseline_findings
+clean_copy,,,,0,0,3
+rename_category,L3|transaction_type|value=Compra|born,True,0.0,2,0,3
+decimal_comma,L2|amount|class:dec_comma|born,True,0.0,2,0,3
+date_format_dmy,L2|process_date|class:date_dmy|born,True,0.0,2,0,3
+timezone_suffix,L2|transaction_date|class:ts_tz|born,True,0.0,2,0,3
+unit_x1000,L3|amount|scale|scale_step,True,0.0,1,0,3
+swap_columns,L2|amount|class:text|born,True,0.0,5,0,3
+lost_leading_zeros,L2|response_code|class:int_leading_zero|died,True,0.0,2,0,3
+bom_removed,L0||bom|died,True,0.0,1,0,3
+ragged_rows,L0||ragged_rows|born,True,0.0,1,0,3
+unterminated_quote,L0||grammar_error|born,True,0.0,1,0,3

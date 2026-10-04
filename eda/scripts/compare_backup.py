@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Row/column-level comparison of data/parquet (main) vs data/parquet_backup.
+"""Row/column-level comparison of <repo>/data/parquet (main) vs <repo>/data/parquet_backup.
 Run scripts/build_backup_parquet.py first. Prints, per table: schema diff, PK overlap and
 per-column differences on shared primary keys."""
 
@@ -9,7 +9,7 @@ from pathlib import Path
 import duckdb
 
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
 MAIN = DATA / "parquet"
 BACKUP = DATA / "parquet_backup"
 PARTITION_COLS = ("day", "month", "year")

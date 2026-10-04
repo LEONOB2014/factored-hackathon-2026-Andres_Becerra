@@ -141,7 +141,7 @@ test-all: ## Run all tests
 	pytest --cov=backend --cov=agents --cov-report=html -v
 
 # EDA workspace: its own uv environment (Python 3.12). Data tests need the dataset under
-# eda/data/ or LATAM_EDA_DATA pointing at a copy; they skip when it is absent.
+# the repository-level data/ or LATAM_EDA_DATA pointing at a copy; they skip when it is absent.
 eda-setup: ## Install the EDA environment
 	cd eda && uv sync
 

@@ -1,0 +1,5 @@
+-- Row access policy applied after the publish job creates the table (BigQuery DDL, run by Composer):
+CREATE OR REPLACE ROW ACCESS POLICY country_${cc}
+ON `${project}.published_${cc}.serving_customer_360`
+GRANT TO ("group:${group}")
+FILTER USING (country_code = "${upper_cc}");

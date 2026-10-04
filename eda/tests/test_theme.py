@@ -45,5 +45,7 @@ def test_register_sets_the_default_template():
         layout = pio.templates["latam"].layout
         assert list(layout.colorway) == theme.CATEGORICAL
         assert layout.paper_bgcolor == theme.SURFACE
+        # long category labels (product types, countries) must push the margin, not be clipped
+        assert layout.xaxis.automargin and layout.yaxis.automargin
     finally:
         pio.templates.default = previous

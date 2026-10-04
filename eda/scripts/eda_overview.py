@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
-Initial EDA of the LATAM Bank dataset (data/raw/data).
+Initial EDA of the LATAM Bank dataset (<repo>/data/raw/data).
 
-1. Converts the CSVs (12k daily files) to typed Parquet in data/parquet/ (cached;
+1. Converts the CSVs (12k daily files) to typed Parquet in <repo>/data/parquet/ (cached;
    use --rebuild to redo). Later analyses should read the Parquet files.
 2. Profiles every table with DuckDB: rows, date range, nulls, duplicates,
    orphan foreign keys, category distributions.
@@ -14,6 +14,7 @@ Usage:
 
 import argparse
 import os
+import sys
 from pathlib import Path
 
 import duckdb
@@ -23,8 +24,11 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from rich.console import Console
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+from latam_eda.csvio import csv_to_parquet  # noqa: E402
+
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
 RAW = DATA / "raw" / "data"
 PQ = DATA / "parquet"
 REPORTS = ROOT / "reports"
@@ -72,14 +76,12 @@ def build_parquet(con, rebuild: bool):
         out = PQ / f"{table}.parquet"
         if out.exists() and not rebuild:
             continue
-        src = f"{RAW}/{table}/*/*/*/*.csv" if table in FACTS else f"{RAW}/{table}.csv"
-        extra = ", union_by_name=true, hive_partitioning=false" if table in FACTS else ""
+        files = (
+            sorted((RAW / table).glob("*/*/*/*.csv")) if table in FACTS else [RAW / f"{table}.csv"]
+        )
+        # One shared header per table (verified), so no union_by_name: a header change fails loudly.
         with console.status(f"Converting {table} to Parquet..."):
-            con.sql(f"""
-                COPY (SELECT * FROM read_csv('{src}', header=true, sample_size=-1,
-                      ignore_errors=true{extra}))
-                TO '{out}' (FORMAT parquet, COMPRESSION zstd)
-            """)
+            csv_to_parquet(con, files, out)
         console.print(f"[green]✓[/] {table}")
 
 

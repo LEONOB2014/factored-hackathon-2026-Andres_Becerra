@@ -1,0 +1,10 @@
+version: 2
+
+models:
+  - name: kb_entity_docs
+    description: "Deterministic PII-free entity documents for GraphRAG/pgvector indexing (source=warehouse partition)."
+    columns:
+      - name: doc_id
+        data_tests: [unique, not_null]
+  - name: kb_entity_triples
+    description: "Aggregated knowledge-graph triples with provenance."

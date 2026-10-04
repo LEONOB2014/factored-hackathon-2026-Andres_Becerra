@@ -1,0 +1,120 @@
+version: 2
+
+# Primary-key and referential tests on the staging layer. Relationship tests that the dataset
+# violates by construction are kept at severity warn so they report without blocking the build.
+models:
+  - name: stg_customers
+    description: "Current-state customer dimension (restricted: contains PII)."
+    config: {meta: {pii: true, grain: customer_id}}
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: document_number
+        data_tests: [unique]
+      - name: country_code
+        data_tests:
+          - not_null
+          - accepted_values: {arguments: {values: [MX, CO, AR]}}
+      - name: registration_branch_id
+        description: "Orphaned for ~100 % of customers (rule R23): the generator never linked it to branches."
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_branches'), field: branch_id}
+              config: {severity: warn}
+
+  - name: stg_products
+    config: {meta: {grain: product_id}}
+    columns:
+      - name: product_id
+        data_tests: [unique, not_null]
+      - name: product_family
+        data_tests: [not_null]
+      - name: customer_id
+        data_tests:
+          - relationships: {arguments: {to: ref('stg_customers'), field: customer_id}}
+
+  - name: stg_branches
+    columns:
+      - name: branch_id
+        data_tests: [unique, not_null]
+
+  - name: stg_service_agents
+    columns:
+      - name: agent_id
+        data_tests: [unique, not_null]
+      - name: assigned_branch_id
+        description: "Orphaned for 831 of 833 non-null values (rule R24)."
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_branches'), field: branch_id}
+              config: {severity: warn}
+
+  - name: stg_marketing_campaigns
+    columns:
+      - name: campaign_id
+        data_tests: [unique, not_null]
+
+  - name: stg_transactions
+    config: {meta: {grain: transaction_id}}
+    columns:
+      - name: transaction_id
+        data_tests: [unique, not_null]
+      - name: transaction_country_code
+        data_tests: [not_null]
+      - name: product_id
+        data_tests:
+          - relationships: {arguments: {to: ref('stg_products'), field: product_id}}
+      - name: customer_id
+        data_tests:
+          - relationships: {arguments: {to: ref('stg_customers'), field: customer_id}}
+
+  - name: stg_call_center_interactions
+    columns:
+      - name: interaction_id
+        data_tests: [unique, not_null]
+      - name: interaction_type
+        data_tests:
+          - accepted_values: {arguments: {values: ['Inbound Call', 'Outbound Call', 'Chat', 'Email', 'Video']}}
+
+  - name: stg_call_transcripts
+    columns:
+      - name: transcript_id
+        data_tests: [unique, not_null]
+      - name: interaction_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_call_center_interactions'), field: interaction_id}
+              config: {severity: warn}
+
+  - name: stg_satisfaction_surveys
+    columns:
+      - name: survey_id
+        data_tests: [unique, not_null]
+
+  - name: stg_digital_events
+    columns:
+      - name: event_id
+        data_tests: [unique, not_null]
+
+  - name: stg_complaints
+    columns:
+      - name: complaint_id
+        data_tests: [unique, not_null]
+      - name: affected_product_id
+        data_tests:
+          - relationships:
+              arguments: {to: ref('stg_products'), field: product_id}
+              config: {severity: warn}
+
+  - name: stg_campaign_sends
+    columns:
+      - name: send_id
+        data_tests: [unique, not_null]
+      - name: campaign_id
+        data_tests:
+          - relationships: {arguments: {to: ref('stg_marketing_campaigns'), field: campaign_id}}
+
+  - name: stg_daily_exchange_rates
+    data_tests:
+      - unique_combination:
+          arguments: {columns: [rate_date, source_currency, target_currency]}

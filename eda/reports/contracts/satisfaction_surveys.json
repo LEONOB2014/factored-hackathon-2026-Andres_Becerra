@@ -1,0 +1,438 @@
+{
+ "contract_version": "670eda57180a",
+ "table": "satisfaction_surveys",
+ "header": [
+  "survey_id",
+  "survey_date",
+  "process_date",
+  "interaction_id",
+  "customer_id",
+  "agent_id",
+  "survey_type",
+  "send_channel",
+  "main_score",
+  "nps_category",
+  "question_1_text",
+  "question_1_response",
+  "question_2_text",
+  "question_2_response",
+  "question_3_text",
+  "question_3_response",
+  "open_comments",
+  "comment_sentiment",
+  "response_time_hours",
+  "campaign_response_rate"
+ ],
+ "columns": {
+  "survey_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759
+  },
+  "survey_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 212759
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759
+  },
+  "interaction_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    20,
+    20
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759
+  },
+  "agent_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    14,
+    14
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759
+  },
+  "survey_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    4
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "CES",
+    "CSAT",
+    "NPS"
+   ]
+  },
+  "send_channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "App",
+    "Email",
+    "IVR",
+    "SMS",
+    "Web"
+   ]
+  },
+  "main_score": {
+   "type": "integer",
+   "coverage": 1.0,
+   "formats": {
+    "int": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    1,
+    1
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7"
+   ]
+  },
+  "nps_category": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.716139,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "Detractor",
+    "Passive"
+   ]
+  },
+  "question_1_text": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.429857,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    51
+   ],
+   "non_ascii_share": 0.570143,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "¿Cómo calificaría la atención brindada?",
+    "¿El agente resolvió su consulta satisfactoriamente?",
+    "¿Qué tan satisfecho está con el servicio recibido?"
+   ]
+  },
+  "question_1_response": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.429542,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "1.0",
+    "2.0",
+    "3.0",
+    "4.0",
+    "5.0"
+   ]
+  },
+  "question_2_text": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.617544,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    35
+   ],
+   "non_ascii_share": 0.382456,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "¿El tiempo de espera fue aceptable?"
+   ]
+  },
+  "question_2_response": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.616956,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "1.0",
+    "2.0",
+    "3.0",
+    "4.0",
+    "5.0"
+   ]
+  },
+  "question_3_text": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.811317,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    40
+   ],
+   "non_ascii_share": 0.188683,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "¿Volvería a contactarnos por este canal?"
+   ]
+  },
+  "question_3_response": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.81151,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "1.0",
+    "2.0",
+    "3.0",
+    "4.0",
+    "5.0"
+   ]
+  },
+  "open_comments": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.524363,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    48
+   ],
+   "non_ascii_share": 0.076655,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759
+  },
+  "comment_sentiment": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.524077,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 212759,
+   "vocabulary": [
+    "",
+    "Negative",
+    "Neutral",
+    "Positive"
+   ]
+  },
+  "response_time_hours": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 212759
+  },
+  "campaign_response_rate": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.150579,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 212759
+  }
+ }
+}

@@ -1,0 +1,32 @@
+snapshots:
+  # SCD Type 2 history of the mutable dimensions. Strategy = check on the business-column hash:
+  # last_updated cannot drive a timestamp strategy because it is in the future for ~6 % of rows (R06/R07).
+  # hard_deletes=invalidate closes the current version of a key that disappears from the source.
+  - name: snap_customers
+    relation: ref('stg_customers')
+    config:
+      unique_key: customer_id
+      strategy: check
+      check_cols: [row_hash]
+      hard_deletes: invalidate
+  - name: snap_products
+    relation: ref('stg_products')
+    config:
+      unique_key: product_id
+      strategy: check
+      check_cols: [row_hash]
+      hard_deletes: invalidate
+  - name: snap_service_agents
+    relation: ref('stg_service_agents')
+    config:
+      unique_key: agent_id
+      strategy: check
+      check_cols: [row_hash]
+      hard_deletes: invalidate
+  - name: snap_branches
+    relation: ref('stg_branches')
+    config:
+      unique_key: branch_id
+      strategy: check
+      check_cols: [row_hash]
+      hard_deletes: invalidate

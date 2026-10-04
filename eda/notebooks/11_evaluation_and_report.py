@@ -153,9 +153,9 @@ display(IFrame("../reports/dashboards/anomalies.html", width="100%", height=900)
 #
 # ## 9 · Reproducibility
 # ```
-# uv run scripts/download_s3.py                         # data/raw  (12.5k CSVs, ~10 GB)
-# uv run scripts/eda_overview.py                        # data/parquet  + reports/eda_overview.md
-# uv run scripts/build_backup_parquet.py                # data/parquet_backup
+# uv run scripts/download_s3.py                         # ../data/raw  (12.5k CSVs, ~10 GB)
+# uv run scripts/eda_overview.py                        # ../data/parquet  + reports/eda_overview.md
+# uv run scripts/build_backup_parquet.py                # ../data/parquet_backup
 # uv run scripts/build_notebook.py notebooks/NN_*.py --execute      # rebuild a notebook (01 … 11)
 # uv run scripts/export_dashboard_data.py               # JSON/JS for the D3 dashboards
 # ```

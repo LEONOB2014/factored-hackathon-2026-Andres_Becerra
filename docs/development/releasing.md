@@ -16,7 +16,8 @@
 | Version | Content |
 |---|---|
 | `v0.1.0` | Exploratory data analysis phase |
-| `v0.2.0` | Compliance-grade data platform (planned) |
+| `v0.2.0` | Compliance-grade data platform (lossless bronze to audit, Airflow 3 + Cosmos, streaming, four-eyes corrections, reproducible gold) and the analysis series that judged it (pipeline walkthrough, country series, backup as main) |
+| `v0.3.0` | Planned: the P0 platform work and exit criteria of [strategy 12](../strategy/12_development_path.md) §12.7–§12.8 |
 
 ## Cut a release
 

@@ -1,0 +1,127 @@
+# Source contract: marketing_campaigns. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/marketing_campaigns.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: marketing_campaigns
+kind: dimension
+entity_key:
+- campaign_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 1b1774a56a41
+  rows: 200
+  files: 1
+columns:
+  campaign_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CMP-[0-9A-Z]{12}$
+  campaign_name:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+  description:
+    type: VARCHAR
+    required: false
+    empty_share: 0.195
+    pii: free_text
+    scan:
+    - null_word
+    - slot
+  campaign_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Email
+    - Mix
+    - Push
+    - SMS
+    - Voice
+    - WhatsApp
+  campaign_objective:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Acquisition
+    - Cross-sell
+    - Reactivation
+    - Retention
+    - Up-sell
+  promoted_product:
+    type: VARCHAR
+    required: false
+    empty_share: 0.11
+    vocabulary:
+    - Cuenta Ahorro
+    - Cuenta Corriente
+    - Inversión
+    - Préstamo Hipotecario
+    - Préstamo Personal
+    - Seguro
+    - Tarjeta Crédito
+  target_segment:
+    type: VARCHAR
+    required: false
+    empty_share: 0.395
+    vocabulary:
+    - Basic
+    - Plus
+    - Premium
+    - Student
+  target_country:
+    type: VARCHAR
+    required: false
+    empty_share: 0.555
+    vocabulary:
+    - Argentina
+    - Colombia
+    - Mexico
+  start_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  end_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  budget:
+    type: DOUBLE
+    required: false
+    empty_share: 0.155
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 5.4351
+      mad: 0.0
+      partitions: 1
+  campaign_status:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Active
+    - Completed
+    - Paused
+  expected_conversion_rate:
+    type: DOUBLE
+    required: false
+    empty_share: 0.07
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 0.8768
+      mad: 0.0
+      partitions: 1

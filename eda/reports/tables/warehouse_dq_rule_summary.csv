@@ -1,0 +1,27 @@
+rule_id,severity,table_name,description,violations,table_rows,rate_pct,baseline_rate_pct,max_rate_pct,slo_breached
+R01,A,transactions,Transaction dated before the product was opened,827610,4425008,18.703,18.7,20.0,False
+R02,A,products,Product opened before the customer registered,199596,400000,49.899,49.9,52.0,False
+R03,A,transactions,Approved transaction without a response code,203369,4425008,4.596,4.6,5.11,False
+R04,A,transactions,Transaction currency differs from the product currency,0,4425008,0.0,0.0,0.0,False
+R05,B,customers,Customer under 18 at registration,3106,150000,2.071,2.07,2.5,False
+R06,B,customers,last_updated later than the end of the data,9316,150000,6.211,6.21,7.0,False
+R07,B,products,last_updated later than the end of the data,25113,400000,6.278,6.28,7.0,False
+R08,B,products,credit_limit present on a deposit/investment/insurance product (v2: loans and credit cards may carry a limit),0,400000,0.0,0.0,0.0,False
+R09,B,products,days_past_due present on a deposit/investment/insurance product (v2: loans and credit cards may be past due),0,400000,0.0,0.0,0.0,False
+R10,B,transactions,Branch-channel transaction without branch_id,6570,4425008,0.148,0.15,0.21,False
+R11,B,complaints,Resolved/closed case without a resolution date,772,67095,1.151,1.15,1.32,False
+R12,B,complaints,Claimed amount without a currency,1040,67095,1.55,1.55,1.76,False
+R13,B,complaints,SLA breached although resolved in 5 days or less,508,67095,0.757,0.76,0.88,False
+R15,C,call_center_interactions,Timestamp minus 6 h does not reproduce process_date (UTC-6 convention),56938,686296,8.296,8.3,9.0,False
+R16,C,complaints,Timestamp minus 6 h does not reproduce process_date (UTC-6 convention),5665,67095,8.443,8.44,9.0,False
+R17,C,transactions,USD label on a transaction of a Mexican customer (no MXN exists),2216431,4425008,50.089,50.09,55.15,False
+R18,C,transactions,amount_usd missing although currency is not USD,99477,4425008,2.248,2.25,2.52,False
+R19,C,transactions,ATM/POS transaction without coordinates,2056875,4425008,46.483,46.48,51.18,False
+R20,C,digital_events,Event without a customer id,3745446,15620994,23.977,23.98,25.0,False
+R21,A,campaign_sends,Campaign send to a customer who does not accept marketing (current flag),874417,1746801,50.058,50.06,0.0,True
+R22,B,products,Card active after its expiration date,56664,400000,14.166,14.17,15.63,False
+R23,B,customers,registration_branch_id does not exist in branches,149995,150000,99.997,100.0,100.0,False
+R24,B,service_agents,assigned_branch_id does not exist in branches,831,1200,69.25,69.25,100.0,False
+R25,A,complaints,affected_product_id belongs to a different customer than the complainant (semantic FK),44570,67095,66.428,66.43,0.0,True
+R26,A,digital_events,product_id belongs to a different customer than the event (semantic FK),1094226,15620994,7.005,7.0,0.0,True
+R27,C,call_transcripts,Transcript contains unrendered template placeholders such as {monto},171321,171321,100.0,100.0,100.0,False

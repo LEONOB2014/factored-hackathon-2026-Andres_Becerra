@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Download the entire S3 bucket into ./data/raw (preserving key structure).
+Download the entire S3 bucket into the repository's data/raw (preserving key structure).
 
 - Parallel downloads (thread pool)
 - Resumable: files already present with the same size are skipped
@@ -38,7 +38,7 @@ console = Console()
 BUCKET = os.getenv("S3_BUCKET", "factored-datathon-2026-s3-157725502942-us-east-2-an")
 REGION = os.getenv("AWS_DEFAULT_REGION", "us-east-2")
 ROOT = Path(__file__).resolve().parent.parent
-DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT / "data")).expanduser().resolve()
+DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
 DEFAULT_DEST = DATA / "raw"
 
 
