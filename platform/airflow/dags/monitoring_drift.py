@@ -7,8 +7,6 @@ breached, to a `model_drift_or_fairness_breach` trigger event that requires a mo
 
 from __future__ import annotations
 
-from datetime import UTC
-
 import pendulum
 from airflow.sdk import dag, task
 
@@ -40,7 +38,7 @@ def monitoring_drift():
     @task.external_python(python=PLATFORM_PY, expect_airflow=False, pool=DUCKDB_POOL)
     def drift_and_fairness(features: list, lineage_run_id: str) -> dict:
         import json
-        from datetime import datetime
+        from datetime import UTC, datetime
 
         import numpy as np
 
