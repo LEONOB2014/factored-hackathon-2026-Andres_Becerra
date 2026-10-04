@@ -19,6 +19,7 @@ from cosmos.constants import LoadMode, TestBehavior
 from latam_dags.common import (
     AUDIT_CALLBACKS,
     BRONZE,
+    CORRECTIONS,
     DBT_BIN,
     DBT_DIR,
     DEFAULT_ARGS,
@@ -70,7 +71,7 @@ def layer(group_id: str, select: list[str]) -> DbtTaskGroup:
 
 @dag(
     dag_id="dbt_lakehouse",
-    schedule=[BRONZE],
+    schedule=(BRONZE | CORRECTIONS),  # new bronze, or an approved data correction
     start_date=pendulum.datetime(2026, 9, 1, tz="UTC"),
     catchup=False,
     max_active_runs=1,
