@@ -162,10 +162,36 @@ def model_name(zone: str, table: str) -> str:
 # ------------------------------------------------------------------------------------------ artefacts
 def typed_model(zone: str, c: dict, vc: dict) -> str:
     cols = ",\n".join(f"    {typed(col, spec)} AS {q(col)}" for col, spec in c["columns"].items())
+    overlay = ",\n".join(
+        f"        CASE WHEN map_contains(c.m, {lit(col)}) THEN c.m[{lit(col)}] ELSE o.{q(col)} END AS {q(col)}"
+        for col in c["columns"]
+    )
     return f"""-- {c["table"]} from {"lossless bronze" if zone == "bronze_raw" else "the lossless holdout zone"}, typed against platform/contracts/sources/{c["table"]}.yml
 -- (contract {c["contract_version"]}). {DO_NOT_EDIT}
 -- '' and absent fields become NULL; a value that does not cast becomes NULL and is listed in _dq_issues
 -- as '<column>:<code>' (see audit.dq_cell_findings). Every bronze record is kept, flagged or not.
+-- Approved corrections (dq_corrections_active, four-eyes) are overlaid on the text before typing; _dq_issues
+-- stays computed on the original text (what the source sent) and _corrected_columns lists what the overlay changed.
+with c as (
+    select source_file, record_no,
+           map_from_entries(list(struct_pack(k := column_name, v := new_value) ORDER BY column_name)) AS m
+    from {{{{ ref('dq_corrections_active') }}}}
+    where zone = '{ZONE_NAME[zone]}' and table_name = '{c["table"]}'
+    group by all
+),
+o as (
+    select r.*, {issues_expr(c, vc, "    ")} AS _dq_issues
+    from {{{{ source('{zone}', '{c["table"]}') }}}} r
+),
+r as (
+    select
+        o.* REPLACE (
+{overlay}
+        ),
+        coalesce(list_sort(map_keys(c.m)), []::VARCHAR[]) AS _corrected_columns
+    from o
+    left join c on c.source_file = o._source_file and c.record_no = o._record_no
+)
 select
 {cols},
     cast(r._partition_date AS date) AS _partition_date,
@@ -174,8 +200,9 @@ select
     r._record_sha256,
     r._parse_status,
     '{c["contract_version"]}' AS _contract_version,
-    {issues_expr(c, vc, "    ")} AS _dq_issues
-from {{{{ source('{zone}', '{c["table"]}') }}}} r
+    r._dq_issues,
+    r._corrected_columns
+from r
 """
 
 
@@ -305,12 +332,26 @@ from (
 ) f"""
             )
     body = "\nunion all\n".join(parts)
+    shape = "'shape:' || left(regexp_replace(regexp_replace(a.new_value, '\\pL', 'A', 'g'), '\\pN', '9', 'g'), 64)"
     return f"""-- One row per cell that breaks its source contract, with lineage to the bronze record (source file,
 -- record number, record hash). Nothing is dropped from silver because of a finding: this table is the
 -- work list for review and correction. Personal data and free text appear only as a shape.
+-- A finding stays after an approved correction (it records what the source sent): correction_proposal_id and
+-- corrected_value show the correction silver applies (dq_corrections_active).
 -- Codes: {"; ".join(f"{k} = {v}" for k, v in ISSUE_CODES.items())}.
 -- {DO_NOT_EDIT}
+with findings as (
 {body}
+)
+select
+    f.*,
+    a.proposal_id AS correction_proposal_id,
+    CASE WHEN a.proposal_id IS NULL THEN NULL
+         WHEN coalesce(s.pii_type, '') <> '' THEN {shape}
+         ELSE left(a.new_value, 256) END AS corrected_value
+from findings f
+left join {{{{ ref('dq_corrections_active') }}}} a using (zone, table_name, source_file, record_no, column_name)
+left join {{{{ ref('source_contract_columns') }}}} s using (table_name, column_name)
 """
 
 
