@@ -1,0 +1,251 @@
+# Source contract: digital_events. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/digital_events.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: digital_events
+kind: fact
+entity_key:
+- event_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 148da07feb58
+  rows: 15620994
+  files: 1097
+columns:
+  event_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^EVT-[0-9A-Z]{20}$
+  event_date:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space
+  process_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  customer_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.23977
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  session_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^SES-[0-9A-Z]{28}$
+  event_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Click
+    - Error
+    - FormSubmit
+    - Login
+    - Logout
+    - PageView
+    - Purchase
+  event_category:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Authentication
+    - Navigation
+    - Product
+    - Transaction
+  channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Android App
+    - Desktop Web
+    - Mobile Web
+    - iOS App
+  platform:
+    type: VARCHAR
+    required: false
+    empty_share: 0.049967
+    vocabulary:
+    - Android
+    - Linux
+    - MacOS
+    - Windows
+    - iOS
+  browser:
+    type: VARCHAR
+    required: false
+    empty_share: 0.620174
+    vocabulary:
+    - Chrome
+    - Edge
+    - Firefox
+    - Safari
+    - Samsung Internet
+  app_version:
+    type: VARCHAR
+    required: false
+    empty_share: 0.429833
+  page_url:
+    type: VARCHAR
+    required: false
+    empty_share: 0.049958
+    scan:
+    - null_word
+    - slot
+  page_title:
+    type: VARCHAR
+    required: false
+    empty_share: 0.049922
+    scan:
+    - null_word
+    - slot
+  action:
+    type: VARCHAR
+    required: false
+    empty_share: 0.099957
+    vocabulary:
+    - initiate_payment
+    - initiate_transfer
+    - login
+    - logout
+    - view_accounts
+    - view_help
+    - view_home
+    - view_product
+    - view_products
+    - view_transactions
+  element_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.150006
+    vocabulary:
+    - accounts_page
+    - cc_product
+    - help_page
+    - home_page
+    - loans_product
+    - login_form
+    - logout_btn
+    - payment_form
+    - products_page
+    - savings_product
+    - transactions_page
+    - transfer_form
+  product_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.907795
+    key_pattern: ^PRD-[0-9A-Z]{12}$
+  event_value:
+    type: DOUBLE
+    required: false
+    empty_share: 0.949138
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 3.4
+      mad: 0.0112
+      partitions: 1066
+  duration_seconds:
+    type: DOUBLE
+    required: false
+    empty_share: 0.636721
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 2.1818
+      mad: 0.0029
+      partitions: 1066
+  ip_address:
+    type: VARCHAR
+    required: false
+    empty_share: 0.049988
+    formats:
+    - ipv4
+    pii: online_identifier
+  ip_country:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Argentina
+    - Colombia
+    - México
+    variants:
+      Mexico: México
+  ip_city:
+    type: VARCHAR
+    required: false
+    empty_share: 0.279782
+    vocabulary:
+    - Barranquilla
+    - Bogotá
+    - Buenos Aires
+    - Cali
+    - Cartagena
+    - Ciudad de México
+    - Córdoba
+    - Guadalajara
+    - La Plata
+    - Medellín
+    - Mendoza
+    - Monterrey
+    - Puebla
+    - Querétaro
+    - Rosario
+    - Tijuana
+  is_mobile:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  referrer:
+    type: VARCHAR
+    required: false
+    empty_share: 0.932941
+    vocabulary:
+    - https://email.marketing.com
+    - https://www.facebook.com
+    - https://www.google.com
+    - https://www.instagram.com
+  utm_source:
+    type: VARCHAR
+    required: false
+    empty_share: 0.946287
+    vocabulary:
+    - direct
+    - email
+    - facebook
+    - google
+  utm_medium:
+    type: VARCHAR
+    required: false
+    empty_share: 0.946282
+    vocabulary:
+    - cpc
+    - email
+    - organic
+    - social
+  utm_campaign:
+    type: VARCHAR
+    required: false
+    empty_share: 0.946296
+    vocabulary:
+    - new_users
+    - retention
+    - spring_promo

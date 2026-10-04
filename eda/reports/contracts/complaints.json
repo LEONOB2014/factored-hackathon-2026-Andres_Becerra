@@ -1,0 +1,594 @@
+{
+ "contract_version": "a40acd22798b",
+ "table": "complaints",
+ "header": [
+  "complaint_id",
+  "creation_date",
+  "process_date",
+  "customer_id",
+  "case_type",
+  "category",
+  "subcategory",
+  "reception_channel",
+  "affected_product_id",
+  "related_branch_id",
+  "origin_interaction_id",
+  "description",
+  "claimed_amount",
+  "currency",
+  "priority",
+  "status",
+  "assigned_agent_id",
+  "assignment_date",
+  "first_response_date",
+  "resolution_date",
+  "closing_date",
+  "sla_breached",
+  "resolution_days",
+  "resolution",
+  "compensation_granted",
+  "resolution_satisfaction",
+  "is_repeat_complainer"
+ ],
+ "columns": {
+  "complaint_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "creation_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    19,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 67095
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "case_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "Claim",
+    "Complaint",
+    "Request",
+    "Suggestion"
+   ]
+  },
+  "category": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "Branch",
+    "Fees",
+    "Service",
+    "Technical",
+    "Transactions"
+   ]
+  },
+  "subcategory": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.099829,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    20
+   ],
+   "non_ascii_share": 0.177241,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "",
+    "Atención en sucursal",
+    "Calidad de servicio",
+    "Cargo no reconocido",
+    "Cobro indebido",
+    "Problema con app"
+   ]
+  },
+  "reception_channel": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "App",
+    "Branch",
+    "Call Center",
+    "Email",
+    "Regulator",
+    "Web"
+   ]
+  },
+  "affected_product_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.335718,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "related_branch_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.714166,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "origin_interaction_id": {
+   "type": "empty",
+   "coverage": 1.0,
+   "formats": {},
+   "empty_share": 1.0,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    0
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    ""
+   ]
+  },
+  "description": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    26,
+    34
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "claimed_amount": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.675818,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    7
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 67095
+  },
+  "currency": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.675445,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "",
+    "ARS",
+    "COP",
+    "MXN",
+    "USD"
+   ]
+  },
+  "priority": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    3,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "Critical",
+    "High",
+    "Low",
+    "Medium"
+   ]
+  },
+  "status": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "Closed",
+    "Escalated",
+    "In Process",
+    "Open",
+    "Rejected",
+    "Resolved"
+   ]
+  },
+  "assigned_agent_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.344512,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    14
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "assignment_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.344705,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 67095
+  },
+  "first_response_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.391117,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 67095
+  },
+  "resolution_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.771235,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 67095
+  },
+  "closing_date": {
+   "type": "timestamp",
+   "coverage": 1.0,
+   "formats": {
+    "ts_space": 1.0
+   },
+   "empty_share": 0.963023,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    19
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 0,
+   "files": 1097,
+   "rows": 67095
+  },
+  "sla_breached": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  },
+  "resolution_days": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.771026,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    4
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "",
+    "1.0",
+    "10.0",
+    "11.0",
+    "12.0",
+    "13.0",
+    "14.0",
+    "15.0",
+    "16.0",
+    "17.0",
+    "18.0",
+    "19.0",
+    "2.0",
+    "20.0",
+    "21.0",
+    "22.0",
+    "23.0",
+    "24.0",
+    "25.0",
+    "26.0",
+    "27.0",
+    "28.0",
+    "29.0",
+    "3.0",
+    "30.0",
+    "4.0",
+    "5.0",
+    "6.0",
+    "7.0",
+    "8.0",
+    "9.0"
+   ]
+  },
+  "resolution": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.771816,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    82
+   ],
+   "non_ascii_share": 0.228184,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095
+  },
+  "compensation_granted": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.930829,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 67095
+  },
+  "resolution_satisfaction": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.962978,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    3
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "",
+    "1.0",
+    "2.0",
+    "3.0",
+    "4.0",
+    "5.0"
+   ]
+  },
+  "is_repeat_complainer": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 67095,
+   "vocabulary": [
+    "False",
+    "True"
+   ]
+  }
+ }
+}

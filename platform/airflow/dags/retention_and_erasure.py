@@ -10,8 +10,6 @@ Iceberg row-level deletes on silver+). Legal holds (AML, transaction ledgers) bl
 
 from __future__ import annotations
 
-from datetime import UTC
-
 import pendulum
 from airflow.sdk import dag, task
 
@@ -41,7 +39,7 @@ def retention_and_erasure():
     @task.external_python(python=PLATFORM_PY, expect_airflow=False)
     def process_erasure_requests(tables: list, lineage_run_id: str) -> dict:
         import json
-        from datetime import datetime
+        from datetime import UTC, datetime
 
         from latam_platform import audit_ledger, ops
 

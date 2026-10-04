@@ -1,0 +1,500 @@
+{
+ "contract_version": "0890621c9c0a",
+ "table": "branches",
+ "header": [
+  "branch_id",
+  "branch_code",
+  "branch_name",
+  "branch_type",
+  "address",
+  "city",
+  "state",
+  "country",
+  "postal_code",
+  "geographic_zone",
+  "phone",
+  "email",
+  "opening_time",
+  "closing_time",
+  "has_atms",
+  "atm_count",
+  "has_teller_windows",
+  "teller_window_count",
+  "latitude",
+  "longitude",
+  "branch_opening_date",
+  "branch_status"
+ ],
+ "columns": {
+  "branch_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    12,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "branch_code": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    5
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "branch_name": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    20,
+    35
+   ],
+   "non_ascii_share": 0.32,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "branch_type": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "Corporate",
+    "Express",
+    "Main",
+    "Premium"
+   ]
+  },
+  "address": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    56
+   ],
+   "non_ascii_share": 0.32,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "city": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    16
+   ],
+   "non_ascii_share": 0.32,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "Barranquilla",
+    "Bogotá",
+    "Buenos Aires",
+    "Cali",
+    "Cartagena",
+    "Ciudad de México",
+    "Córdoba",
+    "Guadalajara",
+    "La Plata",
+    "Medellín",
+    "Mendoza",
+    "Monterrey",
+    "Puebla",
+    "Querétaro",
+    "Rosario",
+    "Tijuana"
+   ]
+  },
+  "state": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    31
+   ],
+   "non_ascii_share": 0.46,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "Antioquia",
+    "Atlántico",
+    "Baja California",
+    "Bolívar",
+    "Buenos Aires",
+    "Ciudad Autónoma de Buenos Aires",
+    "Ciudad de México",
+    "Cundinamarca",
+    "Córdoba",
+    "Jalisco",
+    "Mendoza",
+    "Nuevo León",
+    "Puebla",
+    "Querétaro",
+    "Santa Fe",
+    "Valle del Cauca"
+   ]
+  },
+  "country": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    9
+   ],
+   "non_ascii_share": 0.5,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "Argentina",
+    "Colombia",
+    "México"
+   ]
+  },
+  "postal_code": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "int": 0.717143,
+    "text": 0.2,
+    "int_leading_zero": 0.082857
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "geographic_zone": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "Urbana"
+   ]
+  },
+  "phone": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    14,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "email": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    27,
+    27
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "opening_time": {
+   "type": "time",
+   "coverage": 1.0,
+   "formats": {
+    "time": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    8,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "08:00:00",
+    "08:30:00",
+    "09:00:00",
+    "09:30:00"
+   ]
+  },
+  "closing_time": {
+   "type": "time",
+   "coverage": 1.0,
+   "formats": {
+    "time": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    8,
+    8
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "17:00:00",
+    "17:30:00",
+    "18:00:00",
+    "19:00:00",
+    "20:00:00"
+   ]
+  },
+  "has_atms": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    4
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "True"
+   ]
+  },
+  "atm_count": {
+   "type": "integer",
+   "coverage": 1.0,
+   "formats": {
+    "int": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    1,
+    1
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8"
+   ]
+  },
+  "has_teller_windows": {
+   "type": "boolean",
+   "coverage": 1.0,
+   "formats": {
+    "bool": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    4,
+    4
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "True"
+   ]
+  },
+  "teller_window_count": {
+   "type": "integer",
+   "coverage": 1.0,
+   "formats": {
+    "int": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    1,
+    2
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "10",
+    "11",
+    "12",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+   ]
+  },
+  "latitude": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    11
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 7,
+   "files": 1,
+   "rows": 350
+  },
+  "longitude": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    7,
+    12
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 7,
+   "files": 1,
+   "rows": 350
+  },
+  "branch_opening_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350
+  },
+  "branch_status": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    6,
+    18
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1,
+   "rows": 350,
+   "vocabulary": [
+    "Active",
+    "Temporarily Closed"
+   ]
+  }
+ }
+}

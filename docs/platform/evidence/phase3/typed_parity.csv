@@ -1,0 +1,16 @@
+model,rows_typed_bronze,rows_typed_model,columns,type_differences,values_identical,rows_flagged,cells_flagged,seconds
+typed_branches,350,350,22,,True,0,0,0.0
+typed_call_center_interactions,666619,666619,21,,True,0,0,1.1
+typed_call_transcripts,166411,166411,18,,True,0,0,0.9
+typed_campaign_sends,1697343,1697343,22,,True,38142,38142,1.5
+typed_complaints,65191,65191,27,,True,0,0,1.1
+typed_customers,150000,150000,27,,True,0,0,0.3
+typed_daily_exchange_rates,13164,13164,7,,True,0,0,0.0
+typed_digital_events,15187552,15187552,26,,True,1010493,1010493,5.3
+typed_digital_events_holdout,433442,433442,26,,True,27681,27681,0.2
+typed_marketing_campaigns,200,200,13,,True,0,0,0.0
+typed_products,400000,400000,17,,True,0,0,0.3
+typed_satisfaction_surveys,206660,206660,20,,True,0,0,1.0
+typed_service_agents,1200,1200,18,,True,0,0,0.0
+typed_transactions,4294318,4294318,22,,True,39356,39356,2.2
+typed_transactions_holdout,130690,130690,22,,True,1159,1159,0.1

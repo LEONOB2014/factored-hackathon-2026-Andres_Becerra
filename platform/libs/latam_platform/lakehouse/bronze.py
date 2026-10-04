@@ -1,4 +1,8 @@
-"""Bronze build: landing CSV -> typed, partitioned, append-only Parquet with lineage columns.
+"""RETIRED typed bronze: landing CSV -> typed, partitioned, append-only Parquet with lineage columns.
+
+Silver now types the lossless bronze (bronze_raw.py) against reviewed source contracts, so nothing schedules
+this build any more. It stays importable to regenerate or audit the archive (`archive_typed`, below), and its
+partition-digest helpers are shared with bronze_raw. Original rules, kept for the record:
 
 Rules that make bronze evidence rather than a scratch copy:
 * nothing is dropped silently: rows the CSV parser rejects go to quarantine with the error, and
@@ -73,18 +77,27 @@ def _stage(con: duckdb.DuckDBPyConnection, table: Table, src: str, run_id: str) 
     """)
 
 
-def _partition_digests(con, rel: str, part_col: str | None) -> dict[str, dict]:
+def _partition_digests(
+    con, rel: str, part_col: str | None, digest_col: str = "_row_md5"
+) -> dict[str, dict]:
+    """Rows and an order-independent digest per partition (md5 of the sorted per-row digests)."""
     key = f"cast({part_col} AS varchar)" if part_col else "'all'"
     rows = con.sql(f"""
-        SELECT {key} AS part, count(*) AS n, md5(string_agg(_row_md5, '' ORDER BY _row_md5)) AS digest
+        SELECT {key} AS part, count(*) AS n, md5(string_agg({digest_col}, '' ORDER BY {digest_col})) AS digest
         FROM {rel} GROUP BY ALL""").fetchall()
     return {p: {"rows": n, "digest": d} for p, n, d in rows}
 
 
 def _write(
-    con, rel: str, out_dir: Path, part_col: str | None, manifest_path: Path, force: bool
+    con,
+    rel: str,
+    out_dir: Path,
+    part_col: str | None,
+    manifest_path: Path,
+    force: bool,
+    digest_col: str = "_row_md5",
 ) -> dict:
-    new = _partition_digests(con, rel, part_col)
+    new = _partition_digests(con, rel, part_col, digest_col)
     old = json.loads(manifest_path.read_text())["partitions"] if manifest_path.exists() else {}
     changed = [p for p in new if p in old and old[p]["digest"] != new[p]["digest"]]
     if changed and not force:
@@ -245,5 +258,61 @@ def build_quarantine_backup(run_id: str) -> list[dict]:
         con.sql(f"COPY staged TO '{qdir}/{table.name}.parquet' (FORMAT parquet, COMPRESSION zstd)")
         out.append(
             {"table": table.name, "rows": con.sql("SELECT count(*) FROM staged").fetchone()[0]}
+        )
+    return out
+
+
+def archive_typed(dest: Path | None = None) -> dict:
+    """Move the retired typed zones into a read-only archive (no delete): typed bronze, typed holdout, the typed
+    quarantine copy and their partition manifests. Idempotent; an existing archive is never overwritten."""
+    import hashlib
+    import stat
+
+    dest = dest or config.ARCHIVE_TYPED
+    moves = {
+        config.BRONZE: dest / "bronze",
+        config.HOLDOUT: dest / "holdout",
+        config.QUARANTINE / "backup_20260831": dest / "quarantine_backup_20260831",
+        config.MANIFESTS / "bronze": dest / "manifests" / "bronze",
+        config.MANIFESTS / "holdout": dest / "manifests" / "holdout",
+    }
+    out: dict = {"archive": str(dest.relative_to(config.DATA)), "moved": {}, "already_archived": []}
+    for src, dst in moves.items():
+        if not src.exists():
+            if dst.exists():
+                out["already_archived"].append(str(dst.relative_to(config.DATA)))
+            continue
+        if dst.exists():
+            raise BronzeIntegrityError(f"{dst} already exists: the archive is never overwritten")
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        files = sorted(p for p in src.rglob("*") if p.is_file())
+        digest = hashlib.sha256()
+        for f in files:  # content digest of the zone as moved: path + sha256 of every file
+            h = hashlib.sha256(f.read_bytes()).hexdigest()
+            digest.update(f"{f.relative_to(src)}\t{h}\n".encode())
+        src.rename(dst)  # same filesystem: atomic per zone, nothing copied or deleted
+        out["moved"][str(src.relative_to(config.DATA))] = {
+            "to": str(dst.relative_to(config.DATA)),
+            "files": len(files),
+            "bytes": sum(f.stat().st_size for f in dst.rglob("*") if f.is_file()),
+            "sha256": digest.hexdigest(),
+        }
+    if out["moved"]:
+        (dest / f"ARCHIVE_{datetime.now(UTC):%Y%m%dT%H%M%SZ}.json").write_text(
+            json.dumps({**out, "archived_at": datetime.now(UTC).isoformat()}, indent=1)
+        )
+    # read-only, files first, then directories deepest first: nothing can be added, renamed or deleted
+    no_write = ~(stat.S_IWUSR | stat.S_IWGRP | stat.S_IWOTH)
+    for f in (p for p in dest.rglob("*") if p.is_file()):
+        f.chmod(f.stat().st_mode & no_write)
+    for d in sorted((p for p in dest.rglob("*") if p.is_dir()), key=lambda p: -len(p.parts)):
+        d.chmod(d.stat().st_mode & no_write)
+    dest.chmod(dest.stat().st_mode & no_write)
+    # some mounts ignore chmod (Docker Desktop bind mounts from a container): check it held, never assume
+    still_writable = [str(p) for p in [dest, *dest.rglob("*")] if p.stat().st_mode & ~no_write]
+    out["read_only"] = not still_writable
+    if still_writable:
+        out["read_only_hint"] = (
+            f"permissions did not apply here; run on the host: chmod -R a-w {dest}"
         )
     return out

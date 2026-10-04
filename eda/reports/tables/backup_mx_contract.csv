@@ -1,0 +1,2 @@
+country,dataset,partitions_held_global_contract,partitions_held_country_contract,b_reports_country_contract,amount_scale_country_over_global,max_monthly_psi,max_psi_column
+MX,backup,2573,2118,2218,0.08654955859841162,0.0016939043818908828,amount_decile

@@ -1,0 +1,261 @@
+table,column,raw_empty,raw_null_tokens,raw_leading_zero_codes,raw_tz_values,raw_scientific,raw_max_fraction_digits,parquet_type,parquet_nulls,bronze_v1_type,bronze_v1_nulls,losses
+branches,address,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,atm_count,0,0,0,0,0,,BIGINT,0,BIGINT,0,
+branches,branch_code,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,branch_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,branch_name,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,branch_opening_date,0,0,0,0,0,,DATE,0,DATE,0,
+branches,branch_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,branch_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,city,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,closing_time,0,0,0,0,0,,TIME,0,TIME,0,
+branches,country,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,email,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,geographic_zone,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,has_atms,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+branches,has_teller_windows,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+branches,latitude,0,0,0,0,0,7,DOUBLE,0,DOUBLE,0,
+branches,longitude,0,0,0,0,0,7,DOUBLE,0,DOUBLE,0,
+branches,opening_time,0,0,0,0,0,,TIME,0,TIME,0,
+branches,phone,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,postal_code,0,0,29,0,0,,VARCHAR,0,VARCHAR,0,
+branches,state,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+branches,teller_window_count,0,0,0,0,0,,BIGINT,0,BIGINT,0,
+call_center_interactions,agent_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,agent_used_accent,204750,0,0,0,0,,VARCHAR,204750,VARCHAR,204750,'' became NULL
+call_center_interactions,channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,contact_reason,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,customer_detected_accent,204750,0,0,0,0,,VARCHAR,204750,VARCHAR,204750,'' became NULL
+call_center_interactions,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,detected_sentiment,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,duration_seconds,96234,0,0,0,0,1,DOUBLE,96234,DOUBLE,96234,'' became NULL
+call_center_interactions,has_recording,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+call_center_interactions,has_transcript,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+call_center_interactions,interaction_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+call_center_interactions,interaction_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,interaction_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,mentioned_products,411955,0,0,0,0,,VARCHAR,411955,VARCHAR,411955,'' became NULL
+call_center_interactions,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+call_center_interactions,reason_category,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_center_interactions,requires_followup,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+call_center_interactions,sentiment_score,0,0,0,0,0,2,DOUBLE,0,DOUBLE,0,
+call_center_interactions,wait_time_seconds,205618,0,0,0,0,1,DOUBLE,205618,DOUBLE,205618,'' became NULL
+call_center_interactions,was_escalated,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+call_center_interactions,was_resolved,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+call_transcripts,accent_confidence,17141,0,0,0,0,2,DOUBLE,17141,DOUBLE,17141,'' became NULL
+call_transcripts,agent_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,agent_text,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,audio_quality,8638,0,0,0,0,,VARCHAR,8638,VARCHAR,8638,'' became NULL
+call_transcripts,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,customer_text,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,detected_accent,63083,0,0,0,0,,VARCHAR,63083,VARCHAR,63083,'' became NULL
+call_transcripts,detected_intents,8457,0,0,0,0,,VARCHAR,8457,VARCHAR,8457,'' became NULL
+call_transcripts,detected_keywords,8797,0,0,0,0,,VARCHAR,8797,VARCHAR,8797,'' became NULL
+call_transcripts,detected_language,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,duration_seconds,24029,0,0,0,0,1,DOUBLE,24029,DOUBLE,24029,'' became NULL
+call_transcripts,full_text,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,interaction_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,main_topics,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,mentioned_entities,17164,0,0,0,0,,VARCHAR,17164,VARCHAR,17164,'' became NULL
+call_transcripts,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+call_transcripts,transcript_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+call_transcripts,transcription_model,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+campaign_sends,campaign_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+campaign_sends,click_count,1649008,0,0,0,0,1,DOUBLE,1649008,DOUBLE,1649008,'' became NULL
+campaign_sends,click_date,1649008,0,0,0,0,0,TIMESTAMP,1649008,TIMESTAMP,1649008,'' became NULL
+campaign_sends,conversion_date,1737002,0,0,0,0,0,TIMESTAMP,1737002,TIMESTAMP,1737002,'' became NULL
+campaign_sends,conversion_value,1737002,0,0,0,0,2,DOUBLE,1737002,DOUBLE,1737002,'' became NULL
+campaign_sends,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+campaign_sends,failure_reason,1647204,0,0,0,0,,VARCHAR,1647204,VARCHAR,1647204,'' became NULL
+campaign_sends,had_conversion,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+campaign_sends,open_country,1308278,0,0,0,0,,VARCHAR,1308278,VARCHAR,1308278,'' became NULL
+campaign_sends,open_date,1259492,0,0,0,0,0,TIMESTAMP,1259492,TIMESTAMP,1259492,'' became NULL
+campaign_sends,open_device,1308424,0,0,0,0,,VARCHAR,1308424,VARCHAR,1308424,'' became NULL
+campaign_sends,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+campaign_sends,send_channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+campaign_sends,send_cost,262083,0,0,0,0,4,DOUBLE,262083,DOUBLE,262083,'' became NULL
+campaign_sends,send_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+campaign_sends,send_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+campaign_sends,send_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+campaign_sends,subject,1188342,0,0,0,0,,VARCHAR,1188342,VARCHAR,1188342,'' became NULL
+campaign_sends,template_used,175218,0,0,0,0,,VARCHAR,175218,VARCHAR,175218,'' became NULL
+campaign_sends,was_clicked,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+campaign_sends,was_delivered,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+campaign_sends,was_opened,484229,0,0,0,0,,BOOLEAN,484229,BOOLEAN,484229,'' became NULL
+complaints,affected_product_id,22525,0,0,0,0,,VARCHAR,22525,VARCHAR,22525,'' became NULL
+complaints,assigned_agent_id,23115,0,0,0,0,,VARCHAR,23115,VARCHAR,23115,'' became NULL
+complaints,assignment_date,23128,0,0,0,0,0,TIMESTAMP,23128,TIMESTAMP,23128,'' became NULL
+complaints,case_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,category,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,claimed_amount,45344,0,0,0,0,2,DOUBLE,45344,DOUBLE,45344,'' became NULL
+complaints,closing_date,64614,0,0,0,0,0,TIMESTAMP,64614,TIMESTAMP,64614,'' became NULL
+complaints,compensation_granted,62454,0,0,0,0,2,DOUBLE,62454,DOUBLE,62454,'' became NULL
+complaints,complaint_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,creation_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+complaints,currency,45319,0,0,0,0,,VARCHAR,45319,VARCHAR,45319,'' became NULL
+complaints,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,description,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,first_response_date,26242,0,0,0,0,0,TIMESTAMP,26242,TIMESTAMP,26242,'' became NULL
+complaints,is_repeat_complainer,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+complaints,origin_interaction_id,67095,0,0,0,0,,VARCHAR,67095,VARCHAR,67095,'' became NULL
+complaints,priority,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+complaints,reception_channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,related_branch_id,47917,0,0,0,0,,VARCHAR,47917,VARCHAR,47917,'' became NULL
+complaints,resolution,51785,0,0,0,0,,VARCHAR,51785,VARCHAR,51785,'' became NULL
+complaints,resolution_date,51746,0,0,0,0,0,TIMESTAMP,51746,TIMESTAMP,51746,'' became NULL
+complaints,resolution_days,51732,0,0,0,0,1,DOUBLE,51732,DOUBLE,51732,'' became NULL
+complaints,resolution_satisfaction,64611,0,0,0,0,1,DOUBLE,64611,DOUBLE,64611,'' became NULL
+complaints,sla_breached,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+complaints,status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+complaints,subcategory,6698,0,0,0,0,,VARCHAR,6698,VARCHAR,6698,'' became NULL
+customers,accepts_marketing,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+customers,address,7370,0,0,0,0,,VARCHAR,7370,VARCHAR,7370,'' became NULL
+customers,city,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,country,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,credit_score,22492,0,0,0,0,1,DOUBLE,22492,DOUBLE,22492,'' became NULL
+customers,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,customer_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,date_of_birth,0,0,0,0,0,,DATE,0,DATE,0,
+customers,detected_accent,44817,0,0,0,0,,VARCHAR,44817,VARCHAR,44817,'' became NULL
+customers,document_number,0,0,13515,0,0,,VARCHAR,0,VARCHAR,0,
+customers,document_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,education_level,17952,0,0,0,0,,VARCHAR,17952,VARCHAR,17952,'' became NULL
+customers,email,2984,0,0,0,0,,VARCHAR,2984,VARCHAR,2984,'' became NULL
+customers,estimated_monthly_income,30033,0,0,0,0,2,DOUBLE,30033,DOUBLE,30033,'' became NULL
+customers,first_name,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,gender,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,landline_phone,75053,0,0,0,0,,VARCHAR,75053,VARCHAR,75053,'' became NULL
+customers,last_name,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,last_updated,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+customers,marital_status,11955,0,0,0,0,,VARCHAR,11955,VARCHAR,11955,'' became NULL
+customers,mobile_phone,4707,0,0,0,0,,VARCHAR,4707,VARCHAR,4707,'' became NULL
+customers,occupation,15039,0,0,0,0,,VARCHAR,15039,VARCHAR,15039,'' became NULL
+customers,postal_code,15044,0,11226,0,0,,VARCHAR,15044,VARCHAR,15044,'' became NULL
+customers,registration_branch_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,registration_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+customers,segment,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+customers,state,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+daily_exchange_rates,buy_rate,0,0,0,0,0,6,DOUBLE,0,DOUBLE,0,
+daily_exchange_rates,date,0,0,0,0,0,,DATE,0,DATE,0,
+daily_exchange_rates,exchange_rate,0,0,0,0,0,6,DOUBLE,0,DOUBLE,0,
+daily_exchange_rates,sell_rate,0,0,0,0,0,6,DOUBLE,0,DOUBLE,0,
+daily_exchange_rates,source,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+daily_exchange_rates,source_currency,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+daily_exchange_rates,target_currency,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,action,1561432,0,0,0,0,,VARCHAR,1561432,VARCHAR,1561432,'' became NULL
+digital_events,app_version,6714416,0,0,0,0,,VARCHAR,6714416,VARCHAR,6714416,'' became NULL
+digital_events,browser,9687736,0,0,0,0,,VARCHAR,9687736,VARCHAR,9687736,'' became NULL
+digital_events,channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,customer_id,3745446,0,0,0,0,,VARCHAR,3745446,VARCHAR,3745446,'' became NULL
+digital_events,duration_seconds,9946209,0,0,0,0,1,DOUBLE,9946209,DOUBLE,9946209,'' became NULL
+digital_events,element_id,2343244,0,0,0,0,,VARCHAR,2343244,VARCHAR,2343244,'' became NULL
+digital_events,event_category,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,event_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+digital_events,event_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,event_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,event_value,14826484,0,0,0,0,2,DOUBLE,14826484,DOUBLE,14826484,'' became NULL
+digital_events,ip_address,780855,0,0,0,0,,VARCHAR,780855,VARCHAR,780855,'' became NULL
+digital_events,ip_city,4370476,0,0,0,0,,VARCHAR,4370476,VARCHAR,4370476,'' became NULL
+digital_events,ip_country,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,is_mobile,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+digital_events,page_title,779824,0,0,0,0,,VARCHAR,779824,VARCHAR,779824,'' became NULL
+digital_events,page_url,780394,0,0,0,0,,VARCHAR,780394,VARCHAR,780394,'' became NULL
+digital_events,platform,780527,0,0,0,0,,VARCHAR,780527,VARCHAR,780527,'' became NULL
+digital_events,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+digital_events,product_id,14180656,0,0,0,0,,VARCHAR,14180656,VARCHAR,14180656,'' became NULL
+digital_events,referrer,14573469,0,0,0,0,,VARCHAR,14573469,VARCHAR,14573469,'' became NULL
+digital_events,session_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+digital_events,utm_campaign,14782077,0,0,0,0,,VARCHAR,14782077,VARCHAR,14782077,'' became NULL
+digital_events,utm_medium,14781860,0,0,0,0,,VARCHAR,14781860,VARCHAR,14781860,'' became NULL
+digital_events,utm_source,14781949,0,0,0,0,,VARCHAR,14781949,VARCHAR,14781949,'' became NULL
+marketing_campaigns,budget,31,0,0,0,0,2,DOUBLE,31,DOUBLE,31,'' became NULL
+marketing_campaigns,campaign_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+marketing_campaigns,campaign_name,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+marketing_campaigns,campaign_objective,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+marketing_campaigns,campaign_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+marketing_campaigns,campaign_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+marketing_campaigns,description,39,0,0,0,0,,VARCHAR,39,VARCHAR,39,'' became NULL
+marketing_campaigns,end_date,0,0,0,0,0,,DATE,0,DATE,0,
+marketing_campaigns,expected_conversion_rate,14,0,0,0,0,2,DOUBLE,14,DOUBLE,14,'' became NULL
+marketing_campaigns,promoted_product,22,0,0,0,0,,VARCHAR,22,VARCHAR,22,'' became NULL
+marketing_campaigns,start_date,0,0,0,0,0,,DATE,0,DATE,0,
+marketing_campaigns,target_country,111,0,0,0,0,,VARCHAR,111,VARCHAR,111,'' became NULL
+marketing_campaigns,target_segment,79,0,0,0,0,,VARCHAR,79,VARCHAR,79,'' became NULL
+products,credit_limit,274683,0,0,0,0,2,DOUBLE,274683,DOUBLE,274683,'' became NULL
+products,currency,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+products,current_balance,0,0,0,0,0,2,DOUBLE,0,DOUBLE,0,
+products,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+products,days_past_due,274650,0,0,0,0,1,DOUBLE,274650,DOUBLE,274650,'' became NULL
+products,expiration_date,266839,0,0,0,0,,DATE,266839,DATE,266839,'' became NULL
+products,has_linked_app,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+products,interest_rate,40066,0,0,0,0,2,DOUBLE,40066,DOUBLE,40066,'' became NULL
+products,last_transaction_date,94277,0,0,0,0,0,TIMESTAMP,94277,TIMESTAMP,94277,'' became NULL
+products,last_updated,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+products,opening_branch_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+products,opening_channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+products,opening_date,0,0,0,0,0,,DATE,0,DATE,0,
+products,product_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+products,product_number,0,0,22171,0,0,,VARCHAR,0,VARCHAR,0,
+products,product_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+products,product_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+satisfaction_surveys,agent_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+satisfaction_surveys,campaign_response_rate,32037,0,0,0,0,2,DOUBLE,32037,DOUBLE,32037,'' became NULL
+satisfaction_surveys,comment_sentiment,111502,0,0,0,0,,VARCHAR,111502,VARCHAR,111502,'' became NULL
+satisfaction_surveys,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+satisfaction_surveys,interaction_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+satisfaction_surveys,main_score,0,0,0,0,0,,BIGINT,0,BIGINT,0,
+satisfaction_surveys,nps_category,152365,0,0,0,0,,VARCHAR,152365,VARCHAR,152365,'' became NULL
+satisfaction_surveys,open_comments,111563,0,0,0,0,,VARCHAR,111563,VARCHAR,111563,'' became NULL
+satisfaction_surveys,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+satisfaction_surveys,question_1_response,91389,0,0,0,0,1,DOUBLE,91389,DOUBLE,91389,'' became NULL
+satisfaction_surveys,question_1_text,91456,0,0,0,0,,VARCHAR,91456,VARCHAR,91456,'' became NULL
+satisfaction_surveys,question_2_response,131263,0,0,0,0,1,DOUBLE,131263,DOUBLE,131263,'' became NULL
+satisfaction_surveys,question_2_text,131388,0,0,0,0,,VARCHAR,131388,VARCHAR,131388,'' became NULL
+satisfaction_surveys,question_3_response,172656,0,0,0,0,1,DOUBLE,172656,DOUBLE,172656,'' became NULL
+satisfaction_surveys,question_3_text,172615,0,0,0,0,,VARCHAR,172615,VARCHAR,172615,'' became NULL
+satisfaction_surveys,response_time_hours,0,0,0,0,0,2,DOUBLE,0,DOUBLE,0,
+satisfaction_surveys,send_channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+satisfaction_surveys,survey_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+satisfaction_surveys,survey_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+satisfaction_surveys,survey_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,agent_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,agent_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,agent_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,assigned_branch_id,367,0,0,0,0,,VARCHAR,367,VARCHAR,367,'' became NULL
+service_agents,avg_csat,134,0,0,0,0,2,DOUBLE,134,DOUBLE,134,'' became NULL
+service_agents,country_of_origin,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,email,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,employee_code,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,experience_level,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,first_name,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,hire_date,0,0,0,0,0,,DATE,0,DATE,0,
+service_agents,languages,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,last_name,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,native_accent,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+service_agents,phone,69,0,0,0,0,,VARCHAR,69,VARCHAR,69,'' became NULL
+service_agents,specialty,476,0,0,0,0,,VARCHAR,476,VARCHAR,476,'' became NULL
+service_agents,total_monthly_interactions,111,0,0,0,0,1,DOUBLE,111,DOUBLE,111,'' became NULL
+service_agents,work_shift,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,amount,0,0,0,0,0,2,DOUBLE,0,DOUBLE,0,
+transactions,amount_usd,2537456,0,0,0,0,2,DOUBLE,2537456,DOUBLE,2537456,'' became NULL
+transactions,branch_id,3037076,0,0,0,0,,VARCHAR,3037076,VARCHAR,3037076,'' became NULL
+transactions,channel,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,currency,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,customer_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,fraud_score,885157,0,0,0,0,2,DOUBLE,885157,DOUBLE,885157,'' became NULL
+transactions,is_fraud,0,0,0,0,0,,BOOLEAN,0,BOOLEAN,0,
+transactions,latitude,3567680,0,0,0,38,7,DOUBLE,3567680,DOUBLE,3567680,'' became NULL
+transactions,longitude,3567715,0,0,0,38,7,DOUBLE,3567715,DOUBLE,3567715,'' became NULL
+transactions,merchant_category,3396215,0,0,0,0,,VARCHAR,3396215,VARCHAR,3396215,'' became NULL
+transactions,merchant_name,3395774,0,0,0,0,,VARCHAR,3395774,VARCHAR,3395774,'' became NULL
+transactions,process_date,0,0,0,0,0,,DATE,0,DATE,0,
+transactions,product_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,response_code,221033,0,3951453,0,0,,VARCHAR,221033,VARCHAR,221033,'' became NULL
+transactions,transaction_category,2693520,0,0,0,0,,VARCHAR,2693520,VARCHAR,2693520,'' became NULL
+transactions,transaction_city,442611,0,0,0,0,,VARCHAR,442611,VARCHAR,442611,'' became NULL
+transactions,transaction_country,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,transaction_date,0,0,0,0,0,0,TIMESTAMP,0,TIMESTAMP,0,
+transactions,transaction_id,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,transaction_status,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,
+transactions,transaction_type,0,0,0,0,0,,VARCHAR,0,VARCHAR,0,

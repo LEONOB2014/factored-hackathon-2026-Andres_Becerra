@@ -1,13 +1,17 @@
 version: 2
 
-# Bronze zone = typed, partitioned, append-only Parquet written by `latam_platform.cli bronze-build`
-# (data/lake/bronze/<table>/<partition>/part-*.parquet). Read in place; dbt never writes to bronze.
-# Each row carries _row_md5, _ingest_run_id, _source_file and _ingested_at for lineage.
+# Lossless bronze of record: every record of every landed file, every field as its original text, proven
+# byte-exact against the landing manifest (`latam_platform.cli bronze-raw-build`, docs/platform/09 §B).
+# Layout: <zone>/<table>/<partition>/part-0.parquet with lineage columns _source_file, _record_no,
+# _record_sha256, _parse_status, _partition_date, _ingest_run_id and _ingested_at. Read in place; dbt never
+# writes to bronze. Silver types it against the reviewed source contracts (platform/contracts/sources) in
+# models/silver/typed; union_by_name keeps a file whose header gained or lost a column readable, and the
+# schema-drift models report it. (The typed bronze these sources replace is archived read-only.)
 sources:
-  - name: raw
-    description: "Main folder (data/), authoritative. Bronze, read-only."
+  - name: bronze_raw
+    description: "Main folder (data/), authoritative. Lossless bronze, read-only."
     meta:
-      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/bronze/{name}/*/*.parquet', union_by_name = true)"
+      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/bronze_raw/{name}/*/*.parquet', union_by_name = true, hive_partitioning = false)"
     tables:
       - name: customers
       - name: products
@@ -15,7 +19,6 @@ sources:
       - name: service_agents
       - name: marketing_campaigns
       - name: transactions
-        loaded_at_field: transaction_date
       - name: call_center_interactions
       - name: call_transcripts
       - name: satisfaction_surveys
@@ -24,10 +27,18 @@ sources:
       - name: campaign_sends
       - name: daily_exchange_rates
 
-  - name: raw_backup
-    description: "Quarantine zone copy of data_backup_20260831/: used only by audit reconciliation, never joined to main."
+  - name: holdout_raw
+    description: "Holdout zone: facts with process_date >= var('stream_cutoff'), lossless. Replayed as a stream in the demo."
     meta:
-      external_location: "{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/quarantine/backup_20260831/{name}.parquet"
+      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/holdout_raw/{name}/*/*.parquet', union_by_name = true, hive_partitioning = false)"
+    tables:
+      - name: transactions
+      - name: digital_events
+
+  - name: quarantine_raw
+    description: "Lossless copy of data_backup_20260831/: used only by audit reconciliation, never joined to main."
+    meta:
+      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/quarantine/backup_20260831_raw/{name}/*/*.parquet', union_by_name = true, hive_partitioning = false)"
     tables:
       - name: customers
       - name: products
@@ -35,10 +46,12 @@ sources:
       - name: complaints
       - name: call_center_interactions
 
-  - name: holdout
-    description: "Holdout zone: facts with process_date >= var('stream_cutoff'). Replayed as a stream in the demo."
+  - name: corrections
+    description: >
+      Append-only log of approved data corrections, reverts and partition releases (dq_correction_review DAG,
+      latam_platform.dq_corrections): one read-only Parquet file per approved proposal. Silver overlays it on
+      lossless bronze; `_genesis.parquet` keeps the folder readable before the first correction.
     meta:
-      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/holdout/{name}/*/*.parquet', union_by_name = true)"
+      external_location: "read_parquet('{{ env_var('LATAM_LAKE_DIR', '../../data/lake') }}/corrections/applied/*.parquet', union_by_name = true)"
     tables:
-      - name: transactions
-      - name: digital_events
+      - name: applied

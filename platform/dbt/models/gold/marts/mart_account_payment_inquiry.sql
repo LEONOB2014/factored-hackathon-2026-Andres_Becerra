@@ -6,7 +6,7 @@ with recent as (
     select
         product_id,
         count(*) filter (where transaction_status = 'Pending')                               as pending_count,
-        sum(amount) filter (where transaction_status = 'Pending')                            as pending_amount,
+        {{ exact_sum('amount', "transaction_status = 'Pending'") }}                             as pending_amount,
         count(*) filter (where transaction_status = 'Declined'
                            and transaction_ts_utc >= {{ as_of() }} - interval 30 day)         as declined_30d,
         count(*) filter (where transaction_status = 'Reversed'
@@ -15,17 +15,17 @@ with recent as (
                                           and transaction_status = 'Approved')               as last_deposit_ts,
         max(transaction_ts_utc) filter (where transaction_type = 'Payment'
                                           and transaction_status = 'Approved')               as last_payment_ts,
-        arg_max(amount, transaction_ts_utc) filter (where transaction_type = 'Payment'
+        arg_max(amount, (transaction_ts_utc, transaction_id)) filter (where transaction_type = 'Payment'
                                                      and transaction_status = 'Approved')    as last_payment_amount,
-        arg_max(response_meaning, transaction_ts_utc) filter (where transaction_status = 'Declined')
+        arg_max(response_meaning, (transaction_ts_utc, transaction_id)) filter (where transaction_status = 'Declined')
                                                                                              as last_decline_reason,
-        arg_max(response_suggested_action, transaction_ts_utc) filter (where transaction_status = 'Declined')
+        arg_max(response_suggested_action, (transaction_ts_utc, transaction_id)) filter (where transaction_status = 'Declined')
                                                                                              as last_decline_action
     from {{ ref('fct_transaction') }}
     group by product_id
 ),
 decline_mix as (
-    select product_id, map(list(response_code), list(n)) as declines_by_code_90d
+    select product_id, map(list(response_code order by response_code), list(n order by response_code)) as declines_by_code_90d
     from (
         select product_id, coalesce(response_code, '<missing>') as response_code, count(*) as n
         from {{ ref('fct_transaction') }}

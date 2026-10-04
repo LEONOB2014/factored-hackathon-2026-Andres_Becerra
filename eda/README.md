@@ -12,8 +12,16 @@ duckdb) stay out of the app and CI installs.
 
 | Path | Contents | In git |
 |---|---|---|
-| `src/latam_eda/` | Shared code: DuckDB loader, chart theme, anomaly features | yes |
+| `src/latam_eda/` | Shared code: DuckDB loader, chart theme, table profiling, anomaly features | yes |
 | `notebooks/` | Numbered notebook series; `# %%` `.py` sources plus executed `.ipynb` | yes |
+| `notebooks/medallion/` | Medallion re-analysis series (raw → bronze → silver → gold) | yes |
+| `notebooks/model_risk/` | Model-risk series: raw schema forensics, then keys, drift MRM, segmentation, text | yes |
+| `notebooks/pipeline/` | Pipeline walkthrough: the `dbt_lakehouse` DAG replayed step by step in a scratch DuckDB | yes |
+| `notebooks/country_{all,mx,co,ar}/` | Country series: the whole platform rebuilt and judged on the whole bank or one country (generated from `country_template/`) | yes |
+| `notebooks/backup_{all,mx,co,ar}/` | Backup-as-main series: the same template on `data_backup_20260831` treated as the production source | yes |
+| `notebooks/country_compare/` | The three country series side by side | yes |
+| `notebooks/dataset_compare/` | Main against the backup run as main, per scope | yes |
+| `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
 | `reports/notebooks/` | HTML export of each notebook | yes |
@@ -35,7 +43,8 @@ data dictionary in [`docs/dataset/`](../docs/dataset/).
 
 ## Notebook series
 
-Keep one flat, numbered series; the number range shows the topic.
+Two numbered series, each without gaps. The main-vs-backup study is the flat series in
+`notebooks/`; the number range shows the topic.
 
 | Range | Topic |
 |---|---|
@@ -44,8 +53,139 @@ Keep one flat, numbered series; the number range shows the topic.
 | 07–10 | Anomaly detection: classical, ML, deep and supervised, method consensus |
 | 11 | Evaluation and final report |
 
+### Medallion re-analysis (`notebooks/medallion/`)
+
+The data followed through the platform's layers, one notebook per layer, each judged
+against the one before. Exact statistics come from DuckDB over the full tables; views that
+need pandas use a reproducible 200k-row sample; PII is profiled by shape only.
+
+| # | Layer | Status |
+|---|---|---|
+| 01 | Raw: complete profile of the 13 Parquet tables (types, nulls vs disguised missing, distributions, associations, time, referential integrity, banking views, ipywidgets explorers, findings) | done |
+| 02 | Bronze: what ingestion changed | planned |
+| 03 | Silver: did conformance fix the raw findings | planned |
+| 04 | Gold: Kimball facts and dimensions reconciled with raw totals | planned |
+
+The six interactive explorers in 01 (column, cross-matrix, number by category, time, scatter,
+SQL slice) need a live kernel (`uv run jupyter lab`); the HTML export shows the other charts,
+which are interactive Plotly too. `uv run pytest -m notebooks -k explorers` drives every
+explorer through all tables and options (about 6 minutes). Execution takes about a minute and ~6 GB of RAM.
+
 Edit the `.py` source, then rebuild the `.ipynb` and HTML with
-`scripts/build_notebook.py`. Notebooks import shared code from `../src`.
+`scripts/build_notebook.py`. Notebooks import shared code from `../src` (`../../src` in
+`medallion/`).
+
+### Model-risk series (`notebooks/model_risk/`)
+
+Methodology in [`docs/platform/09_data_and_model_risk_methodology.md`](../docs/platform/09_data_and_model_risk_methodology.md).
+
+| # | Topic | Status |
+|---|---|---|
+| 01 | Raw schema forensics: the schema inferred from the raw CSV text, file by file (L0–L4), change detection with permutation-calibrated tests, positive controls (synthetic mutations and the backup copy), propagation audit of the typed copies, inferred contracts | done |
+| 02+ | Keys and source systems, drift and concept-drift MRM, segmentation, text | planned |
+
+Notebook 01 reads cached fingerprints; build them first:
+
+```bash
+uv run scripts/raw_schema_scan.py        # every raw file of both copies, ~10 min, resumable
+uv run scripts/mutate_partitions.py      # detector scorecard from ten injected schema changes, ~3 min
+uv run scripts/build_notebook.py notebooks/model_risk/01_raw_schema_forensics.py --execute \
+    --html-dir "$PWD/reports/notebooks/model_risk"
+```
+
+### Pipeline walkthrough (`notebooks/pipeline/`)
+
+The `dbt_lakehouse` Airflow DAG replayed without Airflow: `src/latam_eda/pipeline.py` asks dbt to compile the
+project (`dbt compile`, no runs), then executes every compiled statement in a scratch DuckDB
+(`data/tmp/pipeline/lakehouse.duckdb`) in the DAG's task-group order, runs the data tests after each group, and stops
+between steps to inspect the result. The live lakehouse and the shared lake are never written (external models
+become tables in the scratch database).
+
+| # | Topic | Status |
+|---|---|---|
+| 01 | Orchestration, compilation, lineage, seeds; the forward-dependency defect | done |
+| 02 | Lossless bronze → typed silver: contracts, cell findings, the correction overlay | done |
+| 03 | The quality gate: profiles, schema drift, the circuit breaker and a what-if simulator | done |
+| 04 | Staging: vocabulary joins, timestamps, row hashes, the restricted zone | done |
+| 05 | Conformed silver: FX, imputation, direction, flags, the monthly grid | done |
+| 06 | Snapshots and the gold core: SCD2, surrogate keys, the star schema | done |
+| 07 | Service marts: customer 360, inquiries, cards, disputes, CX | done |
+| 08 | Risk and growth marts: credit, collections, AML, campaigns | done |
+| 09 | Features: point in time, out-of-time splits, leakage guards | done |
+| 10 | Graph and knowledge exports | done |
+| 11 | Privacy inputs (DP bounding) and serving tables | done |
+| 12 | Audit, the three gates, fidelity against Airflow, prioritised findings | done |
+
+Run the notebooks in order (each builds its part on top of the previous ones; one run alone builds whatever is
+missing first). Needs `uv sync` in `platform/` (for dbt), about 6 GB free in `data/tmp/`, and no Airflow dbt run
+writing at the same time. The whole platform builds in about four minutes:
+
+```bash
+for nb in notebooks/pipeline/[0-9][0-9]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/pipeline"
+done
+```
+
+Personal data and free text are masked in every displayed table (`Pipeline.safe`, from the
+`restricted_pii_columns` seed). Delete `data/tmp/pipeline/` when done; it is rebuilt by running the series again.
+
+### Country and backup-as-main series (`notebooks/country_*`, `backup_*`, `country_compare`, `dataset_compare`)
+
+The platform rebuilt once per country, on a lossless country subset of the lake (`src/latam_eda/country.py`:
+customers by country, everything they own by `customer_id`, anonymous digital events by IP country, reference data
+shared), with every decision taken on that country's data: contract baselines re-estimated on a 180-day reference
+window, local time and the country's calendar (bank holidays, paydays, month end, bonus months), per-currency
+statistics, country SLOs, anomaly and change-point detection, and an out-of-time learnability test of seven candidate
+targets.
+
+The series are **generated** from one template so their method cannot drift apart: edit
+`notebooks/country_template/`, never the generated folders (a test checks they match). The template has two
+dimensions, eight series:
+
+* **scope**: `ALL` (the whole bank, no cut; local time and calendar per customer's country, country fixed effects in
+  the calendar regression) or one country (`MX`, `CO`, `AR`);
+* **dataset**: `main` (folders `country_*`) or `backup` (folders `backup_*`): `data_backup_20260831` run **as if it
+  were main**. `country.build_backup_lake` lays the backup's lossless bronze out as a main lake in
+  `data/tmp/backup/lake` (hard links, no extra space): bronze and holdout split at the stream cutoff, empty files with
+  main's schema for the tables the backup lacks, main's bronze as the quarantined copy (so reconciliation runs in
+  reverse), the backup's own header manifests.
+
+Prose that only one scope or dataset should read sits in `# <ALL>`, `# <COUNTRY>`, `# <MAIN>` or `# <BACKUP>` blocks
+of the template's markdown. Each series writes `{country,backup}_{all,mx,co,ar}_<kind>.csv` to `reports/tables`
+(size, contract, calendar effects, profile, rule SLOs, reconciliation, anomalies, learnability); the two comparison
+notebooks read only those tables.
+
+| # | Topic |
+|---|---|
+| 01 | Country scope: how the lake is cut, currencies, what is shared |
+| 02 | Bronze → typed: the country's contract findings and emptiness |
+| 03 | Global versus country contract; reference-window baselines; noise-aware drift; PSI stability |
+| 04 | Local time and the country calendar; what the calendar explains (regression with CIs) |
+| 05 | Currency, conversion, imputation, incomes, the monthly grid |
+| 06 | Snapshots and the gold core |
+| 07 | Service marts; the country's regulatory clock for disputes |
+| 08 | Risk and growth marts; AML lines and consent law of the country |
+| 09 | Point-in-time features plus calendar features against the fraud label |
+| 10 | Graph and knowledge |
+| 11 | Privacy (cell sizes per country) and serving |
+| 12 | Integrity rules against global and country SLOs; the gates |
+| 13 | Abnormal days, change points, amount outliers per currency, Isolation Forest against the AML rules |
+| 14 | Seven candidate targets evaluated out of time (AUC and AP with intervals, verdicts) |
+
+```bash
+uv run scripts/build_country_notebooks.py              # regenerate the eight series from the template
+for s in country_all country_mx country_co country_ar backup_all backup_mx backup_co backup_ar; do
+  for nb in notebooks/$s/[0-9][0-9]_*.py; do uv run scripts/build_country_notebooks.py --execute "$nb"; done
+  d=${s%%_*}; rm -rf ../data/tmp/${d/country/main}/${s#*_}   # that scope's scratch, rebuilt on demand
+done
+for nb in notebooks/country_compare/01_country_comparison.py notebooks/dataset_compare/01_main_vs_backup.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/$(basename $(dirname $nb))"
+done
+```
+
+Each scope needs `uv sync` in `platform/` and builds its lake and lakehouse in `data/tmp/<dataset>/<scope>/` (main:
+about 5.5 GB for the whole bank, 3.9 GB for Mexico, 2.5 GB for Colombia, 1.8 GB for Argentina; the backup is smaller);
+run one scope at a time and delete its folder when done. `LATAM_SCOPE_DIR` moves the scratch elsewhere.
 
 ## Reproduce
 
@@ -57,6 +197,8 @@ uv run scripts/download_s3.py                 # AWS credentials in the root .env
 uv run scripts/eda_overview.py                # CSV → ../data/parquet + reports/eda_overview.md
 uv run scripts/build_backup_parquet.py        # ../data/parquet_backup
 uv run scripts/build_notebook.py notebooks/03_time_shift_diagnostics.py --execute
+uv run scripts/build_notebook.py notebooks/medallion/01_raw_tables_profile.py --execute \
+    --html-dir "$PWD/reports/notebooks/medallion"   # absolute: the build runs from the notebook folder
 uv run scripts/export_dashboard_data.py       # after notebooks 02–10
 uv run scripts/generate_erd.py                # writes docs/dataset/erd.md
 ```

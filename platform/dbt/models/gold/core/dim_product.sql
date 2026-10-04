@@ -4,7 +4,7 @@ with v as (
     from {{ ref('snap_products') }} s
 )
 select
-    md5(product_id || '|' || cast(dbt_valid_from as varchar))        as product_sk,
+    md5(product_id || '|' || version_no)                             as product_sk,
     product_id,
     version_no,
     customer_id,

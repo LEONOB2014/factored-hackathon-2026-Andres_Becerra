@@ -4,15 +4,15 @@
 with i as (
     select
         i.*,
-        lead(interaction_ts_utc) over (partition by customer_id order by interaction_ts_utc) as next_contact_ts,
-        lead(contact_reason)     over (partition by customer_id order by interaction_ts_utc) as next_contact_reason,
+        lead(interaction_ts_utc) over (partition by customer_id order by interaction_ts_utc, interaction_id) as next_contact_ts,
+        lead(contact_reason)     over (partition by customer_id order by interaction_ts_utc, interaction_id) as next_contact_reason,
         count(*) over (partition by customer_id order by interaction_ts_utc
                        range between interval 30 day preceding and current row exclude current row) as prior_contacts_30d
     from {{ ref('stg_call_center_interactions') }} i
 ),
 srv as (
-    select interaction_id, arg_max(main_score, survey_ts_utc) as survey_score, arg_max(survey_type, survey_ts_utc) as survey_type,
-           arg_max(comment_sentiment, survey_ts_utc) as survey_comment_sentiment
+    select interaction_id, arg_max(main_score, (survey_ts_utc, survey_id)) as survey_score, arg_max(survey_type, (survey_ts_utc, survey_id)) as survey_type,
+           arg_max(comment_sentiment, (survey_ts_utc, survey_id)) as survey_comment_sentiment
     from {{ ref('stg_satisfaction_surveys') }}
     where interaction_id is not null
     group by 1

@@ -19,4 +19,5 @@ select
     open_device,
     failure_reason,
     send_cost
-from {{ source('raw', 'campaign_sends') }}
+from {{ ref('typed_campaign_sends') }} src
+where {{ not_held('src', 'campaign_sends') }}

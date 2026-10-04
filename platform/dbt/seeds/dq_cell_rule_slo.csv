@@ -1,0 +1,14 @@
+rule_id,issue_code,severity,table_name,description,baseline_rate_pct,max_rate_pct,enforce_in_dev
+C01,T,A,*,Value does not cast to its source-contract type,0.00,0.10,true
+C02,N,B,*,Required field empty or absent,0.00,0.10,true
+C03,V1,B,*,Value outside the source-contract vocabulary,0.00,0.10,true
+C04,V2,C,*,Variant spelling of a vocabulary value (e.g. Mexico for México),0.00,0.00,true
+C05,K,A,*,Identifier breaks its key pattern,0.00,0.10,true
+C06,P,B,*,Null rendered into free text (nan / None),0.00,0.00,true
+C07,G,A,*,Record breaks the CSV grammar,0.00,0.00,true
+C08,F,B,*,Castable value in a format the contract does not accept,0.00,0.10,true
+C09,S,C,*,Unrendered template slot in free text,0.00,0.00,true
+C10,H,B,*,Rows in a partition held by the schema-drift circuit breaker,0.00,0.00,true
+C04,V2,C,transactions,Variant spelling of a vocabulary value (e.g. Mexico for México),0.92,1.01,true
+C04,V2,C,digital_events,Variant spelling of a vocabulary value (e.g. Mexico for México),6.65,7.31,true
+C06,P,B,campaign_sends,Null rendered into free text (nan / None),2.25,2.47,true

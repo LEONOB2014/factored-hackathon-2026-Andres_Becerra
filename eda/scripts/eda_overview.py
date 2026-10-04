@@ -14,6 +14,7 @@ Usage:
 
 import argparse
 import os
+import sys
 from pathlib import Path
 
 import duckdb
@@ -22,6 +23,9 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from rich.console import Console
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
+from latam_eda.csvio import csv_to_parquet  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = Path(os.getenv("LATAM_EDA_DATA", ROOT.parent / "data")).expanduser().resolve()
@@ -72,14 +76,12 @@ def build_parquet(con, rebuild: bool):
         out = PQ / f"{table}.parquet"
         if out.exists() and not rebuild:
             continue
-        src = f"{RAW}/{table}/*/*/*/*.csv" if table in FACTS else f"{RAW}/{table}.csv"
-        extra = ", union_by_name=true, hive_partitioning=false" if table in FACTS else ""
+        files = (
+            sorted((RAW / table).glob("*/*/*/*.csv")) if table in FACTS else [RAW / f"{table}.csv"]
+        )
+        # One shared header per table (verified), so no union_by_name: a header change fails loudly.
         with console.status(f"Converting {table} to Parquet..."):
-            con.sql(f"""
-                COPY (SELECT * FROM read_csv('{src}', header=true, sample_size=-1,
-                      ignore_errors=true{extra}))
-                TO '{out}' (FORMAT parquet, COMPRESSION zstd)
-            """)
+            csv_to_parquet(con, files, out)
         console.print(f"[green]✓[/] {table}")
 
 

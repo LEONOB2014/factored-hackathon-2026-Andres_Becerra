@@ -1,0 +1,30 @@
+level,column,signal,kind,change_date,first_seen,last_seen,coverage,detail,table
+L2,postal_code,int_leading_zero+int+text,snapshot,,,,1.0,several formats,branches
+L2,open_country,share:text,share_shift,2023-09-10,2023-09-10 00:00:00,2023-12-10 00:00:00,1.0,0.3463 -> 0.2736 (6 change point(s)),campaign_sends
+L2,open_country,share:empty,share_shift,2023-09-10,2023-09-10 00:00:00,2023-12-10 00:00:00,1.0,0.6537 -> 0.7264 (6 change point(s)),campaign_sends
+L2,open_date,share:ts_space,share_shift,2023-09-10,2023-09-10 00:00:00,2023-12-10 00:00:00,1.0,0.3851 -> 0.2974 (6 change point(s)),campaign_sends
+L2,open_date,share:empty,share_shift,2023-09-10,2023-09-10 00:00:00,2023-12-10 00:00:00,1.0,0.6149 -> 0.7026 (6 change point(s)),campaign_sends
+L2,open_device,share:text,share_shift,2023-09-10,2023-09-10 00:00:00,2023-12-10 00:00:00,1.0,0.3467 -> 0.2735 (4 change point(s)),campaign_sends
+L2,open_device,share:empty,share_shift,2023-09-10,2023-09-10 00:00:00,2023-12-10 00:00:00,1.0,0.6533 -> 0.7265 (4 change point(s)),campaign_sends
+L3,send_cost,scale,level_shift,2023-07-23,2023-07-23 00:00:00,2026-06-08 00:00:00,1.0,"33 step(s), factors x6.1959, x0.1481, x3.7387, x1.405, x0.5746",campaign_sends
+L2,subject,share:text,share_shift,2023-07-08,2023-07-08 00:00:00,2026-06-08 00:00:00,1.0,0.4709 -> 0.1845 (13 change point(s)),campaign_sends
+L2,subject,share:empty,share_shift,2023-07-08,2023-07-08 00:00:00,2026-06-08 00:00:00,1.0,0.5291 -> 0.8155 (13 change point(s)),campaign_sends
+L2,was_opened,share:bool,share_shift,2023-07-10,2023-07-10 00:00:00,2026-05-07 00:00:00,1.0,0.9372 -> 0.7505 (28 change point(s)),campaign_sends
+L2,was_opened,share:empty,share_shift,2023-07-10,2023-07-10 00:00:00,2026-05-07 00:00:00,1.0,0.0628 -> 0.2495 (28 change point(s)),campaign_sends
+L3,campaign_id,vocabulary_burst,burst,2023-07-10,2023-07-10 00:00:00,,1.0,"175 values appear or vanish, e.g. CMP-06IKIC4I9JS9, CMP-093CV52XZCZW, CMP-0E8U4YN5XAPE, CMP-0SCQMRQB1JT6, CMP-11Z48JDDYPJL",campaign_sends
+L3,send_channel,value=Voice,episode,2023-12-01,2023-12-01 00:00:00,2026-03-23 00:00:00,0.2345,,campaign_sends
+L3,send_channel,value=WhatsApp,born,2023-07-10,2023-07-10 00:00:00,2026-06-17 00:00:00,0.9455,,campaign_sends
+L3,subject,value=¡Oferta especial en Cuenta Ahorro!,born,2023-08-29,2023-08-29 00:00:00,2026-06-17 00:00:00,0.4571,,campaign_sends
+L3,subject,value=¡Oferta especial en Cuenta Corriente!,episode,2024-02-17,2024-02-17 00:00:00,2026-03-31 00:00:00,0.3333,,campaign_sends
+L3,subject,value=¡Oferta especial en Inversión!,born,2024-01-08,2024-01-08 00:00:00,2026-06-17 00:00:00,0.2096,,campaign_sends
+L3,subject,value=¡Oferta especial en Préstamo Hipotecario!,episode,2023-08-22,2023-08-22 00:00:00,2024-09-22 00:00:00,0.1607,,campaign_sends
+L3,subject,value=¡Oferta especial en Préstamo Personal!,episode,2023-10-24,2023-10-24 00:00:00,2026-05-23 00:00:00,0.4174,,campaign_sends
+L3,subject,value=¡Oferta especial en Seguro!,episode,2024-12-09,2024-12-09 00:00:00,2026-05-20 00:00:00,0.1653,,campaign_sends
+L3,subject,value=¡Oferta especial en Tarjeta Crédito!,died,2026-06-01,2023-07-01 00:00:00,2026-05-31 00:00:00,0.7895,,campaign_sends
+L3,subject,value=¡Oferta especial en nan!,episode,2024-01-12,2024-01-12 00:00:00,2026-05-09 00:00:00,0.2484,,campaign_sends
+L2,document_number,int_leading_zero+int+text,snapshot,,,,1.0,several formats,customers
+L2,postal_code,int_leading_zero+int+text,snapshot,,,,1.0,several formats,customers
+L3,ip_country,variants:mexico,variant,,,,1.0,Mexico | México,digital_events
+L2,product_number,int_leading_zero+int+text,snapshot,,,,1.0,several formats,products
+L2,response_code,int_leading_zero+int,coexisting,2023-06-17,2023-06-17 00:00:00,2026-06-17 00:00:00,1.0,several formats every day,transactions
+L3,transaction_country,variants:mexico,variant,,,,1.0,Mexico | México,transactions

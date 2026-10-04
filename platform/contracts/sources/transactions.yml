@@ -1,0 +1,254 @@
+# Source contract: transactions. Lossless bronze (every field as text) is typed into silver against it.
+# Seeded by platform/dbt/scripts/generate_source_contracts.py from the raw forensics contract
+# (eda/reports/contracts/transactions.json) and the retired typed bronze schema, then reviewed.
+# This file is the source of truth: change it by pull request, then regenerate the dbt artefacts with
+#   cd platform/dbt && uv run python scripts/generate_silver_from_contracts.py
+# A cell that breaks it is flagged in audit.dq_cell_findings, never dropped.
+table: transactions
+kind: fact
+entity_key:
+- transaction_id
+timestamps: 'naive: the source carries no offset (process_date is a batch window)'
+inferred_from:
+  phase1_contract: 62d0ac997f2e
+  rows: 4425008
+  files: 1097
+columns:
+  transaction_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^TRX-[0-9A-Z]{20}$
+  transaction_date:
+    type: TIMESTAMP
+    required: true
+    empty_share: 0.0
+    formats:
+    - ts_space
+  process_date:
+    type: DATE
+    required: true
+    empty_share: 0.0
+    formats:
+    - date_iso
+  product_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^PRD-[0-9A-Z]{12}$
+  customer_id:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    key_pattern: ^CLI-[0-9A-Z]{12}$
+  transaction_type:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Adjustment
+    - Deposit
+    - Payment
+    - Purchase
+    - Transfer
+    - Withdrawal
+  transaction_category:
+    type: VARCHAR
+    required: false
+    empty_share: 0.608704
+    vocabulary:
+    - Entertainment
+    - Food
+    - Health
+    - Other
+    - Services
+    - Transport
+  amount:
+    type: DOUBLE
+    required: true
+    empty_share: 0.0
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 3.7328
+      mad: 0.0365
+      partitions: 1066
+  currency:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - ARS
+    - COP
+    - USD
+  amount_usd:
+    type: DOUBLE
+    required: false
+    empty_share: 0.573435
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 2.6689
+      mad: 0.0072
+      partitions: 1066
+  channel:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - ATM
+    - App
+    - Branch
+    - POS
+    - Transfer
+    - Web
+  branch_id:
+    type: VARCHAR
+    required: false
+    empty_share: 0.686344
+    key_pattern: ^SUC-[0-9A-Z]{8}$
+  merchant_name:
+    type: VARCHAR
+    required: false
+    empty_share: 0.767405
+    vocabulary:
+    - Boutique Moda
+    - Cable TV
+    - Centro Comercial
+    - Cine Premium
+    - Clínica Médica
+    - Conciertos Live
+    - Empresa Telefónica
+    - Estación de Servicio
+    - Farmacia Salud
+    - Ferretería
+    - Gasolinera Express
+    - Internet Plus
+    - Laboratorio Central
+    - Mercado Central
+    - Restaurante El Buen Sabor
+    - Servicios Públicos
+    - Streaming Music
+    - Super Ahorro
+    - Taxi Seguro
+    - Teatro Nacional
+    - Tienda Don José
+    - Tienda General
+    - Uber
+    - Óptica Visión
+  merchant_category:
+    type: VARCHAR
+    required: false
+    empty_share: 0.767505
+    vocabulary:
+    - Entertainment
+    - Food
+    - Health
+    - Other
+    - Services
+    - Transport
+  transaction_country:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Argentina
+    - Brazil
+    - Colombia
+    - México
+    - Spain
+    - USA
+    variants:
+      Mexico: México
+  transaction_city:
+    type: VARCHAR
+    required: false
+    empty_share: 0.100025
+    vocabulary:
+    - Barcelona
+    - Barranquilla
+    - Bogotá
+    - Brasília
+    - Buenos Aires
+    - Cali
+    - Cartagena
+    - Ciudad de México
+    - Córdoba
+    - Guadalajara
+    - Houston
+    - La Plata
+    - Los Angeles
+    - Madrid
+    - Medellín
+    - Mendoza
+    - Miami
+    - Monterrey
+    - New York
+    - Puebla
+    - Querétaro
+    - Rio de Janeiro
+    - Rosario
+    - Salvador
+    - Sevilla
+    - São Paulo
+    - Tijuana
+    - Valencia
+  transaction_status:
+    type: VARCHAR
+    required: true
+    empty_share: 0.0
+    vocabulary:
+    - Approved
+    - Declined
+    - Pending
+    - Reversed
+  response_code:
+    type: VARCHAR
+    required: false
+    empty_share: 0.049951
+    vocabulary:
+    - '00'
+    - '05'
+    - '14'
+    - '51'
+    - '54'
+  is_fraud:
+    type: BOOLEAN
+    required: true
+    empty_share: 0.0
+    formats:
+    - bool
+  fraud_score:
+    type: DOUBLE
+    required: false
+    empty_share: 0.200035
+    formats:
+    - int
+    - dec_dot
+    - sci
+    scale:
+      log10_median: 1.1766
+      mad: 0.005
+      partitions: 1066
+  latitude:
+    type: DOUBLE
+    required: false
+    empty_share: 0.806254
+    formats:
+    - int
+    - dec_dot
+    - sci
+    note: 'no scale check: unstable daily median (47% of baseline partitions move by >= 0.5 in log10)'
+  longitude:
+    type: DOUBLE
+    required: false
+    empty_share: 0.806262
+    formats:
+    - int
+    - dec_dot
+    - sci
+    note: 'no scale check: unstable daily median (50% of baseline partitions move by >= 0.5 in log10)'

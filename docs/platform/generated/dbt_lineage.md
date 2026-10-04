@@ -1,32 +1,33 @@
 # dbt lineage (generated)
 
-_Generated from `platform/dbt/target/manifest.json` (73 models)._
+_Generated from `platform/dbt/target/manifest.json` (96 models)._
 
 ## Zone-level lineage
 
 ```mermaid
 flowchart LR
-  audit["audit<br/>5 nodes"]
+  audit["audit<br/>11 nodes"]
   features["features<br/>8 nodes"]
-  gold["gold<br/>22 nodes"]
+  gold["gold<br/>23 nodes"]
   graph["graph<br/>6 nodes"]
   knowledge["knowledge<br/>2 nodes"]
   privacy["privacy<br/>2 nodes"]
-  reference["reference<br/>5 nodes"]
-  serving["serving<br/>6 nodes"]
-  silver["silver<br/>22 nodes"]
+  reference["reference<br/>8 nodes"]
+  serving["serving<br/>7 nodes"]
+  silver["silver<br/>37 nodes"]
   snapshots["snapshots<br/>4 nodes"]
-  source_holdout["source:holdout<br/>2 nodes"]
+  source_bronze_raw["source:bronze_raw<br/>13 nodes"]
+  source_holdout_raw["source:holdout_raw<br/>2 nodes"]
   source_published["source:published<br/>4 nodes"]
-  source_raw["source:raw<br/>13 nodes"]
-  source_raw_backup["source:raw_backup<br/>5 nodes"]
+  source_quarantine_raw["source:quarantine_raw<br/>5 nodes"]
+  audit -->|15| silver
   features -->|1| gold
   features -->|1| graph
   gold -->|4| graph
   gold -->|1| knowledge
-  gold -->|5| serving
+  gold -->|6| serving
   graph -->|1| knowledge
-  reference -->|1| audit
+  reference -->|6| audit
   reference -->|1| gold
   reference -->|1| graph
   reference -->|8| silver
@@ -40,10 +41,11 @@ flowchart LR
   silver -->|4| snapshots
   snapshots -->|1| audit
   snapshots -->|2| gold
-  source_holdout -->|2| silver
-  source_raw -->|11| audit
-  source_raw -->|13| silver
-  source_raw_backup -->|5| audit
+  source_bronze_raw -->|37| audit
+  source_bronze_raw -->|13| silver
+  source_holdout_raw -->|4| audit
+  source_holdout_raw -->|2| silver
+  source_quarantine_raw -->|5| audit
 ```
 
 ## Model-level lineage into `serving`
@@ -56,6 +58,7 @@ flowchart LR
   mart_customer_360 --> serving_customer_360
   mart_transaction_disputes --> serving_dispute_case
   int_transactions_enriched --> serving_online_fraud_state
+  mart_product_recent_transactions --> serving_recent_transactions
 ```
 
 ## Model-level lineage into `features`

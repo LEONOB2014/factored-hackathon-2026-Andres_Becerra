@@ -1,6 +1,7 @@
 """Backup reconciliation control (C1): any copy that claims to be a backup must match the source.
 
-Runs the dbt audit models over the quarantined backup and fails loudly if keys or record hashes differ.
+Runs the dbt audit models over the lossless quarantined backup (records compared as landed text) and fails
+loudly if keys or record hashes differ.
 On this dataset it is EXPECTED to fail: data_backup_20260831 is not a faithful backup (see docs/strategy/01).
 The failure is recorded as an integrity incident in the ledger, which is exactly the control's purpose.
 """
@@ -53,7 +54,7 @@ def backup_reconciliation():
         ]
         ops.ledger(
             "backup.reconciliation_failed" if unfaithful else "backup.reconciliation_passed",
-            "quarantine/backup_20260831",
+            "quarantine/backup_20260831_raw",
             {"tables": rows, "unfaithful": unfaithful},
             lineage_run_id,
         )

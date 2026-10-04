@@ -30,7 +30,7 @@ x-airflow: &airflow
     AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
     AIRFLOW__API__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
     AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
-    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin,auditor:viewer"
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin,auditor:viewer,steward:user,approver:user"
     AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/config/simple_auth_passwords.json
     AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "30"
     AIRFLOW__CORE__DAGS_FOLDER: /opt/latam/platform/airflow/dags
@@ -49,7 +49,10 @@ x-airflow: &airflow
     LATAM_DUCKDB_THREADS: "4"
     TMPDIR: /opt/latam/data/tmp
   volumes:
-    - ../..:/opt/latam                       # repo (DAGs, dbt, library) + data/ lake
+    - ../..:/opt/latam                       # repo checkout: DAGs, dbt, library
+    # data/ lake mounted on its own: in a worktree, data/ is a symlink to the main checkout that
+    # does not resolve inside the container. Override with LATAM_HOST_DATA_DIR (platform/docker/.env).
+    - ${LATAM_HOST_DATA_DIR:-../../data}:/opt/latam/data
     - airflow-config:/opt/airflow/config
     - airflow-logs:/opt/airflow/logs
   networks: [net_ops, net_data, net_audit, net_ml, net_stream]
@@ -118,6 +121,7 @@ services:
       - bash
       - -c
       - |
+        mkdir -p /opt/latam/data/tmp &&          # TMPDIR of the tasks; not part of a fresh data/ copy
         airflow db migrate &&
         airflow pools set duckdb_lakehouse 1 "DuckDB lakehouse has a single writer" &&
         airflow pools set neo4j_writer 2 "Neo4j write concurrency" &&

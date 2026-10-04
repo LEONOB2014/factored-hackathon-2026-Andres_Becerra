@@ -1,0 +1,2 @@
+country,dataset,customers,transactions,first_tx_day,last_tx_day,tx_per_customer_month,home_currency_tx_pct,anonymous_sessions_pct,median_income_usd,median_tx_usd
+CO,backup,44983,551953,2023-07-01,2024-09-26,0.351,89.9,21.8,2280.0,469.0

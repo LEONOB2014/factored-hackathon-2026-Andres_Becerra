@@ -1,0 +1,465 @@
+{
+ "contract_version": "97f87fae0496",
+ "table": "call_transcripts",
+ "header": [
+  "transcript_id",
+  "interaction_id",
+  "process_date",
+  "customer_id",
+  "agent_id",
+  "full_text",
+  "customer_text",
+  "agent_text",
+  "detected_language",
+  "detected_accent",
+  "accent_confidence",
+  "detected_keywords",
+  "mentioned_entities",
+  "detected_intents",
+  "main_topics",
+  "transcription_model",
+  "audio_quality",
+  "duration_seconds"
+ ],
+ "columns": {
+  "transcript_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    24,
+    24
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "interaction_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    20,
+    20
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "process_date": {
+   "type": "date",
+   "coverage": 1.0,
+   "formats": {
+    "date_iso": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    10
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "customer_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    16,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "agent_id": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    14,
+    14
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "full_text": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    219,
+    451
+   ],
+   "non_ascii_share": 1.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "customer_text": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    68,
+    162
+   ],
+   "non_ascii_share": 1.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "agent_text": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    118,
+    246
+   ],
+   "non_ascii_share": 1.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321
+  },
+  "detected_language": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    2,
+    2
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "es"
+   ]
+  },
+  "detected_accent": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.368215,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    9
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "",
+    "argentine",
+    "colombian",
+    "mexican"
+   ]
+  },
+  "accent_confidence": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.100052,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    4
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 2,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "",
+    "0.75",
+    "0.76",
+    "0.77",
+    "0.78",
+    "0.79",
+    "0.8",
+    "0.81",
+    "0.82",
+    "0.83",
+    "0.84",
+    "0.85",
+    "0.86",
+    "0.87",
+    "0.88",
+    "0.89",
+    "0.9",
+    "0.91",
+    "0.92",
+    "0.93",
+    "0.94",
+    "0.95",
+    "0.96",
+    "0.97",
+    "0.98",
+    "0.99"
+   ]
+  },
+  "detected_keywords": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.051348,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    23
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "",
+    "banco, cuenta",
+    "banco, cuenta, servicio",
+    "banco, servicio",
+    "banco, servicio, cuenta",
+    "cuenta, banco",
+    "cuenta, banco, servicio",
+    "cuenta, servicio",
+    "cuenta, servicio, banco",
+    "servicio, banco",
+    "servicio, banco, cuenta",
+    "servicio, cuenta",
+    "servicio, cuenta, banco"
+   ]
+  },
+  "mentioned_entities": {
+   "type": "json",
+   "coverage": 1.0,
+   "formats": {
+    "json": 1.0
+   },
+   "empty_share": 0.100186,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    79
+   ],
+   "non_ascii_share": 0.298755,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 0, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 0, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 0, \"products\": null}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 1, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 1, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 1, \"products\": null}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 2, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 2, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 0, \"dates\": 0, \"amounts\": 2, \"products\": null}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 0, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 0, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 0, \"products\": null}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 1, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 1, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 1, \"products\": null}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 2, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 2, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 0, \"dates\": 1, \"amounts\": 2, \"products\": null}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 0, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 0, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 0, \"products\": null}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 1, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 1, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 1, \"products\": null}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 2, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 2, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 1, \"dates\": 0, \"amounts\": 2, \"products\": null}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 0, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 0, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 0, \"products\": null}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 1, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 1, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 1, \"products\": null}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 2, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 2, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 1, \"dates\": 1, \"amounts\": 2, \"products\": null}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 0, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 0, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 0, \"products\": null}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 1, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 1, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 1, \"products\": null}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 2, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 2, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 2, \"dates\": 0, \"amounts\": 2, \"products\": null}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 0, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 0, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 0, \"products\": null}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 1, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 1, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 1, \"products\": null}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 2, \"products\": \"Cuenta Ahorro\"}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 2, \"products\": \"Tarjeta Crédito\"}",
+    "{\"account_numbers\": 2, \"dates\": 1, \"amounts\": 2, \"products\": null}"
+   ]
+  },
+  "detected_intents": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.049363,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    16
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "",
+    "consulta_general"
+   ]
+  },
+  "main_topics": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    5,
+    13
+   ],
+   "non_ascii_share": 0.180194,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "Comercial",
+    "Producto",
+    "Queja",
+    "Retención",
+    "Transaccional",
+    "Técnico"
+   ]
+  },
+  "transcription_model": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.0,
+   "null_token_share": 0.0,
+   "length": [
+    10,
+    14
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "AWS Transcribe",
+    "Azure Speech",
+    "Google STT",
+    "Whisper v3"
+   ]
+  },
+  "audio_quality": {
+   "type": "string",
+   "coverage": 1.0,
+   "formats": {
+    "text": 1.0
+   },
+   "empty_share": 0.05042,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": null,
+   "files": 1097,
+   "rows": 171321,
+   "vocabulary": [
+    "",
+    "High",
+    "Low",
+    "Medium"
+   ]
+  },
+  "duration_seconds": {
+   "type": "decimal",
+   "coverage": 1.0,
+   "formats": {
+    "dec_dot": 1.0
+   },
+   "empty_share": 0.140257,
+   "null_token_share": 0.0,
+   "length": [
+    0,
+    6
+   ],
+   "non_ascii_share": 0.0,
+   "max_fraction_digits": 1,
+   "files": 1097,
+   "rows": 171321
+  }
+ }
+}

@@ -4,11 +4,11 @@
 with pay as (
     select
         product_id,
-        sum(amount_usd) filter (where transaction_type = 'Payment' and transaction_status = 'Approved'
-                                  and transaction_ts_utc >= {{ as_of() }} - interval 30 day)              as payments_usd_30d,
-        sum(amount_usd) filter (where transaction_type = 'Payment' and transaction_status = 'Approved'
-                                  and transaction_ts_utc >= {{ as_of() }} - interval 90 day
-                                  and transaction_ts_utc <  {{ as_of() }} - interval 30 day) / 2.0        as payments_usd_prev_monthly_avg,
+        {{ exact_sum('amount_usd', "transaction_type = 'Payment' and transaction_status = 'Approved'
+                                  and transaction_ts_utc >= " ~ as_of() ~ " - interval 30 day") }}         as payments_usd_30d,
+        {{ exact_sum('amount_usd', "transaction_type = 'Payment' and transaction_status = 'Approved'
+                                  and transaction_ts_utc >= " ~ as_of() ~ " - interval 90 day
+                                  and transaction_ts_utc <  " ~ as_of() ~ " - interval 30 day") }} / 2.0   as payments_usd_prev_monthly_avg,
         max(transaction_ts_utc) filter (where transaction_type = 'Payment' and transaction_status = 'Approved') as last_payment_ts
     from {{ ref('fct_transaction') }}
     where product_family in ('loan', 'credit_card')
@@ -16,7 +16,7 @@ with pay as (
 ),
 cust as (
     select customer_id,
-           sum(inflow_usd)  filter (where month_start >= date_trunc('month', {{ as_of() }}) - interval 3 month) / 3.0 as avg_inflow_usd_3m,
+           {{ exact_sum('inflow_usd', "month_start >= date_trunc('month', " ~ as_of() ~ ") - interval 3 month") }} / 3.0 as avg_inflow_usd_3m,
            sum(insufficient_funds_declines) filter (where month_start >= date_trunc('month', {{ as_of() }}) - interval 3 month)
                                                                                                      as nsf_declines_3m
     from {{ ref('int_customer_month_tx') }}

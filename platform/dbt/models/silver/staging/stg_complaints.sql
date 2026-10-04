@@ -27,4 +27,5 @@ select
     compensation_granted,
     cast(resolution_satisfaction as integer)       as resolution_satisfaction,
     is_repeat_complainer
-from {{ source('raw', 'complaints') }}
+from {{ ref('typed_complaints') }} src
+where {{ not_held('src', 'complaints') }}
