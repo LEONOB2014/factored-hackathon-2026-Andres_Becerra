@@ -104,4 +104,7 @@ def test_corrections_need_an_assigned_approver_and_rebuild_the_lakehouse(bag):
     assert [o.uri for o in dag.get_task("decide_and_apply").outlets] == [
         "lake://corrections/applied"
     ]
-    assert "corrections" in str(bag.get_dag("dbt_lakehouse").timetable.summary).lower()
+    rebuild_on = bag.get_dag("dbt_lakehouse").timetable.asset_condition.objects
+    assert "lake://corrections/applied" in {a.uri for a in rebuild_on}, (
+        "an applied correction rebuilds"
+    )
