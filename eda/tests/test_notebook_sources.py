@@ -56,11 +56,23 @@ def test_no_machine_specific_paths(src):
     assert not re.search(r"/Users/|/home/|[A-Z]:\\\\", src.read_text())
 
 
+# Country series write one table per country: `OUT / f"country_{COUNTRY.lower()}_<kind>.csv"`, resolved with the
+# `COUNTRY = "XX"` constant of each generated notebook (see scripts/build_country_notebooks.py).
+COUNTRY_WRITES = re.compile(r'to_csv\(\s*OUT / f"country_\{COUNTRY\.lower\(\)\}_(\w+)\.csv"')
+COUNTRY_CONST = re.compile(r'^COUNTRY = "([A-Z]{2})"$', re.M)
+
+
 def producers():
     out = {}
     for src in SOURCES + SUB_SOURCES:
-        for table in WRITES.findall(src.read_text()):
+        text = src.read_text()
+        for table in WRITES.findall(text):
             out.setdefault(table, []).append(src.name)
+        code = COUNTRY_CONST.search(text)
+        for kind in COUNTRY_WRITES.findall(text) if code else []:
+            out.setdefault(f"country_{code.group(1).lower()}_{kind}.csv", []).append(
+                f"{src.parent.name}/{src.name}"
+            )
     return out
 
 
@@ -115,7 +127,15 @@ def test_executed_notebook_matches_its_source(src):
 #   model_risk/  schema forensics, keys, drift MRM, segmentation and text
 SUBSERIES = {
     name: sorted((NOTEBOOKS / name).glob("[0-9][0-9]_*.py"))
-    for name in ("medallion", "model_risk", "pipeline")
+    for name in (
+        "medallion",
+        "model_risk",
+        "pipeline",
+        "country_mx",
+        "country_co",
+        "country_ar",
+        "country_compare",
+    )
 }
 SUB_SOURCES = [p for paths in SUBSERIES.values() for p in paths]
 

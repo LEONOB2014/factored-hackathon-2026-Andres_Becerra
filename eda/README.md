@@ -17,6 +17,8 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/medallion/` | Medallion re-analysis series (raw → bronze → silver → gold) | yes |
 | `notebooks/model_risk/` | Model-risk series: raw schema forensics, then keys, drift MRM, segmentation, text | yes |
 | `notebooks/pipeline/` | Pipeline walkthrough: the `dbt_lakehouse` DAG replayed step by step in a scratch DuckDB | yes |
+| `notebooks/country_{mx,co,ar}/` | Country series: the whole platform rebuilt and judged on one country (generated from `country_template/`) | yes |
+| `notebooks/country_compare/` | The three country series side by side | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -124,6 +126,46 @@ done
 
 Personal data and free text are masked in every displayed table (`Pipeline.safe`, from the
 `restricted_pii_columns` seed). Delete `data/tmp/pipeline/` when done; it is rebuilt by running the series again.
+
+### Country series (`notebooks/country_mx`, `country_co`, `country_ar`, `country_compare`)
+
+The platform rebuilt once per country, on a lossless country subset of the lake (`src/latam_eda/country.py`:
+customers by country, everything they own by `customer_id`, anonymous digital events by IP country, reference data
+shared), with every decision taken on that country's data: contract baselines re-estimated on a 180-day reference
+window, local time and the country's calendar (bank holidays, paydays, month end, bonus months), per-currency
+statistics, country SLOs, anomaly and change-point detection, and an out-of-time learnability test of seven candidate
+targets.
+
+The three series are **generated** from one template so their method cannot drift apart: edit
+`notebooks/country_template/`, never the generated folders (a test checks they match).
+
+| # | Topic |
+|---|---|
+| 01 | Country scope: how the lake is cut, currencies, what is shared |
+| 02 | Bronze → typed: the country's contract findings and emptiness |
+| 03 | Global versus country contract; reference-window baselines; noise-aware drift; PSI stability |
+| 04 | Local time and the country calendar; what the calendar explains (regression with CIs) |
+| 05 | Currency, conversion, imputation, incomes, the monthly grid |
+| 06 | Snapshots and the gold core |
+| 07 | Service marts; the country's regulatory clock for disputes |
+| 08 | Risk and growth marts; AML lines and consent law of the country |
+| 09 | Point-in-time features plus calendar features against the fraud label |
+| 10 | Graph and knowledge |
+| 11 | Privacy (cell sizes per country) and serving |
+| 12 | Integrity rules against global and country SLOs; the gates |
+| 13 | Abnormal days, change points, amount outliers per currency, Isolation Forest against the AML rules |
+| 14 | Seven candidate targets evaluated out of time (AUC and AP with intervals, verdicts) |
+
+```bash
+uv run scripts/build_country_notebooks.py              # regenerate the three series from the template
+for cc in mx co ar; do for nb in notebooks/country_$cc/[0-9][0-9]_*.py; do
+  uv run scripts/build_country_notebooks.py --execute "$nb"; done; done
+uv run scripts/build_notebook.py notebooks/country_compare/01_country_comparison.py --execute \
+    --html-dir "$PWD/reports/notebooks/country_compare"
+```
+
+Each country needs `uv sync` in `platform/` and builds its lake and lakehouse in `data/tmp/country/<cc>/` (about
+3.9 GB for Mexico, 2.5 GB for Colombia, 1.8 GB for Argentina); delete the folder when done.
 
 ## Reproduce
 
