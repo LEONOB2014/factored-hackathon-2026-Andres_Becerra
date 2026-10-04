@@ -30,7 +30,7 @@ x-airflow: &airflow
     AIRFLOW__API_AUTH__JWT_SECRET: ${AIRFLOW_JWT_SECRET}
     AIRFLOW__API__SECRET_KEY: ${AIRFLOW_SECRET_KEY}
     AIRFLOW__CORE__FERNET_KEY: ${AIRFLOW_FERNET_KEY}
-    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin,auditor:viewer"
+    AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin,auditor:viewer,steward:user,approver:user"
     AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/config/simple_auth_passwords.json
     AIRFLOW__DAG_PROCESSOR__REFRESH_INTERVAL: "30"
     AIRFLOW__CORE__DAGS_FOLDER: /opt/latam/platform/airflow/dags

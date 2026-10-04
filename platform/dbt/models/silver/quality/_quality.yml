@@ -31,3 +31,13 @@ models:
       excludes their rows; the dbt_lakehouse DAG raises the schema_drift_partition_held trigger for each new one.
     data_tests:
       - unique_combination: {arguments: {columns: [table_name, partition_date]}}
+
+  - name: dq_corrections_active
+    description: >
+      Cell corrections in force: approved through the four-eyes flow (dq_correction_review), applied up to
+      var('corrections_as_of') and not reverted. The typed models overlay them on lossless bronze.
+    data_tests:
+      - unique_combination: {arguments: {columns: [zone, table_name, source_file, record_no, column_name]}}
+
+  - name: dq_partition_releases_active
+    description: "Partitions released from a schema-drift hold through the four-eyes flow (correction log)."

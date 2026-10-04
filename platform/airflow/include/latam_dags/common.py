@@ -29,6 +29,13 @@ KNOWLEDGE = Asset("postgres://pg-core:5432/knowledge/kb/active_set_snapshot")
 GRAPH = Asset("neo4j://neo4j/latam")
 FRAUD_MODEL = Asset("mlflow://models/fraud_ensemble")
 STREAM_DECISIONS = Asset("postgres://pg-core:5432/bank_serving/decisions/fraud_decision_log")
+CORRECTIONS = Asset(
+    "lake://corrections/applied"
+)  # approved data corrections (dq_correction_review)
+
+# Four-eyes data corrections: who may approve a proposal (Airflow users, role `user`). The proposer is the user who
+# triggered the review run, and a proposer never approves their own proposal (enforced in the DAG as well).
+CORRECTION_APPROVERS = [{"id": "approver", "name": "approver"}]
 
 DEFAULT_ARGS = {
     "owner": "data-platform",

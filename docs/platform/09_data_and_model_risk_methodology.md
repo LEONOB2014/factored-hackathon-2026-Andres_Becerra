@@ -14,7 +14,7 @@ segmentation and text.
 | [A](#a-raw-schema-forensics) | schema evolution without metadata, from the raw CSV text | **implemented** (evidence: `eda/notebooks/model_risk/01_raw_schema_forensics`) |
 | [B](#b-lossless-bronze-with-a-byte-exact-proof) | bronze that preserves every record and every original value, with a completeness proof | **implemented** (`platform/libs/latam_platform/lakehouse/bronze_raw.py`) |
 | [C](#c-contract-driven-silver-and-cell-level-findings) | contract-driven typing in silver, cell-level findings, drift circuit breaker | **implemented** (`platform/contracts/sources`, `platform/dbt/models/silver/{typed,quality}`) |
-| [D](#d-audited-correction-and-restore) | four-eyes correction and restore over an append-only ledger | designed |
+| [D](#d-audited-correction-and-restore) | four-eyes correction and restore over an append-only ledger | **implemented** (`latam_platform/dq_corrections.py`, DAG `dq_correction_review`) |
 | [E–H](#e-h-later-phases) | keys and source systems, drift MRM, segmentation, text | designed |
 
 ## A. Raw schema forensics
@@ -256,7 +256,7 @@ Inside the silver layer, between the typed models and staging:
   not cast or are in a foreign format, more than 0.1 % broken keys, more than 20 % new vocabulary, or a scale step
   (|Δ log10 median| ≥ 0.5 and robust z > 6 against the contract baseline). **Severity B** (reported): new vocabulary
   below 20 %, an empty share moved by 30 points or more;
-* `dq_partition_holds`: severity-A partitions minus reviewed releases (seed `dq_partition_releases`). Staging
+* `dq_partition_holds`: severity-A partitions minus releases approved through the four-eyes flow (§D). Staging
   excludes their rows (macro `not_held`), so nothing built on a partition whose schema changed reaches gold,
   features or serving; the rows stay in bronze and in the typed models. The `drift_holds` task of `dbt_lakehouse`
   opens one `schema_drift_partition_held` trigger per new hold (`latam_platform.drift_holds`, idempotent).
@@ -310,11 +310,53 @@ parallel); a full build (222 nodes) takes 3 min 39 s, against 1 min 48–57 s fo
 read of a staging view now casts from text, and the profile and findings scan all 23.4 M records.
 
 ## D. Audited correction and restore
-Designed. Corrections never touch bronze. A steward explores findings in a notebook workbench (pattern groups,
-impact preview) and writes a proposal; an Airflow DAG validates it, records it in the hash-chained audit ledger and
-asks for **four-eyes approval** through Airflow's human-in-the-loop operators (approver ≠ proposer). Silver applies
-approved corrections as an overlay (`_corrected_by`); a revert removes the overlay and restores the original value.
-Silver can be rebuilt as of any point of the ledger.
+A flagged cell is never fixed in place. The original stays in lossless bronze; a correction is a **proposal**, decided
+by a second person, kept in an **append-only log**, and applied by silver as an overlay that can be undone.
+
+### D.1 The flow
+| step | what happens | evidence |
+|---|---|---|
+| propose | a steward explores `audit.dq_cell_findings` in the workbench (`eda/notebooks/model_risk/02`) and writes a proposal: `pattern` (every cell holding a value), `cells` (named records), `revert` (undo an applied proposal) or `release` (lift a schema-drift hold) | `data/lake/corrections/proposals/<id>.json` |
+| validate | the steward triggers `dq_correction_review` with the id; `validate_and_stage` checks it and expands a pattern into its cells | ledger `dq.correction_proposed` (actor `user:<steward>`, proposal sha256, impact) or `dq.correction_refused` |
+| decide | an assigned approver answers the human-in-the-loop task `review` with Approve or Reject and a comment | Airflow *Required actions* |
+| apply | `decide_and_apply` refuses an approval by the proposer, then appends the staged proposal to the log as one read-only file and rebuilds the lakehouse (asset `CORRECTIONS`) | ledger `dq.correction_applied` (actor `user:<approver>`, file sha256) / `dq.correction_rejected` / `dq.four_eyes_violation` |
+
+**What validation refuses** (before anyone is asked to approve): an unknown table or column; a new value that would
+break its column's contract, checked with the very predicates the typed models use (so a correction cannot create
+a finding); a cell whose value in bronze is no longer the one the steward saw (stale proposal); a pattern on personal
+data (shown only as a shape, so it is corrected cell by cell); a cell listed twice; a revert of something not
+applied or already reverted; a release of a partition that is not held; a proposal id already used. A proposal file
+edited after validation is refused at apply time (its sha256 no longer matches).
+
+**Who can do what.** Airflow accounts `steward` and `approver` (role `user`, the minimum that can trigger and
+answer); the review task is assigned to the approvers only, and `decide_and_apply` re-checks that the approver is not
+the proposer (identities come from Airflow's login: the run's triggering user and the task's responder).
+
+### D.2 Silver overlay and restore
+`dq_corrections_active` reads the log and keeps, per cell, the latest correction that is not reverted. The typed
+models (generated) read the original text, compute `_dq_issues` on it, then overlay the corrections before typing:
+
+* findings still record what the source sent, now with `correction_proposal_id` and `corrected_value`; the gate
+  (`dq_rule_summary`) counts only uncorrected findings, because those are what flow to gold;
+* `_corrected_columns` lists, per record, which columns the overlay changed;
+* the schema-drift profile stays on the original text (a hold is about what arrived), and releases come from the
+  same log (`dq_partition_releases_active`), replacing the phase 3 seed;
+* **restore**: a revert is one more approved proposal; the overlay stops and the next build shows the original;
+* **as of any point**: `dbt build --vars '{corrections_as_of: "<timestamp>"}'` rebuilds silver and gold as they
+  were at that point of the log (the log and bronze are both append-only).
+
+### D.3 Results (2026-10-04, [evidence](evidence/phase4/README.md))
+On a scratch copy of the full lake, the two real findings of §C were corrected as patterns (1.08 M `Mexico`
+variants in transactions and digital events; 38,142 subjects with a rendered `nan`), plus one cell and one release
+of a held partition. The C04 and C06 rates in the gate fell to 0 while every finding stayed, marked with its
+correction; held partitions went from 5 to 4. Reverting all five proposals rebuilt a lakehouse identical to the
+uncorrected one on all 109 relations, and a rebuild as of the moment before the reverts was identical to the corrected
+one: restore and point-in-time rebuild are exact.
+
+**Why reverts and releases are in scope.** The requirement is to "restore or fix the integrity". Without a revert, an
+approved mistake can only be covered by another correction, and silver loses the record of what the source said.
+Releases were a reviewed git seed in phase 3, not bound to an Airflow identity nor in the hash-chained ledger; they
+now share the same four-eyes path.
 
 ## E–H. Later phases
 * **E. Keys and source systems:** opaqueness of the raw identifiers (per-position χ², entropy vs log₂36, order vs

@@ -87,15 +87,31 @@ def _raw_table(con: duckdb.DuckDBPyConnection, rows=ROWS, name: str = "src") -> 
 
 
 def _sql(text: str, table: str = "src") -> str:
-    return re.sub(r"\{\{ source\('\w+', '\w+'\) \}\}", table, text)
+    text = re.sub(r"\{\{ source\('\w+', '\w+'\) \}\}", table, text)
+    return re.sub(r"\{\{ ref\('(\w+)'\) \}\}", r"\1", text)
+
+
+CORRECTION_COLS = ("zone VARCHAR, table_name VARCHAR, source_file VARCHAR, record_no BIGINT, column_name VARCHAR, "
+                   "new_value VARCHAR, old_value VARCHAR, proposal_id VARCHAR, applied_at TIMESTAMP")  # fmt: skip
 
 
 @pytest.fixture
 def con():
     c = duckdb.connect()
     _raw_table(c)
+    c.sql(f"CREATE TABLE dq_corrections_active ({CORRECTION_COLS})")
+    c.sql("""CREATE TABLE source_contract_columns AS SELECT * FROM (VALUES
+             ('toy', 'phone', 'phone'), ('toy', 'amount', NULL), ('toy', 'country', NULL))
+             t(table_name, column_name, pii_type)""")
     yield c
     c.close()
+
+
+def _correct(con, record_no: int, column: str, old: str, new: str, pid: str = "cp-test") -> None:
+    con.execute(
+        "INSERT INTO dq_corrections_active VALUES ('bronze', 'toy', 'data/toy/f.csv', ?, ?, ?, ?, ?, now())",
+        [record_no, column, new, old, pid],
+    )
 
 
 # --------------------------------------------------------------------------------------- contracts
@@ -171,6 +187,41 @@ def test_findings_keep_lineage_and_only_the_shape_of_personal_data(con):
     assert got[(5, "*", "G")].startswith("shape:")
     assert all(r["source_file"] == "data/toy/f.csv" and r["record_sha256"] for r in f)
     assert {r["entity_id"] for r in f if r["record_no"] == 2} == {"TOY-AB13"}
+
+
+def test_approved_corrections_overlay_the_typed_values_but_not_the_findings(con):
+    _correct(con, 2, "amount", "12,5", "12.5")
+    _correct(con, 2, "country", "Mexico", "México")
+    sql = _sql(gen.typed_model("bronze_raw", TOY, VC))
+    cols = [d[0] for d in con.sql(sql).description]
+    by_no = {
+        r[cols.index("_record_no")]: dict(zip(cols, r, strict=True))
+        for r in con.sql(sql).fetchall()
+    }
+    assert by_no[2]["amount"] == 12.5 and by_no[2]["country"] == "México", (
+        "silver shows the corrected values"
+    )
+    assert sorted(by_no[2]["_corrected_columns"]) == ["amount", "country"]
+    assert {"amount:T", "country:V2"} <= set(by_no[2]["_dq_issues"]), (
+        "issues record what the source sent"
+    )
+    assert by_no[1]["_corrected_columns"] == [] and by_no[3]["amount"] is None, (
+        "other records untouched"
+    )
+    assert len(by_no) == len(ROWS)
+
+
+def test_findings_show_the_correction_that_resolves_them_and_mask_personal_data(con):
+    _correct(con, 2, "country", "Mexico", "México", "cp-mexico")
+    _correct(con, 3, "phone", "call me 55", "5511122233", "cp-phone")
+    sql = _body(_sql(gen.findings_model({"toy": TOY}, VC)))
+    cols = [d[0] for d in con.sql(sql).description]
+    f = {(r[cols.index("record_no")], r[cols.index("column_name")]): dict(zip(cols, r, strict=True))
+         for r in con.sql(sql).fetchall()}  # fmt: skip
+    assert f[(2, "country")]["correction_proposal_id"] == "cp-mexico"
+    assert f[(2, "country")]["corrected_value"] == "México"
+    assert f[(3, "phone")]["corrected_value"] == "shape:9999999999", "personal data only as a shape"
+    assert f[(2, "amount")]["correction_proposal_id"] is None
 
 
 def _body(sql: str) -> str:
@@ -250,8 +301,8 @@ def drift_con():
         ('tx', DATE '2025-01-01', 'data/tx/year=2025/month=01/day=01/tx.csv', ['amount', 'channel', 'note'],
          []::VARCHAR[], []::VARCHAR[], false))
         t(table_name, partition_date, source_file, header, missing_columns, extra_columns, reordered)""")
-    c.sql("CREATE TABLE dq_partition_releases (table_name VARCHAR, partition_date DATE, released_by VARCHAR, "
-          "approved_by VARCHAR, released_on DATE, reason VARCHAR, ticket VARCHAR)")  # fmt: skip
+    c.sql("CREATE TABLE dq_partition_releases_active (table_name VARCHAR, partition_date DATE, proposal_id VARCHAR, "
+          "approved_by VARCHAR, applied_at TIMESTAMP)")  # fmt: skip
     yield c
     c.close()
 
@@ -286,6 +337,6 @@ def test_drift_holds_severe_schema_changes_and_only_reports_mild_ones(drift_con)
         "2025-01-08",
         "2025-01-09",
     }
-    drift_con.sql("INSERT INTO dq_partition_releases VALUES ('tx', '2025-01-03', 'steward', 'risk', '2025-01-10', "
-                  "'confirmed restatement to cents', 'DQ-1')")  # fmt: skip
-    assert "2025-01-03" not in held(), "a reviewed release lifts the hold"
+    drift_con.sql("INSERT INTO dq_partition_releases_active VALUES ('tx', '2025-01-03', 'cp-release-1', 'approver', "
+                  "now())")  # fmt: skip
+    assert "2025-01-03" not in held(), "a four-eyes release lifts the hold"

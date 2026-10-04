@@ -1,7 +1,8 @@
 -- One row per data-quality rule and table: violations, rate against the table's row count, and the agreed SLO.
 -- R-rules are row-level (dq_integrity_findings, seed dq_rule_slo); C-rules are cell-level breaches of the
 -- source contracts (dq_cell_findings, seed dq_cell_rule_slo) counted over the rows that flow on to gold:
--- rows of a held partition are reported once, as C10, not as the breaches that held them.
+-- rows of a held partition are reported once, as C10, not as the breaches that held them; a finding fixed by an
+-- approved correction (four-eyes, dq_correction_review) no longer counts, because silver no longer carries it.
 -- The dq_slo_breach test fails the build when a rule degrades beyond its max_rate_pct.
 with counts as (
     select rule_id, table_name, count(*) as violations
@@ -26,7 +27,8 @@ cell_counts as (
     select s.rule_id, f.table_name, count(distinct f.zone || '|' || f.source_file || '|' || f.record_no)::bigint as violations
     from {{ ref('dq_cell_findings') }} f
     join (select distinct rule_id, issue_code from {{ ref('dq_cell_rule_slo') }}) s using (issue_code)
-    where not exists (
+    where f.correction_proposal_id is null          -- an approved correction fixed it in silver
+      and not exists (
         select 1 from {{ ref('dq_partition_holds') }} h
         where h.table_name = f.table_name and h.partition_date = f.partition_date
     )

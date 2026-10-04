@@ -12,17 +12,3 @@ seeds:
     description: >
       Cell-level rules (codes in audit.dq_cell_findings) with severity and SLO. table_name '*' is the default
       for every source table; a row for a specific table overrides it (measured baselines).
-
-  - name: dq_partition_releases
-    description: >
-      Reviewed releases of partitions held by the schema-drift circuit breaker. Adding a row is an audited
-      change (pull request: reviewer and approver must differ); phase 4 moves this to the four-eyes ledger flow.
-    config:
-      column_types:
-        table_name: varchar
-        partition_date: date
-        released_by: varchar
-        approved_by: varchar
-        released_on: date
-        reason: varchar
-        ticket: varchar

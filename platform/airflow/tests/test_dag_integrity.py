@@ -25,6 +25,7 @@ EXPECTED = {
     "monitoring_drift",
     "backup_reconciliation",
     "retention_and_erasure",
+    "dq_correction_review",
 }
 
 
@@ -90,3 +91,20 @@ def test_drift_holds_are_raised_before_the_quality_gates(bag):
     dag = bag.get_dag("dbt_lakehouse")
     assert "drift_holds" in dag.get_task("dq_gate").upstream_task_ids
     assert "dq_gate" in dag.get_task("governance_gate").upstream_task_ids
+
+
+def test_corrections_need_an_assigned_approver_and_rebuild_the_lakehouse(bag):
+    dag = bag.get_dag("dq_correction_review")
+    review = dag.get_task("review")
+    assert type(review).__name__ == "HITLOperator"
+    assert review.assigned_users, "only assigned approvers may decide"
+    assert {u["id"] for u in review.assigned_users}.isdisjoint({"steward", "admin"})
+    assert "review" in dag.get_task("decide_and_apply").upstream_task_ids
+    assert "validate_and_stage" in review.upstream_task_ids
+    assert [o.uri for o in dag.get_task("decide_and_apply").outlets] == [
+        "lake://corrections/applied"
+    ]
+    rebuild_on = bag.get_dag("dbt_lakehouse").timetable.asset_condition.objects
+    assert "lake://corrections/applied" in {a.uri for a in rebuild_on}, (
+        "an applied correction rebuilds"
+    )
