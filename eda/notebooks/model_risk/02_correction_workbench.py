@@ -39,9 +39,13 @@ LAKEHOUSE = Path(os.environ.get("LATAM_LAKEHOUSE", REPO / "data" / "lake" / "lak
 PROPOSALS = Path(
     os.environ.get("LATAM_PROPOSALS", REPO / "data" / "lake" / "corrections" / "proposals")
 )
-MANIFEST = REPO / "platform" / "dbt" / "target-airflow" / "manifest.json"
+MANIFEST = Path(
+    os.environ.get(
+        "LATAM_DBT_MANIFEST", REPO / "platform" / "dbt" / "target-airflow" / "manifest.json"
+    )
+)
 con = wb.connect(LAKEHOUSE)
-print(f"lakehouse: {LAKEHOUSE.name} · proposals go to {PROPOSALS.relative_to(REPO)}")
+print(f"lakehouse: {LAKEHOUSE.name} · proposals go to .../{'/'.join(PROPOSALS.parts[-3:])}")
 
 # %% [markdown]
 # ## 1 · Findings by pattern
@@ -75,7 +79,11 @@ def preview(change=None):
             f"**{g.cells:,} cells** in {g.records:,} records, {g.partitions:,} partitions "
             f"({g.first_partition} → {g.last_partition}); {g.already_corrected:,} already corrected."
         ))  # fmt: skip
-        display(wb.records(con, g.table_name, g.column_name, g.raw_value, limit=10))
+        display(
+            wb.records(con, g.table_name, g.column_name, g.raw_value, limit=10).drop(
+                columns="entity_id"
+            )
+        )  # lineage only
         display(
             Markdown(
                 "Consumers that would change: "
