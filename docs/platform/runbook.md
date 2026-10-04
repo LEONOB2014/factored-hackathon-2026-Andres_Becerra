@@ -115,9 +115,8 @@ severity-A rules above their SLO.
 **Held partitions.** `audit.dq_partition_holds` lists partitions whose schema drifted (`audit.dq_schema_drift`
 says which check, column, observed value and threshold). Their rows stay in bronze and in `silver.typed_*`; staging
 and everything built on it exclude them. The `drift_holds` task opens one `schema_drift_partition_held` trigger per
-new hold (24 h review deadline). To release a reviewed partition, add a row to `seeds/dq_partition_releases.csv`
-(`released_by` and `approved_by` must be different people) in a pull request and rebuild; if the change is
-legitimate and permanent, update the contract instead. Phase 4 moves releases to the four-eyes ledger flow.
+new hold (24 h review deadline). To release a reviewed partition, propose a `release` through the four-eyes flow
+(§11); if the change is legitimate and permanent, update the contract instead.
 
 **Retiring typed bronze (once, after this change is deployed).** The typed bronze is no longer built or read.
 Move it into the read-only archive (nothing is copied or deleted; per-zone SHA-256 recorded in
@@ -151,3 +150,22 @@ The stack serves whatever checkout it was started from (the `develop` worktree).
 
 If Docker Desktop restarts during a run, Airflow resumes it when the stack is back; clear a task only if it stays
 `running` past the heartbeat timeout (5 minutes).
+
+## 11 · Correcting data (four-eyes)
+Bronze is never edited. A correction is a proposal approved by a second person and applied by silver as an overlay
+(09 §D). Accounts: `steward` proposes, `approver` decides (Airflow users with role `user`; passwords in
+`simple_auth_passwords.json` in the `airflow-config` volume).
+
+1. **Propose.** Open `eda/notebooks/model_risk/02_correction_workbench.ipynb` (when no dbt run is active), pick a
+   finding pattern, preview its impact and write the proposal; it lands in `data/lake/corrections/proposals/`.
+2. **Validate.** In Airflow as `steward`: `dq_correction_review` → *Trigger* with `proposal_id`. A refused proposal
+   fails `validate_and_stage` with the reason (and `dq.correction_refused` in the ledger).
+3. **Decide.** As `approver`: *Required actions* → the review → Approve or Reject, with a comment.
+4. **Applied.** `decide_and_apply` writes `data/lake/corrections/applied/<id>.parquet` (read-only) and triggers
+   `dbt_lakehouse`; findings show `correction_proposal_id`, and the gate stops counting them.
+
+**Undo** = a `revert` proposal through the same steps. **Release a held partition** = a `release` proposal.
+**Rebuild as of a point in the log:** `cd platform/dbt && DBT_PROFILES_DIR=. uv run dbt build --vars
+'{corrections_as_of: "2026-10-04 12:00:00"}'` (to a scratch `LATAM_DUCKDB_PATH`). Audit trail:
+`SELECT event_time, actor, event_type, subject_ref FROM ledger.event WHERE event_type LIKE 'dq.correction%' OR
+event_type = 'dq.four_eyes_violation' ORDER BY event_id` in pg-audit.

@@ -17,6 +17,8 @@ flowchart LR
   CB -->|severity A| HOLD[dq_partition_holds<br/>+ review trigger]
   TYP --> STG[silver: stg_* views]
   HOLD -.->|held rows excluded| STG
+  WB[workbench<br/>steward proposal] -->|dq_correction_review<br/>validate, approver decides| CL[(corrections log<br/>append-only)]
+  CL -->|overlay, revert, release| TYP
   STG --> INT[silver: int_* conformed]
   INT --> SNAP[snapshots SCD2]
   SNAP --> DIM[gold: dim_* SCD2]
