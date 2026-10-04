@@ -2,6 +2,27 @@
 
 [← 09 deployment](09_deployment.md) · [index](README.md) · next: [11 plan evaluation →](11_plan_evaluation.md)
 
+## 10.0 Revision after the platform and analysis phase (v0.2.0)
+The phases below were written before the platform was built. The evidence of
+[chapter 12](12_development_path.md) amends them. The rows are kept as written; these amendments take precedence:
+
+- **Phase 0:**
+  - add the completeness and dataset-identity controls ([ADR-013](../platform/adr/ADR-013.md));
+  - add country-keyed contracts, SLOs, AML lines, deadlines and calendars ([ADR-011](../platform/adr/ADR-011.md));
+  - add the six platform fixes of §12.7 (tokens, SCD2 first version, eligibility order, dispute candidates, AML
+    peer typology, fraud-label naming).
+- **Phase 1:**
+  - the first model is **dormancy**, a transparent rate model ([ADR-012](../platform/adr/ADR-012.md));
+  - "transparent eligibility and collections scores" ship only after the eligibility build-order fix and the
+    unknown-versus-late split;
+  - the AML analyst queue pairs the typologies with the isolation forest.
+- **Phase 2:**
+  - the **escalation-risk model is withdrawn** until real interactions exist (out-of-time AUC 0.49);
+  - "AML peer + isolation scoring" starts with reviving the dead peer typology;
+  - GBDT fraud keeps its condition: confirmed labels.
+- **Phase 3:** graph work starts only when the unblock conditions of §12.5 hold (NULL-preserving tokens, transfer
+  counterparties).
+
 ## 10.1 Phases
 
 | phase | horizon | outcomes | exit criteria |

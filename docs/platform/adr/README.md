@@ -12,3 +12,6 @@
 | [ADR-008](ADR-008.md) | Crypto-shredding to reconcile immutability and erasure |
 | [ADR-009](ADR-009.md) | Scope of differential privacy |
 | [ADR-010](ADR-010.md) | Federated graph learning across countries |
+| [ADR-011](ADR-011.md) | Country-keyed configuration, one code base |
+| [ADR-012](ADR-012.md) | Evidence-gated model portfolio |
+| [ADR-013](ADR-013.md) | Data completeness and dataset identity controls |

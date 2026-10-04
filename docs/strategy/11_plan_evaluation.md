@@ -1,6 +1,6 @@
 # 11 · Evaluating the plan: draft, critique, revision
 
-[← 10 roadmap](10_roadmap_and_team.md) · [index](README.md) · next: [sources →](appendix_sources.md)
+[← 10 roadmap](10_roadmap_and_team.md) · [index](README.md) · next: [12 from evidence to build plan →](12_development_path.md)
 
 The brief asked for a first draft of the plan, then an evaluation of its coherence, value, relevance, innovation,
 reliability, safety, production readiness, auditability, interpretability and further dimensions. This chapter does
