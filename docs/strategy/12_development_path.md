@@ -3,21 +3,26 @@
 [← 11 plan evaluation](11_plan_evaluation.md) · [index](README.md) · next: [sources →](appendix_sources.md)
 
 Chapters 01–11 were written before the platform existed. Since then the platform was built (`platform/`, release
-v0.2.0) and judged by three analysis series:
+v0.2.0) and judged by these analysis series:
 
 - **Pipeline walkthrough** (`eda/notebooks/pipeline/`): every dbt model replayed step by step in a scratch DuckDB.
 - **Country series** (`eda/notebooks/country_{all,mx,co,ar}/`): the whole platform rebuilt and judged per country
   and for the whole bank.
 - **Backup-as-main series** (`eda/notebooks/backup_*`, `dataset_compare/`): `data_backup_20260831` run through
   the platform as if it were the source.
+- **Granularity series** (`eda/notebooks/granularity/`): the star re-grained to customer, day, month and other
+  aggregates.
+- **Granularity series II** (`eda/notebooks/granularity_time/`): the hour, the clock and the campaign decision cell
+  (E13–E15).
 
 This chapter turns their results into the build plan for analytics, data marts, ML, deep learning and agents. Every
 figure cites the notebook or table it comes from; the tables are in `eda/reports/tables/`. It amends chapters 08
 and 10 where the evidence disagrees with them (see [10 §10.0](10_roadmap_and_team.md)).
 
 Decisions taken here are recorded as [ADR-011](../platform/adr/ADR-011.md) (country-keyed configuration),
-[ADR-012](../platform/adr/ADR-012.md) (evidence-gated model portfolio) and
-[ADR-013](../platform/adr/ADR-013.md) (data completeness and dataset identity controls).
+[ADR-012](../platform/adr/ADR-012.md) (evidence-gated model portfolio),
+[ADR-013](../platform/adr/ADR-013.md) (data completeness and dataset identity controls) and
+[ADR-014](../platform/adr/ADR-014.md) (timestamps carry an explicit clock).
 
 ## 12.1 What the experiments established
 
@@ -31,10 +36,13 @@ Decisions taken here are recorded as [ADR-011](../platform/adr/ADR-011.md) (coun
 | E6 | the `confirmed_fraud*` columns count the legacy label, which is a function of `fraud_score` | pipeline 07 | a card-block rule on them blocks on a score, not on confirmed fraud |
 | E7 | the bank-wide contract would hold 1,099, 1,099 and 1,098 days of Mexico, Colombia and Argentina (typical amounts 0.09×, 307× and 27× the blend); contracts with country baselines hold none | `country_{mx,co,ar}_contract.csv` | contracts, SLOs and gates must be keyed by country |
 | E8 | rule rates are national: R17 is 100 % in Mexico and 0 % elsewhere; R18 exists only where pesos do | `country_*_rule_slo.csv` | bank-wide SLOs describe no country |
-| E9 | behaviour is the same in every country and in both datasets: weekends 31–42 % below Mondays; no holiday, payday, month-end or bonus effect at 1 % in any country; no abnormal day and no change point (a pooled whole-bank payday dip of −1.6 % is too small to confirm, and absent from the backup) | `country_*_calendar_effects.csv`, `*_anomalies.csv`, `dataset_compare/01` | calendar features stay, but the data cannot validate them; re-measure on real data |
+| E9 | behaviour is the same in every country and in both datasets: on the delivery-day clock (E13) Saturdays and Sundays are about 39 % below weekdays in every market (the earlier 31–42 % spread and the Argentine Monday dip came from legal local time); no holiday, payday, month-end or bonus effect at 1 % in any country; no abnormal day and no change point | `country_*_calendar_effects.csv`, `*_anomalies.csv`, `dataset_compare/01`, `granularity_time_reconciliation.csv` | calendar features stay, but the data cannot validate them; re-measure on real data |
 | E10 | only dormancy is learnable out of time (AUC 0.728, the six-month transaction count alone 0.726); fraud, complaint in 90 days, delinquency and contact escalation show no evidence of signal; campaign conversion is weak to moderate (0.63–0.65) | `country_*_learnability.csv` | rules first; one transparent model first (§12.4) |
 | E11 | the backup run as main: transactions stop on 2024-09-25 and two tables are missing, and **no control notices**; the breaker holds every call-centre and campaign day; only reconciliation names a different dataset | `dataset_compare/01`, `backup_*` | completeness and identity controls are missing ([ADR-013](../platform/adr/ADR-013.md)) |
 | E12 | every testable model verdict is the same on the backup as on main | `backup_*_learnability.csv` | the conclusions are properties of the generator and do not depend on the source |
+| E13 | every process runs on its delivery day: timestamp −6 h (transactions, digital, sends) or −8 h (contacts, complaints) equals `process_date` for 100 % of rows, in every market; legal local time is wrong for this source, and R15/R16 test the wrong window (their ~8 % violations are 2 of 24 hours) | `granularity_time/01`, `granularity_time_clock.csv` | declare the clock ([ADR-014](../platform/adr/ADR-014.md)); fix `enrich_transactions`, R15 and R16 |
+| E14 | the hour carries no information beyond the day (dispersion index 0.98–1.01), no sub-day sequence or burst exists (0 of 35 lead tests), and hourly monitors need negative-binomial limits (Poisson over-alerts 5×) | `granularity_time/02`, `/03` | no hourly fact table; hourly monitors in the streaming layer only |
+| E15 | Voice and WhatsApp record no opens, so they cannot attribute a conversion (22 % of contacts unmeasured); the conversion value is a flat ~2,550 USD whatever the product (not a margin); within a channel no cell differs; reallocating a fixed number of sends by channel converts +22 % (95 % interval +18 to +26 %) in an out-of-time replay | `granularity_time/04`, `/05`, `granularity_time_allocation.csv` | instrument before cutting; allocate under a contact budget; confirm with a randomised holdout |
 
 All six platform defects (E1–E6) passed 107 green data tests. Each is plausible but wrong data: a key that is NULL
 instead of a missing row, a token that is valid but shared, a rule that returns nothing instead of failing. **Test
@@ -77,7 +85,8 @@ Figures are from the whole-bank main run (`country_all/07`, `08`, `11`). The mar
    drop out of any join to a customer or product attribute.
 2. **Country-keyed metrics.** Every metric is defined per country and in USD:
    - amounts are never pooled across currencies;
-   - local time and the country calendar come from `country.calendar` (to be promoted to a dbt seed, see §12.7).
+   - the business day is the declared delivery clock ([ADR-014](../platform/adr/ADR-014.md)), and the country
+     calendar comes from `country.calendar` (to be promoted to a dbt seed, see §12.7).
 3. **KPIs per bundle** ([10 §10.2](10_roadmap_and_team.md)), each bound to its source column:
 
 | bundle | KPI | source |
@@ -86,7 +95,7 @@ Figures are from the whole-bank main run (`country_all/07`, `08`, `11`). The mar
 | B1 | groundedness of agent answers (target 100 %) | `genai_audit` records against the serving tables |
 | B2 | alert precision at analyst capacity | AML queue outcomes (to be captured) |
 | B3 | approval rate, adverse-action reasons | `mart_credit_eligibility.decline_reasons` |
-| B4 | sends without consent (target 0), conversion against a holdout | `mart_campaign_compliance_uplift` |
+| B4 | sends without consent (target 0), conversion against a holdout, attribution coverage, conversions per 1,000 sends by channel | `mart_campaign_compliance_uplift`, `fct_campaign_cell` (proposed) |
 | B5 | A-rule SLO breaches, held partitions, completeness gaps, reconciliation result | `audit.dq_rule_summary`, `dq_partition_holds`, the controls of [ADR-013](../platform/adr/ADR-013.md) |
 
 ## 12.4 ML path: evidence-gated
@@ -158,26 +167,34 @@ The LLM explains; it never computes an amount or takes a decision.
    marts, and the reconciliation fingerprint when a copy is restored. Acceptance test: the backup-as-main run is held.
 8. **Country-keyed configuration** ([ADR-011](../platform/adr/ADR-011.md)): contract baselines, rule SLOs, AML lines,
    regulatory deadlines and the calendar as country seeds; gates evaluated per country.
+9. **Declared clocks** ([ADR-014](../platform/adr/ADR-014.md)): the contract seed names each timestamp's clock and
+   delivery window; `enrich_transactions` derives local time and `is_weekend` from it; R15 and R16 test the −8 h
+   window; a clock-drift control per process and month (E13).
 
 **P1** (medium):
 - the row-count reconciliation test `stg_transactions` = `int_transactions_enriched`;
 - empty-share baselines conditional on applicability, with a binomial (noise-aware) band;
 - the early-warning score separates unknown from late;
 - a keyed HMAC tokenisation service before any real data;
-- a periodic orphan-relation check.
+- a periodic orphan-relation check;
+- `fct_campaign_cell` promoted to gold with `open_tracked` and an `attribution_method` per send, and a monthly
+  empirical-Bayes table of cell rates (E15);
+- hourly counts per market and process in the streaming layer, with negative-binomial limits and a day-parity test
+  (E14).
 
 **Data and process requests to the source and the business:**
 - signed amounts or a debit/credit flag;
 - transfer counterparties;
 - `disputed_transaction_id` at complaint intake;
 - consent events with history;
-- explicit time zones;
+- explicit time zones and delivery windows per timestamp (E13);
+- an attribution method for Voice and WhatsApp (tracked links or codes), and the product margin per conversion (E15);
 - confirmed fraud labels with dates;
 - a randomised holdout per campaign.
 
 ## 12.8 Exit criteria for v0.3.0
 
-1. P0 items 1–8 are merged, each with the test that would have caught it, and all pass in CI.
+1. P0 items 1–9 are merged, each with the test that would have caught it, and all pass in CI.
 2. **Invariant tests green:**
    - every fact row reaches its dimensions;
    - no token links more than a handful of entities;

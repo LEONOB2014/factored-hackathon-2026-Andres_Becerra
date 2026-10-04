@@ -144,6 +144,7 @@ SUBSERIES = {
         "backup_ar",
         "dataset_compare",
         "granularity",
+        "granularity_time",
     )
 }
 SUB_SOURCES = [p for paths in SUBSERIES.values() for p in paths]

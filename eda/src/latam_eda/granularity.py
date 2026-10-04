@@ -33,6 +33,9 @@ if TYPE_CHECKING:
     from latam_eda import pipeline as pipe
 
 SQL_DIR = Path(__file__).with_name("granularity_sql")
+SQL_DIR_TIME = Path(__file__).with_name(
+    "granularity_time_sql"
+)  # the hour and campaign-cell aggregates (series II)
 SCHEMA = "agg"
 REF = re.compile(r"\{(\w+)\}")
 
@@ -113,8 +116,12 @@ def country_calendar(start: str = "2023-06-01", end: str = "2026-06-30") -> pd.D
 
 def open_star(pl: pipe.Pipeline, sql_dir: Path = SQL_DIR) -> Star:
     """A Star over a scratch lakehouse with its seeds registered (what every notebook of the series starts with)."""
+    from latam_eda import country
+
     s = Star(pl, sql_dir)
     s.seed("seed_country_calendar", country_calendar())
+    # the clock every day-grain fact places events on (see country.BUSINESS_UTC_OFFSET)
+    s.seed("seed_clock", pd.DataFrame({"utc_offset_hours": [country.BUSINESS_UTC_OFFSET]}))
     return s
 
 
@@ -501,4 +508,89 @@ def forecast_row(
         "best_single_feature": model,
         "verdict": verdict,
         "note": note,
+    }
+
+
+# ---------------------------------------------------------------------------------------------- clock and cells
+def clock_scan(
+    ts: pd.Series, counts: pd.Series | None = None, shifts: range = range(-12, 13)
+) -> pd.DataFrame:
+    """For each shift k (hours added to the raw timestamps), the chi-square of independence between weekday and hour.
+
+    A generator (or a source system) that applies a weekly rhythm to whole days of some clock leaves hour of day
+    independent of weekday only in that clock: on any other, the weekend boundary cuts through the hours. The shift that
+    minimises the statistic is the clock the days were drawn in; at that shift the statistic is close to its degrees of
+    freedom (independence), elsewhere it grows with the distance in hours.
+
+    `ts` holds event timestamps, or hour-floored timestamps with their event `counts` (much faster on large tables).
+    """
+    t = pd.to_datetime(ts)
+    w = (
+        pd.Series(1, index=t.index)
+        if counts is None
+        else pd.Series(np.asarray(counts), index=t.index)
+    )
+    ok = t.notna()
+    t, w = t[ok], w[ok]
+    rows = []
+    for k in shifts:
+        s = t + pd.Timedelta(hours=k)
+        tab = pd.crosstab(s.dt.weekday, s.dt.hour, values=w, aggfunc="sum").fillna(0).to_numpy()
+        chi2, p, dof, _ = stats.chi2_contingency(tab)
+        rows.append(
+            {
+                "shift_hours": k,
+                "chi2": float(chi2),
+                "dof": int(dof),
+                "chi2_over_dof": float(chi2 / dof),
+            }
+        )
+    return pd.DataFrame(rows)
+
+
+def beta_binomial_fit(successes: np.ndarray, trials: np.ndarray) -> tuple[float, float]:
+    """Maximum-likelihood (alpha, beta) of a beta-binomial: the prior of cell rates that empirical Bayes shrinks to.
+
+    Each cell's posterior mean is (s + alpha) / (n + alpha + beta): a cell with few trials is pulled towards the common
+    mean alpha / (alpha + beta), a cell with many keeps its own rate.
+    """
+    from scipy.optimize import minimize
+    from scipy.special import betaln
+
+    s, n = np.asarray(successes, dtype=float), np.asarray(trials, dtype=float)
+    m = s.sum() / n.sum()
+
+    def nll(log_ab):
+        a, b = np.exp(log_ab)
+        return -np.sum(betaln(s + a, n - s + b) - betaln(a, b))
+
+    res = minimize(
+        nll,
+        x0=np.log([m * 10, (1 - m) * 10]),
+        method="Nelder-Mead",
+        options={"xatol": 1e-8, "fatol": 1e-10, "maxiter": 4000},
+    )
+    a, b = np.exp(res.x)
+    return float(a), float(b)
+
+
+def policy_value(cells: pd.DataFrame, weights: pd.Series, total_sends: float) -> dict:
+    """Value of sending `total_sends` split across cells in proportion to `weights`, using each cell's **realised**
+    held-out conversion rate, value per conversion and cost per send (columns rate_ho, value_per_conv_ho, cost_per_send_ho).
+
+    The evaluation never uses a cell's held-out outcome to choose the weights (the caller fits them on earlier months);
+    it is a replay on observed cells, not a causal estimate (no randomised holdout).
+    """
+    w = weights.reindex(cells.index).fillna(0).clip(lower=0)
+    sends = total_sends * w / w.sum() if w.sum() > 0 else w
+    conv = sends * cells.rate_ho
+    value = conv * cells.value_per_conv_ho
+    cost = sends * cells.cost_per_send_ho
+    return {
+        "sends": float(sends.sum()),
+        "conversions": float(conv.sum()),
+        "value": float(value.sum()),
+        "cost": float(cost.sum()),
+        "net": float(value.sum() - cost.sum()),
+        "roi": float((value.sum() - cost.sum()) / cost.sum()) if cost.sum() else float("nan"),
     }

@@ -1,8 +1,8 @@
 grain,target,kind,train_rows,test_rows,test_positives,base_rate,metric,value,ci_low,ci_high,baseline,p_value,best_single_feature,best_single_value,verdict,note
-category × month,spend mix shift (AR),test,,,,,PSI,0.0001286275164981716,,,0.1,0.07758822243499146,,,stable mix,
-category × month,spend mix shift (CO),test,,,,,PSI,0.0005159044796809945,,,0.1,0.6785270511275088,,,stable mix,
-category × month,spend mix shift (MX),test,,,,,PSI,0.00018000412609547647,,,0.1,0.4243309652780526,,,stable mix,
+category × month,spend mix shift (AR),test,,,,,PSI,0.00012862751649817572,,,0.1,0.07758822243499146,,,stable mix,
+category × month,spend mix shift (CO),test,,,,,PSI,0.000515904479680994,,,0.1,0.6785270511275088,,,stable mix,
+category × month,spend mix shift (MX),test,,,,,PSI,0.0001800041260954729,,,0.1,0.4243309652780526,,,stable mix,
 category × month,decline rate differs by category,test,,,,,chi2,7.125116512558298,,,,0.21150030406901854,,,same rate in every category,
 campaign × day,campaigns differ in conversion,test,,,,,chi2,3254.430555460024,,,,0.0,,,campaigns differ,
 campaign × day,campaign conversion from launch attributes,model,154.0,,,,out-of-fold Spearman,0.8653177865595041,,,0.0,9.46130424707491e-48,campaign_type,,learnable: rank campaigns before launch,
-campaign × day,contact fatigue (prior sends lower conversion),test,,,,,logit slope per prior send,0.027943691063425966,,,,0.7835485154713748,,,no fatigue effect,
+campaign × day,contact fatigue (prior sends lower conversion),test,,,,,logit slope per prior send,0.027943691063426007,,,,0.7835485154713754,,,no fatigue effect,

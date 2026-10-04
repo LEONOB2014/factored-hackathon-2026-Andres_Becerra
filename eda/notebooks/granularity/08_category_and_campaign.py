@@ -292,22 +292,29 @@ targets.append(
     }
 )
 zero = ch_rate[ch_rate.conversions == 0]
+# the zero channels record no opens, so they cannot attribute a conversion (granularity_time notebook 04): rank again
+# without them to see how much of the ranking is that measurement gap
+tracked_c = ok & ~cg.campaign_type.isin(zero.index).to_numpy()
+rho_t, p_rho_t = stats.spearmanr(oof[tracked_c], (cg.conversions / cg.sends)[tracked_c])
 display(
     Markdown(
         f"**Launch attributes explain {100 * dev_expl:.0f} % of the deviance between campaigns (likelihood-ratio "
         f"p = {p_lr:.2g}), and rank held-out campaigns with a Spearman correlation of {rho:.2f} (p = {p_rho:.2g}).** "
         + (
-            f"The campaign channel dominates: {', '.join(zero.index)} campaigns never convert "
-            f"({int(zero.sends.sum()):,} sends, {zero.cost.sum():,.0f} USD of cost with no return), "
+            f"The campaign channel dominates: {', '.join(zero.index)} campaigns record no conversion "
+            f"({int(zero.sends.sum()):,} sends, {zero.cost.sum():,.0f} USD of cost), but these channels record no "
+            "opens either, and a conversion is only ever attributed after an open: their zero is a **tracking gap, not "
+            "a measured failure** (granularity_time notebook 04). Without them the ranking falls to a Spearman of "
+            f"{rho_t:.2f} (p = {p_rho_t:.2g}). The tracked channels differ by open rate, "
             if len(zero)
             else "The campaign channel matters most, "
         )
         + "and the promoted product moves conversion by a factor of "
         f"{cg.groupby('promoted_product').apply(lambda d: d.conversions.sum() / d.sends.sum(), include_groups=False).pipe(lambda x: x.max() / x.min()):.1f} "
-        "between the best and the worst. **This is a campaign-grain decision with money attached**: stop the channels "
-        "that never convert, and allocate the budget by channel and product before launch, which a transparent rule or a "
-        "small campaign-level model can do. Uplift (whether the send causes the conversion) still needs a randomised "
-        "holdout."
+        "between the best and the worst. **This is a campaign-grain decision with money attached**: instrument the "
+        "untracked channels before judging them, and allocate sends by channel before launch, which a transparent rule "
+        "or a small model can do (granularity_time notebooks 04 and 05). Uplift (whether the send causes the conversion) "
+        "still needs a randomised holdout."
     )
 )
 

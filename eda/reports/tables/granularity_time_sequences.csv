@@ -1,0 +1,36 @@
+sequence,window (h),after,before,after / before,p_value,business use
+digital error → contact,1,48,50,0.96,0.9196068309220421,service: the call a failed app action causes
+digital error → contact,2,102,97,1.0515463917525774,0.7768377068940341,service: the call a failed app action causes
+digital error → contact,6,273,280,0.975,0.7986382121150813,service: the call a failed app action causes
+digital error → contact,24,1144,1067,1.0721649484536082,0.10601045248465761,service: the call a failed app action causes
+digital error → contact,72,3260,3136,1.0395408163265305,0.12404664549576068,service: the call a failed app action causes
+declined payment → contact,1,31,38,0.8157894736842105,0.47036853185814453,service: the call a decline causes
+declined payment → contact,2,78,88,0.8863636363636364,0.48495656084228106,service: the call a decline causes
+declined payment → contact,6,254,255,0.996078431372549,1.0,service: the call a decline causes
+declined payment → contact,24,928,952,0.9747899159663865,0.5958079181418023,service: the call a decline causes
+declined payment → contact,72,2721,2603,1.0453323088743758,0.10881734122385628,service: the call a decline causes
+unresolved contact → complaint,1,5,6,0.8333333333333334,1.0,complaints: unresolved calls escalating
+unresolved contact → complaint,2,8,7,1.1428571428571428,1.0,complaints: unresolved calls escalating
+unresolved contact → complaint,6,22,21,1.0476190476190477,1.0,complaints: unresolved calls escalating
+unresolved contact → complaint,24,65,72,0.9027777777777778,0.6083841068999604,complaints: unresolved calls escalating
+unresolved contact → complaint,72,182,204,0.8921568627450981,0.2851129276620779,complaints: unresolved calls escalating
+escalated contact → complaint,1,1,2,0.5,1.0,complaints: escalations becoming complaints
+escalated contact → complaint,2,2,2,1.0,1.0,complaints: escalations becoming complaints
+escalated contact → complaint,6,6,5,1.2,1.0,complaints: escalations becoming complaints
+escalated contact → complaint,24,29,28,1.0357142857142858,1.0,complaints: escalations becoming complaints
+escalated contact → complaint,72,79,71,1.1126760563380282,0.5677754876753278,complaints: escalations becoming complaints
+complaint → contact,1,14,16,0.875,0.8555355519056321,service: follow-up calls after a complaint
+complaint → contact,2,23,23,1.0,1.0,service: follow-up calls after a complaint
+complaint → contact,6,86,67,1.2835820895522387,0.14536554974727237,service: follow-up calls after a complaint
+complaint → contact,24,312,277,1.1263537906137184,0.16117333933541042,service: follow-up calls after a complaint
+complaint → contact,72,847,779,1.0872913992297817,0.09657208898829928,service: follow-up calls after a complaint
+campaign delivered → transaction,1,1836,1885,0.9740053050397878,0.4313529780043251,marketing: activity triggered by a send
+campaign delivered → transaction,2,3695,3705,0.9973009446693657,0.9166759876689639,marketing: activity triggered by a send
+campaign delivered → transaction,6,11186,11219,0.997058561369106,0.830715209398321,marketing: activity triggered by a send
+campaign delivered → transaction,24,44433,44497,0.9985617007888172,0.8326848724697364,marketing: activity triggered by a send
+campaign delivered → transaction,72,129737,129356,1.0029453600915303,0.4553385660205336,marketing: activity triggered by a send
+declined for funds → transaction,1,151,142,1.0633802816901408,0.6403135571638743,payments: retries after insufficient funds
+declined for funds → transaction,2,304,271,1.121771217712177,0.18199320556773652,payments: retries after insufficient funds
+declined for funds → transaction,6,864,888,0.972972972972973,0.5826808967402562,payments: retries after insufficient funds
+declined for funds → transaction,24,3248,3381,0.9606625258799172,0.10495697232362394,payments: retries after insufficient funds
+declined for funds → transaction,72,9576,9601,0.9973961045724403,0.8624091894535788,payments: retries after insufficient funds

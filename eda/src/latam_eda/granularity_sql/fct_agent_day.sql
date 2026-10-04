@@ -1,12 +1,12 @@
 -- Periodic snapshot, one row per agent and day worked (sparse: an agent appears on the days they handled contacts),
--- in UTC: agents serve every market from one contact centre, so the agent's working day is not a customer's local
--- day. The grain of workforce management and quality coaching: volume, handle and wait time, resolution, escalation,
+-- on the contact centre's delivery day (process_date, the 24 hours from 08:00 UTC): agents serve every market from one
+-- contact centre, so the working day is the batch day, not a customer's local day. The grain of workforce management and quality coaching: volume, handle and wait time, resolution, escalation,
 -- sentiment, survey scores and the complaints assigned. Averages are derived as ratios of the stored sums.
 -- grain: agent_id, work_date
 -- reconcile: contacts = count(agent_id) from {fct_interaction}
 -- reconcile: surveys = count(agent_id) from {stg_satisfaction_surveys}
 with cc as (
-    select agent_id, cast(interaction_ts_utc as date) as work_date,
+    select agent_id, process_date as work_date,
            count(*) as contacts, count(*) filter (where interaction_type = 'Inbound Call') as inbound_calls,
            count(*) filter (where was_resolved) as resolved, count(*) filter (where was_escalated) as escalated,
            count(*) filter (where accent_matched) as accent_matched_contacts,
@@ -14,12 +14,13 @@ with cc as (
            sum(sentiment_score) as sentiment_sum, count(sentiment_score) as sentiment_n
     from {fct_interaction} where agent_id is not null group by all),
 sv as (
-    select agent_id, cast(survey_ts_utc as date) as work_date,
+    select agent_id, process_date as work_date,
            count(*) as surveys, sum(main_score) as survey_score_sum, count(main_score) as survey_score_n,
            count(*) filter (where nps_category = 'Detractor') as detractors
     from {stg_satisfaction_surveys} where agent_id is not null group by all),
 cp as (
-    select assigned_agent_id as agent_id, cast(assigned_ts_utc as date) as work_date, count(*) as complaints_assigned
+    select assigned_agent_id as agent_id, cast(assigned_ts_utc - interval 8 hour as date) as work_date,
+           count(*) as complaints_assigned
     from {fct_complaint} where assigned_agent_id is not null and assigned_ts_utc is not null group by all),
 k as (select agent_id, work_date from cc union select agent_id, work_date from sv union select agent_id, work_date from cp)
 select k.agent_id, k.work_date, a.agent_type, a.experience_level, a.native_accent, a.work_shift,

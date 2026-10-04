@@ -4,13 +4,20 @@
 #
 # Staging names the source timestamps `*_ts_utc` (pipeline series, notebook 04). For behaviour, what matters is the
 # **customer's** local day: when salaries arrive, which days banks close, when the weekend starts. This notebook
-# converts every transaction to All countries's local time and enriches it with the country's calendar, then
+# places every transaction on its day (the source's business clock) and enriches it with the country's calendar, then
 # measures what the calendar explains.
 #
 # **Decisions.**
-# * **Fixed UTC offset** (printed in the next cell): Mexico abolished daylight saving in 2022
-#   (outside border cities), Colombia never had it, Argentina dropped it in 2009, so a fixed offset is exact for the
-#   whole 2023–2026 window and avoids a time-zone library's ambiguity.
+# * **The delivery day, not each country's legal time.** The source states no timezone, and the data decides it. Every
+#   event belongs to a daily delivery batch (`process_date`), and the generator drew its weekly rhythm on that day:
+#   hour of day is independent of weekday only once each timestamp is shifted back to the start of its batch window
+#   (−6 hours for transactions, digital events and sends, −8 hours for contacts and complaints), where
+#   `cast(ts + offset as date) = process_date` for every row (`notebooks/granularity_time/01`). The same day boundary
+#   applies to every market (`country.PROCESS_DAY_OFFSET`, `enrich_transactions(clock="business")`). An earlier
+#   version used each country's legal offset (Colombia UTC−5, Argentina UTC−3), which cut the weekends 1 and 3 hours
+#   off their true boundary: Argentina's weekend looked weaker and its Mondays quieter, both artefacts. On real data
+#   whose timestamps are true UTC, `clock="local"` applies the legal offsets (fixed offsets are exact for 2023–2026: no
+#   DST in Mexico since 2022 outside border cities, none in Colombia, none in Argentina since 2009).
 # * **The customer's country, not the transaction's**: a cross-border purchase still happens in the customer's day
 #   (and its own local time stays in silver as `transaction_ts_local`).
 # * **Calendar variables** (`country.calendar`): weekday, weekend, statutory **and bank** holidays (Mexico's banks also
@@ -49,7 +56,9 @@ built = pl.build_set(STG)
 pl.ensure(pl.key("int_transactions_enriched"))
 for code in country.scope_codes(COUNTRY):
     c = country.COUNTRIES[code]
-    print(f"{c.name}: UTC{c.utc_offset:+d} ({c.timezone})")
+    print(
+        f"{c.name}: delivery day = timestamp {country.utc_offset(code):+d} h (legal local time UTC{c.utc_offset:+d}, {c.timezone})"
+    )
 print(country.enrich_transactions(pl))
 
 # %% [markdown]

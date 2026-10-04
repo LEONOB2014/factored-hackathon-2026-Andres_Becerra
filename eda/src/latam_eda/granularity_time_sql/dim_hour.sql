@@ -1,0 +1,15 @@
+-- Every UTC hour from the first to the last event of any process, with its place on the transaction delivery clock:
+-- the hour dimension of the intraday facts (delivery_day = the hour minus 6 hours, hour_of_day 0 = 06:00 UTC).
+-- grain: hour_start
+with b as (
+    select transaction_ts_utc as ts from {int_transactions_enriched}
+    union all select interaction_ts_utc from {fct_interaction}
+    union all select created_ts_utc from {fct_complaint}
+    union all select send_ts_utc from {fct_campaign_send}
+    union all select session_start_utc from {fct_digital_session})
+select h as hour_start,
+       cast(h - interval 6 hour as date) as delivery_day,
+       hour(h - interval 6 hour)         as hour_of_day,
+       isodow(h - interval 6 hour)       as delivery_weekday
+from range((select date_trunc('hour', min(ts)) from b), (select date_trunc('hour', max(ts)) from b) + interval 1 hour,
+           interval 1 hour) r(h)
