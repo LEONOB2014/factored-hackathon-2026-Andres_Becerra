@@ -16,6 +16,7 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/` | Numbered notebook series; `# %%` `.py` sources plus executed `.ipynb` | yes |
 | `notebooks/medallion/` | Medallion re-analysis series (raw → bronze → silver → gold) | yes |
 | `notebooks/model_risk/` | Model-risk series: raw schema forensics, then keys, drift MRM, segmentation, text | yes |
+| `notebooks/pipeline/` | Pipeline walkthrough: the `dbt_lakehouse` DAG replayed step by step in a scratch DuckDB | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -87,6 +88,42 @@ uv run scripts/mutate_partitions.py      # detector scorecard from ten injected 
 uv run scripts/build_notebook.py notebooks/model_risk/01_raw_schema_forensics.py --execute \
     --html-dir "$PWD/reports/notebooks/model_risk"
 ```
+
+### Pipeline walkthrough (`notebooks/pipeline/`)
+
+The `dbt_lakehouse` Airflow DAG replayed without Airflow: `src/latam_eda/pipeline.py` asks dbt to compile the
+project (`dbt compile`, no runs), then executes every compiled statement in a scratch DuckDB
+(`data/tmp/pipeline/lakehouse.duckdb`) in the DAG's task-group order, runs the data tests after each group, and stops
+between steps to inspect the result. The live lakehouse and the shared lake are never written (external models
+become tables in the scratch database).
+
+| # | Topic | Status |
+|---|---|---|
+| 01 | Orchestration, compilation, lineage, seeds; the forward-dependency defect | done |
+| 02 | Lossless bronze → typed silver: contracts, cell findings, the correction overlay | done |
+| 03 | The quality gate: profiles, schema drift, the circuit breaker and a what-if simulator | done |
+| 04 | Staging: vocabulary joins, timestamps, row hashes, the restricted zone | done |
+| 05 | Conformed silver: FX, imputation, direction, flags, the monthly grid | done |
+| 06 | Snapshots and the gold core: SCD2, surrogate keys, the star schema | done |
+| 07 | Service marts: customer 360, inquiries, cards, disputes, CX | done |
+| 08 | Risk and growth marts: credit, collections, AML, campaigns | done |
+| 09 | Features: point in time, out-of-time splits, leakage guards | done |
+| 10 | Graph and knowledge exports | done |
+| 11 | Privacy inputs (DP bounding) and serving tables | done |
+| 12 | Audit, the three gates, fidelity against Airflow, prioritised findings | done |
+
+Run the notebooks in order (each builds its part on top of the previous ones; one run alone builds whatever is
+missing first). Needs `uv sync` in `platform/` (for dbt), about 6 GB free in `data/tmp/`, and no Airflow dbt run
+writing at the same time. The whole platform builds in about four minutes:
+
+```bash
+for nb in notebooks/pipeline/[0-9][0-9]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/pipeline"
+done
+```
+
+Personal data and free text are masked in every displayed table (`Pipeline.safe`, from the
+`restricted_pii_columns` seed). Delete `data/tmp/pipeline/` when done; it is rebuilt by running the series again.
 
 ## Reproduce
 
