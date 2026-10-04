@@ -23,6 +23,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [Generated dbt lineage](generated/dbt_lineage.md) | zone- and model-level lineage from the manifest |
 | [Phase 3 evidence](evidence/phase3/README.md) | parity, real-data findings and circuit-breaker control behind 09 §C, with the scripts that reproduce them |
 | [Reproducibility evidence](evidence/reproducibility/README.md) | two builds of the same commit give identical relations; what was order-dependent and how it was fixed |
+| [Phase 4 evidence](evidence/phase4/README.md) | corrections applied, reverted and rebuilt as of a point in the log, end to end on the full lake |
 
 ## Repository map
 ```

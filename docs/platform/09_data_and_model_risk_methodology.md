@@ -345,6 +345,14 @@ models (generated) read the original text, compute `_dq_issues` on it, then over
 * **as of any point**: `dbt build --vars '{corrections_as_of: "<timestamp>"}'` rebuilds silver and gold as they
   were at that point of the log (the log and bronze are both append-only).
 
+### D.3 Results (2026-10-04, [evidence](evidence/phase4/README.md))
+On a scratch copy of the full lake, the two real findings of §C were corrected as patterns (1.08 M `Mexico`
+variants in transactions and digital events; 38,142 subjects with a rendered `nan`), plus one cell and one release
+of a held partition. The C04 and C06 rates in the gate fell to 0 while every finding stayed, marked with its
+correction; held partitions went from 5 to 4. Reverting all five proposals rebuilt a lakehouse identical to the
+uncorrected one on all 109 relations, and a rebuild as of the moment before the reverts was identical to the corrected
+one: restore and point-in-time rebuild are exact.
+
 **Why reverts and releases are in scope.** The requirement is to "restore or fix the integrity". Without a revert, an
 approved mistake can only be covered by another correction, and silver loses the record of what the source said.
 Releases were a reviewed git seed in phase 3, not bound to an Airflow identity nor in the hash-chained ledger; they

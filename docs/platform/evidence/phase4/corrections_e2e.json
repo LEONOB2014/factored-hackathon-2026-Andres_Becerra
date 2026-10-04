@@ -1,0 +1,117 @@
+{
+ "1_baseline": {
+  "findings": 1126808,
+  "findings_marked_corrected": 0,
+  "C04_transactions_pct": 0.912,
+  "C04_digital_events_pct": 6.642,
+  "C06_campaign_sends_pct": 2.247,
+  "held_partitions": 5,
+  "typed_transactions_mexico_unaccented": 39356,
+  "typed_rows_with_corrections": 0
+ },
+ "2_applied": {
+  "e2e-mexico-tx": {
+   "entries": 40515,
+   "read_only": true,
+   "findings_resolved": {
+    "V2": 40515
+   }
+  },
+  "e2e-mexico-de": {
+   "entries": 1038174,
+   "read_only": true,
+   "findings_resolved": {
+    "V2": 1038174
+   }
+  },
+  "e2e-nan-subject": {
+   "entries": 38142,
+   "read_only": true,
+   "findings_resolved": {
+    "P": 38142
+   }
+  },
+  "e2e-one-cell": {
+   "entries": 1,
+   "read_only": true,
+   "findings_resolved": {}
+  },
+  "e2e-release": {
+   "entries": 1,
+   "read_only": true,
+   "findings_resolved": null
+  }
+ },
+ "3_corrected": {
+  "findings": 1126808,
+  "findings_marked_corrected": 1116831,
+  "C04_transactions_pct": 0.0,
+  "C04_digital_events_pct": 0.0,
+  "C06_campaign_sends_pct": 0.0,
+  "held_partitions": 4,
+  "typed_transactions_mexico_unaccented": 0,
+  "typed_rows_with_corrections": 39357
+ },
+ "4_reverted": {
+  "findings": 1126808,
+  "findings_marked_corrected": 0,
+  "C04_transactions_pct": 0.912,
+  "C04_digital_events_pct": 6.642,
+  "C06_campaign_sends_pct": 2.247,
+  "held_partitions": 5,
+  "typed_transactions_mexico_unaccented": 39356,
+  "typed_rows_with_corrections": 0
+ },
+ "5_as_of": {
+  "findings": 1126808,
+  "findings_marked_corrected": 1116831,
+  "C04_transactions_pct": 0.0,
+  "C04_digital_events_pct": 0.0,
+  "C06_campaign_sends_pct": 0.0,
+  "held_partitions": 4,
+  "typed_transactions_mexico_unaccented": 0,
+  "typed_rows_with_corrections": 39357
+ },
+ "compare_base_vs_reverted": {
+  "identical": 109,
+  "different": []
+ },
+ "compare_corrected_vs_as_of": {
+  "identical": 109,
+  "different": []
+ },
+ "compare_base_vs_corrected": {
+  "identical": 80,
+  "different": [
+   "audit.dq_cell_findings",
+   "audit.dq_corrections_active",
+   "audit.dq_findings",
+   "audit.dq_integrity_findings",
+   "audit.dq_partition_holds",
+   "audit.dq_partition_releases_active",
+   "audit.dq_rule_summary",
+   "features.feat_fraud_realtime_pit",
+   "features.feat_fraud_stream_parity",
+   "features.ml_fraud_test",
+   "features.ml_fraud_train",
+   "features.ml_fraud_valid",
+   "features.ml_kumo_tabular_fraud",
+   "gold.fct_digital_session",
+   "gold.fct_transaction",
+   "gold.mart_customer_360",
+   "graph.graph_edges",
+   "graph.graph_nodes",
+   "knowledge.kb_entity_docs",
+   "knowledge.kb_entity_triples",
+   "silver.int_transactions_enriched",
+   "silver.int_transactions_enriched_with_holdout",
+   "silver.stg_digital_events",
+   "silver.stg_transactions",
+   "silver.typed_campaign_sends",
+   "silver.typed_digital_events",
+   "silver.typed_digital_events_holdout",
+   "silver.typed_transactions",
+   "silver.typed_transactions_holdout"
+  ]
+ }
+}
