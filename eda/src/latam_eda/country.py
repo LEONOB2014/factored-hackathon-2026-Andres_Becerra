@@ -16,12 +16,19 @@ How the lake is cut (`build_country_lake`):
 
 Rows are copied unchanged, lineage columns included (`_source_file`, `_record_no`, `_record_sha256`): a country lake
 is a lossless subset of the lossless bronze.
+
+Two further dimensions make the same template answer more questions:
+* **scope** `ALL` runs the whole bank with no cut (local time and calendar per customer's country);
+* **dataset** `backup` runs everything on the `data_backup_20260831` copy **as if it were the main source**
+  (`build_backup_lake`): its lossless bronze is split into a bronze and a holdout zone at the stream cutoff, as main's
+  is, and main itself becomes the quarantined copy the reconciliation control compares against.
 """
 
 from __future__ import annotations
 
 import json
 import os
+import shutil
 from dataclasses import dataclass
 from datetime import date, timedelta
 from pathlib import Path
@@ -45,6 +52,11 @@ class Country:
     utc_offset: int  # fixed offset; no DST: MX abolished it in 2022 (outside border cities), CO none, AR since 2009
     timezone: str
 
+    @property
+    def title(self) -> str:
+        """The name at the start of a sentence."""
+        return self.name[:1].upper() + self.name[1:]
+
 
 COUNTRIES = {
     "MX": Country("MX", "Mexico", ("México", "Mexico"), "México", "MXN", -6, "America/Mexico_City"),
@@ -53,6 +65,28 @@ COUNTRIES = {
         "AR", "Argentina", ("Argentina",), "Argentina", "ARS", -3, "America/Argentina/Buenos_Aires"
     ),
 }
+
+# the whole bank: no cut; local time, calendar and currency are taken per customer's country (see `scope_codes`)
+ALL = Country(
+    "ALL",
+    "the whole bank",
+    tuple(n for c in COUNTRIES.values() for n in c.raw_names),
+    "",
+    "USD",
+    0,
+    "",
+)
+SCOPES = {**COUNTRIES, "ALL": ALL}
+DATASETS = ("main", "backup")
+STREAM_CUTOFF = (
+    "2026-05-18"  # dbt var stream_cutoff: facts dated on or after it form the holdout zone
+)
+
+
+def scope_codes(code: str) -> list[str]:
+    """The countries a scope covers: all three for ALL, else the one."""
+    return list(COUNTRIES) if code == "ALL" else [code]
+
 
 CUSTOMER_TABLES = (
     "products",
@@ -67,9 +101,13 @@ SHARED_TABLES = ("branches", "service_agents", "marketing_campaigns", "daily_exc
 BACKUP_DIR = "quarantine/backup_20260831_raw"
 
 
-def country_dir(repo: Path, code: str) -> Path:
-    base = Path(os.environ.get("LATAM_COUNTRY_DIR", repo / "data" / "tmp" / "country"))
-    return (base / code.lower()).resolve()
+def scratch_root(repo: Path) -> Path:
+    return Path(os.environ.get("LATAM_SCOPE_DIR", repo / "data" / "tmp")).resolve()
+
+
+def scope_dir(repo: Path, dataset: str, code: str) -> Path:
+    """Scratch of one (dataset, scope): data/tmp/<dataset>/<scope>/ (country lake and lakehouse)."""
+    return scratch_root(repo) / dataset / code.lower()
 
 
 def _q(s: str) -> str:
@@ -85,6 +123,8 @@ def _copy(con, src_glob: str, where: str, dest: Path) -> int:
         con.sql(f"""COPY (SELECT * FROM {rel} WHERE {where}) TO '{dest}'
                     (FORMAT parquet, COMPRESSION zstd, PARTITION_BY (_partition_date), WRITE_PARTITION_COLUMNS true,
                      OVERWRITE_OR_IGNORE true, FILENAME_PATTERN 'part-{{i}}')""")
+    else:  # keep the table readable: a source with no rows must still have a file with its schema
+        _empty_like(con, src_glob, dest / "_empty" / "part-0.parquet")
     return n
 
 
@@ -180,20 +220,157 @@ def build_country_lake(code: str, lake: Path, out: Path, force: bool = False) ->
     return df
 
 
-def session(code: str, cwd: Path | None = None, recompile: bool = False) -> pipe.Pipeline:
-    """The country's scratch lakehouse: build its lake if needed, compile against it, open the emulator."""
+def _count(con, glob: str) -> int:
+    return con.sql(
+        f"SELECT count(*) FROM read_parquet('{glob}', union_by_name = true, hive_partitioning = false)"
+    ).fetchone()[0]
+
+
+def _link_files(src: Path, dst: Path) -> None:
+    """Hard-link every file of a partition directory (byte-identical, no extra space); copy across file systems."""
+    dst.mkdir(parents=True, exist_ok=True)
+    for f in src.iterdir():
+        if f.is_file() and not (dst / f.name).exists():
+            try:
+                os.link(f, dst / f.name)
+            except OSError:
+                shutil.copy2(f, dst / f.name)
+
+
+def _empty_like(con, src_glob: str, dest_file: Path) -> None:
+    """A zero-row Parquet file with the schema of `src_glob`, so a source that has no data still reads."""
+    dest_file.parent.mkdir(parents=True, exist_ok=True)
+    con.sql(f"""COPY (SELECT * FROM read_parquet('{src_glob}', union_by_name = true, hive_partitioning = false)
+                      LIMIT 0) TO '{dest_file}' (FORMAT parquet)""")
+
+
+def build_backup_lake(
+    lake: Path, out: Path, cutoff: str = STREAM_CUTOFF, force: bool = False
+) -> pd.DataFrame:
+    """Lay the quarantined backup out as a main lake at `out`, and return rows per (zone, table).
+
+    * `bronze_raw/<table>`: the backup's partitions dated before `cutoff` (dimension snapshots whole);
+    * `holdout_raw/<table>`: its partitions on or after `cutoff`, for the tables main has a holdout of;
+    * a table main has and the backup lacks (`call_transcripts`, `satisfaction_surveys`), and a holdout with no
+      partition, get one **empty** Parquet file with main's schema: the models build empty instead of failing;
+    * `quarantine/backup_20260831_raw/<table>` points at **main's** bronze: the reconciliation control runs in
+      reverse, the backup now being the authority and main the copy under suspicion;
+    * `manifests/bronze_raw_proof/<table>.json` is the backup's own header manifest under main's file name;
+    * `corrections` is a fresh log holding only the genesis file: main's approved corrections describe main's rows.
+
+    Partition files are hard links: the backup lake costs no space and is byte-identical to the lossless backup.
+    """
+    done = out / "_backup_lake.json"
+    if done.exists() and not force:
+        return pd.DataFrame(json.loads(done.read_text()))
+    if out.exists():
+        shutil.rmtree(out)
+    src = lake / BACKUP_DIR
+    con = duckdb.connect()
+    con.sql("SET enable_progress_bar = false")
+    streamed = {p.name for p in (lake / "holdout_raw").iterdir() if p.is_dir()}
+    for t in sorted(p.name for p in src.iterdir() if p.is_dir()):
+        for part in sorted(p for p in (src / t).iterdir() if p.is_dir()):
+            day = part.name.split("=", 1)[1] if part.name.startswith("_partition_date=") else None
+            # only the facts main streams have a holdout; dimension snapshots stay whole in bronze
+            zone = "holdout_raw" if t in streamed and day and day >= cutoff else "bronze_raw"
+            _link_files(part, out / zone / t / part.name)
+    last = (pd.Timestamp(cutoff) - pd.Timedelta(days=1)).date()
+    for zone in ("bronze_raw", "holdout_raw"):
+        for t in sorted(p.name for p in (lake / zone).iterdir() if p.is_dir()):
+            if not list((out / zone / t).glob("*/*.parquet")):
+                day = last if zone == "bronze_raw" else pd.Timestamp(cutoff).date()
+                _empty_like(
+                    con,
+                    f"{lake}/{zone}/{t}/*/*.parquet",
+                    out / zone / t / f"_partition_date={day}" / "part-0.parquet",
+                )
+    for t in sorted(p.name for p in (lake / "bronze_raw").iterdir() if p.is_dir()):
+        _link(lake / "bronze_raw" / t, out / BACKUP_DIR / t)
+    proof = out / "manifests" / "bronze_raw_proof"
+    proof.mkdir(parents=True, exist_ok=True)
+    prefix = Path(BACKUP_DIR).name.removesuffix("_raw") + "__"
+    for m in (lake / "manifests" / "bronze_raw_proof").glob(f"{prefix}*.json"):
+        shutil.copy2(m, proof / m.name.removeprefix(prefix))
+    applied = out / "corrections" / "applied"
+    applied.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(
+        lake / "corrections" / "applied" / "_genesis.parquet", applied / "_genesis.parquet"
+    )
+    rows = []
+    for zone in ("bronze_raw", "holdout_raw"):
+        for t in sorted(p.name for p in (out / zone).iterdir() if p.is_dir()):
+            main_n = (
+                _count(con, f"{lake}/{zone}/{t}/*/*.parquet") if (lake / zone / t).exists() else 0
+            )
+            n = _count(con, f"{out}/{zone}/{t}/*/*.parquet")
+            rule = (
+                "missing in the backup: empty"
+                if not (src / t).exists()
+                else "backup partitions"
+                if n
+                else "no backup partition in this zone: empty"
+            )
+            rows.append(
+                {"zone": zone, "table": t, "rows_backup": n, "rows_main": main_n, "rule": rule}
+            )
+    con.close()
+    df = pd.DataFrame(rows)
+    done.write_text(df.to_json(orient="records"))
+    return df
+
+
+def source_lake(repo: Path, dataset: str) -> Path:
+    """The lake a dataset is read from: main's, or the backup laid out as main (built on first use)."""
+    if dataset not in DATASETS:
+        raise ValueError(f"unknown dataset {dataset!r}")
+    lake = pipe.default_lake(repo)
+    if dataset == "main":
+        return lake
+    out = scratch_root(repo) / "backup" / "lake"
+    build_backup_lake(lake, out)
+    return out
+
+
+def session(
+    code: str, dataset: str = "main", cwd: Path | None = None, recompile: bool = False
+) -> pipe.Pipeline:
+    """The scope's scratch lakehouse: build its lake if needed, compile against it, open the emulator."""
     repo = pipe.repo_root(Path(cwd or Path.cwd()))
-    base = country_dir(repo, code)
-    lake = base / "lake"
-    build_country_lake(code, pipe.default_lake(repo), lake)
+    src = source_lake(repo, dataset)
+    base = scope_dir(repo, dataset, code)
+    if code == "ALL":
+        lake = src
+    else:
+        lake = base / "lake"
+        build_country_lake(code, src, lake)
     work = base / "pipeline"
     manifest = work / "target" / "manifest.json"
     if recompile or not manifest.exists():
         pipe.compile_project(repo, work, lake)
     pl = pipe.Pipeline(manifest, work / "lakehouse.duckdb")
-    pl.repo, pl.lake, pl.country = repo, lake, COUNTRIES[code]
+    pl.repo, pl.lake, pl.source_lake, pl.country = repo, lake, src, SCOPES[code]
+    pl.dataset = dataset
     pl.restricted = pipe.restricted_columns(repo)
     return pl
+
+
+def scope_summary(pl: pipe.Pipeline) -> pd.DataFrame:
+    """Rows of each (zone, table) the scope reads: the country cut, or the whole lake for ALL."""
+    if pl.country.code != "ALL":
+        return build_country_lake(pl.country.code, pl.source_lake, pl.lake)
+    con = duckdb.connect()
+    rows = []
+    for zone in ("bronze_raw", "holdout_raw"):
+        for t in sorted(p.name for p in (pl.lake / zone).iterdir() if p.is_dir()):
+            n = _count(con, f"{pl.lake}/{zone}/{t}/*/*.parquet")
+            rows.append(
+                {"zone": zone, "table": t, "rows_total": n, "rows_kept": n, "rule": "whole bank"}
+            )
+    con.close()
+    df = pd.DataFrame(rows)
+    df["kept_pct"] = (100 * df.rows_kept / df.rows_total.replace(0, np.nan)).round(2)
+    return df
 
 
 # ---------------------------------------------------------------------------------------------- calendar
@@ -292,29 +469,60 @@ def calendar(code: str, start: str = "2023-06-01", end: str = "2026-07-31") -> p
 
 
 def enrich_transactions(pl: pipe.Pipeline) -> pd.DataFrame:
-    """Create main.tx_local: every enriched transaction with local time and the calendar of its country.
+    """Create main.calendar_local, main.customer_local and main.tx_local (transactions in local time + calendar).
 
     Local time uses the **customer's** country offset (the bank's view of the customer's day); the transaction
-    country can differ for cross-border rows, which keep their own `transaction_ts_local` from silver.
+    country can differ for cross-border rows, which keep their own `transaction_ts_local` from silver. The calendar
+    holds one row per (country_code, local_date) of the scope's countries; `customer_local` maps each customer to
+    its country and offset, so any timestamp of a customer can be put on the right local calendar:
+
+        LEFT JOIN main.customer_local cl USING (customer_id)
+        LEFT JOIN main.calendar_local k ON k.country_code = cl.country_code
+                                       AND k.local_date = CAST(ts + to_hours(cl.utc_offset) AS DATE)
     """
-    c = pl.country
-    cal = calendar(c.code)
+    codes = scope_codes(pl.country.code)
+    cal = pd.concat([calendar(c).assign(country_code=c) for c in codes], ignore_index=True)
+    off = pd.DataFrame(
+        {"country_code": codes, "utc_offset": [COUNTRIES[c].utc_offset for c in codes]}
+    )
     pl.con.register("cal_df", cal)
+    pl.con.register("off_df", off)
     pl.con.sql("CREATE OR REPLACE TABLE main.calendar_local AS SELECT * FROM cal_df")
+    # a single-country scope places every customer in its country (the cut guarantees it); ALL uses the record
+    default = f"'{codes[0]}'" if len(codes) == 1 else "NULL"
+    pl.ensure(pl.key("stg_customers"))
+    pl.con.sql(f"""
+        CREATE OR REPLACE TABLE main.customer_local AS
+        SELECT c.customer_id, o.country_code, o.utc_offset
+        FROM {pl.relation(pl.key("stg_customers"))} c
+        JOIN off_df o ON o.country_code = coalesce(c.country_code, {default})""")
     pl.con.unregister("cal_df")
+    pl.con.unregister("off_df")
     pl.con.sql(f"""
         CREATE OR REPLACE TABLE main.tx_local AS
-        SELECT t.*,
-               t.transaction_ts_utc + INTERVAL ({c.utc_offset}) HOUR AS ts_customer_local,
-               CAST(t.transaction_ts_utc + INTERVAL ({c.utc_offset}) HOUR AS DATE) AS local_date,
-               hour(t.transaction_ts_utc + INTERVAL ({c.utc_offset}) HOUR) AS local_hour_customer,
+        SELECT t.*, cl.country_code AS customer_country_code,
+               t.transaction_ts_utc + to_hours(cl.utc_offset) AS ts_customer_local,
+               CAST(t.transaction_ts_utc + to_hours(cl.utc_offset) AS DATE) AS local_date,
+               hour(t.transaction_ts_utc + to_hours(cl.utc_offset)) AS local_hour_customer,
                k.iso_weekday, k.is_weekend AS is_weekend_local, k.is_holiday, k.holiday_name, k.is_long_weekend,
                k.is_business_day, k.is_payday, k.days_since_payday, k.is_month_start, k.is_month_end,
                k.week_of_month, k.month, k.quarter, k.is_bonus_month
         FROM {pl.relation(pl.key("int_transactions_enriched"))} t
+        LEFT JOIN main.customer_local cl USING (customer_id)
         LEFT JOIN main.calendar_local k
-          ON k.local_date = CAST(t.transaction_ts_utc + INTERVAL ({c.utc_offset}) HOUR AS DATE)""")
+          ON k.country_code = cl.country_code
+         AND k.local_date = CAST(t.transaction_ts_utc + to_hours(cl.utc_offset) AS DATE)""")
     return pl.q("SELECT count(*) AS n_rows, count(iso_weekday) AS with_calendar FROM main.tx_local")
+
+
+def full_months(df: pd.DataFrame, col: str = "local_date") -> pd.DataFrame:
+    """Keep the whole calendar months of a daily series: a partial first or last month (data starting on the 17th,
+    stopping on the 25th) would bias month-end, payday and trend terms."""
+    d = pd.to_datetime(df[col])
+    lo, hi = d.min(), d.max()
+    start = lo if lo.day == 1 else lo + pd.offsets.MonthBegin(1)
+    end = hi + pd.Timedelta(days=1) if (hi + pd.Timedelta(days=1)).day == 1 else hi.replace(day=1)
+    return df[(d >= start) & (d < end)].copy()
 
 
 # ---------------------------------------------------------------------------------------------- baselines
@@ -421,7 +629,8 @@ def country_rule_slo(pl: pipe.Pipeline) -> pd.DataFrame:
                end as country_max_pct,
                s.rate_pct > g.max_rate_pct as breaches_global_slo
         from {dq_rule_summary} s join {dq_rule_slo} g using (rule_id)
-        where s.rule_id like 'R%'""")
+        where s.rule_id like 'R%'
+        order by s.rule_id, s.table_name""")
 
 
 def global_contract(pl: pipe.Pipeline) -> str:
@@ -448,6 +657,23 @@ def global_contract_drift(pl: pipe.Pipeline) -> pd.DataFrame:
     rel = global_contract(pl)
     sql = pl.sql("dq_schema_drift").replace(pl.relation(pl.key("source_contract_columns")), rel)
     return pl.con.sql(f"SELECT * EXCLUDE (checked_at) FROM ({sql})").df()
+
+
+def why_empty(pl: pipe.Pipeline, table: str) -> str:
+    """Why a source reached silver with no rows: missing from the lake, or held by the circuit breaker."""
+    raw = pl.q(f"""select count(*) as n from read_parquet('{pl.lake}/bronze_raw/{table}/*/*.parquet',
+                   union_by_name = true, hive_partitioning = false)""").n.iloc[0]
+    if not raw:
+        return f"`{table}` has no rows in this dataset's bronze"
+    held = pl.q(
+        f"""select count(*) as n from {{dq_partition_holds}} where table_name = '{table}'"""
+    ).n.iloc[0]
+    days = pl.q(f"""select count(distinct partition_date) as n from {{dq_partition_profile}}
+                    where zone = 'bronze' and table_name = '{table}'""").n.iloc[0]
+    return (
+        f"`{table}` has {raw:,} rows in bronze, but the circuit breaker holds {held:,} of its {days:,} partitions "
+        "(notebook 03) and staging drops held partitions"
+    )
 
 
 def prepare(pl: pipe.Pipeline, layer: str) -> None:
@@ -495,6 +721,10 @@ def evaluate_target(
     ).reset_index(drop=True)
     cut = d[time_col].quantile(1 - test_frac)
     tr, te = d[d[time_col] < cut], d[d[time_col] >= cut]
+    # a feature with no value in training (a source that is empty in this dataset) carries nothing and cannot be
+    # binned: drop it and say so
+    empty = [c for c in features if tr[c].isna().all()]
+    features = [c for c in features if c not in empty]
     X = d[features].copy()
     cats = [
         c
@@ -515,6 +745,7 @@ def evaluate_target(
         "test_positives": int(yte.sum()),
         "base_rate": float(yte.mean()) if len(yte) else np.nan,
         "split_at": str(cut),
+        "dropped_empty_features": ", ".join(empty),
     }
     if ytr.sum() < 20 or yte.sum() < 10 or ytr.sum() == len(ytr):
         out.update(
@@ -525,7 +756,9 @@ def evaluate_target(
             ap_lo=np.nan,
             ap_hi=np.nan,
             ap_lift=np.nan,
-            note="too few positives to evaluate",
+            note="no rows: the source of this target is empty in this dataset"
+            if not len(d)
+            else "too few positives to evaluate",
         )
         return out
     w = np.where(ytr == 1, (len(ytr) - ytr.sum()) / max(ytr.sum(), 1), 1.0)
@@ -596,7 +829,11 @@ def evaluate_target(
 def verdict(row: dict) -> str:
     """A plain-language learnability verdict from the out-of-time metrics."""
     if not np.isfinite(row.get("auc", np.nan)):
-        return "not evaluable (too few positives)"
+        return (
+            "not evaluable (no rows)"
+            if row.get("note", "").startswith("no rows")
+            else "not evaluable (too few positives)"
+        )
     lo = row["auc_lo"]
     if lo <= 0.5:
         return "no evidence of signal"

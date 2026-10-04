@@ -18,10 +18,12 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "CO"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "features_graph_knowledge")
 PRIV = ["privacy_input_complaints_country_month", "privacy_input_tx_segment_month"]
 SERVING = sorted(n for n in pl.catalog()["node"] if n.startswith("serving_"))
@@ -50,7 +52,7 @@ for eps in (0.1, 0.5, 1.0):
 show(pd.DataFrame(rows), paging=False)
 display(
     Markdown(
-        f"**{CTRY.name}: {len(cells)} complaint cells, median {cells.complaints.median():.0f} complaints.** At ε = 0.5 the "
+        f"**{CTRY.title}: {len(cells)} complaint cells, median {cells.complaints.median():.0f} complaints.** At ε = 0.5 the "
         f"median cell is released within about {100 * 6 / cells.complaints.median():.0f} %; the smaller the country, the "
         "coarser its releases must be (quarterly instead of monthly, or fewer categories) for the same budget."
     )

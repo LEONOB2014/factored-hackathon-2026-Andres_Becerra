@@ -56,10 +56,12 @@ def test_no_machine_specific_paths(src):
     assert not re.search(r"/Users/|/home/|[A-Z]:\\\\", src.read_text())
 
 
-# Country series write one table per country: `OUT / f"country_{COUNTRY.lower()}_<kind>.csv"`, resolved with the
-# `COUNTRY = "XX"` constant of each generated notebook (see scripts/build_country_notebooks.py).
-COUNTRY_WRITES = re.compile(r'to_csv\(\s*OUT / f"country_\{COUNTRY\.lower\(\)\}_(\w+)\.csv"')
-COUNTRY_CONST = re.compile(r'^COUNTRY = "([A-Z]{2})"$', re.M)
+# Scoped series write one table per (dataset, scope): `OUT / f"{PREFIX}_{COUNTRY.lower()}_<kind>.csv"`, resolved
+# with the `PREFIX = "..."` and `COUNTRY = "XX"` constants of each generated notebook
+# (see scripts/build_country_notebooks.py).
+COUNTRY_WRITES = re.compile(r'to_csv\(\s*OUT / f"\{PREFIX\}_\{COUNTRY\.lower\(\)\}_(\w+)\.csv"')
+COUNTRY_CONST = re.compile(r'^COUNTRY = "([A-Z]{2,3})"$', re.M)
+PREFIX_CONST = re.compile(r'^PREFIX = "(\w+)"$', re.M)
 
 
 def producers():
@@ -68,9 +70,9 @@ def producers():
         text = src.read_text()
         for table in WRITES.findall(text):
             out.setdefault(table, []).append(src.name)
-        code = COUNTRY_CONST.search(text)
-        for kind in COUNTRY_WRITES.findall(text) if code else []:
-            out.setdefault(f"country_{code.group(1).lower()}_{kind}.csv", []).append(
+        code, prefix = COUNTRY_CONST.search(text), PREFIX_CONST.search(text)
+        for kind in COUNTRY_WRITES.findall(text) if code and prefix else []:
+            out.setdefault(f"{prefix.group(1)}_{code.group(1).lower()}_{kind}.csv", []).append(
                 f"{src.parent.name}/{src.name}"
             )
     return out
@@ -131,10 +133,16 @@ SUBSERIES = {
         "medallion",
         "model_risk",
         "pipeline",
+        "country_all",
         "country_mx",
         "country_co",
         "country_ar",
         "country_compare",
+        "backup_all",
+        "backup_mx",
+        "backup_co",
+        "backup_ar",
+        "dataset_compare",
     )
 }
 SUB_SOURCES = [p for paths in SUBSERIES.values() for p in paths]

@@ -10,6 +10,7 @@
 # %%
 import sys
 import time
+from pathlib import Path
 
 sys.path.insert(0, "../../src")
 import pandas as pd
@@ -20,10 +21,14 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "MX"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
+OUT = Path("../../reports/tables")
+OUT.mkdir(parents=True, exist_ok=True)
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "silver")
 SNAPS = ["snap_branches", "snap_customers", "snap_products", "snap_service_agents"]
 CORE = sorted(
@@ -51,15 +56,30 @@ fig = px.bar(
     y="value",
     color="variable",
     barmode="group",
-    title=f"{CTRY.name}: transactions whose point-in-time join finds no version (%)",
+    title=f"{CTRY.title}: transactions whose point-in-time join finds no version (%)",
 )
 fig.update_layout(height=300, yaxis_title="%", legend_title=None)
 fig.show()
+why = pl.q("""
+    select count(*) filter (where customer_sk is null or product_sk is null) as missing,
+           count(*) filter (where (customer_sk is null or product_sk is null)
+                              and (customer_sk is not null or f.transaction_ts_utc < c.registration_date)
+                              and (product_sk is not null or f.transaction_ts_utc < p.opening_date)) as predates
+    from {fct_transaction} f left join {int_customer_profile} c using (customer_id)
+    left join {int_products_enriched} p using (product_id)""").iloc[0]
+explained = 100 * why.predates / max(why.missing, 1)
 display(
     Markdown(
-        f"**{cov.missing_either_pct.iloc[0]:.1f} % of {CTRY.name}'s transactions lose at least one key**, every one because "
-        "it predates the customer's registration or the product's opening (an independence of dates in the generator). "
-        "The fix is the same in every country: the first version is valid from the beginning of time."
+        f"**{cov.missing_either_pct.iloc[0]:.1f} % of {CTRY.name}'s transactions lose at least one key**; "
+        f"{explained:.1f} % of those because they predate the customer's registration or the product's opening (an "
+        "independence of dates in the generator). The fix is the same in every country: the first version is valid "
+        "from the beginning of time."
+        + (
+            " The share is higher than main's 19 % because this dataset's transactions are concentrated in the "
+            "first fifteen months, when fewer customers and products had been opened."
+            if DATASET == "backup"
+            else ""
+        )
     )
 )
 
@@ -113,6 +133,33 @@ show(
     ),
     paging=False,
 )
+
+# %% [markdown]
+# ## 4 · The scope's profile
+# One row of conformed figures (silver and gold) that the comparison notebooks read instead of a lakehouse: size,
+# activity, currency, anonymous traffic, income and ticket.
+
+# %%
+HOME = " ".join(
+    f"when '{c}' then '{country.COUNTRIES[c].home_currency}'" for c in country.scope_codes(COUNTRY)
+)
+prof = pl.q(f"""
+    select (select count(*) from {{int_customer_profile}}) as customers,
+           (select count(*) from {{int_transactions_enriched}}) as transactions,
+           (select min(transaction_ts_utc)::date from {{int_transactions_enriched}}) as first_tx_day,
+           (select max(transaction_ts_utc)::date from {{int_transactions_enriched}}) as last_tx_day,
+           (select round(avg(n_tx), 3) from {{int_customer_month_tx}}) as tx_per_customer_month,
+           (select round(100 * avg((t.currency = case c.country_code {HOME} end)::int), 1)
+              from {{int_transactions_enriched}} t join {{stg_customers}} c using (customer_id))
+             as home_currency_tx_pct,
+           (select round(100 * avg((customer_id is null)::int), 1) from {{fct_digital_session}})
+             as anonymous_sessions_pct,
+           (select round(median(monthly_income_usd), 0) from {{int_customer_profile}}) as median_income_usd,
+           (select round(median(amount_usd), 0) from {{int_transactions_enriched}}) as median_tx_usd""")
+prof.insert(0, "dataset", DATASET)
+prof.insert(0, "country", COUNTRY)
+prof.to_csv(OUT / f"{PREFIX}_{COUNTRY.lower()}_profile.csv", index=False)
+show(prof, paging=False)
 
 # %%
 pl.ensure_until("gold")

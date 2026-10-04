@@ -20,12 +20,14 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "AR"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 OUT = Path("../../reports/tables")
 OUT.mkdir(parents=True, exist_ok=True)
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "privacy_serving")
 AUDIT = pl.catalog().query("layer == 'audit'")["node"].tolist()
 built = pl.build_set(AUDIT)
@@ -35,7 +37,9 @@ built = pl.build_set(AUDIT)
 
 # %%
 slo = country.country_rule_slo(pl)
-slo.assign(country=COUNTRY).to_csv(OUT / f"country_{COUNTRY.lower()}_rule_slo.csv", index=False)
+slo.assign(country=COUNTRY, dataset=DATASET).to_csv(
+    OUT / f"{PREFIX}_{COUNTRY.lower()}_rule_slo.csv", index=False
+)
 show(slo.round(3), paging=False)
 fig = px.scatter(
     slo,
@@ -44,7 +48,7 @@ fig = px.scatter(
     color="severity",
     hover_name="rule_id",
     symbol="breaches_global_slo",
-    title=f"{CTRY.name}: rule rates against the bank-wide baseline (%)",
+    title=f"{CTRY.title}: rule rates against the bank-wide baseline (%)",
 )
 fig.add_shape(type="line", x0=0, y0=0, x1=100, y1=100, line=dict(dash="dot"))
 fig.update_layout(height=420)
@@ -58,11 +62,13 @@ display(
             for r in diff.itertuples()
         )
         + "."
+        if len(diff)
+        else f"**No rule differs from the bank-wide baseline by a point or more in {CTRY.name}.**"
     )
 )
 
 # %% [markdown]
-# **How to read the differences.**
+# **How to read the differences (country scopes).**
 # * **R17** (USD label on a Mexican customer) is by definition a Mexican rule: about 100 % of Mexican transactions,
 #   0 % elsewhere. A bank-wide rate of 50 % describes no country.
 # * **R25** (complaint product owned by another customer) and **R26** (digital event product owned by another
@@ -77,7 +83,7 @@ display(
 # R25, R26) at 0 %: geography changes a baseline, not a policy.
 
 # %% [markdown]
-# ## 2 · The gates, emulated on the country
+# ## 2 · The gates, emulated on the scope
 
 # %%
 held = pl.q("select count(*) as held from {dq_partition_holds}").iloc[0, 0]
@@ -93,6 +99,37 @@ display(
     )
 )
 show(breaches, paging=False)
+
+# %% [markdown]
+# ## 3 · Reconciliation against the quarantined copy
+# `audit_backup_reconciliation` compares the authoritative bronze with the copy in quarantine, key by key, as landed
+# text: a true backup gives the same keys and identical records.
+
+# %%
+rec = pl.q("select * from {audit_backup_reconciliation} order by table_name")
+rec["changed_pct_of_shared"] = (
+    100 * rec.shared_changed / rec.shared_keys.where(rec.shared_keys > 0)
+).round(1)
+rec.assign(country=COUNTRY, dataset=DATASET).to_csv(
+    OUT / f"{PREFIX}_{COUNTRY.lower()}_reconciliation.csv", index=False
+)
+show(rec, paging=False)
+display(
+    Markdown(
+        "**Reconciliation:** "
+        + "; ".join(
+            f"{r.table_name}: {r.shared_keys:,} shared keys, {r.only_main:,} only here, {r.only_backup:,} only in the "
+            f"copy, {r.changed_pct_of_shared:.0f} % of shared records changed"
+            for r in rec.itertuples()
+        )
+        + ". "
+        + (
+            "The copy is not a backup of this data: any equality test would fail loudly."
+            if (rec.shared_changed > 0).any() or (rec.only_backup > 0).any()
+            else "The copy matches."
+        )
+    )
+)
 
 # %%
 pl.ensure_until("audit")

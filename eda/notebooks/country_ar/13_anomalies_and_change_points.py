@@ -1,6 +1,6 @@
 # %% [markdown]
 # # 13 · Anomalies and change points (Argentina)
-# **Country series · Argentina** · *an additional component of the country series; generated from
+# **Country series · Argentina** · *an additional component of the series; generated from
 # `notebooks/country_template`: edit the template*
 #
 # Three levels of "unusual", each with the method that suits it:
@@ -29,12 +29,14 @@ from sklearn.ensemble import IsolationForest
 from latam_eda import country, theme
 
 COUNTRY = "AR"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 OUT = Path("../../reports/tables")
 OUT.mkdir(parents=True, exist_ok=True)
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "gold")
 country.enrich_transactions(pl)
 
@@ -46,17 +48,21 @@ country.enrich_transactions(pl)
 
 # %%
 daily = pl.q("""
-    select t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd, any_value(k.iso_weekday) as iso_weekday,
+    select k.country_code, t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd,
+           any_value(k.iso_weekday) as iso_weekday,
            any_value(k.is_holiday::int) as is_holiday, any_value(k.is_long_weekend::int) as is_long_weekend,
            any_value((coalesce(k.days_since_payday, 99) <= 2)::int) as payday_window,
            any_value(k.is_month_end::int) as is_month_end, any_value(k.holiday_name) as holiday_name
-    from main.tx_local t join main.calendar_local k using (local_date) group by 1 order by 1""")
+    from main.tx_local t join main.calendar_local k
+      on k.country_code = t.customer_country_code and k.local_date = t.local_date
+    group by 1, 2 order by 1, 2""")
 daily["local_date"] = pd.to_datetime(daily.local_date)
-daily = daily[(daily.local_date >= "2023-07-01") & (daily.local_date < "2026-05-01")].copy()
+daily = country.full_months(daily)
+FE = " + C(country_code)" if daily.country_code.nunique() > 1 else ""
 daily["log_n"] = np.log(daily.n_tx)
 daily["t"] = (daily.local_date - daily.local_date.min()).dt.days / 365.25
 m = smf.ols(
-    "log_n ~ C(iso_weekday) + is_holiday + is_long_weekend + payday_window + is_month_end + t",
+    "log_n ~ C(iso_weekday) + is_holiday + is_long_weekend + payday_window + is_month_end + t" + FE,
     data=daily,
 ).fit()
 daily["resid"] = m.resid
@@ -79,13 +85,15 @@ fig.add_trace(
 fig.add_hline(y=4, line_dash="dot")
 fig.add_hline(y=-4, line_dash="dot")
 fig.update_layout(
-    title=f"{CTRY.name}: daily volume after removing the calendar (robust z)",
+    title=f"{CTRY.title}: daily volume after removing the calendar (robust z)",
     height=340,
     xaxis_title=None,
 )
 fig.show()
 show(
-    out[["local_date", "n_tx", "iso_weekday", "holiday_name"]].assign(z=out.z.round(2)),
+    out[["country_code", "local_date", "n_tx", "iso_weekday", "holiday_name"]].assign(
+        z=out.z.round(2)
+    ),
     paging=False,
 )
 display(
@@ -115,7 +123,7 @@ dates = [wk.index[b - 1] for b in bkps[:-1]]
 fig = px.line(
     x=wk.index,
     y=wk.values,
-    title=f"{CTRY.name}: weekly calendar-adjusted log volume and change points",
+    title=f"{CTRY.title}: weekly calendar-adjusted log volume and change points",
 )
 for d in dates:
     fig.add_vline(x=d, line_dash="dash")
@@ -127,7 +135,7 @@ display(
         + (
             f"at {', '.join(str(d.date()) for d in dates)}."
             if dates
-            else "in three years: the level of activity never shifts."
+            else f"in {len(wk)} weeks: the level of activity never shifts."
         )
     )
 )
@@ -191,6 +199,8 @@ F = [
     "round_amount_tx",
     "max_outflow_usd",
 ]
+# a fixed row order: the forest's subsamples are drawn by position, so the database's row order must not matter
+cm = cm.sort_values(["customer_id", "month_start"], kind="mergesort").reset_index(drop=True)
 X = np.log1p(cm[F].clip(lower=0).astype(float))
 iso = IsolationForest(n_estimators=300, max_samples=4096, random_state=7).fit(X)
 cm["score"] = -iso.score_samples(X)
@@ -214,6 +224,7 @@ pd.DataFrame(
     [
         {
             "country": COUNTRY,
+            "dataset": DATASET,
             "days": len(daily),
             "abnormal_days": len(out),
             "change_points": len(dates),
@@ -225,7 +236,7 @@ pd.DataFrame(
             "enrichment": round(prec / base, 2) if base else np.nan,
         }
     ]
-).to_csv(OUT / f"country_{COUNTRY.lower()}_anomalies.csv", index=False)
+).to_csv(OUT / f"{PREFIX}_{COUNTRY.lower()}_anomalies.csv", index=False)
 prof = pd.concat(
     [cm[F].median().rename("all months (median)"), top[F].median().rename("top 0.5 % (median)")],
     axis=1,

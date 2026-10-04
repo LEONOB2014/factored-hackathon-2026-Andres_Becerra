@@ -1,6 +1,6 @@
 # %% [markdown]
 # # 10 · Graph and knowledge exports (__COUNTRY_NAME__)
-# **Country series · __COUNTRY_NAME__** · *generated from `notebooks/country_template`: edit the template*
+# **__SERIES__ · __COUNTRY_NAME__** · *generated from `notebooks/country_template`: edit the template*
 #
 # The property graph, temporal events, federated silos and GraphRAG documents of __COUNTRY_NAME__ (pipeline series,
 # notebook 10). The bank-wide replay found that tokenising a missing IP gives one constant token, a supernode. Here:
@@ -18,10 +18,12 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "__COUNTRY__"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "__DATASET__"
+PREFIX = "__PREFIX__"
+CTRY = country.SCOPES[COUNTRY]
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "gold")
 GRAPH = [
     "graph_nodes",
@@ -45,8 +47,9 @@ deg = pl.q(
 )
 custs = pl.q("select count(*) from {stg_customers}").iloc[0, 0]
 top = int(deg.customers.max()) if len(deg) else 0
+custs = max(int(custs), 1)
 fig = px.histogram(
-    deg, x="customers", log_y=True, nbins=40, title=f"{CTRY.name}: customers per IP node"
+    deg, x="customers", log_y=True, nbins=40, title=f"{CTRY.title}: customers per IP node"
 )
 fig.update_layout(height=280)
 fig.show()
@@ -71,8 +74,14 @@ show(
 )
 
 # %% [markdown]
+# <COUNTRY>
 # A country lake produces exactly one federated silo, in the country's residency region: the federated design and the
 # country cut agree, which is the point of putting residency in the data model.
+# </COUNTRY>
+# <ALL>
+# The whole bank produces one federated silo per country, each in its residency region: the cut the country scopes
+# make by hand is the one the federated design makes in the data model.
+# </ALL>
 #
 # ## Findings for __COUNTRY_NAME__ and what to do
 # The computed statements above; the token fix and the missing transfer counterparties are bank-wide blockers for
