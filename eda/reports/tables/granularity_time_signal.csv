@@ -1,0 +1,66 @@
+notebook,test,p_value,reject,q_value
+04 cell,open rate differs by channel,0.0,True,0.0
+05 allocation,greedy on EB cell rate beats the actual mix,0.001,True,0.013000000000000001
+05 allocation,greedy on channel rate beats the actual mix,0.001,True,0.013000000000000001
+05 allocation,greedy on raw cell rate beats the actual mix,0.001,True,0.013000000000000001
+05 allocation,proportional tilt to EB rate beats the actual mix,0.001,True,0.013000000000000001
+01 clock,MX payday effect (business clock),0.0551311052992476,False,0.5972536407418491
+01 clock,CO payday effect (business clock),0.0987389200123251,False,0.6430115617773321
+03 sequence,complaint → contact within 72 h,0.0965720889882992,False,0.6430115617773321
+03 sequence,declined for funds → transaction within 24 h,0.1049569723236239,False,0.6430115617773321
+03 sequence,declined payment → contact within 72 h,0.1088173412238562,False,0.6430115617773321
+03 sequence,digital error → contact within 24 h,0.1060104524846576,False,0.6430115617773321
+03 sequence,digital error → contact within 72 h,0.1240466454957606,False,0.6719193297687033
+02 hour,CO sends: hours vary beyond the day,0.1693757665062835,False,0.6880890514317767
+03 sequence,complaint → contact within 24 h,0.1611733393354104,False,0.6880890514317767
+03 sequence,complaint → contact within 6 h,0.1453655497472723,False,0.6880890514317767
+04 cell,conversion after an open differs by country_code,0.1600751799206746,False,0.6880890514317767
+03 sequence,declined for funds → transaction within 2 h,0.1819932055677365,False,0.6958563742295807
+02 hour,CO complaints_opened: hours vary beyond the day,0.2619485741026053,False,0.9459254064816301
+02 hour,MX sessions: hours vary beyond the day,0.2966324677452673,False,0.9640555201721188
+03 sequence,unresolved contact → complaint within 72 h,0.2851129276620779,False,0.9640555201721188
+02 hour,MX inbound_contacts: hours vary beyond the day,0.3178547631850053,False,0.9806370947614925
+04 cell,conversion after an open differs by segment,0.3319079397654282,False,0.9806370947614925
+01 clock,AR holiday effect (business clock),0.7848599298715708,False,1.0
+01 clock,AR payday effect (business clock),0.6003821692182176,False,1.0
+01 clock,CO holiday effect (business clock),0.4055661765921269,False,1.0
+01 clock,MX holiday effect (business clock),0.5975295327470627,False,1.0
+02 hour,AR inbound_contacts: hours vary beyond the day,0.8662223296562988,False,1.0
+02 hour,AR n_tx: hours vary beyond the day,0.3949807192990741,False,1.0
+02 hour,AR sends: hours vary beyond the day,0.9400760757312604,False,1.0
+02 hour,AR sessions: hours vary beyond the day,0.5962884508168708,False,1.0
+02 hour,CO inbound_contacts: hours vary beyond the day,0.8771930679209654,False,1.0
+02 hour,CO n_tx: hours vary beyond the day,0.9665495119771144,False,1.0
+02 hour,CO sessions: hours vary beyond the day,0.8520408058311592,False,1.0
+02 hour,MX complaints_opened: hours vary beyond the day,0.4188047263538493,False,1.0
+02 hour,MX n_tx: hours vary beyond the day,0.9863214224925628,False,1.0
+02 hour,MX sends: hours vary beyond the day,0.8072604346494595,False,1.0
+03 sequence,campaign delivered → transaction within 1 h,0.4313529780043251,False,1.0
+03 sequence,campaign delivered → transaction within 2 h,0.916675987668964,False,1.0
+03 sequence,campaign delivered → transaction within 24 h,0.8326848724697364,False,1.0
+03 sequence,campaign delivered → transaction within 6 h,0.830715209398321,False,1.0
+03 sequence,campaign delivered → transaction within 72 h,0.4553385660205336,False,1.0
+03 sequence,complaint → contact within 1 h,0.8555355519056321,False,1.0
+03 sequence,complaint → contact within 2 h,1.0,False,1.0
+03 sequence,declined for funds → transaction within 1 h,0.6403135571638743,False,1.0
+03 sequence,declined for funds → transaction within 6 h,0.5826808967402562,False,1.0
+03 sequence,declined for funds → transaction within 72 h,0.8624091894535788,False,1.0
+03 sequence,declined payment → contact within 1 h,0.4703685318581445,False,1.0
+03 sequence,declined payment → contact within 2 h,0.484956560842281,False,1.0
+03 sequence,declined payment → contact within 24 h,0.5958079181418023,False,1.0
+03 sequence,declined payment → contact within 6 h,1.0,False,1.0
+03 sequence,digital error → contact within 1 h,0.919606830922042,False,1.0
+03 sequence,digital error → contact within 2 h,0.7768377068940341,False,1.0
+03 sequence,digital error → contact within 6 h,0.7986382121150813,False,1.0
+03 sequence,escalated contact → complaint within 1 h,1.0,False,1.0
+03 sequence,escalated contact → complaint within 2 h,1.0,False,1.0
+03 sequence,escalated contact → complaint within 24 h,1.0,False,1.0
+03 sequence,escalated contact → complaint within 6 h,1.0,False,1.0
+03 sequence,escalated contact → complaint within 72 h,0.5677754876753278,False,1.0
+03 sequence,unresolved contact → complaint within 1 h,1.0,False,1.0
+03 sequence,unresolved contact → complaint within 2 h,1.0,False,1.0
+03 sequence,unresolved contact → complaint within 24 h,0.6083841068999604,False,1.0
+03 sequence,unresolved contact → complaint within 6 h,1.0,False,1.0
+04 cell,conversion after an open differs by campaign_objective,0.6001803260565406,False,1.0
+04 cell,conversion after an open differs by promoted_product,0.6144970123621847,False,1.0
+04 cell,conversion after an open differs by send_channel,0.5155796689342482,False,1.0
