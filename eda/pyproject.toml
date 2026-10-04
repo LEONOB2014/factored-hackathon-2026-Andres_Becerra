@@ -55,7 +55,7 @@ testpaths = ["tests"]
 pythonpath = ["src", "scripts"]
 addopts = "-ra --strict-markers -m 'not notebooks'"
 markers = [
-    "data: needs the downloaded dataset under eda/data/ (skipped when absent)",
+    "data: needs the downloaded dataset in the repository-level data/ (skipped when absent)",
     "slow: takes more than a few seconds",
     "notebooks: executes notebook sources end to end (opt-in, hours on the full data)",
 ]

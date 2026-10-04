@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Download the entire S3 bucket into ./data/raw (preserving key structure).
+Download the entire S3 bucket into the repository's data/raw (preserving key structure).
 
 - Parallel downloads (thread pool)
 - Resumable: files already present with the same size are skipped

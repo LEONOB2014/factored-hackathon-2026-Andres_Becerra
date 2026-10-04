@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Export compact JSON for the three D3 dashboards into reports/dashboards/data/.
 
-Run after notebooks 02–10 (needs data/derived/*.parquet and reports/tables/*.csv):
+Run after notebooks 02–10 (needs <repo>/data/derived/*.parquet and reports/tables/*.csv):
     uv run scripts/export_dashboard_data.py
 """
 

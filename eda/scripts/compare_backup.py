@@ -1,5 +1,5 @@
 #!/usr/bin/python3
-"""Row/column-level comparison of data/parquet (main) vs data/parquet_backup.
+"""Row/column-level comparison of <repo>/data/parquet (main) vs <repo>/data/parquet_backup.
 Run scripts/build_backup_parquet.py first. Prints, per table: schema diff, PK overlap and
 per-column differences on shared primary keys."""
 

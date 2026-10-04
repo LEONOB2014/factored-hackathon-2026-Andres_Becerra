@@ -193,9 +193,9 @@ Run from this folder:
 
 ```bash
 uv sync
-uv run scripts/download_s3.py                 # AWS credentials in eda/.env (git-ignored); ~10 GB into data/raw
-uv run scripts/eda_overview.py                # CSV → data/parquet + reports/eda_overview.md
-uv run scripts/build_backup_parquet.py        # data/parquet_backup
+uv run scripts/download_s3.py                 # AWS credentials in the root .env; ~10 GB into ../data/raw
+uv run scripts/eda_overview.py                # CSV → ../data/parquet + reports/eda_overview.md
+uv run scripts/build_backup_parquet.py        # ../data/parquet_backup
 uv run scripts/build_notebook.py notebooks/03_time_shift_diagnostics.py --execute
 uv run scripts/build_notebook.py notebooks/medallion/01_raw_tables_profile.py --execute \
     --html-dir "$PWD/reports/notebooks/medallion"   # absolute: the build runs from the notebook folder
