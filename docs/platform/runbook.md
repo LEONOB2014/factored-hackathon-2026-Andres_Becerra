@@ -107,7 +107,9 @@ legitimate and permanent, update the contract instead. Phase 4 moves releases to
 
 **Retiring typed bronze (once, after this change is deployed).** The typed bronze is no longer built or read.
 Move it into the read-only archive (nothing is copied or deleted; per-zone SHA-256 recorded in
-`ARCHIVE_*.json` and the audit ledger), then re-parse the dbt manifest Cosmos renders:
+`ARCHIVE_*.json` and the audit ledger), then re-parse the dbt manifest Cosmos renders. Docker Desktop bind mounts
+ignore `chmod` from a container: the command checks the permissions held and, if not, exits with the host command
+to run (`chmod -R a-w data/lake/archive/bronze_typed_v1`).
 
 ```bash
 docker compose exec airflow-scheduler /opt/airflow/platform-venv/bin/python -m latam_platform.cli archive-typed-bronze
