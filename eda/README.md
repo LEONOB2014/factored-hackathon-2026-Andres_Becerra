@@ -21,6 +21,7 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/backup_{all,mx,co,ar}/` | Backup-as-main series: the same template on `data_backup_20260831` treated as the production source | yes |
 | `notebooks/country_compare/` | The three country series side by side | yes |
 | `notebooks/dataset_compare/` | Main against the backup run as main, per scope | yes |
+| `notebooks/granularity/` | Granularity experiment: the star re-grained (customer, day, branch, agent, product, campaign, case) and judged grain by grain | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -186,6 +187,33 @@ done
 Each scope needs `uv sync` in `platform/` and builds its lake and lakehouse in `data/tmp/<dataset>/<scope>/` (main:
 about 5.5 GB for the whole bank, 3.9 GB for Mexico, 2.5 GB for Colombia, 1.8 GB for Argentina; the backup is smaller);
 run one scope at a time and delete its folder when done. `LATAM_SCOPE_DIR` moves the scratch elsewhere.
+
+### Granularity experiment (`notebooks/granularity/`)
+
+The platform re-grained to the units a bank decides on, and judged grain by grain. An aggregate star of 17 models
+(`src/latam_eda/granularity_sql/*.sql`, dbt-style SQL with `{ref}` placeholders, built by
+`latam_eda.granularity.Star` on top of the gold layer of the whole-bank scratch lakehouse) declares its grain,
+additive reconciliation and dense-grid contracts in each file's header; `Star.check()` tests all three.
+
+| # | Grain | Question |
+|---|---|---|
+| 01 | all | bus matrix, the aggregate star, its 43 checks, zero inflation and overdispersion per grain |
+| 02 | customer × month | activity Markov chain, cohorts, cross-process early warnings, five next-month targets, a contact count model |
+| 03 | customer (lifetime) | value concentration, RFM, landmark survival to the first 90-day lapse (Kaplan–Meier, Cox), value proxy |
+| 04 | market × day, channel × day | rolling-origin forecasts (seasonal naive, calendar regression, SARIMAX, boosting), Granger tests, control charts |
+| 05 | branch × day | cash demand, branch forecasts, hierarchy (bottom-up vs top-down), newsvendor cash policy |
+| 06 | agent × day, complaint case | Erlang C staffing, reliability of agent KPIs, accent fairness, censored case survival, SLA-breach classifier |
+| 07 | product × month | portfolio activity, vintage curves, why roll rates are impossible, product dormancy, delinquency from payments |
+| 08 | category × month, campaign × day | spend mix, campaign funnel and ROI with intervals, campaign heterogeneity, time to convert, fatigue |
+| 09 | synthesis | ecological fallacy, information by grain, every test under Benjamini–Hochberg, KPI catalogue, opportunities, downstream impact, promotion decision |
+
+```bash
+for nb in notebooks/granularity/0[1-9]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/granularity"; done
+```
+
+The series uses the whole-bank scratch lakehouse (`data/tmp/main/all`, about 6 GB with the aggregates); delete it
+when done.
 
 ## Reproduce
 
