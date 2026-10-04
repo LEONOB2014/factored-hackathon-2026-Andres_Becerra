@@ -628,8 +628,9 @@ OPP = [
         "Marketing",
         "which campaigns to run, on which channel, for which product",
         "campaign × day",
-        "stop channels that never convert; budget by channel × product (campaign-level GLM or rule); consent gate; "
-        "randomised holdout for uplift",
+        "instrument Voice and WhatsApp (no open tracking, so no attributable conversion); allocate sends by channel "
+        "under a contact budget (empirical-Bayes cell rates, granularity_time 04–05); consent gate; randomised "
+        "holdout for uplift",
         "campaign budget advisor (explains each allocation from the campaign facts)",
         verdict_of("campaign conversion from launch attributes")
         + " / "
@@ -714,7 +715,8 @@ display(
                 "staffing (Erlang C), calendar-adjusted control charts, survival-based SLA reporting and campaign "
                 "economics are deterministic services an agent can explain and an auditor can verify.",
                 "* **The campaign grain is the one place where re-graining reveals a real, actionable difference**: "
-                "campaigns differ in conversion beyond chance, channels exist that never convert, and launch attributes "
+                "campaigns differ in conversion beyond chance (through the channel's open rate; two channels cannot attribute "
+                "a conversion at all), and launch attributes "
                 f"rank campaigns ({verdict_of('campaign conversion from launch attributes')}).",
                 "* **What must not be built**: an agent-coaching league table (no agent KPI is reliable), a roll-rate model "
                 "(no delinquency history), contact or complaint triggers (no cross-process lead at any grain), and any "

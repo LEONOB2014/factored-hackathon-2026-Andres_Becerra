@@ -270,11 +270,10 @@ display(
 #   branch unknown: 100 % in main, 50 % in the backup) and R24 (agent branch unknown: 69 % against 35 %), and the
 #   rules on held or missing tables, which have no rate. Every other rule rate agrees within 0.2 points.
 # * **Keys:** half of the backup's transactions lose a point-in-time key (34 % in main), for the same reason as R01.
-# * **Calendar:** the weekend effect is the same (Saturday −37 %, Sunday −40 %; main −35 %, −38 %), holidays,
-#   month end and bonus months do nothing in either. Main's pooled three-day payday dip (−1.6 %, p = 0.005) does not
-#   reappear in the backup (+0.9 %, p = 0.33): with fifteen months instead of thirty-five, an effect that small is
-#   below what the backup can resolve, and it is not significant in any single country of main either. Treat it as
-#   unconfirmed.
+# * **Calendar:** on the delivery day (`process_date`, ADR-014) the weekend effect is about the same (backup Saturday
+#   −41 %, Sunday −42 %; main −39 %, −39 %), and holidays, month end and bonus months do nothing in either. Main's
+#   pooled three-day payday dip (−1.3 %, p = 0.03) is not significant at 1 % and does not reappear in the backup
+#   (+1.1 %, p = 0.22). No calendar effect beyond the weekend is confirmed in either dataset.
 # * **Anomalies:** none in either: no abnormal day, no change point, the same low-side amount outliers (0.7 %), and
 #   the forest and the AML rules agree 12–15× more than chance in both.
 # * **Credit and fraud pipelines break on dates, not on data.** No customer is eligible for credit because the

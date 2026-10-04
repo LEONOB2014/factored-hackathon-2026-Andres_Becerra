@@ -1,6 +1,6 @@
 grain,Spearman correlation: digital errors vs contacts,rows
-customer × month,0.0015951224888507188,516970
+customer × month,0.001595122488850719,516970
 customer (lifetime),-0.0003751198715940775,150000
-market × day (raw),0.7065760672457178,3195
-market × day (calendar removed),0.00394579260673185,3195
+market × day (raw),0.690174955958244,3195
+market × day (calendar removed),0.00745441406681374,3195
 "customer (lifetime, controlling for active months)",-0.012430962220168143,150000
