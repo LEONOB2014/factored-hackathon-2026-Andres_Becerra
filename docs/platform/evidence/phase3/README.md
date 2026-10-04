@@ -18,31 +18,24 @@ output of a committed script in `platform/dbt/scripts/verify/`, run on 2026-10-0
 **Typed parity.** 15 models, 23,413,140 rows: identical row counts, identical column types and identical
 order-independent hashes of every value (`values_identical` is true everywhere).
 
-**Lakehouse parity.** The baseline is commit `acac8e1` (develop before phase 3, silver read typed bronze); phase 3 is
-`091a307`. Two builds of the baseline differ in 18 of 84 relations by themselves: surrogate keys hashed with the
-snapshot run time, floating-point sums aggregated in parallel, list order, `mode()` ties. Against phase 3, 66 of 84
-shared relations are identical and 15 of the 18 differences are inside that noise (`explained_by_noise`). The other
-three:
+**Lakehouse parity** (re-run 2026-10-04 with the corrected method, below). The baseline is commit `acac8e1`
+(develop before phase 3, silver read typed bronze); phase 3 is `develop` at `dbb8c4b`. Two builds of the baseline
+differ in **22 of 84 relations** by themselves (surrogate keys hashed with the snapshot run time, floating-point sums
+aggregated in parallel, list and row order, `mode()` ties). Against phase 3, 60 of 84 shared relations are identical
+and **22 of the 24 differences are inside that noise** (`explained_by_noise`), including the `mode()` ties of
+`mart_customer_360.main_digital_channel`. The other two are intended:
 
-* `audit.audit_partition_manifest`: intended. The partition digests are now over each record's landed bytes
+* `audit.audit_partition_manifest`: the partition digests are now over each record's landed bytes
   (`_record_sha256`) instead of the typed row hash; row counts are identical.
-* `audit.dq_rule_summary`: intended. It now also carries the cell rules C01–C10 per table (26 → 156 rows).
-* `gold.mart_customer_360.main_digital_channel`: noise not seen in this baseline pair. All 2,045 differing customers
-  have two or more channels tied for the most events, and both builds picked one of the tied channels (`mode()`
-  has no tie-break). Query used (both builds attached under their file names):
+* `audit.dq_rule_summary`: it now also carries the cell rules C01–C10 per table (26 → 156 rows).
 
-  ```sql
-  with d as (select a.customer_id, a.main_digital_channel ca, b.main_digital_channel cb
-             from baseline_a.gold.mart_customer_360 a join phase3.gold.mart_customer_360 b using (customer_id)
-             where a.main_digital_channel is distinct from b.main_digital_channel),
-       n as (select customer_id, channel, count(*) k from phase3.silver.stg_digital_events
-             where customer_id in (select customer_id from d) group by all),
-       m as (select customer_id, max(k) mk from n group by 1)
-  select count(*) total, count(*) filter (where na.k = m.mk and nb.k = m.mk) both_tied_modes   -- 2045, 2045
-  from d join m using (customer_id)
-  left join n na on na.customer_id = d.customer_id and na.channel = d.ca
-  left join n nb on nb.customer_id = d.customer_id and nb.channel = d.cb;
-  ```
+No change is attributable to the switch to lossless bronze. The noise itself is removed by `fix/reproducible-gold`
+([evidence](../reproducibility/README.md)).
+
+**Correction (2026-10-04).** The first version of this evidence combined hashes with `bit_xor`. XOR cancels equal
+values in pairs, so a column holding the same value in every row hashed to 0 in both builds whatever the value: it
+under-reported the noise (18 relations instead of 22) and hid a differing column (`recorded_from`, the snapshot
+time). The scripts now sum the hashes; every table here was regenerated with them. The conclusion did not change.
 
 **Real data.** Three cell rules have findings, all known from the raw forensics (09 §A) and inside their SLO:
 `Mexico` spelled without the accent in `digital_events` (6.65 %) and `transactions` (0.92 %), and `nan` rendered into
