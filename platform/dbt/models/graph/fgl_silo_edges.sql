@@ -4,7 +4,7 @@
 {% set cutoff = "date '" ~ var('as_of_date') ~ "' - interval 90 day" %}
 with n as (select * from {{ ref('fgl_silo_nodes') }}),
 e as (
-    select t.customer_id, t.merchant_name, count(*) as n_tx, sum(t.amount_usd) as amount_usd
+    select t.customer_id, t.merchant_name, count(*) as n_tx, {{ exact_sum("t.amount_usd") }} as amount_usd
     from {{ ref('int_transactions_enriched') }} t
     where t.merchant_name is not null and t.transaction_ts_utc < {{ cutoff }}
     group by all

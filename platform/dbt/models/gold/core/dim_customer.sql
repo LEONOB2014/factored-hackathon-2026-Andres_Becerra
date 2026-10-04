@@ -1,6 +1,7 @@
 -- Customer dimension, SCD Type 2 from snap_customers, pseudonymized (tokens only, no direct identifiers).
 -- The first observed version is treated as valid since registration because no earlier history exists;
--- later versions start at the snapshot time (system time). customer_sk identifies one version.
+-- later versions start at the snapshot time (system time). customer_sk identifies one version: it hashes the
+-- version number, not the snapshot time, so a rebuild from the same history gives the same keys.
 with v as (
     select
         s.*,
@@ -8,7 +9,7 @@ with v as (
     from {{ ref('snap_customers') }} s
 )
 select
-    md5(customer_id || '|' || cast(dbt_valid_from as varchar))       as customer_sk,
+    md5(customer_id || '|' || version_no)                            as customer_sk,
     customer_id,
     version_no,
     {{ pii_hash('document_number') }}                                 as document_token,

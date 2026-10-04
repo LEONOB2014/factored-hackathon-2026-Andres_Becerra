@@ -276,12 +276,13 @@ the commands are in [`evidence/phase3/`](evidence/phase3/README.md).
 types and identical order-independent hashes of every value. Built end to end (222 dbt nodes, 0 errors), the
 lakehouse from lossless bronze was compared relation by relation with one built from typed bronze (commit
 `acac8e1`) in the same environment, and two builds of that baseline were compared with each other to measure the
-noise floor: they differ by themselves in 18 relations (surrogate keys hashed with the snapshot time,
-floating-point sums in parallel aggregation, list order, ties in `mode()`). Against the switch, 66 of 84 shared
-relations are identical and 15 of the 18 differences lie inside that noise. Of the other three, two are intended
-(the partition manifest now digests the records' landed bytes; the rule summary adds the C-rules) and one is a
-`mode()` tie the baseline pair happened not to show (`mart_customer_360.main_digital_channel`: all 2,045 differing
-customers have tied top channels). **No change is attributable to the switch.**
+noise floor: they differ by themselves in 22 relations (surrogate keys hashed with the snapshot time,
+floating-point sums in parallel aggregation, list and row order, ties in `mode()`). Against the switch, 60 of 84
+shared relations are identical and 22 of the 24 differences lie inside that noise; the other two are intended (the
+partition manifest now digests the records' landed bytes; the rule summary adds the C-rules). **No change is
+attributable to the switch.** (Corrected on 2026-10-04: the first comparison combined hashes with XOR, which cancels
+repeated values and under-reported the noise as 18 relations; see the evidence README.) The noise itself is removed by
+the reproducibility fix: two builds now agree on all 108 relations ([evidence](evidence/reproducibility/README.md)).
 
 **Findings on the real data** match the forensics of A: 1,078,689 `Mexico` variants (V2, `transactions` 0.92 %,
 `digital_events` 6.65 %), the 38,142 campaign subjects with a rendered `nan` (P, 2.25 %), and **no** grammar,

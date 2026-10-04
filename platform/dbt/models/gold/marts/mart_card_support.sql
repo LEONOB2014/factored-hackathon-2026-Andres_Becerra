@@ -18,7 +18,7 @@ agg as (
                            and transaction_ts_utc >= {{ as_of() }} - interval 30 day)            as declines_expired_30d,
         count(*) filter (where is_cross_border and transaction_ts_utc >= {{ as_of() }} - interval 90 day)
                                                                                                  as foreign_tx_90d,
-        list(distinct transaction_country_code) filter (where is_cross_border
+        list(distinct transaction_country_code order by transaction_country_code) filter (where is_cross_border
                                                          and transaction_ts_utc >= {{ as_of() }} - interval 90 day)
                                                                                                  as foreign_countries_90d,
         count(*) filter (where is_fraud and transaction_ts_utc >= {{ as_of() }} - interval 365 day) as confirmed_fraud_365d,
@@ -37,7 +37,7 @@ streak as (   -- declines after the last approval = what the customer is experie
 cases as (
     select affected_product_id as product_id,
            count(*) filter (where not is_closed)                        as open_cases,
-           arg_max(subcategory, created_ts_utc)                         as last_case_subcategory
+           arg_max(subcategory, (created_ts_utc, complaint_id))         as last_case_subcategory
     from {{ ref('stg_complaints') }}
     where affected_product_id is not null
     group by 1
