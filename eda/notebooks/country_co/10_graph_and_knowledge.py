@@ -18,10 +18,12 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "CO"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "gold")
 GRAPH = [
     "graph_nodes",
@@ -45,8 +47,9 @@ deg = pl.q(
 )
 custs = pl.q("select count(*) from {stg_customers}").iloc[0, 0]
 top = int(deg.customers.max()) if len(deg) else 0
+custs = max(int(custs), 1)
 fig = px.histogram(
-    deg, x="customers", log_y=True, nbins=40, title=f"{CTRY.name}: customers per IP node"
+    deg, x="customers", log_y=True, nbins=40, title=f"{CTRY.title}: customers per IP node"
 )
 fig.update_layout(height=280)
 fig.show()

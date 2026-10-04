@@ -1,6 +1,6 @@
 # %% [markdown]
 # # 03 · The contract, the circuit breaker and schema evolution (__COUNTRY_NAME__)
-# **Country series · __COUNTRY_NAME__** · *generated from `notebooks/country_template`: edit the template*
+# **__SERIES__ · __COUNTRY_NAME__** · *generated from `notebooks/country_template`: edit the template*
 #
 # The circuit breaker holds a day of data when it no longer looks like the contract says it should (pipeline series,
 # notebook 03). The contract's **baselines** (how empty each column usually is, the typical magnitude of each
@@ -24,12 +24,14 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "__COUNTRY__"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "__DATASET__"
+PREFIX = "__PREFIX__"
+CTRY = country.SCOPES[COUNTRY]
 OUT = Path("../../reports/tables")
 OUT.mkdir(parents=True, exist_ok=True)
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 pl.build_layer("seeds", verbose=False)
 pl.ensure(pl.key("dq_partition_profile"))
 pl.ensure(pl.key("dq_partition_header"))
@@ -49,18 +51,37 @@ held_g = (
 )
 show(held_g, paging=False)
 n_held = glob[glob.severity == "A"][["table_name", "partition_date"]].drop_duplicates()
+# a baseline check judges a magnitude or a share against the contract's typical value: a population question.
+# A rule check (vocabulary, required field, format, key, header, grammar) judges the values or the file against the
+# contract's rules: re-fitting baselines cannot release it.
+BASELINE = {"scale", "empty_share"}
+a = glob[glob.severity == "A"]
+structural = a[~a.check_name.isin(BASELINE)][["table_name", "partition_date"]].drop_duplicates()
 display(
     Markdown(
-        f"**On the global contract, the breaker would hold {len(n_held):,} partitions of {CTRY.name}** "
+        f"**On the global contract, the breaker would hold {len(n_held):,} partitions of {CTRY.name}**"
         + (
-            f"({', '.join(f'{t}: {n}' for t, n in n_held.table_name.value_counts().items())})."
+            f" ({', '.join(f'{t}: {n}' for t, n in n_held.table_name.value_counts().items())})."
             if len(n_held)
             else "."
         )
         + (
-            " Every one of them is a false alarm: nothing changed in the source; the contract describes another population."
-            if len(n_held)
-            else " The global contract fits this country."
+            " The global contract fits."
+            if not len(n_held)
+            else " Every one is held by a baseline check (scale): nothing changed in the files; the contract describes "
+            "another population."
+            if not len(structural)
+            else f" **{len(structural):,} of them are held by contract rules, not baselines** ("
+            + ", ".join(
+                f"`{r.table_name}.{r.column_name}` {r.check_name}"
+                for r in a[~a.check_name.isin(BASELINE)][
+                    ["table_name", "column_name", "check_name"]
+                ]
+                .drop_duplicates()
+                .itertuples()
+            )
+            + "): the values break the contract's rules, which no baseline can fix. Section 3 shows which holds "
+            "survive a contract fitted to this data."
         )
     )
 )
@@ -85,7 +106,14 @@ show(cmp.round(3), paging=False)
 worst = cmp.iloc[0]
 ratio = worst.country_over_global
 why = (
-    "Amounts are recorded in the account's currency; this country's accounts are mostly in a currency worth a "
+    (
+        "The magnitudes match the reviewed contract: the scale checks fit."
+        if 1 / 3 <= ratio <= 3
+        else "The reviewed contract's baselines were measured on main's whole bank; this dataset's typical magnitude "
+        "differs from them by that factor, so the scale check misjudges every day of it."
+    )
+    if COUNTRY == "ALL"
+    else "Amounts are recorded in the account's currency; this country's accounts are mostly in a currency worth a "
     "fraction of a dollar, so its amounts are larger numbers than the blend's."
     if ratio > 3
     else "This country's accounts are in dollars: its amounts are smaller numbers than the blend's, which the peso "
@@ -96,7 +124,12 @@ why = (
 display(
     Markdown(
         f"**The largest gap: `{worst.table_name}.{worst.column_name}` is typically {ratio:,.2f}× the global baseline "
-        f"in {CTRY.name}.** {why} The blend's median sits between populations and describes none of them."
+        f"in {CTRY.name}.** {why}"
+        + (
+            " The blend's median sits between populations and describes none of them."
+            if COUNTRY != "ALL" and not 1 / 3 <= ratio <= 3
+            else ""
+        )
     )
 )
 
@@ -124,8 +157,14 @@ show(held, paging=False)
 show(drift, paging=False)
 display(
     Markdown(
-        f"**With country baselines: {int(held.held.sum()) if len(held) else 0} partitions held** (global contract: "
-        f"{len(n_held):,}), {int(drift.partitions.sum()) if len(drift) else 0} severity-B reports."
+        f"**With baselines fitted to this scope: {int(held.held.sum()) if len(held) else 0} partitions held** (global "
+        f"contract: {len(n_held):,}), {int(drift.partitions.sum()) if len(drift) else 0} severity-B reports."
+        + (
+            " The holds that remain break contract rules, and **staging excludes every held partition**: those days "
+            "vanish from silver, gold and every model downstream until someone releases or corrects them."
+            if len(held) and held.held.sum()
+            else ""
+        )
     )
 )
 
@@ -195,7 +234,7 @@ fig = px.line(
     x="month",
     y="psi",
     color="column",
-    title=f"{CTRY.name}: PSI of each month against the first 6 months",
+    title=f"{CTRY.title}: PSI of each month against the first 6 months",
 )
 fig.add_hline(y=0.10, line_dash="dot", annotation_text="0.10 shifting")
 fig.add_hline(y=0.25, line_dash="dash", annotation_text="0.25 different population")
@@ -206,6 +245,7 @@ pd.DataFrame(
     [
         {
             "country": COUNTRY,
+            "dataset": DATASET,
             "partitions_held_global_contract": len(n_held),
             "partitions_held_country_contract": int(held.held.sum()) if len(held) else 0,
             "b_reports_country_contract": int(drift.partitions.sum()) if len(drift) else 0,
@@ -219,13 +259,14 @@ pd.DataFrame(
             "max_psi_column": mx.index[0],
         }
     ]
-).to_csv(OUT / f"country_{COUNTRY.lower()}_contract.csv", index=False)
+).to_csv(OUT / f"{PREFIX}_{COUNTRY.lower()}_contract.csv", index=False)
 show(mx.round(4).rename("max monthly PSI").to_frame(), paging=False)
 display(
     Markdown(
         f"**Largest monthly PSI in {CTRY.name}: {mx.iloc[0]:.3f} ({mx.index[0]}).** "
         + (
-            "All columns stay far below 0.10: the country's population of transactions is stationary for three years. "
+            f"All columns stay far below 0.10: the population of transactions is stationary over "
+            f"{tx.month.nunique()} months. "
             "Stationarity is itself a generator fingerprint: a real bank's channel mix drifts towards digital and its "
             "amounts with inflation."
             if mx.iloc[0] < 0.10
@@ -236,10 +277,17 @@ display(
 
 # %% [markdown]
 # ## Findings for __COUNTRY_NAME__ and what to do
+# <COUNTRY>
 # 1. **A bank-wide contract is not a country contract.** Wherever the currency mix differs from the blend, the global
 #    scale baseline holds healthy days; the country's own reference-window baselines remove the false holds without
 #    blinding the breaker to real unit changes.
 # 2. **Production design:** one contract per (table, country) or, better, scale checks per currency inside each table.
+# </COUNTRY>
+# <ALL>
+# 1. **For the whole bank the reviewed contract is the reference**: the holds of section 1 measure how well it fits
+#    this dataset, and the reference-window baselines of section 3 show what a contract fitted to it would hold.
+# 2. **Production design:** scale checks per currency inside each table, so the blend never sets a baseline.
+# </ALL>
 # 3. **Empty-share checks need a noise-aware threshold** (binomial z) and applicability conditioning; small countries
 #    and small tables suffer most.
 # 4. **The country's distributions are stationary** where PSI stays low: a model trained on the first two years can be

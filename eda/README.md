@@ -17,8 +17,10 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/medallion/` | Medallion re-analysis series (raw → bronze → silver → gold) | yes |
 | `notebooks/model_risk/` | Model-risk series: raw schema forensics, then keys, drift MRM, segmentation, text | yes |
 | `notebooks/pipeline/` | Pipeline walkthrough: the `dbt_lakehouse` DAG replayed step by step in a scratch DuckDB | yes |
-| `notebooks/country_{mx,co,ar}/` | Country series: the whole platform rebuilt and judged on one country (generated from `country_template/`) | yes |
+| `notebooks/country_{all,mx,co,ar}/` | Country series: the whole platform rebuilt and judged on the whole bank or one country (generated from `country_template/`) | yes |
+| `notebooks/backup_{all,mx,co,ar}/` | Backup-as-main series: the same template on `data_backup_20260831` treated as the production source | yes |
 | `notebooks/country_compare/` | The three country series side by side | yes |
+| `notebooks/dataset_compare/` | Main against the backup run as main, per scope | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -127,7 +129,7 @@ done
 Personal data and free text are masked in every displayed table (`Pipeline.safe`, from the
 `restricted_pii_columns` seed). Delete `data/tmp/pipeline/` when done; it is rebuilt by running the series again.
 
-### Country series (`notebooks/country_mx`, `country_co`, `country_ar`, `country_compare`)
+### Country and backup-as-main series (`notebooks/country_*`, `backup_*`, `country_compare`, `dataset_compare`)
 
 The platform rebuilt once per country, on a lossless country subset of the lake (`src/latam_eda/country.py`:
 customers by country, everything they own by `customer_id`, anonymous digital events by IP country, reference data
@@ -136,8 +138,22 @@ window, local time and the country's calendar (bank holidays, paydays, month end
 statistics, country SLOs, anomaly and change-point detection, and an out-of-time learnability test of seven candidate
 targets.
 
-The three series are **generated** from one template so their method cannot drift apart: edit
-`notebooks/country_template/`, never the generated folders (a test checks they match).
+The series are **generated** from one template so their method cannot drift apart: edit
+`notebooks/country_template/`, never the generated folders (a test checks they match). The template has two
+dimensions, eight series:
+
+* **scope**: `ALL` (the whole bank, no cut; local time and calendar per customer's country, country fixed effects in
+  the calendar regression) or one country (`MX`, `CO`, `AR`);
+* **dataset**: `main` (folders `country_*`) or `backup` (folders `backup_*`): `data_backup_20260831` run **as if it
+  were main**. `country.build_backup_lake` lays the backup's lossless bronze out as a main lake in
+  `data/tmp/backup/lake` (hard links, no extra space): bronze and holdout split at the stream cutoff, empty files with
+  main's schema for the tables the backup lacks, main's bronze as the quarantined copy (so reconciliation runs in
+  reverse), the backup's own header manifests.
+
+Prose that only one scope or dataset should read sits in `# <ALL>`, `# <COUNTRY>`, `# <MAIN>` or `# <BACKUP>` blocks
+of the template's markdown. Each series writes `{country,backup}_{all,mx,co,ar}_<kind>.csv` to `reports/tables`
+(size, contract, calendar effects, profile, rule SLOs, reconciliation, anomalies, learnability); the two comparison
+notebooks read only those tables.
 
 | # | Topic |
 |---|---|
@@ -157,15 +173,19 @@ The three series are **generated** from one template so their method cannot drif
 | 14 | Seven candidate targets evaluated out of time (AUC and AP with intervals, verdicts) |
 
 ```bash
-uv run scripts/build_country_notebooks.py              # regenerate the three series from the template
-for cc in mx co ar; do for nb in notebooks/country_$cc/[0-9][0-9]_*.py; do
-  uv run scripts/build_country_notebooks.py --execute "$nb"; done; done
-uv run scripts/build_notebook.py notebooks/country_compare/01_country_comparison.py --execute \
-    --html-dir "$PWD/reports/notebooks/country_compare"
+uv run scripts/build_country_notebooks.py              # regenerate the eight series from the template
+for s in country_all country_mx country_co country_ar backup_all backup_mx backup_co backup_ar; do
+  for nb in notebooks/$s/[0-9][0-9]_*.py; do uv run scripts/build_country_notebooks.py --execute "$nb"; done
+  d=${s%%_*}; rm -rf ../data/tmp/${d/country/main}/${s#*_}   # that scope's scratch, rebuilt on demand
+done
+for nb in notebooks/country_compare/01_country_comparison.py notebooks/dataset_compare/01_main_vs_backup.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/$(basename $(dirname $nb))"
+done
 ```
 
-Each country needs `uv sync` in `platform/` and builds its lake and lakehouse in `data/tmp/country/<cc>/` (about
-3.9 GB for Mexico, 2.5 GB for Colombia, 1.8 GB for Argentina); delete the folder when done.
+Each scope needs `uv sync` in `platform/` and builds its lake and lakehouse in `data/tmp/<dataset>/<scope>/` (main:
+about 5.5 GB for the whole bank, 3.9 GB for Mexico, 2.5 GB for Colombia, 1.8 GB for Argentina; the backup is smaller);
+run one scope at a time and delete its folder when done. `LATAM_SCOPE_DIR` moves the scratch elsewhere.
 
 ## Reproduce
 

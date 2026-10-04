@@ -1,0 +1,6 @@
+table_name,main_rows,backup_rows,shared_keys,only_main,only_backup,shared_identical,shared_changed,changed_pct_of_shared,country,dataset
+call_center_interactions,331915,333388,8694,323221,324694,0,8694,100.0,MX,backup
+complaints,32592,32460,16178,16414,16282,0,16178,100.0,MX,backup
+customers,74973,74907,3115,71858,71792,2239,876,28.1,MX,backup
+products,199861,200398,35609,164252,164789,0,35609,100.0,MX,backup
+transactions,918479,2150940,15598,902881,2135342,0,15598,100.0,MX,backup

@@ -1,0 +1,2 @@
+country,dataset,customers,transactions,first_tx_day,last_tx_day,tx_per_customer_month,home_currency_tx_pct,anonymous_sessions_pct,median_income_usd,median_tx_usd
+MX,main,74907,2150940,2023-06-17,2026-05-18,0.798,0.0,14.3,2300.0,467.0

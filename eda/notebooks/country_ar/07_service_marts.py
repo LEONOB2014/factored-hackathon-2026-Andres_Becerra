@@ -19,10 +19,12 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "AR"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "snapshots")
 MARTS = [
     "mart_customer_360",
@@ -64,7 +66,7 @@ fig = px.bar(
     x="cards",
     y="next_best_action",
     orientation="h",
-    title=f"{CTRY.name}: next best action per card",
+    title=f"{CTRY.title}: next best action per card",
 )
 fig.update_layout(height=300, yaxis_title=None, yaxis=dict(autorange="reversed"))
 fig.show()
@@ -111,7 +113,9 @@ reg = {
 }
 display(
     Markdown(
-        f"**Regulatory clock for {CTRY.name}:** {reg[COUNTRY]}. The mart computes generic SLA clocks; the recommendation "
+        f"**Regulatory clock for {CTRY.name}:** "
+        + (reg[COUNTRY] if COUNTRY != "ALL" else "; ".join(reg.values()))
+        + ". The mart computes generic SLA clocks; the recommendation "
         "stands: a compliance-owned seed of deadlines per country, so a breach is measured against this country's rule. "
         "(The deadlines quoted are the general rules; compliance must confirm them per product and case type.)"
     )
@@ -131,6 +135,10 @@ display(
     Markdown(
         "Complaint contacts resolve far less often at first contact than transactional ones in every country; the labels "
         "for an escalation model (`complaint_within_14d`) are rare, and notebook 14 tests whether they are learnable here."
+        if len(cx)
+        else "**The CX journey is empty**: "
+        + country.why_empty(pl, "call_center_interactions")
+        + ". Every contact-centre mart, label and SLA of this dataset is empty with it."
     )
 )
 

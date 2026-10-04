@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=50f8b1a0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=687b229f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7809,7 +7809,7 @@ noise costs more accuracy.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=284812d8">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0e54b07d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7828,10 +7828,12 @@ noise costs more accuracy.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"MX"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"features_graph_knowledge"</span><span class="p">)</span>
 <span class="n">PRIV</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"privacy_input_complaints_country_month"</span><span class="p">,</span> <span class="s2">"privacy_input_tx_segment_month"</span><span class="p">]</span>
 <span class="n">SERVING</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">pl</span><span class="o">.</span><span class="n">catalog</span><span class="p">()[</span><span class="s2">"node"</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"serving_"</span><span class="p">))</span>
@@ -7855,7 +7857,7 @@ noise costs more accuracy.</p>
   table     serving_credit_eligibility                            74,907 rows     0.0s
   table     serving_customer_360                                  74,907 rows     0.2s
   table     serving_dispute_case                                  13,022 rows     0.0s
-  table     serving_online_fraud_state                            67,184 rows     0.7s
+  table     serving_online_fraud_state                            67,184 rows     0.8s
   table     serving_recent_transactions                        2,144,101 rows     0.9s
 </pre>
 </div>
@@ -7863,7 +7865,7 @@ noise costs more accuracy.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=21e419da">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=20b9e8f6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7874,7 +7876,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=8444d9ff">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6b3a4192">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7899,7 +7901,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 <span class="n">show</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> complaint cells, median </span><span class="si">{</span><span class="n">cells</span><span class="o">.</span><span class="n">complaints</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> complaints.** At ε = 0.5 the "</span>
+        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span><span class="si">}</span><span class="s2"> complaint cells, median </span><span class="si">{</span><span class="n">cells</span><span class="o">.</span><span class="n">complaints</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> complaints.** At ε = 0.5 the "</span>
         <span class="sa">f</span><span class="s2">"median cell is released within about </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">6</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">cells</span><span class="o">.</span><span class="n">complaints</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> %; the smaller the country, the "</span>
         <span class="s2">"coarser its releases must be (quarterly instead of monthly, or fewer categories) for the same budget."</span>
     <span class="p">)</span>
@@ -7917,7 +7919,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_ff19e735_3650_4374_aaff_f129fefca46b">
+<table hidden="hidden" id="itables_f0e0ed04_5b2b_45d2_8d67_a69680d91e6a">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -7979,7 +7981,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_ff19e735_3650_4374_aaff_f129fefca46b_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_f0e0ed04_5b2b_45d2_8d67_a69680d91e6a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>epsilon</th>
 <th style="border:1px solid #ddd;padding:8px">noise scale</th>
 <th style="border:1px solid #ddd;padding:8px">median cell</th>
@@ -7989,12 +7991,12 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">0.1</td><td style="border:1px solid #ddd;padding:8px">30.0</td><td style="border:1px solid #ddd;padding:8px">184.5</td><td style="border:1px solid #ddd;padding:8px">16.3</td><td style="border:1px solid #ddd;padding:8px">100.0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">0.5</td><td style="border:1px solid #ddd;padding:8px">6.0</td><td style="border:1px solid #ddd;padding:8px">184.5</td><td style="border:1px solid #ddd;padding:8px">3.3</td><td style="border:1px solid #ddd;padding:8px">0.0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">1.0</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">184.5</td><td style="border:1px solid #ddd;padding:8px">1.6</td><td style="border:1px solid #ddd;padding:8px">0.0</td></tr>
-</tbody></table></div><script>document.getElementById("itables_ff19e735_3650_4374_aaff_f129fefca46b")?.removeAttribute("hidden");document.getElementById("itables_ff19e735_3650_4374_aaff_f129fefca46b_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_f0e0ed04_5b2b_45d2_8d67_a69680d91e6a")?.removeAttribute("hidden");document.getElementById("itables_f0e0ed04_5b2b_45d2_8d67_a69680d91e6a_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_ff19e735_3650_4374_aaff_f129fefca46b:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_f0e0ed04_5b2b_45d2_8d67_a69680d91e6a:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8024,7 +8026,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ddc3f68d">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f11217f6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8034,7 +8036,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2a961058">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0fbec075">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8074,7 +8076,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_31a5d844_79d5_48ab_8117_2870d33afd76">
+<table hidden="hidden" id="itables_440dd3f0_7d06_4822_ab57_ace82dddae9f">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8136,7 +8138,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_31a5d844_79d5_48ab_8117_2870d33afd76_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_440dd3f0_7d06_4822_ab57_ace82dddae9f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>serving table</th>
 <th style="border:1px solid #ddd;padding:8px">rows</th>
 <th style="border:1px solid #ddd;padding:8px">contract enforced</th>
@@ -8148,12 +8150,12 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">serving_dispute_case</td><td style="border:1px solid #ddd;padding:8px">13022</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">serving_online_fraud_state</td><td style="border:1px solid #ddd;padding:8px">67184</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">serving_recent_transactions</td><td style="border:1px solid #ddd;padding:8px">2144101</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
-</tbody></table></div><script>document.getElementById("itables_31a5d844_79d5_48ab_8117_2870d33afd76")?.removeAttribute("hidden");document.getElementById("itables_31a5d844_79d5_48ab_8117_2870d33afd76_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_440dd3f0_7d06_4822_ab57_ace82dddae9f")?.removeAttribute("hidden");document.getElementById("itables_440dd3f0_7d06_4822_ab57_ace82dddae9f_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_31a5d844_79d5_48ab_8117_2870d33afd76:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_440dd3f0_7d06_4822_ab57_ace82dddae9f:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8181,7 +8183,7 @@ sensitivity 3 (the contribution bound) at three privacy budgets.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1e9b553d">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4acad3f4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8192,7 +8194,7 @@ coarser cells.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cc746cd7">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e835f08c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

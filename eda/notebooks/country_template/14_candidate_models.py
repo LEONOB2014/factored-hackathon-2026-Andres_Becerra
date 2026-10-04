@@ -1,6 +1,6 @@
 # %% [markdown]
 # # 14 · Which targets are learnable? Candidate models, out of time (__COUNTRY_NAME__)
-# **Country series · __COUNTRY_NAME__** · *an additional component of the country series; generated from
+# **__SERIES__ · __COUNTRY_NAME__** · *an additional component of the series; generated from
 # `notebooks/country_template`: edit the template*
 #
 # Every use case the bank wants to automate has a **target**: a column a model would predict. Before building any
@@ -41,12 +41,14 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "__COUNTRY__"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "__DATASET__"
+PREFIX = "__PREFIX__"
+CTRY = country.SCOPES[COUNTRY]
 OUT = Path("../../reports/tables")
 OUT.mkdir(parents=True, exist_ok=True)
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "features_graph_knowledge")
 country.enrich_transactions(pl)
 results = []
@@ -65,6 +67,11 @@ def run(name: str, df: pd.DataFrame, target: str, time_col: str, features: list[
             f"**{name}**: test AUC {r['auc']:.3f} [{r['auc_lo']:.3f}, {r['auc_hi']:.3f}], AP {r['ap']:.4f} against a base "
             f"rate of {r['base_rate']:.4f} (lift {r['ap_lift']:.2f}) → **{r['verdict']}**. "
             + (f"Most important (permutation, AUC drop): {imp}. " if imp else "")
+            + (
+                f"Features with no value in this dataset, dropped: {r['dropped_empty_features']}. "
+                if r.get("dropped_empty_features")
+                else ""
+            )
             + (
                 f"The best single feature alone (`{r['best_single_feature']}`, either direction) reaches AUC "
                 f"{r['best_single_auc']:.3f}: the model adds {r['auc'] - r['best_single_auc']:+.3f}."
@@ -191,7 +198,21 @@ CF = [
     "sessions_3m",
 ]
 run("complaint in next 90 days", cust, "label_complaint_90d", "cutoff", CF)
-act = cust[cust.active_before].copy()
+# a dormancy label needs the whole 90-day future observed: a cutoff whose window passes the last transaction would
+# call every customer dormant because the data stops, not because the customer did
+tx_end = pd.Timestamp(
+    pl.q("select max(transaction_ts_utc) as m from {int_transactions_enriched}").m.iloc[0]
+)
+observed = pd.to_datetime(cust.cutoff) + pd.Timedelta(days=90) <= tx_end
+censored = sorted(pd.to_datetime(cust.loc[~observed, "cutoff"]).dt.date.unique())
+display(
+    Markdown(
+        f"Dormancy cutoffs whose 90-day window ends after the last transaction ({tx_end.date()}) are dropped: "
+        + (", ".join(str(c) for c in censored) if censored else "none")
+        + "."
+    )
+)
+act = cust[cust.active_before & observed].copy()
 run(
     "dormant in next 90 days",
     act,
@@ -251,13 +272,15 @@ run("more than 30 days past due", dq, "dpd_over_30", "opening_date", DF)
 # ## 4 · Campaign conversion
 
 # %%
-camp = pl.q(f"""
+camp = pl.q("""
     select m.send_ts_utc, m.send_channel, m.campaign_objective, m.promoted_product, m.target_segment, m.segment,
            m.target_segment = m.segment as segment_match, m.prior_sends_7d, m.prior_sends_30d,
            m.accepts_marketing_current, m.already_held_promoted_product, m.send_cost,
            k.iso_weekday, k.is_holiday, k.is_payday, k.days_since_payday, k.is_month_end, m.outcome_converted
-    from {{mart_campaign_compliance_uplift}} m
-    left join main.calendar_local k on k.local_date = cast(m.send_ts_utc + interval ({CTRY.utc_offset}) hour as date)
+    from {mart_campaign_compliance_uplift} m
+    left join main.customer_local cl on cl.customer_id = m.customer_id
+    left join main.calendar_local k
+      on k.country_code = cl.country_code and k.local_date = cast(m.send_ts_utc + to_hours(cl.utc_offset) as date)
     where m.treatment_delivered""")
 MF = [
     "send_channel",
@@ -287,13 +310,15 @@ run("campaign conversion", camp, "outcome_converted", "send_ts_utc", MF)
 # ## 5 · Complaint within 14 days of a contact (escalation)
 
 # %%
-cx = pl.q(f"""
+cx = pl.q("""
     select j.interaction_ts_utc, j.interaction_type, j.channel, j.contact_reason, j.duration_seconds,
            j.wait_time_seconds, j.was_resolved, j.was_escalated, j.requires_followup, j.sentiment_score,
            j.prior_contacts_30d, j.agent_experience_level, j.agent_type, j.accent_matched,
            k.iso_weekday, k.is_holiday, j.complaint_within_14d
-    from {{mart_cx_journey}} j
-    left join main.calendar_local k on k.local_date = cast(j.interaction_ts_utc + interval ({CTRY.utc_offset}) hour as date)""")
+    from {mart_cx_journey} j
+    left join main.customer_local cl on cl.customer_id = j.customer_id
+    left join main.calendar_local k
+      on k.country_code = cl.country_code and k.local_date = cast(j.interaction_ts_utc + to_hours(cl.utc_offset) as date)""")
 XF = [
     "interaction_type",
     "channel",
@@ -319,8 +344,10 @@ run("complaint within 14 days of a contact", cx, "complaint_within_14d", "intera
 # %%
 res = pd.DataFrame(results)
 res.insert(0, "country", COUNTRY)
+res.insert(1, "dataset", DATASET)
 cols = [
     "country",
+    "dataset",
     "name",
     "train_rows",
     "test_rows",
@@ -337,8 +364,9 @@ cols = [
     "best_single_auc",
     "verdict",
     "split_at",
+    "dropped_empty_features",
 ]
-res[cols].to_csv(OUT / f"country_{COUNTRY.lower()}_learnability.csv", index=False)
+res[cols].to_csv(OUT / f"{PREFIX}_{COUNTRY.lower()}_learnability.csv", index=False)
 show(res[cols].round(4), paging=False)
 fig = go.Figure()
 ok = res[np.isfinite(res.auc)]
@@ -355,7 +383,7 @@ fig.add_trace(
 )
 fig.add_vline(x=0.5, line_dash="dot")
 fig.update_layout(
-    title=f"{CTRY.name}: out-of-time test AUC per candidate target (95 % CI)",
+    title=f"{CTRY.title}: out-of-time test AUC per candidate target (95 % CI)",
     height=380,
     yaxis_title=None,
     xaxis_range=[0.3, 1.0],

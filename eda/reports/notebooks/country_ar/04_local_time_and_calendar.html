@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7016e38f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=176fe7e5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7823,7 +7823,7 @@ prima).</li>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=255d826e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3941d7dd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7846,17 +7846,21 @@ prima).</li>
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"AR"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
 <span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"seeds"</span><span class="p">)</span>
 <span class="n">STG</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">pl</span><span class="o">.</span><span class="n">catalog</span><span class="p">()[</span><span class="s2">"node"</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"stg_"</span><span class="p">))</span>
 <span class="n">built</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">build_set</span><span class="p">(</span><span class="n">STG</span><span class="p">)</span>
 <span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"int_transactions_enriched"</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: UTC</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">timezone</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_codes</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">):</span>
+    <span class="n">c</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: UTC</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">timezone</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">country</span><span class="o">.</span><span class="n">enrich_transactions</span><span class="p">(</span><span class="n">pl</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -7885,7 +7889,13 @@ prima).</li>
   view      stg_service_agents                                     1,200 rows     0.0s
   view      stg_transactions                                     854,021 rows     0.1s
   view      stg_transactions_holdout                              25,984 rows     0.0s
-Argentina: UTC-3 (America/Argentina/Buenos_Aires)
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </pre>
 </div>
 </div>
@@ -7900,7 +7910,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b2389b07">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cfb99072">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7910,7 +7920,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c6da5ba6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a80dafb4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7919,16 +7929,19 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">cal</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"select * from main.calendar_local"</span><span class="p">)</span>
-<span class="n">hol</span> <span class="o">=</span> <span class="n">cal</span><span class="p">[</span><span class="n">cal</span><span class="o">.</span><span class="n">is_holiday</span><span class="p">][[</span><span class="s2">"local_date"</span><span class="p">,</span> <span class="s2">"holiday_name"</span><span class="p">,</span> <span class="s2">"iso_weekday"</span><span class="p">]]</span>
+<span class="n">hol</span> <span class="o">=</span> <span class="n">cal</span><span class="p">[</span><span class="n">cal</span><span class="o">.</span><span class="n">is_holiday</span><span class="p">][[</span><span class="s2">"country_code"</span><span class="p">,</span> <span class="s2">"local_date"</span><span class="p">,</span> <span class="s2">"holiday_name"</span><span class="p">,</span> <span class="s2">"iso_weekday"</span><span class="p">]]</span>
 <span class="n">show</span><span class="p">(</span><span class="n">hol</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">summary</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">{</span>
-        <span class="s2">"days"</span><span class="p">:</span> <span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">cal</span><span class="p">)],</span>
-        <span class="s2">"holidays"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">cal</span><span class="o">.</span><span class="n">is_holiday</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
-        <span class="s2">"on_weekdays"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">((</span><span class="n">cal</span><span class="o">.</span><span class="n">is_holiday</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">cal</span><span class="o">.</span><span class="n">is_weekend</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
-        <span class="s2">"long_weekend_days"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">cal</span><span class="o">.</span><span class="n">is_long_weekend</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
-        <span class="s2">"paydays"</span><span class="p">:</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">cal</span><span class="o">.</span><span class="n">is_payday</span><span class="o">.</span><span class="n">sum</span><span class="p">())],</span>
-    <span class="p">}</span>
+<span class="n">summary</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"country_code"</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+    <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"days"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">),</span>
+            <span class="s2">"holidays"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">is_holiday</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+            <span class="s2">"on_weekdays"</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">g</span><span class="o">.</span><span class="n">is_holiday</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">g</span><span class="o">.</span><span class="n">is_weekend</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+            <span class="s2">"long_weekend_days"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">is_long_weekend</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+            <span class="s2">"paydays"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">is_payday</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
+        <span class="p">}</span>
+    <span class="p">),</span>
+    <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 </pre></div>
@@ -7944,7 +7957,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_ee0f3f98_b75b_4d0d_bc22_8e17e7a23c99">
+<table hidden="hidden" id="itables_e9348290_1783_40ae_a2a3_8a8867e32e8d">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8006,92 +8019,93 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </tr>
 </tbody>
 </table>
-<div id="itables_ee0f3f98_b75b_4d0d_bc22_8e17e7a23c99_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_e9348290_1783_40ae_a2a3_8a8867e32e8d_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
+<th style="border:1px solid #ddd;padding:8px">country_code</th>
 <th style="border:1px solid #ddd;padding:8px">local_date</th>
 <th style="border:1px solid #ddd;padding:8px">holiday_name</th>
 <th style="border:1px solid #ddd;padding:8px">iso_weekday</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">16</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">18</td><td style="border:1px solid #ddd;padding:8px">2023-06-19</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">19</td><td style="border:1px solid #ddd;padding:8px">2023-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">38</td><td style="border:1px solid #ddd;padding:8px">2023-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">81</td><td style="border:1px solid #ddd;padding:8px">2023-08-21</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">134</td><td style="border:1px solid #ddd;padding:8px">2023-10-13</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">137</td><td style="border:1px solid #ddd;padding:8px">2023-10-16</td><td style="border:1px solid #ddd;padding:8px">Día del Respeto a la Diversidad Cultural</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">172</td><td style="border:1px solid #ddd;padding:8px">2023-11-20</td><td style="border:1px solid #ddd;padding:8px">Día de la Soberanía Nacional</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">190</td><td style="border:1px solid #ddd;padding:8px">2023-12-08</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">207</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">214</td><td style="border:1px solid #ddd;padding:8px">2024-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">256</td><td style="border:1px solid #ddd;padding:8px">2024-02-12</td><td style="border:1px solid #ddd;padding:8px">Lunes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">257</td><td style="border:1px solid #ddd;padding:8px">2024-02-13</td><td style="border:1px solid #ddd;padding:8px">Martes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">297</td><td style="border:1px solid #ddd;padding:8px">2024-03-24</td><td style="border:1px solid #ddd;padding:8px">Día Nacional de la Memoria por la Verdad y la Justicia</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">301</td><td style="border:1px solid #ddd;padding:8px">2024-03-28</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">302</td><td style="border:1px solid #ddd;padding:8px">2024-03-29</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">305</td><td style="border:1px solid #ddd;padding:8px">2024-04-01</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">306</td><td style="border:1px solid #ddd;padding:8px">2024-04-02</td><td style="border:1px solid #ddd;padding:8px">Día del Veterano y de los Caidos en la Guerra de Malvinas</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">335</td><td style="border:1px solid #ddd;padding:8px">2024-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">359</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">382</td><td style="border:1px solid #ddd;padding:8px">2024-06-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">385</td><td style="border:1px solid #ddd;padding:8px">2024-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">386</td><td style="border:1px solid #ddd;padding:8px">2024-06-21</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">404</td><td style="border:1px solid #ddd;padding:8px">2024-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">443</td><td style="border:1px solid #ddd;padding:8px">2024-08-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">498</td><td style="border:1px solid #ddd;padding:8px">2024-10-11</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">499</td><td style="border:1px solid #ddd;padding:8px">2024-10-12</td><td style="border:1px solid #ddd;padding:8px">Día del Respeto a la Diversidad Cultural</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">536</td><td style="border:1px solid #ddd;padding:8px">2024-11-18</td><td style="border:1px solid #ddd;padding:8px">Día de la Soberanía Nacional</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">556</td><td style="border:1px solid #ddd;padding:8px">2024-12-08</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">573</td><td style="border:1px solid #ddd;padding:8px">2024-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">580</td><td style="border:1px solid #ddd;padding:8px">2025-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">641</td><td style="border:1px solid #ddd;padding:8px">2025-03-03</td><td style="border:1px solid #ddd;padding:8px">Lunes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">642</td><td style="border:1px solid #ddd;padding:8px">2025-03-04</td><td style="border:1px solid #ddd;padding:8px">Martes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">662</td><td style="border:1px solid #ddd;padding:8px">2025-03-24</td><td style="border:1px solid #ddd;padding:8px">Día Nacional de la Memoria por la Verdad y la Justicia</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">671</td><td style="border:1px solid #ddd;padding:8px">2025-04-02</td><td style="border:1px solid #ddd;padding:8px">Día del Veterano y de los Caidos en la Guerra de Malvinas</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">686</td><td style="border:1px solid #ddd;padding:8px">2025-04-17</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">687</td><td style="border:1px solid #ddd;padding:8px">2025-04-18</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">700</td><td style="border:1px solid #ddd;padding:8px">2025-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">701</td><td style="border:1px solid #ddd;padding:8px">2025-05-02</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">724</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">746</td><td style="border:1px solid #ddd;padding:8px">2025-06-16</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">750</td><td style="border:1px solid #ddd;padding:8px">2025-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">769</td><td style="border:1px solid #ddd;padding:8px">2025-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">806</td><td style="border:1px solid #ddd;padding:8px">2025-08-15</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">808</td><td style="border:1px solid #ddd;padding:8px">2025-08-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">864</td><td style="border:1px solid #ddd;padding:8px">2025-10-12</td><td style="border:1px solid #ddd;padding:8px">Día del Respeto a la Diversidad Cultural</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">904</td><td style="border:1px solid #ddd;padding:8px">2025-11-21</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">907</td><td style="border:1px solid #ddd;padding:8px">2025-11-24</td><td style="border:1px solid #ddd;padding:8px">Día de la Soberanía Nacional</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">921</td><td style="border:1px solid #ddd;padding:8px">2025-12-08</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">938</td><td style="border:1px solid #ddd;padding:8px">2025-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">945</td><td style="border:1px solid #ddd;padding:8px">2026-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">991</td><td style="border:1px solid #ddd;padding:8px">2026-02-16</td><td style="border:1px solid #ddd;padding:8px">Lunes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">992</td><td style="border:1px solid #ddd;padding:8px">2026-02-17</td><td style="border:1px solid #ddd;padding:8px">Martes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1026</td><td style="border:1px solid #ddd;padding:8px">2026-03-23</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1027</td><td style="border:1px solid #ddd;padding:8px">2026-03-24</td><td style="border:1px solid #ddd;padding:8px">Día Nacional de la Memoria por la Verdad y la Justicia</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1036</td><td style="border:1px solid #ddd;padding:8px">2026-04-02</td><td style="border:1px solid #ddd;padding:8px">Día del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1037</td><td style="border:1px solid #ddd;padding:8px">2026-04-03</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1065</td><td style="border:1px solid #ddd;padding:8px">2026-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1089</td><td style="border:1px solid #ddd;padding:8px">2026-05-25</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1110</td><td style="border:1px solid #ddd;padding:8px">2026-06-15</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1115</td><td style="border:1px solid #ddd;padding:8px">2026-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1134</td><td style="border:1px solid #ddd;padding:8px">2026-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1135</td><td style="border:1px solid #ddd;padding:8px">2026-07-10</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-</tbody></table></div><script>document.getElementById("itables_ee0f3f98_b75b_4d0d_bc22_8e17e7a23c99")?.removeAttribute("hidden");document.getElementById("itables_ee0f3f98_b75b_4d0d_bc22_8e17e7a23c99_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">16</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">18</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-06-19</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">19</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">38</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">81</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-08-21</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">134</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-10-13</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">137</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-10-16</td><td style="border:1px solid #ddd;padding:8px">Día del Respeto a la Diversidad Cultural</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">172</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-11-20</td><td style="border:1px solid #ddd;padding:8px">Día de la Soberanía Nacional</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">190</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-12-08</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">207</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">214</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">256</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-02-12</td><td style="border:1px solid #ddd;padding:8px">Lunes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">257</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-02-13</td><td style="border:1px solid #ddd;padding:8px">Martes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">297</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-03-24</td><td style="border:1px solid #ddd;padding:8px">Día Nacional de la Memoria por la Verdad y la Justicia</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">301</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-03-28</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">302</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-03-29</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">305</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-04-01</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">306</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-04-02</td><td style="border:1px solid #ddd;padding:8px">Día del Veterano y de los Caidos en la Guerra de Malvinas</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">335</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">359</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">382</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-06-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">385</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">386</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-06-21</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">404</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">443</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-08-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">498</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-10-11</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">499</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-10-12</td><td style="border:1px solid #ddd;padding:8px">Día del Respeto a la Diversidad Cultural</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">536</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-11-18</td><td style="border:1px solid #ddd;padding:8px">Día de la Soberanía Nacional</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">556</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-12-08</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">573</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2024-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">580</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">641</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-03-03</td><td style="border:1px solid #ddd;padding:8px">Lunes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">642</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-03-04</td><td style="border:1px solid #ddd;padding:8px">Martes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">662</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-03-24</td><td style="border:1px solid #ddd;padding:8px">Día Nacional de la Memoria por la Verdad y la Justicia</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">671</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-04-02</td><td style="border:1px solid #ddd;padding:8px">Día del Veterano y de los Caidos en la Guerra de Malvinas</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">686</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-04-17</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">687</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-04-18</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">700</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">701</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-05-02</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">724</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">746</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-06-16</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">750</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">769</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">806</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-08-15</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">808</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-08-17</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">864</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-10-12</td><td style="border:1px solid #ddd;padding:8px">Día del Respeto a la Diversidad Cultural</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">904</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-11-21</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">907</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-11-24</td><td style="border:1px solid #ddd;padding:8px">Día de la Soberanía Nacional</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">921</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-12-08</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">938</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2025-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">945</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">991</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-02-16</td><td style="border:1px solid #ddd;padding:8px">Lunes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">992</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-02-17</td><td style="border:1px solid #ddd;padding:8px">Martes de Carnaval</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1026</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-03-23</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1027</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-03-24</td><td style="border:1px solid #ddd;padding:8px">Día Nacional de la Memoria por la Verdad y la Justicia</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1036</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-04-02</td><td style="border:1px solid #ddd;padding:8px">Día del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1037</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-04-03</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1065</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1089</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-05-25</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1110</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-06-15</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Martín Miguel de Güemes</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1115</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1134</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">1135</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-07-10</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
+</tbody></table></div><script>document.getElementById("itables_e9348290_1783_40ae_a2a3_8a8867e32e8d")?.removeAttribute("hidden");document.getElementById("itables_e9348290_1783_40ae_a2a3_8a8867e32e8d_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_ee0f3f98_b75b_4d0d_bc22_8e17e7a23c99:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_e9348290_1783_40ae_a2a3_8a8867e32e8d:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[16, \"2023-06-17\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 6], [18, \"2023-06-19\", \"Feriado con fines tur\\u00edsticos\", 1], [19, \"2023-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 2], [38, \"2023-07-09\", \"D\\u00eda de la Independencia\", 7], [81, \"2023-08-21\", \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", 1], [134, \"2023-10-13\", \"Feriado con fines tur\\u00edsticos\", 5], [137, \"2023-10-16\", \"D\\u00eda del Respeto a la Diversidad Cultural\", 1], [172, \"2023-11-20\", \"D\\u00eda de la Soberan\\u00eda Nacional\", 1], [190, \"2023-12-08\", \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", 5], [207, \"2023-12-25\", \"Navidad\", 1], [214, \"2024-01-01\", \"A\\u00f1o Nuevo\", 1], [256, \"2024-02-12\", \"Lunes de Carnaval\", 1], [257, \"2024-02-13\", \"Martes de Carnaval\", 2], [297, \"2024-03-24\", \"D\\u00eda Nacional de la Memoria por la Verdad y la Justicia\", 7], [301, \"2024-03-28\", \"Jueves Santo\", 4], [302, \"2024-03-29\", \"Viernes Santo\", 5], [305, \"2024-04-01\", \"Feriado con fines tur\\u00edsticos\", 1], [306, \"2024-04-02\", \"D\\u00eda del Veterano y de los Caidos en la Guerra de Malvinas\", 2], [335, \"2024-05-01\", \"D\\u00eda del Trabajo\", 3], [359, \"2024-05-25\", \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", 6], [382, \"2024-06-17\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 1], [385, \"2024-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 4], [386, \"2024-06-21\", \"Feriado con fines tur\\u00edsticos\", 5], [404, \"2024-07-09\", \"D\\u00eda de la Independencia\", 2], [443, \"2024-08-17\", \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", 6], [498, \"2024-10-11\", \"Feriado con fines tur\\u00edsticos\", 5], [499, \"2024-10-12\", \"D\\u00eda del Respeto a la Diversidad Cultural\", 6], [536, \"2024-11-18\", \"D\\u00eda de la Soberan\\u00eda Nacional\", 1], [556, \"2024-12-08\", \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", 7], [573, \"2024-12-25\", \"Navidad\", 3], [580, \"2025-01-01\", \"A\\u00f1o Nuevo\", 3], [641, \"2025-03-03\", \"Lunes de Carnaval\", 1], [642, \"2025-03-04\", \"Martes de Carnaval\", 2], [662, \"2025-03-24\", \"D\\u00eda Nacional de la Memoria por la Verdad y la Justicia\", 1], [671, \"2025-04-02\", \"D\\u00eda del Veterano y de los Caidos en la Guerra de Malvinas\", 3], [686, \"2025-04-17\", \"Jueves Santo\", 4], [687, \"2025-04-18\", \"Viernes Santo\", 5], [700, \"2025-05-01\", \"D\\u00eda del Trabajo\", 4], [701, \"2025-05-02\", \"Feriado con fines tur\\u00edsticos\", 5], [724, \"2025-05-25\", \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", 7], [746, \"2025-06-16\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 1], [750, \"2025-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 5], [769, \"2025-07-09\", \"D\\u00eda de la Independencia\", 3], [806, \"2025-08-15\", \"Feriado con fines tur\\u00edsticos\", 5], [808, \"2025-08-17\", \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", 7], [864, \"2025-10-12\", \"D\\u00eda del Respeto a la Diversidad Cultural\", 7], [904, \"2025-11-21\", \"Feriado con fines tur\\u00edsticos\", 5], [907, \"2025-11-24\", \"D\\u00eda de la Soberan\\u00eda Nacional\", 1], [921, \"2025-12-08\", \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", 1], [938, \"2025-12-25\", \"Navidad\", 4], [945, \"2026-01-01\", \"A\\u00f1o Nuevo\", 4], [991, \"2026-02-16\", \"Lunes de Carnaval\", 1], [992, \"2026-02-17\", \"Martes de Carnaval\", 2], [1026, \"2026-03-23\", \"Feriado con fines tur\\u00edsticos\", 1], [1027, \"2026-03-24\", \"D\\u00eda Nacional de la Memoria por la Verdad y la Justicia\", 2], [1036, \"2026-04-02\", \"D\\u00eda del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo\", 4], [1037, \"2026-04-03\", \"Viernes Santo\", 5], [1065, \"2026-05-01\", \"D\\u00eda del Trabajo\", 5], [1089, \"2026-05-25\", \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", 1], [1110, \"2026-06-15\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 1], [1115, \"2026-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 6], [1134, \"2026-07-09\", \"D\\u00eda de la Independencia\", 4], [1135, \"2026-07-10\", \"Feriado con fines tur\\u00edsticos\", 5]]",
+          "data_json": "[[16, \"AR\", \"2023-06-17\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 6], [18, \"AR\", \"2023-06-19\", \"Feriado con fines tur\\u00edsticos\", 1], [19, \"AR\", \"2023-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 2], [38, \"AR\", \"2023-07-09\", \"D\\u00eda de la Independencia\", 7], [81, \"AR\", \"2023-08-21\", \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", 1], [134, \"AR\", \"2023-10-13\", \"Feriado con fines tur\\u00edsticos\", 5], [137, \"AR\", \"2023-10-16\", \"D\\u00eda del Respeto a la Diversidad Cultural\", 1], [172, \"AR\", \"2023-11-20\", \"D\\u00eda de la Soberan\\u00eda Nacional\", 1], [190, \"AR\", \"2023-12-08\", \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", 5], [207, \"AR\", \"2023-12-25\", \"Navidad\", 1], [214, \"AR\", \"2024-01-01\", \"A\\u00f1o Nuevo\", 1], [256, \"AR\", \"2024-02-12\", \"Lunes de Carnaval\", 1], [257, \"AR\", \"2024-02-13\", \"Martes de Carnaval\", 2], [297, \"AR\", \"2024-03-24\", \"D\\u00eda Nacional de la Memoria por la Verdad y la Justicia\", 7], [301, \"AR\", \"2024-03-28\", \"Jueves Santo\", 4], [302, \"AR\", \"2024-03-29\", \"Viernes Santo\", 5], [305, \"AR\", \"2024-04-01\", \"Feriado con fines tur\\u00edsticos\", 1], [306, \"AR\", \"2024-04-02\", \"D\\u00eda del Veterano y de los Caidos en la Guerra de Malvinas\", 2], [335, \"AR\", \"2024-05-01\", \"D\\u00eda del Trabajo\", 3], [359, \"AR\", \"2024-05-25\", \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", 6], [382, \"AR\", \"2024-06-17\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 1], [385, \"AR\", \"2024-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 4], [386, \"AR\", \"2024-06-21\", \"Feriado con fines tur\\u00edsticos\", 5], [404, \"AR\", \"2024-07-09\", \"D\\u00eda de la Independencia\", 2], [443, \"AR\", \"2024-08-17\", \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", 6], [498, \"AR\", \"2024-10-11\", \"Feriado con fines tur\\u00edsticos\", 5], [499, \"AR\", \"2024-10-12\", \"D\\u00eda del Respeto a la Diversidad Cultural\", 6], [536, \"AR\", \"2024-11-18\", \"D\\u00eda de la Soberan\\u00eda Nacional\", 1], [556, \"AR\", \"2024-12-08\", \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", 7], [573, \"AR\", \"2024-12-25\", \"Navidad\", 3], [580, \"AR\", \"2025-01-01\", \"A\\u00f1o Nuevo\", 3], [641, \"AR\", \"2025-03-03\", \"Lunes de Carnaval\", 1], [642, \"AR\", \"2025-03-04\", \"Martes de Carnaval\", 2], [662, \"AR\", \"2025-03-24\", \"D\\u00eda Nacional de la Memoria por la Verdad y la Justicia\", 1], [671, \"AR\", \"2025-04-02\", \"D\\u00eda del Veterano y de los Caidos en la Guerra de Malvinas\", 3], [686, \"AR\", \"2025-04-17\", \"Jueves Santo\", 4], [687, \"AR\", \"2025-04-18\", \"Viernes Santo\", 5], [700, \"AR\", \"2025-05-01\", \"D\\u00eda del Trabajo\", 4], [701, \"AR\", \"2025-05-02\", \"Feriado con fines tur\\u00edsticos\", 5], [724, \"AR\", \"2025-05-25\", \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", 7], [746, \"AR\", \"2025-06-16\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 1], [750, \"AR\", \"2025-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 5], [769, \"AR\", \"2025-07-09\", \"D\\u00eda de la Independencia\", 3], [806, \"AR\", \"2025-08-15\", \"Feriado con fines tur\\u00edsticos\", 5], [808, \"AR\", \"2025-08-17\", \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", 7], [864, \"AR\", \"2025-10-12\", \"D\\u00eda del Respeto a la Diversidad Cultural\", 7], [904, \"AR\", \"2025-11-21\", \"Feriado con fines tur\\u00edsticos\", 5], [907, \"AR\", \"2025-11-24\", \"D\\u00eda de la Soberan\\u00eda Nacional\", 1], [921, \"AR\", \"2025-12-08\", \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", 1], [938, \"AR\", \"2025-12-25\", \"Navidad\", 4], [945, \"AR\", \"2026-01-01\", \"A\\u00f1o Nuevo\", 4], [991, \"AR\", \"2026-02-16\", \"Lunes de Carnaval\", 1], [992, \"AR\", \"2026-02-17\", \"Martes de Carnaval\", 2], [1026, \"AR\", \"2026-03-23\", \"Feriado con fines tur\\u00edsticos\", 1], [1027, \"AR\", \"2026-03-24\", \"D\\u00eda Nacional de la Memoria por la Verdad y la Justicia\", 2], [1036, \"AR\", \"2026-04-02\", \"D\\u00eda del Veterano y de los Caidos en la Guerra de Malvinas; Jueves Santo\", 4], [1037, \"AR\", \"2026-04-03\", \"Viernes Santo\", 5], [1065, \"AR\", \"2026-05-01\", \"D\\u00eda del Trabajo\", 5], [1089, \"AR\", \"2026-05-25\", \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", 1], [1110, \"AR\", \"2026-06-15\", \"Paso a la Inmortalidad del General Don Mart\\u00edn Miguel de G\\u00fcemes\", 1], [1115, \"AR\", \"2026-06-20\", \"Paso a la Inmortalidad del General Don Manuel Belgrano\", 6], [1134, \"AR\", \"2026-07-09\", \"D\\u00eda de la Independencia\", 4], [1135, \"AR\", \"2026-07-10\", \"Feriado con fines tur\\u00edsticos\", 5]]",
           "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
           "paging": false,
           "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>local_date</th>\n      <th>holiday_name</th>\n      <th>iso_weekday</th>\n    </tr>\n  </thead></table>",
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>country_code</th>\n      <th>local_date</th>\n      <th>holiday_name</th>\n      <th>iso_weekday</th>\n    </tr>\n  </thead></table>",
           "text_in_header_can_be_selected": true
         };
         new ITable(table, dt_args);
@@ -8103,7 +8117,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_30d6f003_7935_438e_933f_5afd92a0d363">
+<table hidden="hidden" id="itables_56cf8a99_c541_4426_a2ba_4c1ec60b2a96">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8165,31 +8179,40 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </tr>
 </tbody>
 </table>
-<div id="itables_30d6f003_7935_438e_933f_5afd92a0d363_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
-<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>days</th>
+<div id="itables_56cf8a99_c541_4426_a2ba_4c1ec60b2a96_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
+<th style="border:1px solid #ddd;padding:8px">days</th>
 <th style="border:1px solid #ddd;padding:8px">holidays</th>
 <th style="border:1px solid #ddd;padding:8px">on_weekdays</th>
 <th style="border:1px solid #ddd;padding:8px">long_weekend_days</th>
 <th style="border:1px solid #ddd;padding:8px">paydays</th>
+</tr>
+<tr>
+<th style="border:1px solid #ddd;padding:8px">country_code</th>
+<th style="border:1px solid #ddd;padding:8px"></th>
+<th style="border:1px solid #ddd;padding:8px"></th>
+<th style="border:1px solid #ddd;padding:8px"></th>
+<th style="border:1px solid #ddd;padding:8px"></th>
+<th style="border:1px solid #ddd;padding:8px"></th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">1157</td><td style="border:1px solid #ddd;padding:8px">63</td><td style="border:1px solid #ddd;padding:8px">52</td><td style="border:1px solid #ddd;padding:8px">44</td><td style="border:1px solid #ddd;padding:8px">38</td></tr>
-</tbody></table></div><script>document.getElementById("itables_30d6f003_7935_438e_933f_5afd92a0d363")?.removeAttribute("hidden");document.getElementById("itables_30d6f003_7935_438e_933f_5afd92a0d363_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">1157</td><td style="border:1px solid #ddd;padding:8px">63</td><td style="border:1px solid #ddd;padding:8px">52</td><td style="border:1px solid #ddd;padding:8px">44</td><td style="border:1px solid #ddd;padding:8px">38</td></tr>
+</tbody></table></div><script>document.getElementById("itables_56cf8a99_c541_4426_a2ba_4c1ec60b2a96")?.removeAttribute("hidden");document.getElementById("itables_56cf8a99_c541_4426_a2ba_4c1ec60b2a96_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_30d6f003_7935_438e_933f_5afd92a0d363:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_56cf8a99_c541_4426_a2ba_4c1ec60b2a96:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[1157, 63, 52, 44, 38]]",
+          "data_json": "[[\"AR\", 1157, 63, 52, 44, 38]]",
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
           "paging": false,
           "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>days</th>\n      <th>holidays</th>\n      <th>on_weekdays</th>\n      <th>long_weekend_days</th>\n      <th>paydays</th>\n    </tr>\n  </thead></table>",
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>days</th>\n      <th>holidays</th>\n      <th>on_weekdays</th>\n      <th>long_weekend_days</th>\n      <th>paydays</th>\n    </tr>\n    <tr>\n      <th>country_code</th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead></table>",
           "text_in_header_can_be_selected": true
         };
         new ITable(table, dt_args);
@@ -8200,7 +8223,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=392013ee">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=70281df7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8210,7 +8233,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2c43e1ad">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=74f7f4dc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8222,7 +8245,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
     <span class="s2">"select local_hour_customer as local_hour, count(*) as transactions from main.tx_local group by 1 order by 1"</span>
 <span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-    <span class="n">hours</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"local_hour"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"transactions"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: transactions by local hour"</span>
+    <span class="n">hours</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"local_hour"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"transactions"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: transactions by local hour"</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -8261,9 +8284,9 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:300px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="255a5831-a5eb-465c-b890-ad5b274efe2b" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("255a5831-a5eb-465c-b890-ad5b274efe2b")) {                    Plotly.newPlot(                        "255a5831-a5eb-465c-b890-ad5b274efe2b",                        [{"hovertemplate":"local_hour=%{x}\u003cbr\u003etransactions=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":{"dtype":"i1","bdata":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX"},"xaxis":"x","y":{"dtype":"i4","bdata":"44oAADqJAADmigAA9YoAAOyKAABiiwAAu4sAAHeKAACBiwAAwYoAAK2KAAAoiwAAU4sAANGLAACrigAAYosAAJ2KAACpiwAAvosAANSKAACxiwAAD4oAAEeLAABmigAA"},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"local_hour"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"transactions"}},"legend":{"tracegroupgap":0},"title":{"text":"Argentina: transactions by local hour"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="376de07c-c6ef-400f-bb3c-098a6ac26849" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("376de07c-c6ef-400f-bb3c-098a6ac26849")) {                    Plotly.newPlot(                        "376de07c-c6ef-400f-bb3c-098a6ac26849",                        [{"hovertemplate":"local_hour=%{x}\u003cbr\u003etransactions=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":{"dtype":"i1","bdata":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX"},"xaxis":"x","y":{"dtype":"i4","bdata":"44oAADqJAADmigAA9YoAAOyKAABiiwAAu4sAAHeKAACBiwAAwYoAAK2KAAAoiwAAU4sAANGLAACrigAAYosAAJ2KAACpiwAAvosAANSKAACxiwAAD4oAAEeLAABmigAA"},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"local_hour"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"transactions"}},"legend":{"tracegroupgap":0},"title":{"text":"Argentina: transactions by local hour"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('255a5831-a5eb-465c-b890-ad5b274efe2b');
+var gd = document.getElementById('376de07c-c6ef-400f-bb3c-098a6ac26849');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8297,7 +8320,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=19c74ee2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=db9eae16">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8310,7 +8333,7 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b4ccbd38">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fffd5e3b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8319,15 +8342,17 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">daily</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
-<span class="s2">    select t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd,</span>
+<span class="s2">    select k.country_code, t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd,</span>
 <span class="s2">           any_value(k.iso_weekday) as iso_weekday, any_value(k.is_holiday) as is_holiday,</span>
 <span class="s2">           any_value(k.is_long_weekend) as is_long_weekend, any_value(k.is_payday) as is_payday,</span>
 <span class="s2">           any_value(k.days_since_payday) as days_since_payday, any_value(k.is_month_end) as is_month_end,</span>
 <span class="s2">           any_value(k.is_bonus_month) as is_bonus_month</span>
-<span class="s2">    from main.tx_local t join main.calendar_local k using (local_date)</span>
-<span class="s2">    group by 1 order by 1"""</span><span class="p">)</span>
+<span class="s2">    from main.tx_local t join main.calendar_local k</span>
+<span class="s2">      on k.country_code = t.customer_country_code and k.local_date = t.local_date</span>
+<span class="s2">    group by 1, 2 order by 1, 2"""</span><span class="p">)</span>
 <span class="n">daily</span><span class="p">[</span><span class="s2">"local_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="p">)</span>
-<span class="n">daily</span> <span class="o">=</span> <span class="n">daily</span><span class="p">[(</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span> <span class="o">&gt;=</span> <span class="s2">"2023-07-01"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span> <span class="o">&lt;</span> <span class="s2">"2026-05-01"</span><span class="p">)]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">daily</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">full_months</span><span class="p">(</span><span class="n">daily</span><span class="p">)</span>
+<span class="n">FE</span> <span class="o">=</span> <span class="s2">" + C(country_code)"</span> <span class="k">if</span> <span class="n">daily</span><span class="o">.</span><span class="n">country_code</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
 <span class="n">daily</span><span class="p">[</span><span class="s2">"log_n"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">n_tx</span><span class="p">)</span>
 <span class="n">daily</span><span class="p">[</span><span class="s2">"t"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span> <span class="o">-</span> <span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mf">365.25</span>
 <span class="n">daily</span><span class="p">[</span><span class="s2">"payday_window"</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily</span><span class="o">.</span><span class="n">days_since_payday</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span>
@@ -8335,7 +8360,7 @@ counts in the thousands make the log-normal approximation accurate. Standard err
     <span class="n">daily</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span>
     <span class="s2">"log_n ~ C(iso_weekday) + is_holiday + is_long_weekend + payday_window + is_month_end + "</span>
-    <span class="s2">"is_bonus_month + t"</span><span class="p">,</span>
+    <span class="s2">"is_bonus_month + t"</span> <span class="o">+</span> <span class="n">FE</span><span class="p">,</span>
     <span class="n">data</span><span class="o">=</span><span class="n">daily</span><span class="p">,</span>
 <span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cov_type</span><span class="o">=</span><span class="s2">"HC3"</span><span class="p">)</span>
 <span class="n">coef</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
@@ -8347,11 +8372,13 @@ counts in the thousands make the log-normal approximation accurate. Standard err
     <span class="p">}</span>
 <span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"Intercept"</span><span class="p">)</span>
 <span class="n">coef</span><span class="p">[</span><span class="s2">"effect %"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">coef</span><span class="o">.</span><span class="n">coef</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">coef</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">r2</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span><span class="s2">"term"</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-    <span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"country_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_calendar_effects.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
-<span class="p">)</span>
+<span class="n">coef</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">DATASET</span><span class="p">,</span> <span class="n">r2</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span>
+    <span class="s2">"term"</span>
+<span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_calendar_effects.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">coef</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"R² = </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">nobs</span><span class="p">)</span><span class="si">}</span><span class="s2"> days"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"R² = </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">nobs</span><span class="p">)</span><span class="si">}</span><span class="s2"> (country, day) rows, </span><span class="si">{</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+<span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -8365,7 +8392,7 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_783d1cc9_8d38_46ce_a453_848580ddd8cc">
+<table hidden="hidden" id="itables_51e6b791_6c40_45fc_89fb_2910e552fb1a">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8427,7 +8454,7 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 </tr>
 </tbody>
 </table>
-<div id="itables_783d1cc9_8d38_46ce_a453_848580ddd8cc_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_51e6b791_6c40_45fc_89fb_2910e552fb1a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">coef</th>
 <th style="border:1px solid #ddd;padding:8px">ci_low</th>
@@ -8447,12 +8474,12 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <tr><td style="border:1px solid #ddd;padding:8px">is_month_end</td><td style="border:1px solid #ddd;padding:8px">-0.0164</td><td style="border:1px solid #ddd;padding:8px">-0.0389</td><td style="border:1px solid #ddd;padding:8px">0.0062</td><td style="border:1px solid #ddd;padding:8px">0.1550</td><td style="border:1px solid #ddd;padding:8px">-1.6</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">is_bonus_month</td><td style="border:1px solid #ddd;padding:8px">0.0018</td><td style="border:1px solid #ddd;padding:8px">-0.0166</td><td style="border:1px solid #ddd;padding:8px">0.0202</td><td style="border:1px solid #ddd;padding:8px">0.8507</td><td style="border:1px solid #ddd;padding:8px">0.2</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">t</td><td style="border:1px solid #ddd;padding:8px">0.0019</td><td style="border:1px solid #ddd;padding:8px">-0.0064</td><td style="border:1px solid #ddd;padding:8px">0.0103</td><td style="border:1px solid #ddd;padding:8px">0.6480</td><td style="border:1px solid #ddd;padding:8px">0.2</td></tr>
-</tbody></table></div><script>document.getElementById("itables_783d1cc9_8d38_46ce_a453_848580ddd8cc")?.removeAttribute("hidden");document.getElementById("itables_783d1cc9_8d38_46ce_a453_848580ddd8cc_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_51e6b791_6c40_45fc_89fb_2910e552fb1a")?.removeAttribute("hidden");document.getElementById("itables_51e6b791_6c40_45fc_89fb_2910e552fb1a_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_783d1cc9_8d38_46ce_a453_848580ddd8cc:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_51e6b791_6c40_45fc_89fb_2910e552fb1a:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8476,13 +8503,13 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>R² = 0.785 on 1035 days
+<pre>R² = 0.785 on 1035 (country, day) rows, 2023-07-01 to 2026-04-30
 </pre>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2fc12639">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=815c79e8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8499,7 +8526,7 @@ counts in the thousands make the log-normal approximation accurate. Standard err
     <span class="n">y</span><span class="o">=</span><span class="s2">"term"</span><span class="p">,</span>
     <span class="n">error_x</span><span class="o">=</span><span class="n">eff</span><span class="p">[</span><span class="s2">"hi %"</span><span class="p">]</span> <span class="o">-</span> <span class="n">eff</span><span class="p">[</span><span class="s2">"effect %"</span><span class="p">],</span>
     <span class="n">error_x_minus</span><span class="o">=</span><span class="n">eff</span><span class="p">[</span><span class="s2">"effect %"</span><span class="p">]</span> <span class="o">-</span> <span class="n">eff</span><span class="p">[</span><span class="s2">"lo %"</span><span class="p">],</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: calendar effects on daily volume (95 % CI)"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: calendar effects on daily volume (95 % CI)"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">add_vline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">420</span><span class="p">,</span> <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
@@ -8545,9 +8572,9 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:420px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="cc793dc0-138f-4803-9981-395b28d0f5f7" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("cc793dc0-138f-4803-9981-395b28d0f5f7")) {                    Plotly.newPlot(                        "cc793dc0-138f-4803-9981-395b28d0f5f7",                        [{"error_x":{"array":{"dtype":"f8","bdata":"mpWQOzX3BUAsmpOeykoGQPRTmoX90AZArKlcTOHvBkCQ4M+jM4n9P4DXJSsIIv0\u002fBfsRfGmhCUATS9dLKYINQKB8QvwLswFAP0fES6jFAUBlzRTP2Gf9P8o9XDrKkuo\u002f"},"arrayminus":{"dtype":"f8","bdata":"AOQRzKjuBUDWro8+dusFQB5W6SkDyAZAEjzsJyhdBkDABsAwSvX9PwDLSdrz9Po\u002fYLV3drdvCEBgVx\u002fGd7YMQFhnJM98HwFAmSFGA7jBAUC91uuutJn9P\u002f5zMbyNvuo\u002f"}},"hovertemplate":"effect %=%{x}\u003cbr\u003eterm=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"","orientation":"h","showlegend":false,"x":{"dtype":"f8","bdata":"MzMzMzMzG0CamZmZmZkbQGZmZmZmZhxAmpmZmZmZGUCamZmZmZk+wDMzMzMz80HAzczMzMzM7L+amZmZmZnZv2ZmZmZmZua\u002fmpmZmZmZ+b+amZmZmZnJP5qZmZmZmck\u002f"},"xaxis":"x","y":["C(iso_weekday)[T.2]","C(iso_weekday)[T.3]","C(iso_weekday)[T.4]","C(iso_weekday)[T.5]","C(iso_weekday)[T.6]","C(iso_weekday)[T.7]","is_holiday","is_long_weekend","payday_window","is_month_end","is_bonus_month","t"],"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"effect %"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"tracegroupgap":0},"title":{"text":"Argentina: calendar effects on daily volume (95 % CI)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":0,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"height":420},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="cb5ef1a0-af1a-439e-bbaf-d556330a66b6" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("cb5ef1a0-af1a-439e-bbaf-d556330a66b6")) {                    Plotly.newPlot(                        "cb5ef1a0-af1a-439e-bbaf-d556330a66b6",                        [{"error_x":{"array":{"dtype":"f8","bdata":"mpWQOzX3BUAsmpOeykoGQPRTmoX90AZArKlcTOHvBkCQ4M+jM4n9P4DXJSsIIv0\u002fBfsRfGmhCUATS9dLKYINQKB8QvwLswFAP0fES6jFAUBlzRTP2Gf9P8o9XDrKkuo\u002f"},"arrayminus":{"dtype":"f8","bdata":"AOQRzKjuBUDWro8+dusFQB5W6SkDyAZAEjzsJyhdBkDABsAwSvX9PwDLSdrz9Po\u002fYLV3drdvCEBgVx\u002fGd7YMQFhnJM98HwFAmSFGA7jBAUC91uuutJn9P\u002f5zMbyNvuo\u002f"}},"hovertemplate":"effect %=%{x}\u003cbr\u003eterm=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"","orientation":"h","showlegend":false,"x":{"dtype":"f8","bdata":"MzMzMzMzG0CamZmZmZkbQGZmZmZmZhxAmpmZmZmZGUCamZmZmZk+wDMzMzMz80HAzczMzMzM7L+amZmZmZnZv2ZmZmZmZua\u002fmpmZmZmZ+b+amZmZmZnJP5qZmZmZmck\u002f"},"xaxis":"x","y":["C(iso_weekday)[T.2]","C(iso_weekday)[T.3]","C(iso_weekday)[T.4]","C(iso_weekday)[T.5]","C(iso_weekday)[T.6]","C(iso_weekday)[T.7]","is_holiday","is_long_weekend","payday_window","is_month_end","is_bonus_month","t"],"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"effect %"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"tracegroupgap":0},"title":{"text":"Argentina: calendar effects on daily volume (95 % CI)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":0,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"height":420},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('cc793dc0-138f-4803-9981-395b28d0f5f7');
+var gd = document.getElementById('cb5ef1a0-af1a-439e-bbaf-d556330a66b6');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8590,7 +8617,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b37d59cf">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=04265e39">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8605,7 +8632,7 @@ every model use them.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=96e999b2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=71149156">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8617,7 +8644,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=da15b2f1">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f15eb4fd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8646,7 +8673,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_0b74b557_b8a0_4361_b5f1_7a271293e87d">
+<table hidden="hidden" id="itables_2c783092_fae0_4b4f_8640_e6d625e2b691">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8708,7 +8735,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </tr>
 </tbody>
 </table>
-<div id="itables_0b74b557_b8a0_4361_b5f1_7a271293e87d_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_2c783092_fae0_4b4f_8640_e6d625e2b691_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>transaction_id</th>
 <th style="border:1px solid #ddd;padding:8px">transaction_ts_utc</th>
 <th style="border:1px solid #ddd;padding:8px">ts_customer_local</th>
@@ -8721,26 +8748,26 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 <th style="border:1px solid #ddd;padding:8px">days_since_payday</th>
 <th style="border:1px solid #ddd;padding:8px">is_month_end</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-ME0QBTCZDDA01MLPMYU5</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 04:34:00</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 01:34:00</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-631UMW0ZUGSIQF8KWZW6</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 05:40:31</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 02:40:31</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-COQZGHBA6T9MGQH788A4</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 03:38:03</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 00:38:03</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-PVBBNCLYNSLQ52G29CD1</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 04:24:17</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 01:24:17</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-9B4UX9V5TQ3WA2PL62K2</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 03:22:13</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 00:22:13</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-0V82G74VXIR30FKFETHQ</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 03:22:27</td><td style="border:1px solid #ddd;padding:8px">2024-05-25 00:22:27</td><td style="border:1px solid #ddd;padding:8px">2024-05-25</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-8JV2MTFKW6JRH62LH4NM</td><td style="border:1px solid #ddd;padding:8px">2023-12-08 03:52:42</td><td style="border:1px solid #ddd;padding:8px">2023-12-08 00:52:42</td><td style="border:1px solid #ddd;padding:8px">2023-12-08</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">5</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-YBUDEO8SX5AKU91PRVDT</td><td style="border:1px solid #ddd;padding:8px">2023-12-08 05:59:20</td><td style="border:1px solid #ddd;padding:8px">2023-12-08 02:59:20</td><td style="border:1px solid #ddd;padding:8px">2023-12-08</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">5</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Inmaculada Concepción de María</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-</tbody></table></div><script>document.getElementById("itables_0b74b557_b8a0_4361_b5f1_7a271293e87d")?.removeAttribute("hidden");document.getElementById("itables_0b74b557_b8a0_4361_b5f1_7a271293e87d_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-OSOWDIS4BC02QGC6QWVF</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 03:51:41</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 00:51:41</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-3OULWLO7CJ69IWE5PORY</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 04:41:30</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 01:41:30</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-2Q4QXM6NMAHMBIM6932B</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 05:33:20</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 02:33:20</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-A3L04E946ZQXD5JUMUX6</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 04:34:32</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 01:34:32</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-30VN2X8L9SQ8EMZQECWC</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 03:47:33</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 00:47:33</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-2QP4VHTMFBORKRSU3QC8</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 04:43:53</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 01:43:53</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-965UT4DN6FBJPSJVGAB5</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 04:35:15</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 01:35:15</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-FVSG16VTI6DOF6TT7BRP</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 05:15:46</td><td style="border:1px solid #ddd;padding:8px">2025-05-25 02:15:46</td><td style="border:1px solid #ddd;padding:8px">2025-05-25</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución de Mayo</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+</tbody></table></div><script>document.getElementById("itables_2c783092_fae0_4b4f_8640_e6d625e2b691")?.removeAttribute("hidden");document.getElementById("itables_2c783092_fae0_4b4f_8640_e6d625e2b691_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_0b74b557_b8a0_4361_b5f1_7a271293e87d:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_2c783092_fae0_4b4f_8640_e6d625e2b691:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[\"TRX-ME0QBTCZDDA01MLPMYU5\", \"2024-05-25 04:34:00\", \"2024-05-25 01:34:00\", \"2024-05-25\", 1, 6, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 23, false], [\"TRX-631UMW0ZUGSIQF8KWZW6\", \"2024-05-25 05:40:31\", \"2024-05-25 02:40:31\", \"2024-05-25\", 2, 6, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 23, false], [\"TRX-COQZGHBA6T9MGQH788A4\", \"2024-05-25 03:38:03\", \"2024-05-25 00:38:03\", \"2024-05-25\", 0, 6, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 23, false], [\"TRX-PVBBNCLYNSLQ52G29CD1\", \"2024-05-25 04:24:17\", \"2024-05-25 01:24:17\", \"2024-05-25\", 1, 6, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 23, false], [\"TRX-9B4UX9V5TQ3WA2PL62K2\", \"2024-05-25 03:22:13\", \"2024-05-25 00:22:13\", \"2024-05-25\", 0, 6, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 23, false], [\"TRX-0V82G74VXIR30FKFETHQ\", \"2024-05-25 03:22:27\", \"2024-05-25 00:22:27\", \"2024-05-25\", 0, 6, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 23, false], [\"TRX-8JV2MTFKW6JRH62LH4NM\", \"2023-12-08 03:52:42\", \"2023-12-08 00:52:42\", \"2023-12-08\", 0, 5, true, \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", false, 7, false], [\"TRX-YBUDEO8SX5AKU91PRVDT\", \"2023-12-08 05:59:20\", \"2023-12-08 02:59:20\", \"2023-12-08\", 2, 5, true, \"Inmaculada Concepci\\u00f3n de Mar\\u00eda\", false, 7, false]]",
+          "data_json": "[[\"TRX-OSOWDIS4BC02QGC6QWVF\", \"2025-05-25 03:51:41\", \"2025-05-25 00:51:41\", \"2025-05-25\", 0, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-3OULWLO7CJ69IWE5PORY\", \"2025-05-25 04:41:30\", \"2025-05-25 01:41:30\", \"2025-05-25\", 1, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-2Q4QXM6NMAHMBIM6932B\", \"2025-05-25 05:33:20\", \"2025-05-25 02:33:20\", \"2025-05-25\", 2, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-A3L04E946ZQXD5JUMUX6\", \"2025-05-25 04:34:32\", \"2025-05-25 01:34:32\", \"2025-05-25\", 1, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-30VN2X8L9SQ8EMZQECWC\", \"2025-05-25 03:47:33\", \"2025-05-25 00:47:33\", \"2025-05-25\", 0, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-2QP4VHTMFBORKRSU3QC8\", \"2025-05-25 04:43:53\", \"2025-05-25 01:43:53\", \"2025-05-25\", 1, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-965UT4DN6FBJPSJVGAB5\", \"2025-05-25 04:35:15\", \"2025-05-25 01:35:15\", \"2025-05-25\", 1, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false], [\"TRX-FVSG16VTI6DOF6TT7BRP\", \"2025-05-25 05:15:46\", \"2025-05-25 02:15:46\", \"2025-05-25\", 2, 7, true, \"D\\u00eda de la Revoluci\\u00f3n de Mayo\", false, 20, false]]",
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
           "paging": false,
@@ -8756,7 +8783,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=86e66ce7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f8f8b652">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8768,7 +8795,7 @@ actually contains before any model is asked to learn them.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=483a3da5">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=36d2e5e5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8790,7 +8817,7 @@ actually contains before any model is asked to learn them.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 6s
+<pre>notebook time 8s
 </pre>
 </div>
 </div>

@@ -35,17 +35,21 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "MX"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 OUT = Path("../../reports/tables")
 OUT.mkdir(parents=True, exist_ok=True)
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "seeds")
 STG = sorted(n for n in pl.catalog()["node"] if n.startswith("stg_"))
 built = pl.build_set(STG)
 pl.ensure(pl.key("int_transactions_enriched"))
-print(f"{CTRY.name}: UTC{CTRY.utc_offset:+d} ({CTRY.timezone})")
+for code in country.scope_codes(COUNTRY):
+    c = country.COUNTRIES[code]
+    print(f"{c.name}: UTC{c.utc_offset:+d} ({c.timezone})")
 print(country.enrich_transactions(pl))
 
 # %% [markdown]
@@ -53,16 +57,19 @@ print(country.enrich_transactions(pl))
 
 # %%
 cal = pl.q("select * from main.calendar_local")
-hol = cal[cal.is_holiday][["local_date", "holiday_name", "iso_weekday"]]
+hol = cal[cal.is_holiday][["country_code", "local_date", "holiday_name", "iso_weekday"]]
 show(hol, paging=False)
-summary = pd.DataFrame(
-    {
-        "days": [len(cal)],
-        "holidays": [int(cal.is_holiday.sum())],
-        "on_weekdays": [int((cal.is_holiday & ~cal.is_weekend).sum())],
-        "long_weekend_days": [int(cal.is_long_weekend.sum())],
-        "paydays": [int(cal.is_payday.sum())],
-    }
+summary = cal.groupby("country_code").apply(
+    lambda g: pd.Series(
+        {
+            "days": len(g),
+            "holidays": int(g.is_holiday.sum()),
+            "on_weekdays": int((g.is_holiday & ~g.is_weekend).sum()),
+            "long_weekend_days": int(g.is_long_weekend.sum()),
+            "paydays": int(g.is_payday.sum()),
+        }
+    ),
+    include_groups=False,
 )
 show(summary, paging=False)
 
@@ -74,7 +81,7 @@ hours = pl.q(
     "select local_hour_customer as local_hour, count(*) as transactions from main.tx_local group by 1 order by 1"
 )
 fig = px.bar(
-    hours, x="local_hour", y="transactions", title=f"{CTRY.name}: transactions by local hour"
+    hours, x="local_hour", y="transactions", title=f"{CTRY.title}: transactions by local hour"
 )
 fig.update_layout(height=300)
 fig.show()
@@ -100,15 +107,17 @@ display(
 
 # %%
 daily = pl.q("""
-    select t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd,
+    select k.country_code, t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd,
            any_value(k.iso_weekday) as iso_weekday, any_value(k.is_holiday) as is_holiday,
            any_value(k.is_long_weekend) as is_long_weekend, any_value(k.is_payday) as is_payday,
            any_value(k.days_since_payday) as days_since_payday, any_value(k.is_month_end) as is_month_end,
            any_value(k.is_bonus_month) as is_bonus_month
-    from main.tx_local t join main.calendar_local k using (local_date)
-    group by 1 order by 1""")
+    from main.tx_local t join main.calendar_local k
+      on k.country_code = t.customer_country_code and k.local_date = t.local_date
+    group by 1, 2 order by 1, 2""")
 daily["local_date"] = pd.to_datetime(daily.local_date)
-daily = daily[(daily.local_date >= "2023-07-01") & (daily.local_date < "2026-05-01")].copy()
+daily = country.full_months(daily)
+FE = " + C(country_code)" if daily.country_code.nunique() > 1 else ""
 daily["log_n"] = np.log(daily.n_tx)
 daily["t"] = (daily.local_date - daily.local_date.min()).dt.days / 365.25
 daily["payday_window"] = daily.days_since_payday.fillna(99) <= 2
@@ -116,7 +125,7 @@ for c in ["is_holiday", "is_long_weekend", "is_month_end", "is_bonus_month", "pa
     daily[c] = daily[c].astype(int)
 model = smf.ols(
     "log_n ~ C(iso_weekday) + is_holiday + is_long_weekend + payday_window + is_month_end + "
-    "is_bonus_month + t",
+    "is_bonus_month + t" + FE,
     data=daily,
 ).fit(cov_type="HC3")
 coef = pd.DataFrame(
@@ -128,11 +137,13 @@ coef = pd.DataFrame(
     }
 ).drop("Intercept")
 coef["effect %"] = (100 * (np.exp(coef.coef) - 1)).round(1)
-coef.assign(country=COUNTRY, r2=model.rsquared).rename_axis("term").reset_index().to_csv(
-    OUT / f"country_{COUNTRY.lower()}_calendar_effects.csv", index=False
-)
+coef.assign(country=COUNTRY, dataset=DATASET, r2=model.rsquared).rename_axis(
+    "term"
+).reset_index().to_csv(OUT / f"{PREFIX}_{COUNTRY.lower()}_calendar_effects.csv", index=False)
 show(coef.round(4), paging=False)
-print(f"R² = {model.rsquared:.3f} on {int(model.nobs)} days")
+print(
+    f"R² = {model.rsquared:.3f} on {int(model.nobs)} (country, day) rows, {daily.local_date.min().date()} to {daily.local_date.max().date()}"
+)
 
 # %%
 eff = coef.reset_index().rename(columns={"index": "term"})
@@ -144,7 +155,7 @@ fig = px.scatter(
     y="term",
     error_x=eff["hi %"] - eff["effect %"],
     error_x_minus=eff["effect %"] - eff["lo %"],
-    title=f"{CTRY.name}: calendar effects on daily volume (95 % CI)",
+    title=f"{CTRY.title}: calendar effects on daily volume (95 % CI)",
 )
 fig.add_vline(x=0, line_dash="dot")
 fig.update_layout(height=420, yaxis_title=None)

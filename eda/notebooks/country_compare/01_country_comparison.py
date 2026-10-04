@@ -5,15 +5,15 @@
 #
 # Each country series rebuilt the whole platform on one country and took its decisions on that country's data. This
 # notebook puts the results next to each other to separate what is **common** (a property of the bank, the platform
-# or the generator) from what is **national** (currency, calendar, regulation, mix). Inputs: the summary tables each
-# country series wrote to `eda/reports/tables/country_*.csv`, and the three country lakehouses (read-only).
+# or the generator) from what is **national** (currency, calendar, regulation, mix). Inputs: only the summary tables
+# each series wrote to `eda/reports/tables/country_*.csv` (no lakehouse is needed), with the whole-bank scope
+# (`notebooks/country_all`) as the reference column.
 
 # %%
 import sys
 from pathlib import Path
 
 sys.path.insert(0, "../../src")
-import duckdb
 import numpy as np
 import pandas as pd
 import plotly.express as px
@@ -21,54 +21,26 @@ import plotly.graph_objects as go
 from itables import show
 
 from latam_eda import country, theme
-from latam_eda import pipeline as pipe
 
 theme.register()
 T = Path("../../reports/tables")
-REPO = pipe.repo_root(Path.cwd())
 CODES = ["MX", "CO", "AR"]
-NAME = {c: country.COUNTRIES[c].name for c in CODES}
+NAME = {c: country.COUNTRIES[c].name for c in CODES} | {"ALL": "whole bank"}
 
 
-def read(kind: str) -> pd.DataFrame:
+def read(kind: str, codes: list[str] = CODES) -> pd.DataFrame:
     return pd.concat(
-        [pd.read_csv(T / f"country_{c.lower()}_{kind}.csv").assign(country=c) for c in CODES],
+        [pd.read_csv(T / f"country_{c.lower()}_{kind}.csv").assign(country=c) for c in codes],
         ignore_index=True,
     )
 
-
-con = duckdb.connect()
-con.sql("SET enable_progress_bar = false")
-for c in CODES:
-    db = country.country_dir(REPO, c) / "pipeline" / "lakehouse.duckdb"
-    con.sql(f"ATTACH '{db}' AS {c.lower()} (READ_ONLY)")
 
 # %% [markdown]
 # ## 1 · Three banks in one dataset
 
 # %%
-rows = []
-for c in CODES:
-    k = c.lower()
-    r = (
-        con.sql(f"""
-        select (select count(*) from {k}.silver.int_customer_profile) as customers,
-               (select count(*) from {k}.silver.int_transactions_enriched) as transactions,
-               (select round(avg(n_tx), 3) from {k}.silver.int_customer_month_tx) as tx_per_customer_month,
-               (select round(100 * avg((currency = '{country.COUNTRIES[c].home_currency}')::int), 1)
-                  from {k}.silver.int_transactions_enriched) as home_currency_tx_pct,
-               (select round(100 * avg((customer_id is null)::int), 1) from {k}.gold.fct_digital_session)
-                 as anonymous_sessions_pct,
-               (select round(median(monthly_income_usd), 0) from {k}.silver.int_customer_profile) as median_income_usd,
-               (select round(median(amount_usd), 0) from {k}.silver.int_transactions_enriched) as median_tx_usd
-    """)
-        .df()
-        .iloc[0]
-        .to_dict()
-    )
-    rows.append({"country": NAME[c], **r})
-size = pd.DataFrame(rows)
-show(size, paging=False)
+size = read("profile", [*CODES, "ALL"]).assign(country=lambda d: d.country.map(NAME))
+show(size.drop(columns="dataset").set_index("country").T, paging=False)
 
 # %% [markdown]
 # ## 2 · The contract: one blend, three populations
@@ -138,7 +110,8 @@ slo = read("rule_slo")
 heat = slo.pivot_table(index="rule_id", columns="country", values="country_rate_pct").rename(
     columns=NAME
 )
-heat["bank-wide"] = slo.groupby("rule_id").global_baseline_pct.first()
+heat["whole bank"] = read("rule_slo", ["ALL"]).set_index("rule_id").country_rate_pct
+heat["SLO baseline"] = slo.groupby("rule_id").global_baseline_pct.first()
 fig = px.imshow(
     heat.round(1),
     text_auto=True,
@@ -196,7 +169,9 @@ show(lrn.pivot_table(index="name", columns="country", values="ap_lift").round(2)
 #   median income of 2,280–2,304 USD in every country; weekends 31–39 % below weekdays; **no** holiday, payday,
 #   month-end, long-weekend or bonus-month effect significant at 1 % anywhere; no abnormal day, no change point and a
 #   largest monthly PSI below 0.005 in three years. The countries differ in labels (currency, calendar, regulator),
-#   not in behaviour. Only one small national pattern survives: Argentine Mondays are about 7 % quieter than its other
+#   not in behaviour. Pooled over the whole bank (three times the days, `country_all`), the three days after a payday
+#   come out 1.6 % *quieter* (p = 0.005): an effect too small for any single country to resolve, in the opposite
+#   direction to a real payday, and absent from the backup (`dataset_compare`). Treat it as unconfirmed. Only one small national pattern survives: Argentine Mondays are about 7 % quieter than its other
 #   weekdays (2–3 % elsewhere).
 # * **The learnability map is identical.** In all three countries, out of time:
 #   * **dormancy in the next 90 days is learnable** (AUC 0.72–0.73, AP about 1.9× the base rate), but the
@@ -245,6 +220,3 @@ show(lrn.pivot_table(index="name", columns="country", values="ap_lift").round(2)
 # 5. **Fraud, complaints, delinquency, escalation: rules and data collection**, not models: confirmed fraud labels,
 #    real transcripts and complaint–contact keys, and days-past-due history from the SCD2 snapshots.
 # 6. **Fix the bank-wide pipeline defects once**: every country benefits from each fix.
-
-# %%
-con.close()

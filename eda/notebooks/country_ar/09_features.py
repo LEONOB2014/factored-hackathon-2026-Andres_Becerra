@@ -22,10 +22,12 @@ from sklearn.metrics import roc_auc_score
 from latam_eda import country, theme
 
 COUNTRY = "AR"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 country.prepare(pl, "gold")
 FEATURES = sorted(n for n in pl.catalog()["node"] if n.startswith(("feat_", "ml_")))
 built = pl.build_set(FEATURES)
@@ -39,12 +41,17 @@ sp = pl.q("""select split, count(*) as transactions, sum(label_is_fraud::int) as
                     round(100 * avg(label_is_fraud::int), 4) as fraud_pct, min(anchor_ts) as first_ts, max(anchor_ts) as last_ts
              from {feat_fraud_realtime_pit} group by 1 order by 5""")
 show(sp, paging=False)
-nval = int(sp.loc[sp.split == "valid", "frauds"].iloc[0])
+nval = int(sp.loc[sp.split == "valid", "frauds"].sum())
+nval_rows = int(sp.loc[sp.split == "valid", "transactions"].sum())
 display(
     Markdown(
-        f"**{nval} frauds in {CTRY.name}'s validation period.** "
+        f"**{nval} frauds in {CTRY.name}'s validation period ({nval_rows:,} transactions).** "
         + (
-            "Enough for an AUC interval of about ±0.03."
+            "The validation period is **empty**: the fixed split dates of `feat_fraud_realtime_pit` fall after the last "
+            "transaction of this dataset, so the fraud model would have nothing to be validated or tested on. The "
+            "single-feature check below cannot run; notebook 14 uses its own time split on the rows that exist."
+            if nval_rows == 0
+            else "Enough for an AUC interval of about ±0.03."
             if nval >= 300
             else "Few positives: every AUC below carries a wide interval, and a country-level fraud model would be evaluated on "
             "too few cases to be approved by a model-risk reviewer."
@@ -60,7 +67,7 @@ val = pl.q("""
     select f.*, t.local_hour_customer, t.iso_weekday, t.is_holiday, t.is_long_weekend, t.is_payday,
            t.days_since_payday, t.is_month_end, t.is_bonus_month
     from {ml_fraud_valid} f join main.tx_local t using (transaction_id)""")
-y = val["label_is_fraud"].astype(int).to_numpy()
+y = val["label_is_fraud"].astype(int).to_numpy() if len(val) else np.array([], dtype=int)
 CAL = [
     "local_hour_customer",
     "iso_weekday",
@@ -94,7 +101,9 @@ for c in val.columns:
             "frauds": npos,
         }
     )
-auc = pd.DataFrame(rows).sort_values("auc")
+auc = pd.DataFrame(
+    rows, columns=["feature", "kind", "auc", "ci_low", "ci_high", "frauds"]
+).sort_values("auc")
 fig = go.Figure()
 for kind, color in (("point-in-time", "#3987e5"), ("calendar", "#e6943b")):
     d = auc[auc.kind == kind]
@@ -112,7 +121,7 @@ for kind, color in (("point-in-time", "#3987e5"), ("calendar", "#e6943b")):
     )
 fig.add_vline(x=0.5, line_dash="dot")
 fig.update_layout(
-    title=f"{CTRY.name}: single-feature AUC on the validation period (95 % CI)",
+    title=f"{CTRY.title}: single-feature AUC on the validation period (95 % CI)",
     height=760,
     yaxis_title=None,
 )
@@ -123,7 +132,9 @@ display(
     Markdown(
         f"**{len(signal)} of {len(auc)} features have an interval that excludes 0.5 in {CTRY.name}.** "
         + (
-            "None does: the fraud label carries no behavioural or calendar signal in this country either."
+            "Nothing to test: the validation period has no frauds."
+            if not len(auc)
+            else "None does: the fraud label carries no behavioural or calendar signal here either."
             if not len(signal)
             else "Those with an interval excluding 0.5: "
             + ", ".join(signal.feature)

@@ -19,10 +19,12 @@ from itables import show
 from latam_eda import country, theme
 
 COUNTRY = "CO"
-CTRY = country.COUNTRIES[COUNTRY]
+DATASET = "main"
+PREFIX = "country"
+CTRY = country.SCOPES[COUNTRY]
 theme.register()
 t0 = time.time()
-pl = country.session(COUNTRY)
+pl = country.session(COUNTRY, DATASET)
 pl.build_layer("seeds", verbose=False)
 TYPED = sorted(n for n in pl.catalog()["node"] if n.startswith("typed_"))
 built = pl.build_set(["dq_corrections_active", *TYPED])
@@ -52,13 +54,14 @@ show(issues, paging=False)
 total = surv.rows.sum()
 display(
     Markdown(
-        f"**{CTRY.name}: {surv.flagged.sum():,} flagged rows of {total:,} ({100 * surv.flagged.sum() / total:.2f} %), "
+        f"**{CTRY.title}: {surv.flagged.sum():,} flagged rows of {total:,} ({100 * surv.flagged.sum() / total:.2f} %), "
         f"{len(issues)} distinct (table, column, code) findings.** "
-        + (
-            "None beyond the bank-wide three."
-            if len(issues) <= 5
-            else "More findings than bank-wide: inspect below."
+        + "Largest: "
+        + ", ".join(
+            f"`{r.table_name}.{r.column_name}` {r.code} ({r.cells:,} cells)"
+            for r in issues.head(4).itertuples()
         )
+        + "."
     )
 )
 
@@ -85,7 +88,10 @@ display(
         + (
             f"Here `Mexico` (no accent) is a **foreign destination** for {CTRY.name}'s customers ({n_mex:,} rows), counted "
             "like USA, Spain or Brazil: correcting it to `México` changes nothing (both map to MX)."
-            if COUNTRY != "MX"
+            if COUNTRY not in ("MX", "ALL")
+            else f"Bank-wide, `Mexico` (no accent, {n_mex:,} rows) is the generator's foreign-destination label: staging "
+            "maps it to MX, which makes it domestic for Mexican customers and cross-border for the others."
+            if COUNTRY == "ALL"
             else f"For Mexican customers, `Mexico` (no accent, {n_mex:,} rows) is the generator's foreign label landing on "
             "their own country: staging maps it to MX, which makes those transactions domestic, as they geographically are."
         )
@@ -99,7 +105,7 @@ display(
         + (
             "The anonymous traffic arrives under both spellings, `México` and `Mexico`: the IP attribution needed both "
             "names, which is why the cut lists every spelling of a country."
-            if COUNTRY == "MX"
+            if COUNTRY in ("MX", "ALL")
             else "Identified customers never log in from another country here either: login-country features stay silent."
         )
     )
@@ -136,15 +142,15 @@ if len(emp):
 display(
     Markdown(
         f"**{len(emp)} columns differ from the contract's empty share by 2 points or more in {CTRY.name}.** "
-        "These are the columns where a bank-wide baseline cannot describe this country; notebook 03 re-estimates "
-        "them on the country's reference window."
+        "These are the columns where the contract's baseline cannot describe this scope; notebook 03 re-estimates "
+        "them on the scope's reference window."
     )
 )
 
 # %% [markdown]
 # ## Findings for Colombia and what to do
-# * The country's contract findings are the bank's (variant spellings, `nan` subjects) in the country's proportion:
-#   typing is structurally clean everywhere, so no country needs its own typing rules.
+# * The contract findings are the bank's (variant spellings, `nan` subjects) in the scope's proportion: typing is
+#   structurally clean everywhere, so no country needs its own typing rules.
 # * Emptiness differs by country where the product or channel mix differs: those baselines are re-based in notebook 03.
 # * Raw country text is never a feature: use the ISO codes from staging.
 

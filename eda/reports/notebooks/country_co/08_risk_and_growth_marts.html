@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=353c6cc7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c06f1e82">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7808,7 +7808,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0a08ea75">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6bf5ee8d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7828,10 +7828,12 @@ a.anchor-link {
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"CO"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"snapshots"</span><span class="p">)</span>
 <span class="n">MARTS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"mart_credit_eligibility"</span><span class="p">,</span>
@@ -7862,7 +7864,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dfd43be7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d870a37b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7872,7 +7874,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=8adb57ef">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1c84d12a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7880,7 +7882,13 @@ a.anchor-link {
 <div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">el</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""select count(*) as customers, count(*) filter (where len(decline_reasons) = 0) as no_adverse_reason,</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">tx_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"select max(transaction_ts_utc) as d from </span><span class="si">{int_transactions_enriched}</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+<span class="n">snap</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"select max(snapshot_date) as d from </span><span class="si">{feat_credit_eligibility_pit}</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">d</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">()</span>
+<span class="n">el</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""select count(*) as customers, count(*) filter (where len(decline_reasons) = 0) as no_adverse_reason,</span>
 <span class="s2">                    count(*) filter (where eligible_credit_card) as eligible_card,</span>
 <span class="s2">                    count(*) filter (where eligible_personal_loan) as eligible_loan</span>
 <span class="s2">             from </span><span class="si">{mart_credit_eligibility}</span><span class="s2">"""</span><span class="p">)</span>
@@ -7893,16 +7901,21 @@ a.anchor-link {
     <span class="n">x</span><span class="o">=</span><span class="s2">"pct"</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=</span><span class="s2">"reason"</span><span class="p">,</span>
     <span class="n">orientation</span><span class="o">=</span><span class="s2">"h"</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: adverse-action reasons (% of customers)"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: adverse-action reasons (% of customers)"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">autorange</span><span class="o">=</span><span class="s2">"reversed"</span><span class="p">))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">eligible_card</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> card and </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">eligible_loan</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> loan approvals out of "</span>
+        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">eligible_card</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> card and </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">eligible_loan</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> loan approvals out of "</span>
         <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">el</span><span class="o">.</span><span class="n">customers</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> customers**; the leading reason is "</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reasons</span><span class="o">.</span><span class="n">reason</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">reasons</span><span class="o">.</span><span class="n">pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> %). Same mechanism as bank-wide: deposit-only, 0.8-a-month "</span>
-        <span class="s2">"inflows cannot show regular income."</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">reasons</span><span class="o">.</span><span class="n">reason</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">reasons</span><span class="o">.</span><span class="n">pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> %). "</span>
+        <span class="o">+</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Here the reason is the data's end: the eligibility snapshot looks at the six months before </span><span class="si">{</span><span class="n">snap</span><span class="si">}</span><span class="s2">, and "</span>
+            <span class="sa">f</span><span class="s2">"the last transaction is dated </span><span class="si">{</span><span class="n">tx_end</span><span class="si">}</span><span class="s2">, so no customer can show any income at all."</span>
+            <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">tx_end</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span><span class="n">snap</span><span class="p">)</span> <span class="o">-</span> <span class="n">pd</span><span class="o">.</span><span class="n">DateOffset</span><span class="p">(</span><span class="n">months</span><span class="o">=</span><span class="mi">6</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">"Same mechanism as bank-wide: deposit-only, 0.8-a-month inflows cannot show regular income."</span>
+        <span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -7918,7 +7931,7 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_c8f4e8f5_deba_4654_b50d_7208f3b61190">
+<table hidden="hidden" id="itables_65bcb25f_75e9_452a_9ba0_74ad60939664">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -7980,19 +7993,19 @@ a.anchor-link {
 </tr>
 </tbody>
 </table>
-<div id="itables_c8f4e8f5_deba_4654_b50d_7208f3b61190_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_65bcb25f_75e9_452a_9ba0_74ad60939664_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>customers</th>
 <th style="border:1px solid #ddd;padding:8px">no_adverse_reason</th>
 <th style="border:1px solid #ddd;padding:8px">eligible_card</th>
 <th style="border:1px solid #ddd;padding:8px">eligible_loan</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">45251</td><td style="border:1px solid #ddd;padding:8px">860</td><td style="border:1px solid #ddd;padding:8px">194</td><td style="border:1px solid #ddd;padding:8px">241</td></tr>
-</tbody></table></div><script>document.getElementById("itables_c8f4e8f5_deba_4654_b50d_7208f3b61190")?.removeAttribute("hidden");document.getElementById("itables_c8f4e8f5_deba_4654_b50d_7208f3b61190_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_65bcb25f_75e9_452a_9ba0_74ad60939664")?.removeAttribute("hidden");document.getElementById("itables_65bcb25f_75e9_452a_9ba0_74ad60939664_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_c8f4e8f5_deba_4654_b50d_7208f3b61190:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_65bcb25f_75e9_452a_9ba0_74ad60939664:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8025,9 +8038,9 @@ a.anchor-link {
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:300px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="092b974a-b450-4c3a-843a-7dec21f4ee1b" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("092b974a-b450-4c3a-843a-7dec21f4ee1b")) {                    Plotly.newPlot(                        "092b974a-b450-4c3a-843a-7dec21f4ee1b",                        [{"hovertemplate":"pct=%{x}\u003cbr\u003ereason=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"f8","bdata":"AAAAAAAgWEAzMzMzMzMuQAAAAAAAAC5AMzMzMzMzIECamZmZmZkfQGZmZmZmZhBAAAAAAAAAAAA="},"xaxis":"x","y":["R04_INSUFFICIENT_INCOME_HISTORY","R03_NO_SCORE","R01_CUSTOMER_NOT_ACTIVE","R02_PAST_DUE_OVER_30D","R07_SHORT_TENURE","R05_HIGH_PAYMENT_BURDEN","R06_REPEATED_NSF"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"pct"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Colombia: adverse-action reasons (% of customers)"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="bd81abfe-7da6-4fe2-8232-8ba55aad670a" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("bd81abfe-7da6-4fe2-8232-8ba55aad670a")) {                    Plotly.newPlot(                        "bd81abfe-7da6-4fe2-8232-8ba55aad670a",                        [{"hovertemplate":"pct=%{x}\u003cbr\u003ereason=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"f8","bdata":"AAAAAAAgWEAzMzMzMzMuQAAAAAAAAC5AMzMzMzMzIECamZmZmZkfQGZmZmZmZhBAAAAAAAAAAAA="},"xaxis":"x","y":["R04_INSUFFICIENT_INCOME_HISTORY","R03_NO_SCORE","R01_CUSTOMER_NOT_ACTIVE","R02_PAST_DUE_OVER_30D","R07_SHORT_TENURE","R05_HIGH_PAYMENT_BURDEN","R06_REPEATED_NSF"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"pct"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Colombia: adverse-action reasons (% of customers)"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('092b974a-b450-4c3a-843a-7dec21f4ee1b');
+var gd = document.getElementById('bd81abfe-7da6-4fe2-8232-8ba55aad670a');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8061,7 +8074,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6b33fba8">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0b18e365">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8071,7 +8084,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=591d21ed">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=58f0acd2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8098,7 +8111,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_1acb2b7e_7bb0_4f38_ba28_a87cda65ac2b">
+<table hidden="hidden" id="itables_8bf53e2b_0347_45d0_af53_dcf46db41cb6">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8160,7 +8173,7 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_1acb2b7e_7bb0_4f38_ba28_a87cda65ac2b_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_8bf53e2b_0347_45d0_af53_dcf46db41cb6_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>dpd_bucket</th>
 <th style="border:1px solid #ddd;padding:8px">products</th>
 <th style="border:1px solid #ddd;padding:8px">avg_score</th>
@@ -8171,12 +8184,12 @@ if (outputEl) {{
 <tr><td style="border:1px solid #ddd;padding:8px">61-90</td><td style="border:1px solid #ddd;padding:8px">1012</td><td style="border:1px solid #ddd;padding:8px">50.3</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">90+</td><td style="border:1px solid #ddd;padding:8px">1857</td><td style="border:1px solid #ddd;padding:8px">50.3</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">current</td><td style="border:1px solid #ddd;padding:8px">31900</td><td style="border:1px solid #ddd;padding:8px">10.3</td></tr>
-</tbody></table></div><script>document.getElementById("itables_1acb2b7e_7bb0_4f38_ba28_a87cda65ac2b")?.removeAttribute("hidden");document.getElementById("itables_1acb2b7e_7bb0_4f38_ba28_a87cda65ac2b_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_8bf53e2b_0347_45d0_af53_dcf46db41cb6")?.removeAttribute("hidden");document.getElementById("itables_8bf53e2b_0347_45d0_af53_dcf46db41cb6_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_1acb2b7e_7bb0_4f38_ba28_a87cda65ac2b:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_8bf53e2b_0347_45d0_af53_dcf46db41cb6:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8200,7 +8213,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5099082f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=eaf4416d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8220,7 +8233,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a8082106">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=da4a891d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8229,35 +8242,40 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">LINES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"MX"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"USD"</span><span class="p">,</span> <span class="mf">7500.0</span><span class="p">),</span> <span class="s2">"CO"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"COP"</span><span class="p">,</span> <span class="mf">10_000_000.0</span><span class="p">),</span> <span class="s2">"AR"</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)}</span>
-<span class="n">cur</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">LINES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"int_transactions_enriched"</span><span class="p">))</span>
+<span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"stg_customers"</span><span class="p">))</span>
 <span class="n">mart_rule</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""select count(*) as tx_in_9000_9999_usd, count(*) filter (where is_cash) as of_which_cash</span>
 <span class="s2">                    from </span><span class="si">{int_transactions_enriched}</span><span class="s2"> where amount_usd &gt;= 9000 and amount_usd &lt; 10000"""</span><span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">mart_rule</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="k">if</span> <span class="n">line</span><span class="p">:</span>
-    <span class="n">unit</span> <span class="o">=</span> <span class="s2">"amount"</span> <span class="k">if</span> <span class="n">cur</span> <span class="o">!=</span> <span class="s2">"USD"</span> <span class="k">else</span> <span class="s2">"amount_usd"</span>
-    <span class="n">local</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""select count(*) as cash_tx_in_band,</span>
-<span class="s2">                            count(distinct customer_id) as customers,</span>
-<span class="s2">                            count(*) filter (where dq_r18_amount_usd_imputed) as with_imputed_usd</span>
-<span class="s2">                     from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span>
-<span class="s2">                     where is_cash and </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">{</span><span class="mf">0.9</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">line</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">line</span><span class="si">}</span>
-<span class="s2">                       </span><span class="si">{</span><span class="s2">"and currency = '"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cur</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">"'"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cur</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s2">"USD"</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">""</span><span class="si">}</span><span class="s2">"""</span><span class="p">)</span>
-    <span class="n">show</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-    <span class="n">display</span><span class="p">(</span>
-        <span class="n">Markdown</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s own line (</span><span class="si">{</span><span class="n">cur</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">line</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> in cash): </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">cash_tx_in_band</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> cash transactions "</span>
-            <span class="sa">f</span><span class="s2">"sit in the 10 % band below it**, against </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">mart_rule</span><span class="o">.</span><span class="n">tx_in_9000_9999_usd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> transactions in the "</span>
-            <span class="s2">"mart's generic 9,000–9,999 USD band. A structuring rule must watch the line the country's regulator actually "</span>
-            <span class="s2">"uses; the generic band watches the wrong place."</span>
+<span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_codes</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">):</span>
+    <span class="n">cur</span><span class="p">,</span> <span class="n">line</span> <span class="o">=</span> <span class="n">LINES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
+    <span class="n">who</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">if</span> <span class="n">line</span><span class="p">:</span>
+        <span class="n">unit</span> <span class="o">=</span> <span class="s2">"amount"</span> <span class="k">if</span> <span class="n">cur</span> <span class="o">!=</span> <span class="s2">"USD"</span> <span class="k">else</span> <span class="s2">"amount_usd"</span>
+        <span class="n">local</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""select count(*) as cash_tx_in_band,</span>
+<span class="s2">                                count(distinct customer_id) as customers,</span>
+<span class="s2">                                count(*) filter (where dq_r18_amount_usd_imputed) as with_imputed_usd</span>
+<span class="s2">                         from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span>
+<span class="s2">                         where is_cash and </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2"> &gt;= </span><span class="si">{</span><span class="mf">0.9</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">line</span><span class="si">}</span><span class="s2"> and </span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">line</span><span class="si">}</span>
+<span class="s2">                           and customer_id in (select customer_id from </span><span class="se">{{</span><span class="s2">stg_customers</span><span class="se">}}</span><span class="s2"> where country_code = '</span><span class="si">{</span><span class="n">code</span><span class="si">}</span><span class="s2">')</span>
+<span class="s2">                           </span><span class="si">{</span><span class="s2">"and currency = '"</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">cur</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s2">"'"</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">cur</span><span class="w"> </span><span class="o">!=</span><span class="w"> </span><span class="s2">"USD"</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s2">""</span><span class="si">}</span><span class="s2">"""</span><span class="p">)</span>
+        <span class="n">show</span><span class="p">(</span><span class="n">local</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">display</span><span class="p">(</span>
+            <span class="n">Markdown</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">who</span><span class="si">}</span><span class="s2">'s own line (</span><span class="si">{</span><span class="n">cur</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">line</span><span class="si">:</span><span class="s2">,.0f</span><span class="si">}</span><span class="s2"> in cash): </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">local</span><span class="o">.</span><span class="n">cash_tx_in_band</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> cash "</span>
+                <span class="sa">f</span><span class="s2">"transactions of its customers sit in the 10 % band below it**, against "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">mart_rule</span><span class="o">.</span><span class="n">tx_in_9000_9999_usd</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> transactions in the mart's generic 9,000–9,999 USD "</span>
+                <span class="s2">"band. A structuring rule must watch the line the country's regulator actually uses; the generic band "</span>
+                <span class="s2">"watches the wrong place."</span>
+            <span class="p">)</span>
         <span class="p">)</span>
-    <span class="p">)</span>
-<span class="k">else</span><span class="p">:</span>
-    <span class="n">display</span><span class="p">(</span>
-        <span class="n">Markdown</span><span class="p">(</span>
-            <span class="s2">"Argentina's line is inflation-indexed by UIF resolution: the rule must read it from a "</span>
-            <span class="s2">"compliance seed, updated at every resolution. Hard-coding a number would be wrong within months."</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">display</span><span class="p">(</span>
+            <span class="n">Markdown</span><span class="p">(</span>
+                <span class="s2">"Argentina's line is inflation-indexed by UIF resolution: the rule must read it from a "</span>
+                <span class="s2">"compliance seed, updated at every resolution. Hard-coding a number would be wrong within months."</span>
+            <span class="p">)</span>
         <span class="p">)</span>
-    <span class="p">)</span>
 
 <span class="n">typ</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""select t as typology, count(*) as customer_months from (select unnest(typology_hits) as t</span>
 <span class="s2">              from </span><span class="si">{mart_aml_customer_month}</span><span class="s2">) group by 1 order by 2 desc"""</span><span class="p">)</span>
@@ -8288,7 +8306,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_2415e009_9bfa_4685_ac1b_5cb34524ebcd">
+<table hidden="hidden" id="itables_aa57469f_b3af_4e3a_a0b1_c31e1fd092c5">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8350,17 +8368,17 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </tr>
 </tbody>
 </table>
-<div id="itables_2415e009_9bfa_4685_ac1b_5cb34524ebcd_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_aa57469f_b3af_4e3a_a0b1_c31e1fd092c5_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>tx_in_9000_9999_usd</th>
 <th style="border:1px solid #ddd;padding:8px">of_which_cash</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">26194</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
-</tbody></table></div><script>document.getElementById("itables_2415e009_9bfa_4685_ac1b_5cb34524ebcd")?.removeAttribute("hidden");document.getElementById("itables_2415e009_9bfa_4685_ac1b_5cb34524ebcd_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_aa57469f_b3af_4e3a_a0b1_c31e1fd092c5")?.removeAttribute("hidden");document.getElementById("itables_aa57469f_b3af_4e3a_a0b1_c31e1fd092c5_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_2415e009_9bfa_4685_ac1b_5cb34524ebcd:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_aa57469f_b3af_4e3a_a0b1_c31e1fd092c5:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8383,7 +8401,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_30f681b8_7ae7_4c14_8304_778fe4620214">
+<table hidden="hidden" id="itables_ff36ffeb_51c0_4661_afa9_067595f7239d">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8445,18 +8463,18 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </tr>
 </tbody>
 </table>
-<div id="itables_30f681b8_7ae7_4c14_8304_778fe4620214_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_ff36ffeb_51c0_4661_afa9_067595f7239d_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>cash_tx_in_band</th>
 <th style="border:1px solid #ddd;padding:8px">customers</th>
 <th style="border:1px solid #ddd;padding:8px">with_imputed_usd</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">2726</td><td style="border:1px solid #ddd;padding:8px">2557</td><td style="border:1px solid #ddd;padding:8px">156</td></tr>
-</tbody></table></div><script>document.getElementById("itables_30f681b8_7ae7_4c14_8304_778fe4620214")?.removeAttribute("hidden");document.getElementById("itables_30f681b8_7ae7_4c14_8304_778fe4620214_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_ff36ffeb_51c0_4661_afa9_067595f7239d")?.removeAttribute("hidden");document.getElementById("itables_ff36ffeb_51c0_4661_afa9_067595f7239d_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_30f681b8_7ae7_4c14_8304_778fe4620214:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_ff36ffeb_51c0_4661_afa9_067595f7239d:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8478,14 +8496,14 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>Colombia's own line (COP 10,000,000 in cash): 2,726 cash transactions sit in the 10 % band below it</strong>, against 26,194 transactions in the mart's generic 9,000–9,999 USD band. A structuring rule must watch the line the country's regulator actually uses; the generic band watches the wrong place.</p>
+<p><strong>Colombia's own line (COP 10,000,000 in cash): 2,726 cash transactions of its customers sit in the 10 % band below it</strong>, against 26,194 transactions in the mart's generic 9,000–9,999 USD band. A structuring rule must watch the line the country's regulator actually uses; the generic band watches the wrong place.</p>
 </div>
 </div>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_b7d120c2_284e_4777_a6e8_d5b75e9a98d8">
+<table hidden="hidden" id="itables_d2396796_caef_463a_82f8_c753e544262a">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8547,7 +8565,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </tr>
 </tbody>
 </table>
-<div id="itables_b7d120c2_284e_4777_a6e8_d5b75e9a98d8_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_d2396796_caef_463a_82f8_c753e544262a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>typology</th>
 <th style="border:1px solid #ddd;padding:8px">customer_months</th>
 </tr></thead><tbody>
@@ -8556,12 +8574,12 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <tr><td style="border:1px solid #ddd;padding:8px">MULTI_JURISDICTION</td><td style="border:1px solid #ddd;padding:8px">26</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">CASH_INTENSIVE</td><td style="border:1px solid #ddd;padding:8px">16</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">RAPID_IN_OUT</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-</tbody></table></div><script>document.getElementById("itables_b7d120c2_284e_4777_a6e8_d5b75e9a98d8")?.removeAttribute("hidden");document.getElementById("itables_b7d120c2_284e_4777_a6e8_d5b75e9a98d8_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_d2396796_caef_463a_82f8_c753e544262a")?.removeAttribute("hidden");document.getElementById("itables_d2396796_caef_463a_82f8_c753e544262a_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_b7d120c2_284e_4777_a6e8_d5b75e9a98d8:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_d2396796_caef_463a_82f8_c753e544262a:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8584,7 +8602,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_6c784cef_70b3_4c94_bf33_7e4d250be36b">
+<table hidden="hidden" id="itables_b5399e4a_1d0d_49e4_9b9f_99b0f45b1b48">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8646,18 +8664,18 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </tr>
 </tbody>
 </table>
-<div id="itables_6c784cef_70b3_4c94_bf33_7e4d250be36b_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_b5399e4a_1d0d_49e4_9b9f_99b0f45b1b48_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>customer_months</th>
 <th style="border:1px solid #ddd;padding:8px">with_inflow_pct</th>
 <th style="border:1px solid #ddd;padding:8px">defined_peer_z</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">790297</td><td style="border:1px solid #ddd;padding:8px">18.9</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
-</tbody></table></div><script>document.getElementById("itables_6c784cef_70b3_4c94_bf33_7e4d250be36b")?.removeAttribute("hidden");document.getElementById("itables_6c784cef_70b3_4c94_bf33_7e4d250be36b_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_b5399e4a_1d0d_49e4_9b9f_99b0f45b1b48")?.removeAttribute("hidden");document.getElementById("itables_b5399e4a_1d0d_49e4_9b9f_99b0f45b1b48_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_6c784cef_70b3_4c94_bf33_7e4d250be36b:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_b5399e4a_1d0d_49e4_9b9f_99b0f45b1b48:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8687,7 +8705,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3b4d66ff">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2ad7fca2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8697,7 +8715,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=49b3d43b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=dae74ae6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8719,12 +8737,19 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <span class="p">)</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">nc</span><span class="o">.</span><span class="n">pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> % of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s sends went to customers without current marketing consent.** "</span>
-        <span class="o">+</span> <span class="p">{</span>
-            <span class="s2">"MX"</span><span class="p">:</span> <span class="s2">"Mexico's LFPDPPP and the REUS registry of users who refuse advertising make this a direct sanction risk."</span><span class="p">,</span>
-            <span class="s2">"CO"</span><span class="p">:</span> <span class="s2">"Colombia's Ley 1581 de 2012 (habeas data) requires prior, express consent for marketing use of data."</span><span class="p">,</span>
-            <span class="s2">"AR"</span><span class="p">:</span> <span class="s2">"Argentina's Ley 25.326 and the Registro Nacional No Llame forbid unsolicited marketing to opted-out persons."</span><span class="p">,</span>
-        <span class="p">}[</span><span class="n">COUNTRY</span><span class="p">]</span>
+        <span class="s2">"**The campaign mart is empty**: "</span>
+        <span class="o">+</span> <span class="n">country</span><span class="o">.</span><span class="n">why_empty</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"campaign_sends"</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">". Consent compliance and campaign uplift cannot be measured on this dataset."</span>
+        <span class="k">if</span> <span class="n">pd</span><span class="o">.</span><span class="n">isna</span><span class="p">(</span><span class="n">nc</span><span class="o">.</span><span class="n">pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">nc</span><span class="o">.</span><span class="n">pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> % of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s sends went to customers without current marketing consent.** "</span>
+        <span class="o">+</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"MX"</span><span class="p">:</span> <span class="s2">"Mexico's LFPDPPP and the REUS registry of users who refuse advertising make this a direct sanction risk."</span><span class="p">,</span>
+                <span class="s2">"CO"</span><span class="p">:</span> <span class="s2">"Colombia's Ley 1581 de 2012 (habeas data) requires prior, express consent for marketing use of data."</span><span class="p">,</span>
+                <span class="s2">"AR"</span><span class="p">:</span> <span class="s2">"Argentina's Ley 25.326 and the Registro Nacional No Llame forbid unsolicited marketing to opted-out persons."</span><span class="p">,</span>
+            <span class="p">}[</span><span class="n">c</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_codes</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="o">+</span> <span class="s2">" A consent gate in the send pipeline is the first fix in every country."</span>
     <span class="p">)</span>
 <span class="p">)</span>
@@ -8741,7 +8766,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_e477d730_0f14_4512_9a36_9980d0245618">
+<table hidden="hidden" id="itables_0324db77_3d60_48e2_8e9f_c84df2518a76">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8803,29 +8828,29 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </tr>
 </tbody>
 </table>
-<div id="itables_e477d730_0f14_4512_9a36_9980d0245618_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_0324db77_3d60_48e2_8e9f_c84df2518a76_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>split</th>
 <th style="border:1px solid #ddd;padding:8px">value_</th>
 <th style="border:1px solid #ddd;padding:8px">delivered</th>
 <th style="border:1px solid #ddd;padding:8px">conversion_pct</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">consent</td><td style="border:1px solid #ddd;padding:8px">true</td><td style="border:1px solid #ddd;padding:8px">242451</td><td style="border:1px solid #ddd;padding:8px">0.574</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">consent</td><td style="border:1px solid #ddd;padding:8px">false</td><td style="border:1px solid #ddd;padding:8px">239110</td><td style="border:1px solid #ddd;padding:8px">0.592</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">consent</td><td style="border:1px solid #ddd;padding:8px">true</td><td style="border:1px solid #ddd;padding:8px">242451</td><td style="border:1px solid #ddd;padding:8px">0.574</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">already holds the product</td><td style="border:1px solid #ddd;padding:8px">false</td><td style="border:1px solid #ddd;padding:8px">355322</td><td style="border:1px solid #ddd;padding:8px">0.588</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">already holds the product</td><td style="border:1px solid #ddd;padding:8px">true</td><td style="border:1px solid #ddd;padding:8px">126239</td><td style="border:1px solid #ddd;padding:8px">0.569</td></tr>
-</tbody></table></div><script>document.getElementById("itables_e477d730_0f14_4512_9a36_9980d0245618")?.removeAttribute("hidden");document.getElementById("itables_e477d730_0f14_4512_9a36_9980d0245618_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_0324db77_3d60_48e2_8e9f_c84df2518a76")?.removeAttribute("hidden");document.getElementById("itables_0324db77_3d60_48e2_8e9f_c84df2518a76_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_e477d730_0f14_4512_9a36_9980d0245618:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_0324db77_3d60_48e2_8e9f_c84df2518a76:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [3]}],
-          "data_json": "[[\"consent\", \"true\", 242451, [\"0.574\", 0.574]], [\"consent\", \"false\", 239110, [\"0.592\", 0.592]], [\"already holds the product\", \"false\", 355322, [\"0.588\", 0.588]], [\"already holds the product\", \"true\", 126239, [\"0.569\", 0.569]]]",
+          "data_json": "[[\"consent\", \"false\", 239110, [\"0.592\", 0.592]], [\"consent\", \"true\", 242451, [\"0.574\", 0.574]], [\"already holds the product\", \"false\", 355322, [\"0.588\", 0.588]], [\"already holds the product\", \"true\", 126239, [\"0.569\", 0.569]]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
@@ -8848,7 +8873,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d89aa846">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6b563e28">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8858,7 +8883,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d7f29267">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ade1abc0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8888,7 +8913,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_54cc8ca4_6c0a_48ae_8c6b_75601f18223f">
+<table hidden="hidden" id="itables_a7d7c74f_0042_4f5d_9c37_bd116df35903">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8950,7 +8975,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </tr>
 </tbody>
 </table>
-<div id="itables_54cc8ca4_6c0a_48ae_8c6b_75601f18223f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_a7d7c74f_0042_4f5d_9c37_bd116df35903_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>minimum months with inflow (of 6)</th>
 <th style="border:1px solid #ddd;padding:8px">customers declined by R04</th>
 <th style="border:1px solid #ddd;padding:8px">pct</th>
@@ -8959,12 +8984,12 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 <tr><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">39164</td><td style="border:1px solid #ddd;padding:8px">86.5</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">3</td><td style="border:1px solid #ddd;padding:8px">43678</td><td style="border:1px solid #ddd;padding:8px">96.5</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">4</td><td style="border:1px solid #ddd;padding:8px">44958</td><td style="border:1px solid #ddd;padding:8px">99.4</td></tr>
-</tbody></table></div><script>document.getElementById("itables_54cc8ca4_6c0a_48ae_8c6b_75601f18223f")?.removeAttribute("hidden");document.getElementById("itables_54cc8ca4_6c0a_48ae_8c6b_75601f18223f_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_a7d7c74f_0042_4f5d_9c37_bd116df35903")?.removeAttribute("hidden");document.getElementById("itables_a7d7c74f_0042_4f5d_9c37_bd116df35903_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_54cc8ca4_6c0a_48ae_8c6b_75601f18223f:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_a7d7c74f_0042_4f5d_9c37_bd116df35903:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8988,7 +9013,7 @@ cell below counts <strong>cash</strong> transactions in the 10 % band just under
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f2c477bd">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3b5aea3b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8999,7 +9024,7 @@ country seeds owned by compliance; the bank-wide fixes (dead peer typology, elig
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=95a75402">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6a3f5968">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
