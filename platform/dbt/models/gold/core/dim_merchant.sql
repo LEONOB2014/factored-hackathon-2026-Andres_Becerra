@@ -2,7 +2,7 @@
 select
     md5(merchant_name)                                   as merchant_id,
     merchant_name,
-    mode(transaction_category)                           as main_category,
+    {{ stable_mode('transaction_category') }}            as main_category,
     min(transaction_ts_utc)                              as first_seen_ts,
     max(transaction_ts_utc)                              as last_seen_ts,
     count(*)                                             as n_transactions

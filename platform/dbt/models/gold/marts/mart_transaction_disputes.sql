@@ -37,7 +37,7 @@ candidates as (
 best as (
     select *, count(*) over (partition by complaint_id) as n_candidates
     from candidates
-    qualify row_number() over (partition by complaint_id order by match_score desc, transaction_ts_utc desc) = 1
+    qualify row_number() over (partition by complaint_id order by match_score desc, transaction_ts_utc desc, transaction_id) = 1
 ),
 history as (
     select complaint_id,

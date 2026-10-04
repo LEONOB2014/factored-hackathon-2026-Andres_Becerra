@@ -1,7 +1,7 @@
 -- Last 20 transactions per product (rank 1 = most recent), normalized for serving and inquiry answers.
 select
     product_id,
-    row_number() over (partition by product_id order by transaction_ts_utc desc) as recency_rank,
+    row_number() over (partition by product_id order by transaction_ts_utc desc, transaction_id desc) as recency_rank,
     transaction_id,
     transaction_ts_local,
     transaction_type,

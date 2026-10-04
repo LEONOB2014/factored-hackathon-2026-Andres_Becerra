@@ -9,7 +9,7 @@ with ranked as (
         k.category,
         k.customer_id,
         row_number() over (partition by c.country_code, strftime(k.created_ts_utc, '%Y-%m'), k.category, k.customer_id
-                           order by k.created_ts_utc)       as rn
+                           order by k.created_ts_utc, k.complaint_id) as rn
     from {{ ref('stg_complaints') }} k
     join {{ ref('int_customer_profile') }} c using (customer_id)
 )

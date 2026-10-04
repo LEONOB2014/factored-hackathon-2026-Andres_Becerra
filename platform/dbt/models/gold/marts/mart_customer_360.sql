@@ -6,10 +6,10 @@ with tx as (
         count(*) filter (where transaction_ts_utc >= {{ as_of() }} - interval 30 day)              as tx_count_30d,
         count(*) filter (where transaction_ts_utc >= {{ as_of() }} - interval 90 day)              as tx_count_90d,
         count(*) filter (where transaction_ts_utc >= {{ as_of() }} - interval 365 day)             as tx_count_365d,
-        sum(amount_usd) filter (where direction = -1 and transaction_status = 'Approved'
-                                  and transaction_ts_utc >= {{ as_of() }} - interval 90 day)        as outflow_usd_90d,
-        sum(amount_usd) filter (where direction = 1 and transaction_status = 'Approved'
-                                  and transaction_ts_utc >= {{ as_of() }} - interval 90 day)        as inflow_usd_90d,
+        {{ exact_sum('amount_usd', "direction = -1 and transaction_status = 'Approved'
+                                  and transaction_ts_utc >= " ~ as_of() ~ " - interval 90 day") }}   as outflow_usd_90d,
+        {{ exact_sum('amount_usd', "direction = 1 and transaction_status = 'Approved'
+                                  and transaction_ts_utc >= " ~ as_of() ~ " - interval 90 day") }}   as inflow_usd_90d,
         avg((transaction_status = 'Declined')::int)
             filter (where transaction_ts_utc >= {{ as_of() }} - interval 90 day)                   as decline_rate_90d,
         avg(is_cross_border::int) filter (where transaction_ts_utc >= {{ as_of() }} - interval 365 day)
@@ -18,7 +18,7 @@ with tx as (
                                                                                                    as distinct_merchants_365d,
         count(*) filter (where is_fraud and transaction_ts_utc >= {{ as_of() }} - interval 365 day) as confirmed_fraud_365d,
         max(transaction_ts_utc)                                                                    as last_tx_ts,
-        mode(channel)                                                                              as main_tx_channel
+        {{ stable_mode('channel') }}                                                               as main_tx_channel
     from {{ ref('fct_transaction') }}
     group by customer_id
 ),
@@ -28,9 +28,9 @@ prod as (
         count(*)                                                                as n_products,
         count(*) filter (where product_status = 'Active')                       as n_active_products,
         list(distinct product_type order by product_type)                       as product_types,
-        sum(balance_usd) filter (where product_family in ('deposit', 'investment')) as deposits_usd,
-        sum(balance_usd) filter (where product_family in ('credit_card', 'loan'))   as debt_usd,
-        sum(credit_limit_usd) filter (where product_family = 'credit_card')     as card_limit_usd,
+        {{ exact_sum('balance_usd', "product_family in ('deposit', 'investment')") }} as deposits_usd,
+        {{ exact_sum('balance_usd', "product_family in ('credit_card', 'loan')") }}   as debt_usd,
+        {{ exact_sum('credit_limit_usd', "product_family = 'credit_card'") }}     as card_limit_usd,
         max(days_past_due)                                                      as max_days_past_due,
         bool_or(product_family = 'loan')                                        as has_loan,
         bool_or(product_family = 'credit_card')                                 as has_credit_card,
@@ -46,7 +46,7 @@ dig as (
         count(*) filter (where event_type = 'Login' and event_ts_utc >= {{ as_of() }} - interval 90 day) as logins_90d,
         count(*) filter (where event_type = 'Error' and event_ts_utc >= {{ as_of() }} - interval 90 day) as app_errors_90d,
         max(event_ts_utc) filter (where event_type = 'Login')                   as last_login_ts,
-        mode(channel)                                                           as main_digital_channel
+        {{ stable_mode('channel') }}                                            as main_digital_channel
     from {{ ref('stg_digital_events') }}
     where customer_id is not null
     group by customer_id
@@ -59,7 +59,7 @@ cc as (
         avg((detected_sentiment in ('Negativo', 'Muy Negativo'))::int)
             filter (where interaction_ts_utc >= {{ as_of() }} - interval 365 day)               as negative_sentiment_share_365d,
         max(interaction_ts_utc)                                                                 as last_contact_ts,
-        arg_max(contact_reason, interaction_ts_utc)                                             as last_contact_reason
+        arg_max(contact_reason, (interaction_ts_utc, interaction_id))                           as last_contact_reason
     from {{ ref('stg_call_center_interactions') }}
     group by customer_id
 ),
@@ -83,8 +83,8 @@ mkt as (
 ),
 srv as (
     select customer_id,
-           arg_max(main_score, survey_ts_utc) filter (where survey_type = 'NPS')  as last_nps_score,
-           arg_max(main_score, survey_ts_utc) filter (where survey_type = 'CSAT') as last_csat_score
+           arg_max(main_score, (survey_ts_utc, survey_id)) filter (where survey_type = 'NPS')  as last_nps_score,
+           arg_max(main_score, (survey_ts_utc, survey_id)) filter (where survey_type = 'CSAT') as last_csat_score
     from {{ ref('stg_satisfaction_surveys') }}
     group by customer_id
 )

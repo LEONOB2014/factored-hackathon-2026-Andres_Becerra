@@ -14,7 +14,7 @@ with nodes as (
     from {{ ref('int_products_enriched') }}
     union all
     select 'merchant', merchant_name, null,
-           to_json(struct_pack(category := any_value(transaction_category), n_tx := count(*)))
+           to_json(struct_pack(category := {{ stable_mode('transaction_category') }}, n_tx := count(*)))
     from {{ ref('int_transactions_enriched') }}
     where merchant_name is not null
     group by merchant_name

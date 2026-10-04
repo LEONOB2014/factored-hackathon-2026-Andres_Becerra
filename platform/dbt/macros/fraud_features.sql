@@ -25,23 +25,23 @@ w as (
                         over (partition by customer_id order by transaction_ts_utc
                               range between interval 24 hour preceding and current row exclude current row) as declines_24h,
         -- customer baseline from all prior history (expanding window)
-        avg(log_amount)         over (partition by customer_id order by transaction_ts_utc
+        avg(log_amount)         over (partition by customer_id order by transaction_ts_utc, transaction_id
                                       rows between unbounded preceding and 1 preceding)                    as hist_mean_log_amount,
-        stddev_samp(log_amount) over (partition by customer_id order by transaction_ts_utc
+        stddev_samp(log_amount) over (partition by customer_id order by transaction_ts_utc, transaction_id
                                       rows between unbounded preceding and 1 preceding)                    as hist_std_log_amount,
-        max(amount_usd)         over (partition by customer_id order by transaction_ts_utc
+        max(amount_usd)         over (partition by customer_id order by transaction_ts_utc, transaction_id
                                       rows between unbounded preceding and 1 preceding)                    as hist_max_amount_usd,
-        count(*)                over (partition by customer_id order by transaction_ts_utc
+        count(*)                over (partition by customer_id order by transaction_ts_utc, transaction_id
                                       rows between unbounded preceding and 1 preceding)                    as hist_tx_count,
-        avg(local_hour)         over (partition by customer_id order by transaction_ts_utc
+        avg(local_hour)         over (partition by customer_id order by transaction_ts_utc, transaction_id
                                       rows between unbounded preceding and 1 preceding)                    as hist_mean_hour,
         -- recency and novelty
-        lag(transaction_ts_utc) over (partition by customer_id order by transaction_ts_utc)                as prev_ts,
-        lag(latitude)           over (partition by customer_id order by transaction_ts_utc)                as prev_lat,
-        lag(longitude)          over (partition by customer_id order by transaction_ts_utc)                as prev_lon,
-        row_number() over (partition by customer_id, merchant_name order by transaction_ts_utc) = 1         as is_new_merchant,
-        row_number() over (partition by customer_id, transaction_country_code order by transaction_ts_utc) = 1 as is_new_country,
-        row_number() over (partition by customer_id, channel order by transaction_ts_utc) = 1               as is_new_channel
+        lag(transaction_ts_utc) over (partition by customer_id order by transaction_ts_utc, transaction_id)                as prev_ts,
+        lag(latitude)           over (partition by customer_id order by transaction_ts_utc, transaction_id)                as prev_lat,
+        lag(longitude)          over (partition by customer_id order by transaction_ts_utc, transaction_id)                as prev_lon,
+        row_number() over (partition by customer_id, merchant_name order by transaction_ts_utc, transaction_id) = 1         as is_new_merchant,
+        row_number() over (partition by customer_id, transaction_country_code order by transaction_ts_utc, transaction_id) = 1 as is_new_country,
+        row_number() over (partition by customer_id, channel order by transaction_ts_utc, transaction_id) = 1               as is_new_channel
     from tx
 ),
 login as (   -- most recent digital login at or before the transaction (ASOF = point-in-time join)

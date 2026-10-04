@@ -20,7 +20,7 @@ with cust as (
 feat as (   -- behaviour before the cutoff only
     select customer_id,
            count(*)                                            as tx_count,
-           sum(amount_usd)                                     as amount_usd,
+           {{ exact_sum('amount_usd') }}                       as amount_usd,
            avg((transaction_status = 'Declined')::int)         as decline_rate,
            count(distinct merchant_name)                       as n_merchants
     from {{ ref('int_transactions_enriched') }}
