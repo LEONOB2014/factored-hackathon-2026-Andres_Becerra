@@ -57,7 +57,17 @@ def test_typed_zones_move_into_a_read_only_archive(lake):
         and len(record["moved"]["lake/bronze"]["sha256"]) == 64
     )
 
+    assert out["read_only"] is True
+
     again = bronze.archive_typed()
     assert (
         again["moved"] == {} and "lake/archive/bronze_typed_v1/bronze" in again["already_archived"]
     )
+
+
+def test_an_archive_whose_permissions_do_not_hold_is_reported(lake, monkeypatch):
+    from pathlib import Path
+
+    monkeypatch.setattr(Path, "chmod", lambda self, mode: None)  # a mount that ignores chmod
+    out = bronze.archive_typed()
+    assert out["read_only"] is False and "chmod -R a-w" in out["read_only_hint"]

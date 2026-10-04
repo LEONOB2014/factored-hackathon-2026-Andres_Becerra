@@ -308,4 +308,11 @@ def archive_typed(dest: Path | None = None) -> dict:
     for d in sorted((p for p in dest.rglob("*") if p.is_dir()), key=lambda p: -len(p.parts)):
         d.chmod(d.stat().st_mode & no_write)
     dest.chmod(dest.stat().st_mode & no_write)
+    # some mounts ignore chmod (Docker Desktop bind mounts from a container): check it held, never assume
+    still_writable = [str(p) for p in [dest, *dest.rglob("*")] if p.stat().st_mode & ~no_write]
+    out["read_only"] = not still_writable
+    if still_writable:
+        out["read_only_hint"] = (
+            f"permissions did not apply here; run on the host: chmod -R a-w {dest}"
+        )
     return out

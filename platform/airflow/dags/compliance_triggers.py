@@ -7,8 +7,6 @@ residency and PII-zone triggers by the dbt/governance gates. This DAG covers the
 
 from __future__ import annotations
 
-from datetime import UTC
-
 import pendulum
 from airflow.sdk import dag, task
 
@@ -50,7 +48,7 @@ def compliance_triggers():
     @task.external_python(python=PLATFORM_PY, expect_airflow=False, pool=DUCKDB_POOL)
     def evaluate(checks: dict, lineage_run_id: str, as_of: str = "2026-05-17") -> dict:
         import json
-        from datetime import datetime, timedelta
+        from datetime import UTC, datetime, timedelta
 
         import yaml
 

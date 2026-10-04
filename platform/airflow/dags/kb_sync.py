@@ -9,8 +9,6 @@ Embeddings are computed locally (multilingual E5): no document text leaves the e
 
 from __future__ import annotations
 
-from datetime import UTC
-
 import pendulum
 from airflow.sdk import dag, task
 
@@ -34,7 +32,7 @@ def kb_sync():
     )
     def sync(lineage_run_id: str) -> dict:
         import json
-        from datetime import datetime
+        from datetime import UTC, datetime
 
         from latam_platform import config, kb_pipeline, ops
 

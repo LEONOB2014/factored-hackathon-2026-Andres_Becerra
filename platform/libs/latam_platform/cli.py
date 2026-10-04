@@ -96,6 +96,8 @@ def cmd_archive_typed_bronze(_args) -> dict:
     out = bronze.archive_typed()
     if out["moved"]:
         ops.ledger("bronze.typed_archived", out["archive"], out, actor="data-platform")
+    if not out["read_only"]:
+        raise SystemExit("ARCHIVE NOT READ-ONLY: " + out["read_only_hint"])
     return out
 
 
