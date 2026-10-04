@@ -77,6 +77,33 @@ ALL = Country(
     "",
 )
 SCOPES = {**COUNTRIES, "ALL": ALL}
+
+# The day each event belongs to. The source states no timezone; the data decides it. Every event carries a
+# `process_date`, the daily delivery batch it arrived in, and the generator drew its weekly rhythm on that delivery
+# day: hour of day is independent of weekday only once each timestamp is shifted back to the start of its batch window
+# (notebooks/granularity_time/01). The window starts at 06:00 UTC for transactions, digital events and campaign sends
+# and at 08:00 UTC for contacts and complaints, so `cast(ts + offset as date) = process_date` holds for 100 % of rows
+# (99.8 % of digital events). Surveys arrive in ~42-hour windows and have no fixed offset. "business" uses these
+# delivery days (the same for every market); "local" uses each country's legal offset, for real data whose timestamps
+# are true UTC and whose days are local.
+PROCESS_DAY_OFFSET = {
+    "transactions": -6,
+    "digital_events": -6,
+    "campaign_sends": -6,
+    "call_center_interactions": -8,
+    "complaints": -8,
+}
+BUSINESS_UTC_OFFSET = PROCESS_DAY_OFFSET["transactions"]
+CLOCKS = ("business", "local")
+
+
+def utc_offset(code: str, clock: str = "business", process: str = "transactions") -> int:
+    """Hours to add to a raw timestamp to get the day it belongs to, for a market, a clock and a process."""
+    if clock not in CLOCKS:
+        raise ValueError(f"unknown clock {clock!r}")
+    return PROCESS_DAY_OFFSET[process] if clock == "business" else COUNTRIES[code].utc_offset
+
+
 DATASETS = ("main", "backup")
 STREAM_CUTOFF = (
     "2026-05-18"  # dbt var stream_cutoff: facts dated on or after it form the holdout zone
@@ -468,11 +495,12 @@ def calendar(code: str, start: str = "2023-06-01", end: str = "2026-07-31") -> p
     return df
 
 
-def enrich_transactions(pl: pipe.Pipeline) -> pd.DataFrame:
+def enrich_transactions(pl: pipe.Pipeline, clock: str = "business") -> pd.DataFrame:
     """Create main.calendar_local, main.customer_local and main.tx_local (transactions in local time + calendar).
 
-    Local time uses the **customer's** country offset (the bank's view of the customer's day); the transaction
-    country can differ for cross-border rows, which keep their own `transaction_ts_local` from silver. The calendar
+    The day of a transaction is its delivery day on the business clock (the default: the timestamp minus 6 hours, which is
+    the transaction's `process_date` for every row; see PROCESS_DAY_OFFSET), or the customer's legal local day
+    (`clock="local"`). The calendar
     holds one row per (country_code, local_date) of the scope's countries; `customer_local` maps each customer to
     its country and offset, so any timestamp of a customer can be put on the right local calendar:
 
@@ -482,9 +510,7 @@ def enrich_transactions(pl: pipe.Pipeline) -> pd.DataFrame:
     """
     codes = scope_codes(pl.country.code)
     cal = pd.concat([calendar(c).assign(country_code=c) for c in codes], ignore_index=True)
-    off = pd.DataFrame(
-        {"country_code": codes, "utc_offset": [COUNTRIES[c].utc_offset for c in codes]}
-    )
+    off = pd.DataFrame({"country_code": codes, "utc_offset": [utc_offset(c, clock) for c in codes]})
     pl.con.register("cal_df", cal)
     pl.con.register("off_df", off)
     pl.con.sql("CREATE OR REPLACE TABLE main.calendar_local AS SELECT * FROM cal_df")

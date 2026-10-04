@@ -4,9 +4,9 @@
 -- grain: country_code, channel, local_date
 -- reconcile: n_tx = count(*) from {int_transactions_enriched}
 -- dense: country_code from {fct_country_day} x channel from {int_transactions_enriched} x local_date from {fct_country_day}
-with off as (select customer_id, country_code, utc_offset_hours from {int_customer_profile}),
+with off as (select customer_id, country_code from {int_customer_profile}),
 tx as (
-    select o.country_code, t.channel, cast(t.transaction_ts_utc + to_hours(o.utc_offset_hours) as date) as local_date,
+    select o.country_code, t.channel, t.process_date as local_date,
            count(*) as n_tx,
            sum(t.amount_usd) filter (where t.transaction_status = 'Approved') as approved_usd,
            count(*) filter (where t.transaction_status = 'Declined') as n_declined,

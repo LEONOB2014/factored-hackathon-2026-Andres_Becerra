@@ -133,3 +133,47 @@ def test_mase_and_diebold_mariano():
     good, bad = rng.normal(0, 1, 200), rng.normal(0, 3, 200)
     stat, p = g.diebold_mariano(good, bad)
     assert stat < 0 and p < 0.01
+
+
+def test_clock_scan_recovers_a_planted_offset():
+    rng = np.random.default_rng(1)
+    # days drawn on a UTC-6 clock with a weekend dip, times uniform within the day; raw timestamps are stored at UTC
+    days = pd.date_range("2024-01-01", "2024-06-30", freq="D")
+    weight = np.where(days.weekday >= 5, 0.6, 1.0)
+    n = rng.poisson(400 * weight)
+    local = np.concatenate(
+        [
+            d + pd.to_timedelta(rng.uniform(0, 86400, k), unit="s")
+            for d, k in zip(days, n, strict=True)
+        ]
+    )
+    raw = pd.Series(pd.to_datetime(local) + pd.Timedelta(hours=6))
+    scan = g.clock_scan(raw)
+    best = scan.loc[scan.chi2.idxmin()]
+    assert best.shift_hours == -6
+    assert best.chi2_over_dof < 2 < scan.set_index("shift_hours").loc[0, "chi2_over_dof"]
+    hourly = raw.dt.floor("h").value_counts().sort_index()
+    fast = g.clock_scan(pd.Series(hourly.index), counts=hourly.to_numpy())
+    assert fast.loc[fast.chi2.idxmin(), "shift_hours"] == -6
+    assert np.allclose(fast.chi2, scan.chi2)
+
+
+def test_beta_binomial_fit_recovers_the_prior():
+    rng = np.random.default_rng(2)
+    p = rng.beta(2.0, 300.0, 3000)
+    n = rng.integers(200, 2000, 3000)
+    s = rng.binomial(n, p)
+    a, b = g.beta_binomial_fit(s, n)
+    assert a / (a + b) == pytest.approx(2 / 302, rel=0.05)
+    assert a + b == pytest.approx(302, rel=0.25)
+
+
+def test_policy_value_replays_held_out_outcomes():
+    cells = pd.DataFrame(
+        {"rate_ho": [0.02, 0.0], "value_per_conv_ho": [100.0, 0.0], "cost_per_send_ho": [0.5, 0.5]},
+        index=["good", "dead"],
+    )
+    even = g.policy_value(cells, pd.Series({"good": 1, "dead": 1}), 1000)
+    best = g.policy_value(cells, pd.Series({"good": 1, "dead": 0}), 1000)
+    assert even["conversions"] == pytest.approx(10) and even["net"] == pytest.approx(500)
+    assert best["conversions"] == pytest.approx(20) and best["net"] == pytest.approx(1500)

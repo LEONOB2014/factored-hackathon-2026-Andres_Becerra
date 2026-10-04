@@ -22,6 +22,7 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/country_compare/` | The three country series side by side | yes |
 | `notebooks/dataset_compare/` | Main against the backup run as main, per scope | yes |
 | `notebooks/granularity/` | Granularity experiment: the star re-grained (customer, day, branch, agent, product, campaign, case) and judged grain by grain | yes |
+| `notebooks/granularity_time/` | Granularity series II: the clock each process runs on, the hour grain, sub-day sequences, and the campaign decision cell with an allocation replay | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -135,15 +136,15 @@ Personal data and free text are masked in every displayed table (`Pipeline.safe`
 The platform rebuilt once per country, on a lossless country subset of the lake (`src/latam_eda/country.py`:
 customers by country, everything they own by `customer_id`, anonymous digital events by IP country, reference data
 shared), with every decision taken on that country's data: contract baselines re-estimated on a 180-day reference
-window, local time and the country's calendar (bank holidays, paydays, month end, bonus months), per-currency
-statistics, country SLOs, anomaly and change-point detection, and an out-of-time learnability test of seven candidate
-targets.
+window, the business day (the delivery-day clock, ADR-014) and the country's calendar (bank holidays, paydays, month
+end, bonus months), per-currency statistics, country SLOs, anomaly and change-point detection, and an out-of-time
+learnability test of seven candidate targets.
 
 The series are **generated** from one template so their method cannot drift apart: edit
 `notebooks/country_template/`, never the generated folders (a test checks they match). The template has two
 dimensions, eight series:
 
-* **scope**: `ALL` (the whole bank, no cut; local time and calendar per customer's country, country fixed effects in
+* **scope**: `ALL` (the whole bank, no cut; calendar per customer's country, country fixed effects in
   the calendar regression) or one country (`MX`, `CO`, `AR`);
 * **dataset**: `main` (folders `country_*`) or `backup` (folders `backup_*`): `data_backup_20260831` run **as if it
   were main**. `country.build_backup_lake` lays the backup's lossless bronze out as a main lake in
@@ -161,7 +162,7 @@ notebooks read only those tables.
 | 01 | Country scope: how the lake is cut, currencies, what is shared |
 | 02 | Bronze → typed: the country's contract findings and emptiness |
 | 03 | Global versus country contract; reference-window baselines; noise-aware drift; PSI stability |
-| 04 | Local time and the country calendar; what the calendar explains (regression with CIs) |
+| 04 | The business day and the country calendar; what the calendar explains (regression with CIs) |
 | 05 | Currency, conversion, imputation, incomes, the monthly grid |
 | 06 | Snapshots and the gold core |
 | 07 | Service marts; the country's regulatory clock for disputes |
@@ -214,6 +215,33 @@ for nb in notebooks/granularity/0[1-9]_*.py; do
 
 The series uses the whole-bank scratch lakehouse (`data/tmp/main/all`, about 6 GB with the aggregates); delete it
 when done.
+
+### Granularity series II (`notebooks/granularity_time/`)
+
+Re-graining in time (the hour, the sub-day sequence) and to the unit marketing allocates budget on (the campaign
+decision cell). The hour and cell aggregates live in `src/latam_eda/granularity_time_sql/` with the same header
+contracts as the first series (`granularity.open_star(pl, granularity.SQL_DIR_TIME)`).
+
+| # | Grain | Question |
+|---|---|---|
+| 01 | event timestamp | which clock each process was generated on: hourly profiles, a shift scan of the hour × weekday χ², the match with `process_date`, the reconciliation of the calendar effects on the legal and the delivery clock |
+| 02 | market × hour | does the hour add information beyond the day (dispersion index), hourly forecasts, Erlang C on a flat and a peaked profile, Poisson and negative-binomial hourly monitors |
+| 03 | event sequence | symmetric before/after windows between processes (1–72 h), burstiness against per-customer Poisson, velocity and the fraud flag |
+| 04 | channel × product × objective × segment × market × month | what a conversion measures (open tracking), cell heterogeneity per funnel stage, empirical-Bayes cell rates scored out of time, expected value per send |
+| 05 | synthesis | allocation policies replayed on the held-out year with bootstrap intervals, the holdout that would measure uplift, every test under Benjamini–Hochberg, KPIs, downstream impact |
+
+**The clock.** Every process belongs to a daily delivery batch. Its business day is `process_date`, which is the
+timestamp shifted −6 h (transactions, digital events, sends) or −8 h (contacts, complaints). The shift is the same in
+every market, so it is not legal local time. `latam_eda.country.PROCESS_DAY_OFFSET` holds it, and
+`country.utc_offset(code, clock=...)` picks the business or the legal clock (ADR-014).
+
+```bash
+for nb in notebooks/granularity_time/0[1-5]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/granularity_time"; done
+```
+
+01 and 03 read the bronze lake directly (in-memory DuckDB). 02 and 04 build on the whole-bank scratch lakehouse.
+05 reads the tables the other four write.
 
 ## Reproduce
 

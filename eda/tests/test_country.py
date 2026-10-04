@@ -255,3 +255,11 @@ def test_backup_lake_is_laid_out_as_main(main_with_backup, tmp_path):
     assert (out / "corrections" / "applied" / "_genesis.parquet").exists()
     again = country.build_backup_lake(main_with_backup, out)  # second call reads the stored summary
     assert len(again) == len(rows)
+
+
+def test_business_clock_is_one_offset_for_every_market():
+    assert {country.utc_offset(c) for c in country.COUNTRIES} == {country.BUSINESS_UTC_OFFSET}
+    assert country.utc_offset("CO", process="call_center_interactions") == -8
+    assert country.utc_offset("AR", "local") == -3 and country.utc_offset("CO", "local") == -5
+    with pytest.raises(ValueError):
+        country.utc_offset("MX", "solar")

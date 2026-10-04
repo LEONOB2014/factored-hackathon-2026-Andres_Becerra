@@ -1,4 +1,4 @@
--- Periodic snapshot, one row per branch and the branch's local day, dense over the branches that ever served a
+-- Periodic snapshot, one row per branch and delivery day (process_date), dense over the branches that ever served a
 -- transaction: the grain of cash logistics. A branch (with its ATMs) must hold enough cash for the day's withdrawals
 -- without holding idle cash, and cash-in-transit is scheduled per branch and day. Withdrawals and deposits are the
 -- approved cash movements served at the branch or its ATMs; amounts are in USD (comparable across markets) and in the
@@ -6,10 +6,9 @@
 -- grain: branch_id, local_date
 -- reconcile: n_tx = count(branch_id) from {int_transactions_enriched}
 -- dense: branch_id from {dim_branch} x local_date from {dim_data_day}
-with b as (select b.branch_id, b.country_code, b.atm_count, c.utc_offset_hours
-           from {dim_branch} b left join {dim_country} c using (country_code)),
+with b as (select branch_id, country_code, atm_count from {dim_branch}),
 tx as (
-    select t.branch_id, cast(t.transaction_ts_utc + to_hours(coalesce(b.utc_offset_hours, -6)) as date) as local_date,
+    select t.branch_id, t.process_date as local_date,
            count(*) as n_tx, count(*) filter (where t.channel = 'ATM') as n_atm_tx,
            count(*) filter (where t.channel = 'Branch') as n_counter_tx,
            count(*) filter (where t.transaction_type = 'Withdrawal' and t.transaction_status = 'Approved') as n_withdrawals,
@@ -20,7 +19,7 @@ tx as (
     from {int_transactions_enriched} t left join b using (branch_id)
     where t.branch_id is not null group by all),
 cp as (
-    select related_branch_id as branch_id, cast(created_ts_utc as date) as local_date, count(*) as complaints_linked
+    select related_branch_id as branch_id, process_date as local_date, count(*) as complaints_linked
     from {fct_complaint} where related_branch_id is not null group by all),
 grid as (
     select br.branch_id, d.local_date

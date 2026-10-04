@@ -110,7 +110,7 @@ evidence.
 | completeness | approved without response code (R03) | `not_null` with condition |
 | vocabulary | Spanish labels in the backup | `accepted_values` + normalization in staging |
 | unit / currency | MX in USD; income in MXN (R17) | contract: currency per country, unit tests |
-| convention | UTC−6 broken for 8 % (R15/R16) | expression test |
+| convention | timestamp in its process's delivery window (R15/R16; the 8 % failing were a −6 h window applied to −8 h processes, [ADR-014](../platform/adr/ADR-014.md)) | expression test |
 | content | unrendered template placeholders (R27) | regex test |
 
 Each class maps to a severity, an owner and an SLO (`seeds/dq_rule_slo.csv`). A-rules block publication in prod.
