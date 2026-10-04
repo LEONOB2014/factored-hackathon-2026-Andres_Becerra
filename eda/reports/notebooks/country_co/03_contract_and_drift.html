@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9a67683b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0c642ae2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7814,7 +7814,7 @@ number) were measured on the three countries together. This notebook asks three 
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2e645701">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cd10c20f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7836,12 +7836,14 @@ number) were measured on the three countries together. This notebook asks three 
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"CO"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
 <span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">pl</span><span class="o">.</span><span class="n">build_layer</span><span class="p">(</span><span class="s2">"seeds"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"dq_partition_profile"</span><span class="p">))</span>
 <span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"dq_partition_header"</span><span class="p">))</span>
@@ -7857,13 +7859,13 @@ number) were measured on the three countries together. This notebook asks three 
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>[]</pre>
+<pre>[Built(node='dq_partition_header', layer='silver', materialized='table', rows=7671, seconds=0.08, pulled_forward=False)]</pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=09ae24f3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=990067c8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7873,7 +7875,7 @@ number) were measured on the three countries together. This notebook asks three 
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fd863345">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=60adaa85">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7892,6 +7894,12 @@ number) were measured on the three countries together. This notebook asks three 
 <span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">held_g</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">n_held</span> <span class="o">=</span> <span class="n">glob</span><span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">"A"</span><span class="p">][[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"partition_date"</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+<span class="c1"># a baseline check judges a magnitude or a share against the contract's typical value: a population question.</span>
+<span class="c1"># A rule check (vocabulary, required field, format, key, header, grammar) judges the values or the file against the</span>
+<span class="c1"># contract's rules: re-fitting baselines cannot release it.</span>
+<span class="n">BASELINE</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"scale"</span><span class="p">,</span> <span class="s2">"empty_share"</span><span class="p">}</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">glob</span><span class="p">[</span><span class="n">glob</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">"A"</span><span class="p">]</span>
+<span class="n">structural</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="o">~</span><span class="n">a</span><span class="o">.</span><span class="n">check_name</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">BASELINE</span><span class="p">)][[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"partition_date"</span><span class="p">]]</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"**On the global contract, the breaker would hold </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">n_held</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> partitions of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">** "</span>
@@ -7901,9 +7909,22 @@ number) were measured on the three countries together. This notebook asks three 
             <span class="k">else</span> <span class="s2">"."</span>
         <span class="p">)</span>
         <span class="o">+</span> <span class="p">(</span>
-            <span class="s2">" Every one of them is a false alarm: nothing changed in the source; the contract describes another population."</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_held</span><span class="p">)</span>
-            <span class="k">else</span> <span class="s2">" The global contract fits this country."</span>
+            <span class="s2">" The global contract fits."</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_held</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">" Every one is held by a baseline check (scale): nothing changed in the files; the contract describes "</span>
+            <span class="s2">"another population."</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">structural</span><span class="p">)</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">" **</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">structural</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> of them are held by contract rules, not baselines** ("</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"`</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2">` </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">check_name</span><span class="si">}</span><span class="s2">"</span>
+                <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">a</span><span class="p">[</span><span class="o">~</span><span class="n">a</span><span class="o">.</span><span class="n">check_name</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">BASELINE</span><span class="p">)][</span>
+                    <span class="p">[</span><span class="s2">"table_name"</span><span class="p">,</span> <span class="s2">"column_name"</span><span class="p">,</span> <span class="s2">"check_name"</span><span class="p">]</span>
+                <span class="p">]</span>
+                <span class="o">.</span><span class="n">drop_duplicates</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="s2">"): the values break the contract's rules, which no baseline can fix. Section 3 shows which holds "</span>
+            <span class="s2">"survive a contract fitted to this data."</span>
         <span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
@@ -7920,7 +7941,7 @@ number) were measured on the three countries together. This notebook asks three 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_6b7c2eed_247e_44db_b102_4e869fb35f1f">
+<table hidden="hidden" id="itables_5fb5f51b_fb0e_43da_b80d_88cf9b779d67">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -7982,7 +8003,7 @@ number) were measured on the three countries together. This notebook asks three 
 </tr>
 </tbody>
 </table>
-<div id="itables_6b7c2eed_247e_44db_b102_4e869fb35f1f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_5fb5f51b_fb0e_43da_b80d_88cf9b779d67_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">table_name</th>
 <th style="border:1px solid #ddd;padding:8px">check_name</th>
@@ -7993,12 +8014,12 @@ number) were measured on the three countries together. This notebook asks three 
 <tr><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">scale</td><td style="border:1px solid #ddd;padding:8px">estimated_monthly_income</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">scale</td><td style="border:1px solid #ddd;padding:8px">credit_limit</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">scale</td><td style="border:1px solid #ddd;padding:8px">current_balance</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-</tbody></table></div><script>document.getElementById("itables_6b7c2eed_247e_44db_b102_4e869fb35f1f")?.removeAttribute("hidden");document.getElementById("itables_6b7c2eed_247e_44db_b102_4e869fb35f1f_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_5fb5f51b_fb0e_43da_b80d_88cf9b779d67")?.removeAttribute("hidden");document.getElementById("itables_5fb5f51b_fb0e_43da_b80d_88cf9b779d67_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_6b7c2eed_247e_44db_b102_4e869fb35f1f:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_5fb5f51b_fb0e_43da_b80d_88cf9b779d67:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8020,13 +8041,13 @@ number) were measured on the three countries together. This notebook asks three 
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>On the global contract, the breaker would hold 1,099 partitions of Colombia</strong> (transactions: 1097, customers: 1, products: 1). Every one of them is a false alarm: nothing changed in the source; the contract describes another population.</p>
+<p><strong>On the global contract, the breaker would hold 1,099 partitions of Colombia</strong> (transactions: 1097, customers: 1, products: 1). Every one is held by a baseline check (scale): nothing changed in the files; the contract describes another population.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9d7dba80">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e58c0722">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8037,7 +8058,7 @@ Compare the global baseline with this country's own.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3a35a430">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=958785cb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8059,7 +8080,14 @@ Compare the global baseline with this country's own.</p>
 <span class="n">worst</span> <span class="o">=</span> <span class="n">cmp</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">ratio</span> <span class="o">=</span> <span class="n">worst</span><span class="o">.</span><span class="n">country_over_global</span>
 <span class="n">why</span> <span class="o">=</span> <span class="p">(</span>
-    <span class="s2">"Amounts are recorded in the account's currency; this country's accounts are mostly in a currency worth a "</span>
+    <span class="p">(</span>
+        <span class="s2">"The magnitudes match the reviewed contract: the scale checks fit."</span>
+        <span class="k">if</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="n">ratio</span> <span class="o">&lt;=</span> <span class="mi">3</span>
+        <span class="k">else</span> <span class="s2">"The reviewed contract's baselines were measured on main's whole bank; this dataset's typical magnitude "</span>
+        <span class="s2">"differs from them by that factor, so the scale check misjudges every day of it."</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">==</span> <span class="s2">"ALL"</span>
+    <span class="k">else</span> <span class="s2">"Amounts are recorded in the account's currency; this country's accounts are mostly in a currency worth a "</span>
     <span class="s2">"fraction of a dollar, so its amounts are larger numbers than the blend's."</span>
     <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="mi">3</span>
     <span class="k">else</span> <span class="s2">"This country's accounts are in dollars: its amounts are smaller numbers than the blend's, which the peso "</span>
@@ -8070,7 +8098,12 @@ Compare the global baseline with this country's own.</p>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"**The largest gap: `</span><span class="si">{</span><span class="n">worst</span><span class="o">.</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">worst</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2">` is typically </span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">,.2f</span><span class="si">}</span><span class="s2">× the global baseline "</span>
-        <span class="sa">f</span><span class="s2">"in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.** </span><span class="si">{</span><span class="n">why</span><span class="si">}</span><span class="s2"> The blend's median sits between populations and describes none of them."</span>
+        <span class="sa">f</span><span class="s2">"in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.** </span><span class="si">{</span><span class="n">why</span><span class="si">}</span><span class="s2">"</span>
+        <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">" The blend's median sits between populations and describes none of them."</span>
+            <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">!=</span> <span class="s2">"ALL"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="mi">1</span> <span class="o">/</span> <span class="mi">3</span> <span class="o">&lt;=</span> <span class="n">ratio</span> <span class="o">&lt;=</span> <span class="mi">3</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -8086,7 +8119,7 @@ Compare the global baseline with this country's own.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_89654c2b_b3d0_4139_b1f2_439cff9b98dd">
+<table hidden="hidden" id="itables_8c50c632_dc22_454b_ade1_f8ca893a4264">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8148,7 +8181,7 @@ Compare the global baseline with this country's own.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_89654c2b_b3d0_4139_b1f2_439cff9b98dd_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_8c50c632_dc22_454b_ade1_f8ca893a4264_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>table_name</th>
 <th style="border:1px solid #ddd;padding:8px">column_name</th>
 <th style="border:1px solid #ddd;padding:8px">global_log10_median</th>
@@ -8170,25 +8203,25 @@ Compare the global baseline with this country's own.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">duration_seconds</td><td style="border:1px solid #ddd;padding:8px">2.464</td><td style="border:1px solid #ddd;padding:8px">2.464</td><td style="border:1px solid #ddd;padding:8px">0.999</td><td style="border:1px solid #ddd;padding:8px">0.009</td><td style="border:1px solid #ddd;padding:8px">0.015</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">event_value</td><td style="border:1px solid #ddd;padding:8px">3.400</td><td style="border:1px solid #ddd;padding:8px">3.400</td><td style="border:1px solid #ddd;padding:8px">0.999</td><td style="border:1px solid #ddd;padding:8px">0.011</td><td style="border:1px solid #ddd;padding:8px">0.019</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">sentiment_score</td><td style="border:1px solid #ddd;padding:8px">-0.638</td><td style="border:1px solid #ddd;padding:8px">-0.638</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.018</td><td style="border:1px solid #ddd;padding:8px">0.019</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_response</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_3_response</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.079</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">main_score</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_1_response</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">click_count</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_response</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_3_response</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">0.477</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.079</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">accent_confidence</td><td style="border:1px solid #ddd;padding:8px">-0.060</td><td style="border:1px solid #ddd;padding:8px">-0.060</td><td style="border:1px solid #ddd;padding:8px">1.000</td><td style="border:1px solid #ddd;padding:8px">0.005</td><td style="border:1px solid #ddd;padding:8px">0.007</td></tr>
-</tbody></table></div><script>document.getElementById("itables_89654c2b_b3d0_4139_b1f2_439cff9b98dd")?.removeAttribute("hidden");document.getElementById("itables_89654c2b_b3d0_4139_b1f2_439cff9b98dd_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_8c50c632_dc22_454b_ade1_f8ca893a4264")?.removeAttribute("hidden");document.getElementById("itables_8c50c632_dc22_454b_ade1_f8ca893a4264_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_89654c2b_b3d0_4139_b1f2_439cff9b98dd:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_8c50c632_dc22_454b_ade1_f8ca893a4264:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [2, 3, 4, 5, 6]}],
-          "data_json": "[[\"transactions\", \"amount\", [\"3.733\", 3.733], [\"6.221\", 6.221], [\"307.462\", 307.462], [\"0.036\", 0.036], [\"0.012\", 0.012]], [\"complaints\", \"resolution_days\", [\"1.279\", 1.279], [\"1.176\", 1.176], [\"0.789\", 0.789], [\"0.000\", 0.0], [\"0.125\", 0.125]], [\"complaints\", \"claimed_amount\", [\"3.407\", 3.407], [\"3.419\", 3.419], [\"1.027\", 1.027], [\"0.052\", 0.052], [\"0.094\", 0.094]], [\"satisfaction_surveys\", \"response_time_hours\", [\"1.265\", 1.265], [\"1.269\", 1.269], [\"1.008\", 1.008], [\"0.013\", 0.013], [\"0.026\", 0.026]], [\"satisfaction_surveys\", \"campaign_response_rate\", [\"1.477\", 1.477], [\"1.480\", 1.48], [\"1.008\", 1.008], [\"0.012\", 0.012], [\"0.021\", 0.021]], [\"digital_events\", \"duration_seconds\", [\"2.182\", 2.182], [\"2.185\", 2.185], [\"1.007\", 1.007], [\"0.003\", 0.003], [\"0.008\", 0.008]], [\"transactions\", \"fraud_score\", [\"1.177\", 1.177], [\"1.175\", 1.175], [\"0.997\", 0.997], [\"0.005\", 0.005], [\"0.010\", 0.01]], [\"transactions\", \"amount_usd\", [\"2.669\", 2.669], [\"2.668\", 2.668], [\"0.997\", 0.997], [\"0.007\", 0.007], [\"0.010\", 0.01]], [\"call_center_interactions\", \"wait_time_seconds\", [\"2.083\", 2.083], [\"2.082\", 2.082], [\"0.998\", 0.998], [\"0.007\", 0.007], [\"0.015\", 0.015]], [\"call_transcripts\", \"duration_seconds\", [\"2.462\", 2.462], [\"2.462\", 2.462], [\"0.998\", 0.998], [\"0.017\", 0.017], [\"0.028\", 0.028]], [\"call_center_interactions\", \"duration_seconds\", [\"2.464\", 2.464], [\"2.464\", 2.464], [\"0.999\", 0.999], [\"0.009\", 0.009], [\"0.015\", 0.015]], [\"digital_events\", \"event_value\", [\"3.400\", 3.4], [\"3.400\", 3.4], [\"0.999\", 0.999], [\"0.011\", 0.011], [\"0.019\", 0.019]], [\"call_center_interactions\", \"sentiment_score\", [\"-0.638\", -0.638], [\"-0.638\", -0.638], [\"1.000\", 1.0], [\"0.018\", 0.018], [\"0.019\", 0.019]], [\"satisfaction_surveys\", \"question_2_response\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"satisfaction_surveys\", \"question_3_response\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.079\", 0.079]], [\"satisfaction_surveys\", \"main_score\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"satisfaction_surveys\", \"question_1_response\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"campaign_sends\", \"click_count\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"call_transcripts\", \"accent_confidence\", [\"-0.060\", -0.06], [\"-0.060\", -0.06], [\"1.000\", 1.0], [\"0.005\", 0.005], [\"0.007\", 0.007]]]",
+          "data_json": "[[\"transactions\", \"amount\", [\"3.733\", 3.733], [\"6.221\", 6.221], [\"307.462\", 307.462], [\"0.036\", 0.036], [\"0.012\", 0.012]], [\"complaints\", \"resolution_days\", [\"1.279\", 1.279], [\"1.176\", 1.176], [\"0.789\", 0.789], [\"0.000\", 0.0], [\"0.125\", 0.125]], [\"complaints\", \"claimed_amount\", [\"3.407\", 3.407], [\"3.419\", 3.419], [\"1.027\", 1.027], [\"0.052\", 0.052], [\"0.094\", 0.094]], [\"satisfaction_surveys\", \"response_time_hours\", [\"1.265\", 1.265], [\"1.269\", 1.269], [\"1.008\", 1.008], [\"0.013\", 0.013], [\"0.026\", 0.026]], [\"satisfaction_surveys\", \"campaign_response_rate\", [\"1.477\", 1.477], [\"1.480\", 1.48], [\"1.008\", 1.008], [\"0.012\", 0.012], [\"0.021\", 0.021]], [\"digital_events\", \"duration_seconds\", [\"2.182\", 2.182], [\"2.185\", 2.185], [\"1.007\", 1.007], [\"0.003\", 0.003], [\"0.008\", 0.008]], [\"transactions\", \"fraud_score\", [\"1.177\", 1.177], [\"1.175\", 1.175], [\"0.997\", 0.997], [\"0.005\", 0.005], [\"0.010\", 0.01]], [\"transactions\", \"amount_usd\", [\"2.669\", 2.669], [\"2.668\", 2.668], [\"0.997\", 0.997], [\"0.007\", 0.007], [\"0.010\", 0.01]], [\"call_center_interactions\", \"wait_time_seconds\", [\"2.083\", 2.083], [\"2.082\", 2.082], [\"0.998\", 0.998], [\"0.007\", 0.007], [\"0.015\", 0.015]], [\"call_transcripts\", \"duration_seconds\", [\"2.462\", 2.462], [\"2.462\", 2.462], [\"0.998\", 0.998], [\"0.017\", 0.017], [\"0.028\", 0.028]], [\"call_center_interactions\", \"duration_seconds\", [\"2.464\", 2.464], [\"2.464\", 2.464], [\"0.999\", 0.999], [\"0.009\", 0.009], [\"0.015\", 0.015]], [\"digital_events\", \"event_value\", [\"3.400\", 3.4], [\"3.400\", 3.4], [\"0.999\", 0.999], [\"0.011\", 0.011], [\"0.019\", 0.019]], [\"call_center_interactions\", \"sentiment_score\", [\"-0.638\", -0.638], [\"-0.638\", -0.638], [\"1.000\", 1.0], [\"0.018\", 0.018], [\"0.019\", 0.019]], [\"satisfaction_surveys\", \"main_score\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"satisfaction_surveys\", \"question_1_response\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"campaign_sends\", \"click_count\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"satisfaction_surveys\", \"question_2_response\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.000\", 0.0]], [\"satisfaction_surveys\", \"question_3_response\", [\"0.477\", 0.477], [\"0.477\", 0.477], [\"1.000\", 1.0], [\"0.000\", 0.0], [\"0.079\", 0.079]], [\"call_transcripts\", \"accent_confidence\", [\"-0.060\", -0.06], [\"-0.060\", -0.06], [\"1.000\", 1.0], [\"0.005\", 0.005], [\"0.007\", 0.007]]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
@@ -8211,7 +8244,7 @@ Compare the global baseline with this country's own.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3ef2de13">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=eaa5addf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8232,7 +8265,7 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c48ff510">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=edfa0544">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8249,8 +8282,14 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 <span class="n">show</span><span class="p">(</span><span class="n">drift</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**With country baselines: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">held</span><span class="o">.</span><span class="n">held</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">held</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s2"> partitions held** (global contract: "</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">n_held</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">drift</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">drift</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s2"> severity-B reports."</span>
+        <span class="sa">f</span><span class="s2">"**With baselines fitted to this scope: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">held</span><span class="o">.</span><span class="n">held</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">held</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s2"> partitions held** (global "</span>
+        <span class="sa">f</span><span class="s2">"contract: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">n_held</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">), </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">drift</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">drift</span><span class="p">)</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="mi">0</span><span class="si">}</span><span class="s2"> severity-B reports."</span>
+        <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">" The holds that remain break contract rules, and **staging excludes every held partition**: those days "</span>
+            <span class="s2">"vanish from silver, gold and every model downstream until someone releases or corrects them."</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">held</span><span class="p">)</span> <span class="ow">and</span> <span class="n">held</span><span class="o">.</span><span class="n">held</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -8266,6 +8305,7 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>  table     dq_partition_releases_active                               0 rows     0.0s
+  table     dq_partition_header                                    7,671 rows     0.1s
   table     dq_schema_drift                                          238 rows     0.0s
   table     dq_partition_holds                                         0 rows     0.0s
 </pre>
@@ -8275,7 +8315,7 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_bd0514ea_b8d9_448a_a888_2aed667c19b9">
+<table hidden="hidden" id="itables_24a005c9_df80_43c7_bde4_a314bab41f24">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8337,16 +8377,16 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 </tr>
 </tbody>
 </table>
-<div id="itables_bd0514ea_b8d9_448a_a888_2aed667c19b9_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_24a005c9_df80_43c7_bde4_a314bab41f24_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>table_name</th>
 <th style="border:1px solid #ddd;padding:8px">held</th>
 </tr></thead><tbody>
-</tbody></table></div><script>document.getElementById("itables_bd0514ea_b8d9_448a_a888_2aed667c19b9")?.removeAttribute("hidden");document.getElementById("itables_bd0514ea_b8d9_448a_a888_2aed667c19b9_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_24a005c9_df80_43c7_bde4_a314bab41f24")?.removeAttribute("hidden");document.getElementById("itables_24a005c9_df80_43c7_bde4_a314bab41f24_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_bd0514ea_b8d9_448a_a888_2aed667c19b9:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_24a005c9_df80_43c7_bde4_a314bab41f24:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8369,7 +8409,7 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_8fdca8e3_75f2_4561_bab3_9164a949c048">
+<table hidden="hidden" id="itables_876623f9_b90b_4234_b93d_241195bb6fb2">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8431,7 +8471,7 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 </tr>
 </tbody>
 </table>
-<div id="itables_8fdca8e3_75f2_4561_bab3_9164a949c048_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_876623f9_b90b_4234_b93d_241195bb6fb2_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>table_name</th>
 <th style="border:1px solid #ddd;padding:8px">column_name</th>
 <th style="border:1px solid #ddd;padding:8px">check_name</th>
@@ -8450,26 +8490,26 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 <tr><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">open_date</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">resolution_date</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">resolution_days</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">subcategory</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_1_text</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">subcategory</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_1_response</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">detected_accent</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_response</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_text</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">resolution</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">compensation_granted</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-</tbody></table></div><script>document.getElementById("itables_8fdca8e3_75f2_4561_bab3_9164a949c048")?.removeAttribute("hidden");document.getElementById("itables_8fdca8e3_75f2_4561_bab3_9164a949c048_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_text</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_response</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">resolution</td><td style="border:1px solid #ddd;padding:8px">empty_share</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+</tbody></table></div><script>document.getElementById("itables_876623f9_b90b_4234_b93d_241195bb6fb2")?.removeAttribute("hidden");document.getElementById("itables_876623f9_b90b_4234_b93d_241195bb6fb2_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_8fdca8e3_75f2_4561_bab3_9164a949c048:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_876623f9_b90b_4234_b93d_241195bb6fb2:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[\"campaign_sends\", \"was_opened\", \"empty_share\", \"B\", 71], [\"complaints\", \"currency\", \"empty_share\", \"B\", 27], [\"complaints\", \"claimed_amount\", \"empty_share\", \"B\", 23], [\"campaign_sends\", \"subject\", \"empty_share\", \"B\", 21], [\"complaints\", \"first_response_date\", \"empty_share\", \"B\", 20], [\"complaints\", \"affected_product_id\", \"empty_share\", \"B\", 19], [\"complaints\", \"assigned_agent_id\", \"empty_share\", \"B\", 18], [\"complaints\", \"assignment_date\", \"empty_share\", \"B\", 10], [\"complaints\", \"related_branch_id\", \"empty_share\", \"B\", 8], [\"campaign_sends\", \"open_date\", \"empty_share\", \"B\", 3], [\"complaints\", \"resolution_date\", \"empty_share\", \"B\", 3], [\"complaints\", \"resolution_days\", \"empty_share\", \"B\", 3], [\"complaints\", \"subcategory\", \"empty_share\", \"B\", 2], [\"satisfaction_surveys\", \"question_1_text\", \"empty_share\", \"B\", 2], [\"satisfaction_surveys\", \"question_1_response\", \"empty_share\", \"B\", 2], [\"call_transcripts\", \"detected_accent\", \"empty_share\", \"B\", 2], [\"satisfaction_surveys\", \"question_2_response\", \"empty_share\", \"B\", 1], [\"satisfaction_surveys\", \"question_2_text\", \"empty_share\", \"B\", 1], [\"complaints\", \"resolution\", \"empty_share\", \"B\", 1], [\"complaints\", \"compensation_granted\", \"empty_share\", \"B\", 1]]",
+          "data_json": "[[\"campaign_sends\", \"was_opened\", \"empty_share\", \"B\", 71], [\"complaints\", \"currency\", \"empty_share\", \"B\", 27], [\"complaints\", \"claimed_amount\", \"empty_share\", \"B\", 23], [\"campaign_sends\", \"subject\", \"empty_share\", \"B\", 21], [\"complaints\", \"first_response_date\", \"empty_share\", \"B\", 20], [\"complaints\", \"affected_product_id\", \"empty_share\", \"B\", 19], [\"complaints\", \"assigned_agent_id\", \"empty_share\", \"B\", 18], [\"complaints\", \"assignment_date\", \"empty_share\", \"B\", 10], [\"complaints\", \"related_branch_id\", \"empty_share\", \"B\", 8], [\"campaign_sends\", \"open_date\", \"empty_share\", \"B\", 3], [\"complaints\", \"resolution_date\", \"empty_share\", \"B\", 3], [\"complaints\", \"resolution_days\", \"empty_share\", \"B\", 3], [\"satisfaction_surveys\", \"question_1_text\", \"empty_share\", \"B\", 2], [\"complaints\", \"subcategory\", \"empty_share\", \"B\", 2], [\"satisfaction_surveys\", \"question_1_response\", \"empty_share\", \"B\", 2], [\"call_transcripts\", \"detected_accent\", \"empty_share\", \"B\", 2], [\"complaints\", \"compensation_granted\", \"empty_share\", \"B\", 1], [\"satisfaction_surveys\", \"question_2_text\", \"empty_share\", \"B\", 1], [\"satisfaction_surveys\", \"question_2_response\", \"empty_share\", \"B\", 1], [\"complaints\", \"resolution\", \"empty_share\", \"B\", 1]]",
           "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
           "paging": false,
@@ -8485,13 +8525,13 @@ dropping scale checks for amounts (blind to the most expensive producer error), 
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>With country baselines: 0 partitions held</strong> (global contract: 1,099), 238 severity-B reports.</p>
+<p><strong>With baselines fitted to this scope: 0 partitions held</strong> (global contract: 1,099), 238 severity-B reports.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=04357001">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6576a529">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8503,7 +8543,7 @@ volume makes a 30-point move a routine fluctuation. The table puts each report i
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3391b2ff">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0dd646e5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8537,7 +8577,7 @@ volume makes a 30-point move a routine fluctuation. The table puts each report i
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_454fbd9e_c7a4_4142_bce4_c5ad00ae3c44">
+<table hidden="hidden" id="itables_8e1c57d8_badd_4264_9bc3_3db54225e196">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8599,7 +8639,7 @@ volume makes a 30-point move a routine fluctuation. The table puts each report i
 </tr>
 </tbody>
 </table>
-<div id="itables_454fbd9e_c7a4_4142_bce4_c5ad00ae3c44_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_8e1c57d8_badd_4264_9bc3_3db54225e196_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>table_name</th>
 <th style="border:1px solid #ddd;padding:8px">column_name</th>
 <th style="border:1px solid #ddd;padding:8px">reports</th>
@@ -8624,22 +8664,22 @@ volume makes a 30-point move a routine fluctuation. The table puts each report i
 <tr><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">detected_accent</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">21.0</td><td style="border:1px solid #ddd;padding:8px">0.380</td><td style="border:1px solid #ddd;padding:8px">2.8</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">subcategory</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">7.0</td><td style="border:1px solid #ddd;padding:8px">0.100</td><td style="border:1px solid #ddd;padding:8px">2.5</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">compensation_granted</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">0.933</td><td style="border:1px solid #ddd;padding:8px">3.8</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_response</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">27.0</td><td style="border:1px solid #ddd;padding:8px">0.613</td><td style="border:1px solid #ddd;padding:8px">3.2</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_text</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">27.0</td><td style="border:1px solid #ddd;padding:8px">0.616</td><td style="border:1px solid #ddd;padding:8px">3.2</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">question_2_response</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">27.0</td><td style="border:1px solid #ddd;padding:8px">0.613</td><td style="border:1px solid #ddd;padding:8px">3.2</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">resolution</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">32.0</td><td style="border:1px solid #ddd;padding:8px">0.769</td><td style="border:1px solid #ddd;padding:8px">4.0</td></tr>
-</tbody></table></div><script>document.getElementById("itables_454fbd9e_c7a4_4142_bce4_c5ad00ae3c44")?.removeAttribute("hidden");document.getElementById("itables_454fbd9e_c7a4_4142_bce4_c5ad00ae3c44_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_8e1c57d8_badd_4264_9bc3_3db54225e196")?.removeAttribute("hidden");document.getElementById("itables_8e1c57d8_badd_4264_9bc3_3db54225e196_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_454fbd9e_c7a4_4142_bce4_c5ad00ae3c44:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_8e1c57d8_badd_4264_9bc3_3db54225e196:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [3, 4, 5]}],
-          "data_json": "[[\"campaign_sends\", \"was_opened\", 71, [\"511.0\", 511.0], [\"0.194\", 0.194], [\"17.2\", 17.2]], [\"complaints\", \"currency\", 27, [\"10.0\", 10.0], [\"0.679\", 0.679], [\"2.0\", 2.0]], [\"complaints\", \"claimed_amount\", 23, [\"9.0\", 9.0], [\"0.681\", 0.681], [\"1.9\", 1.9]], [\"campaign_sends\", \"subject\", 21, [\"500.0\", 500.0], [\"0.676\", 0.676], [\"14.3\", 14.3]], [\"complaints\", \"first_response_date\", 20, [\"10.0\", 10.0], [\"0.399\", 0.399], [\"1.9\", 1.9]], [\"complaints\", \"affected_product_id\", 19, [\"10.0\", 10.0], [\"0.333\", 0.333], [\"2.0\", 2.0]], [\"complaints\", \"assigned_agent_id\", 18, [\"10.0\", 10.0], [\"0.353\", 0.353], [\"1.9\", 1.9]], [\"complaints\", \"assignment_date\", 10, [\"9.0\", 9.0], [\"0.356\", 0.356], [\"1.8\", 1.8]], [\"complaints\", \"related_branch_id\", 8, [\"11.0\", 11.0], [\"0.715\", 0.715], [\"2.2\", 2.2]], [\"campaign_sends\", \"open_date\", 3, [\"506.0\", 506.0], [\"0.676\", 0.676], [\"14.4\", 14.4]], [\"complaints\", \"resolution_date\", 3, [\"10.0\", 10.0], [\"0.771\", 0.771], [\"2.3\", 2.3]], [\"complaints\", \"resolution_days\", 3, [\"10.0\", 10.0], [\"0.770\", 0.77], [\"2.3\", 2.3]], [\"satisfaction_surveys\", \"question_1_text\", 2, [\"27.0\", 27.0], [\"0.437\", 0.437], [\"3.1\", 3.1]], [\"satisfaction_surveys\", \"question_1_response\", 2, [\"24.0\", 24.0], [\"0.435\", 0.435], [\"2.9\", 2.9]], [\"call_transcripts\", \"detected_accent\", 2, [\"21.0\", 21.0], [\"0.380\", 0.38], [\"2.8\", 2.8]], [\"complaints\", \"subcategory\", 2, [\"7.0\", 7.0], [\"0.100\", 0.1], [\"2.5\", 2.5]], [\"complaints\", \"compensation_granted\", 1, [\"10.0\", 10.0], [\"0.933\", 0.933], [\"3.8\", 3.8]], [\"satisfaction_surveys\", \"question_2_response\", 1, [\"27.0\", 27.0], [\"0.613\", 0.613], [\"3.2\", 3.2]], [\"satisfaction_surveys\", \"question_2_text\", 1, [\"27.0\", 27.0], [\"0.616\", 0.616], [\"3.2\", 3.2]], [\"complaints\", \"resolution\", 1, [\"32.0\", 32.0], [\"0.769\", 0.769], [\"4.0\", 4.0]]]",
+          "data_json": "[[\"campaign_sends\", \"was_opened\", 71, [\"511.0\", 511.0], [\"0.194\", 0.194], [\"17.2\", 17.2]], [\"complaints\", \"currency\", 27, [\"10.0\", 10.0], [\"0.679\", 0.679], [\"2.0\", 2.0]], [\"complaints\", \"claimed_amount\", 23, [\"9.0\", 9.0], [\"0.681\", 0.681], [\"1.9\", 1.9]], [\"campaign_sends\", \"subject\", 21, [\"500.0\", 500.0], [\"0.676\", 0.676], [\"14.3\", 14.3]], [\"complaints\", \"first_response_date\", 20, [\"10.0\", 10.0], [\"0.399\", 0.399], [\"1.9\", 1.9]], [\"complaints\", \"affected_product_id\", 19, [\"10.0\", 10.0], [\"0.333\", 0.333], [\"2.0\", 2.0]], [\"complaints\", \"assigned_agent_id\", 18, [\"10.0\", 10.0], [\"0.353\", 0.353], [\"1.9\", 1.9]], [\"complaints\", \"assignment_date\", 10, [\"9.0\", 9.0], [\"0.356\", 0.356], [\"1.8\", 1.8]], [\"complaints\", \"related_branch_id\", 8, [\"11.0\", 11.0], [\"0.715\", 0.715], [\"2.2\", 2.2]], [\"campaign_sends\", \"open_date\", 3, [\"506.0\", 506.0], [\"0.676\", 0.676], [\"14.4\", 14.4]], [\"complaints\", \"resolution_date\", 3, [\"10.0\", 10.0], [\"0.771\", 0.771], [\"2.3\", 2.3]], [\"complaints\", \"resolution_days\", 3, [\"10.0\", 10.0], [\"0.770\", 0.77], [\"2.3\", 2.3]], [\"satisfaction_surveys\", \"question_1_text\", 2, [\"27.0\", 27.0], [\"0.437\", 0.437], [\"3.1\", 3.1]], [\"satisfaction_surveys\", \"question_1_response\", 2, [\"24.0\", 24.0], [\"0.435\", 0.435], [\"2.9\", 2.9]], [\"call_transcripts\", \"detected_accent\", 2, [\"21.0\", 21.0], [\"0.380\", 0.38], [\"2.8\", 2.8]], [\"complaints\", \"subcategory\", 2, [\"7.0\", 7.0], [\"0.100\", 0.1], [\"2.5\", 2.5]], [\"complaints\", \"compensation_granted\", 1, [\"10.0\", 10.0], [\"0.933\", 0.933], [\"3.8\", 3.8]], [\"satisfaction_surveys\", \"question_2_text\", 1, [\"27.0\", 27.0], [\"0.616\", 0.616], [\"3.2\", 3.2]], [\"satisfaction_surveys\", \"question_2_response\", 1, [\"27.0\", 27.0], [\"0.613\", 0.613], [\"3.2\", 3.2]], [\"complaints\", \"resolution\", 1, [\"32.0\", 32.0], [\"0.769\", 0.769], [\"4.0\", 4.0]]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
@@ -8656,7 +8696,7 @@ volume makes a 30-point move a routine fluctuation. The table puts each report i
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d18042c3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=565328cd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8671,7 +8711,7 @@ notebook 03). Both changes live in the contract generator.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=36c5a300">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c6040851">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8683,7 +8723,7 @@ reading: below 0.10 stable, 0.10–0.25 shifting, above 0.25 a different populat
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7ebe4f8a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5f3340f3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8722,7 +8762,7 @@ reading: below 0.10 stable, 0.10–0.25 shifting, above 0.25 a different populat
     <span class="n">x</span><span class="o">=</span><span class="s2">"month"</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=</span><span class="s2">"psi"</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">"column"</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: PSI of each month against the first 6 months"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: PSI of each month against the first 6 months"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">add_hline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.10</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">,</span> <span class="n">annotation_text</span><span class="o">=</span><span class="s2">"0.10 shifting"</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">add_hline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dash"</span><span class="p">,</span> <span class="n">annotation_text</span><span class="o">=</span><span class="s2">"0.25 different population"</span><span class="p">)</span>
@@ -8733,6 +8773,7 @@ reading: below 0.10 stable, 0.10–0.25 shifting, above 0.25 a different populat
     <span class="p">[</span>
         <span class="p">{</span>
             <span class="s2">"country"</span><span class="p">:</span> <span class="n">COUNTRY</span><span class="p">,</span>
+            <span class="s2">"dataset"</span><span class="p">:</span> <span class="n">DATASET</span><span class="p">,</span>
             <span class="s2">"partitions_held_global_contract"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">n_held</span><span class="p">),</span>
             <span class="s2">"partitions_held_country_contract"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">held</span><span class="o">.</span><span class="n">held</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">held</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
             <span class="s2">"b_reports_country_contract"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">drift</span><span class="o">.</span><span class="n">partitions</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">drift</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
@@ -8746,13 +8787,14 @@ reading: below 0.10 stable, 0.10–0.25 shifting, above 0.25 a different populat
             <span class="s2">"max_psi_column"</span><span class="p">:</span> <span class="n">mx</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
         <span class="p">}</span>
     <span class="p">]</span>
-<span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"country_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_contract.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_contract.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">mx</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">"max monthly PSI"</span><span class="p">)</span><span class="o">.</span><span class="n">to_frame</span><span class="p">(),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"**Largest monthly PSI in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">mx</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">mx</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">).** "</span>
         <span class="o">+</span> <span class="p">(</span>
-            <span class="s2">"All columns stay far below 0.10: the country's population of transactions is stationary for three years. "</span>
+            <span class="sa">f</span><span class="s2">"All columns stay far below 0.10: the population of transactions is stationary over "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">tx</span><span class="o">.</span><span class="n">month</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="si">}</span><span class="s2"> months. "</span>
             <span class="s2">"Stationarity is itself a generator fingerprint: a real bank's channel mix drifts towards digital and its "</span>
             <span class="s2">"amounts with inflation."</span>
             <span class="k">if</span> <span class="n">mx</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">0.10</span>
@@ -8783,9 +8825,9 @@ reading: below 0.10 stable, 0.10–0.25 shifting, above 0.25 a different populat
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:360px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="c8b686be-7959-41ac-a116-05d76a9f00f9" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("c8b686be-7959-41ac-a116-05d76a9f00f9")) {                    Plotly.newPlot(                        "c8b686be-7959-41ac-a116-05d76a9f00f9",                        [{"hovertemplate":"column=transaction_type\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"transaction_type","line":{"color":"#2a78d6","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"transaction_type","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"GnXc+gCHPT92Cwj+OppPP3zplGt0SD4\u002f0+kodeorSz817mddNs8wP6Lpg1UYoEc\u002fgsvTL2arRz\u002foHtb38\u002fA4Pxe+i+pHJ0c\u002fiqLSTrKdOD\u002fjLDNehBlSP8wPulgkvyY\u002fmmUUFWFPUj+KlXrjU5xEPzRTjNH2jkc\u002fvjX+Ic1ZQz+u3tntW\u002fpOP89ovxSef1Y\u002fgwPKGFEiJD\u002f0GfIMo0NdP6vn3k2MW0M\u002fK0Ik7SrxXj91QR8JV3xdPxIUjGyfs1M\u002f3hbrrNIIRT9EkKWsHfZQPzkafcPy9UA\u002faAWU6aggUz9v6eGyUNg5Py\u002ffAS+t+Vc\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=channel\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"channel","line":{"color":"#eb6834","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"channel","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"hmQFADTAST9iH38altZMP\u002fu8ofcjZiQ\u002fZeH2YErsNT\u002f+Qzuz+tVRPz47VgRPJy4\u002fUD9zotrDRj+JGrnPvko+P8KcPgjJTzA\u002fSi3S76cHWD\u002fXippKO4Y5P7Yc6ccXYjM\u002fH+zXPjyjSz\u002fC82HKYtxCP7OIeHdVr1g\u002f7XOMKzTwQj9vVB7mwqA4P3BOFBn75C0\u002fd62gZxJRNz+Svvci1BQ+P\u002fn6h65Tnjk\u002fsx4GZ0J1UD\u002feggdcKxhTP3Ugwo9ygzY\u002f4TwE67lRTD+aIJbv5oBXPzsSjsSvL0A\u002fsCF65saZKD8CujO6XXZEP371M07WSVA\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=currency\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"currency","line":{"color":"#1baf7a","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"currency","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"\u002fLB7kHBb8j53r+xF4oL9PkKIXJQWVQ8\u002fJtc5\u002fQ7Esj7GyNEg3BIqP+Zp33s8+jw\u002fM3N0bxstCD8NbmJwg3jyPvqWqVaCyvw+TXe1TOs6Mj9i034Ad10SP3Hb53dPlGk+aw5tpQYosz5jOlsq\u002fg0mPyi4oi9t7Hg+JSwW92TV6j4L7ZeTwherPoCfjDbXQCc\u002fZYpvd9l3wD5Z34TtnkMsPxS1yjqTF0k\u002fH46kFOHuBz9EbaZhd3jyPldFTkoQRf4+X3QWtw3uoT5ZXg1MYMACP+eEzIXKySA\u002fboec6VWLNT9l8mxzSrVIP6xwRcKK7UI\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=transaction_status\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"transaction_status","line":{"color":"#eda100","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"transaction_status","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"x2zWBB\u002fvPj\u002fKvC7MA9oYPxWxIKyGkkQ\u002ftmv3EyHQMD\u002f+6\u002fdmnXpEP46cSbV3OkI\u002f6pR1rwokRj\u002fks9PZlopJP1RAQUQlbUA\u002fHDqXP1SBRz+o4sYHNZBGP79X9c1s\u002fTA\u002f6U+b92LqJD\u002falV4Ldc1IP3pmTo9KEDw\u002f5yDsutrGKD9XnWdfQoQhP9sSlG0kyjc\u002fjM1vYuFhOz\u002fMpxo+YHswP1LUAcRNATI\u002fa1zfXnhGJz+bWKRUvXYNP4SO1dDmTzc\u002fyhRSFtHwGD8dwJvFhGI+P0OXFk6vpCw\u002fRQtPDskVJj\u002fR4lXo0vZBP2UbdFy6mWE\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=amount_decile\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"amount_decile","line":{"color":"#e87ba4","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"amount_decile","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"OtHKIgBMNj9JG+Msf080P01iYiPN4Uw\u002fJg83pGG9Uj8XREyJa3lFPwU4kgq1CFk\u002fHsjN3Kg1Nz\u002fwj\u002f4mBvVIP8CtXn+qZmA\u002fb7WzW230VD\u002f62f\u002fYKgBNP7i+6DFKR1E\u002fnr8iAw1FXT\u002fjMzxb5KZRP4AOGUn8l1Q\u002f2kBBRKH3UD+ag1IexehbPwIOKbsSxUA\u002fTDdijD3yRj+4T82NEUdQP+a4iyoVMGU\u002f4ZK4QGbZQj8plDEIr5ZNP9ZnbW9SDVs\u002fNzK4CScOVT\u002f6RYwdvL9DP+Qg0hf53Ek\u002fT9Nv8DBrTj\u002fHsW4yFsFfP3IZ\u002fYiSrlk\u002f"},"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"psi"}},"legend":{"title":{"text":"column"},"tracegroupgap":0},"title":{"text":"Colombia: PSI of each month against the first 6 months"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0.1,"y1":0.1,"yref":"y"},{"line":{"dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0.25,"y1":0.25,"yref":"y"}],"annotations":[{"showarrow":false,"text":"0.10 shifting","x":1,"xanchor":"right","xref":"x domain","y":0.1,"yanchor":"bottom","yref":"y"},{"showarrow":false,"text":"0.25 different population","x":1,"xanchor":"right","xref":"x domain","y":0.25,"yanchor":"bottom","yref":"y"}],"height":360},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="10e0915c-e63b-43f9-bc07-c5b3ea6328ee" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("10e0915c-e63b-43f9-bc07-c5b3ea6328ee")) {                    Plotly.newPlot(                        "10e0915c-e63b-43f9-bc07-c5b3ea6328ee",                        [{"hovertemplate":"column=transaction_type\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"transaction_type","line":{"color":"#2a78d6","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"transaction_type","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"GnXc+gCHPT92Cwj+OppPP3zplGt0SD4\u002f0+kodeorSz817mddNs8wP6Lpg1UYoEc\u002fgsvTL2arRz\u002foHtb38\u002fA4Pxe+i+pHJ0c\u002fiqLSTrKdOD\u002fjLDNehBlSP8wPulgkvyY\u002fmmUUFWFPUj+KlXrjU5xEPzRTjNH2jkc\u002fvjX+Ic1ZQz+u3tntW\u002fpOP89ovxSef1Y\u002fgwPKGFEiJD\u002f0GfIMo0NdP6vn3k2MW0M\u002fK0Ik7SrxXj91QR8JV3xdPxIUjGyfs1M\u002f3hbrrNIIRT9EkKWsHfZQPzkafcPy9UA\u002faAWU6aggUz9v6eGyUNg5Py\u002ffAS+t+Vc\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=channel\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"channel","line":{"color":"#eb6834","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"channel","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"hmQFADTAST9iH38altZMP\u002fu8ofcjZiQ\u002fZeH2YErsNT\u002f+Qzuz+tVRPz47VgRPJy4\u002fUD9zotrDRj+JGrnPvko+P8KcPgjJTzA\u002fSi3S76cHWD\u002fXippKO4Y5P7Yc6ccXYjM\u002fH+zXPjyjSz\u002fC82HKYtxCP7OIeHdVr1g\u002f7XOMKzTwQj9vVB7mwqA4P3BOFBn75C0\u002fd62gZxJRNz+Svvci1BQ+P\u002fn6h65Tnjk\u002fsx4GZ0J1UD\u002feggdcKxhTP3Ugwo9ygzY\u002f4TwE67lRTD+aIJbv5oBXPzsSjsSvL0A\u002fsCF65saZKD8CujO6XXZEP371M07WSVA\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=currency\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"currency","line":{"color":"#1baf7a","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"currency","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"\u002fLB7kHBb8j53r+xF4oL9PkKIXJQWVQ8\u002fJtc5\u002fQ7Esj7GyNEg3BIqP+Zp33s8+jw\u002fM3N0bxstCD8NbmJwg3jyPvqWqVaCyvw+TXe1TOs6Mj9i034Ad10SP3Hb53dPlGk+aw5tpQYosz5jOlsq\u002fg0mPyi4oi9t7Hg+JSwW92TV6j4L7ZeTwherPoCfjDbXQCc\u002fZYpvd9l3wD5Z34TtnkMsPxS1yjqTF0k\u002fH46kFOHuBz9EbaZhd3jyPldFTkoQRf4+X3QWtw3uoT5ZXg1MYMACP+eEzIXKySA\u002fboec6VWLNT9l8mxzSrVIP6xwRcKK7UI\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=transaction_status\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"transaction_status","line":{"color":"#eda100","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"transaction_status","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"x2zWBB\u002fvPj\u002fKvC7MA9oYPxWxIKyGkkQ\u002ftmv3EyHQMD\u002f+6\u002fdmnXpEP46cSbV3OkI\u002f6pR1rwokRj\u002fks9PZlopJP1RAQUQlbUA\u002fHDqXP1SBRz+o4sYHNZBGP79X9c1s\u002fTA\u002f6U+b92LqJD\u002falV4Ldc1IP3pmTo9KEDw\u002f5yDsutrGKD9XnWdfQoQhP9sSlG0kyjc\u002fjM1vYuFhOz\u002fMpxo+YHswP1LUAcRNATI\u002fa1zfXnhGJz+bWKRUvXYNP4SO1dDmTzc\u002fyhRSFtHwGD8dwJvFhGI+P0OXFk6vpCw\u002fRQtPDskVJj\u002fR4lXo0vZBP2UbdFy6mWE\u002f"},"yaxis":"y","type":"scatter"},{"hovertemplate":"column=amount_decile\u003cbr\u003emonth=%{x}\u003cbr\u003epsi=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"amount_decile","line":{"color":"#e87ba4","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"amount_decile","orientation":"v","showlegend":true,"x":["2023-12-01T00:00:00.000000","2024-01-01T00:00:00.000000","2024-02-01T00:00:00.000000","2024-03-01T00:00:00.000000","2024-04-01T00:00:00.000000","2024-05-01T00:00:00.000000","2024-06-01T00:00:00.000000","2024-07-01T00:00:00.000000","2024-08-01T00:00:00.000000","2024-09-01T00:00:00.000000","2024-10-01T00:00:00.000000","2024-11-01T00:00:00.000000","2024-12-01T00:00:00.000000","2025-01-01T00:00:00.000000","2025-02-01T00:00:00.000000","2025-03-01T00:00:00.000000","2025-04-01T00:00:00.000000","2025-05-01T00:00:00.000000","2025-06-01T00:00:00.000000","2025-07-01T00:00:00.000000","2025-08-01T00:00:00.000000","2025-09-01T00:00:00.000000","2025-10-01T00:00:00.000000","2025-11-01T00:00:00.000000","2025-12-01T00:00:00.000000","2026-01-01T00:00:00.000000","2026-02-01T00:00:00.000000","2026-03-01T00:00:00.000000","2026-04-01T00:00:00.000000","2026-05-01T00:00:00.000000"],"xaxis":"x","y":{"dtype":"f8","bdata":"OtHKIgBMNj9JG+Msf080P01iYiPN4Uw\u002fJg83pGG9Uj8XREyJa3lFPwU4kgq1CFk\u002fHsjN3Kg1Nz\u002fwj\u002f4mBvVIP8CtXn+qZmA\u002fb7WzW230VD\u002f62f\u002fYKgBNP7i+6DFKR1E\u002fnr8iAw1FXT\u002fjMzxb5KZRP4AOGUn8l1Q\u002f2kBBRKH3UD+ag1IexehbPwIOKbsSxUA\u002fTDdijD3yRj+4T82NEUdQP+a4iyoVMGU\u002f4ZK4QGbZQj8plDEIr5ZNP9ZnbW9SDVs\u002fNzK4CScOVT\u002f6RYwdvL9DP+Qg0hf53Ek\u002fT9Nv8DBrTj\u002fHsW4yFsFfP3IZ\u002fYiSrlk\u002f"},"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"psi"}},"legend":{"title":{"text":"column"},"tracegroupgap":0},"title":{"text":"Colombia: PSI of each month against the first 6 months"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0.1,"y1":0.1,"yref":"y"},{"line":{"dash":"dash"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":0.25,"y1":0.25,"yref":"y"}],"annotations":[{"showarrow":false,"text":"0.10 shifting","x":1,"xanchor":"right","xref":"x domain","y":0.1,"yanchor":"bottom","yref":"y"},{"showarrow":false,"text":"0.25 different population","x":1,"xanchor":"right","xref":"x domain","y":0.25,"yanchor":"bottom","yref":"y"}],"height":360},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('c8b686be-7959-41ac-a116-05d76a9f00f9');
+var gd = document.getElementById('10e0915c-e63b-43f9-bc07-c5b3ea6328ee');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8814,7 +8856,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_d21981cc_3f8d_4698_8f3e_b70fe35e456b">
+<table hidden="hidden" id="itables_caddd4a3_f192_40da_b207_f498323eb04a">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8876,7 +8918,7 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_d21981cc_3f8d_4698_8f3e_b70fe35e456b_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_caddd4a3_f192_40da_b207_f498323eb04a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">max monthly PSI</th>
 </tr>
@@ -8889,12 +8931,12 @@ if (outputEl) {{
 <tr><td style="border:1px solid #ddd;padding:8px">transaction_type</td><td style="border:1px solid #ddd;padding:8px">0.0019</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">channel</td><td style="border:1px solid #ddd;padding:8px">0.0015</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">currency</td><td style="border:1px solid #ddd;padding:8px">0.0008</td></tr>
-</tbody></table></div><script>document.getElementById("itables_d21981cc_3f8d_4698_8f3e_b70fe35e456b")?.removeAttribute("hidden");document.getElementById("itables_d21981cc_3f8d_4698_8f3e_b70fe35e456b_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_caddd4a3_f192_40da_b207_f498323eb04a")?.removeAttribute("hidden");document.getElementById("itables_caddd4a3_f192_40da_b207_f498323eb04a_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_d21981cc_3f8d_4698_8f3e_b70fe35e456b:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_caddd4a3_f192_40da_b207_f498323eb04a:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8918,13 +8960,13 @@ if (outputEl) {{
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>Largest monthly PSI in Colombia: 0.003 (amount_decile).</strong> All columns stay far below 0.10: the country's population of transactions is stationary for three years. Stationarity is itself a generator fingerprint: a real bank's channel mix drifts towards digital and its amounts with inflation.</p>
+<p><strong>Largest monthly PSI in Colombia: 0.003 (amount_decile).</strong> All columns stay far below 0.10: the population of transactions is stationary over 36 months. Stationarity is itself a generator fingerprint: a real bank's channel mix drifts towards digital and its amounts with inflation.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=35e41ad3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=90c2c1a9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8943,7 +8985,7 @@ expected to hold on the third, which notebook 14 tests directly.</li>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3b846904">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=deb73442">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8965,7 +9007,7 @@ expected to hold on the third, which notebook 14 tests directly.</li>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 1s
+<pre>notebook time 2s
 </pre>
 </div>
 </div>

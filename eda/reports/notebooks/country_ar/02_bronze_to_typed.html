@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2b84411f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7a8f5ed1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7809,7 +7809,7 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=11b96014">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=945869f5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7829,10 +7829,12 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"AR"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">pl</span><span class="o">.</span><span class="n">build_layer</span><span class="p">(</span><span class="s2">"seeds"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">TYPED</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">pl</span><span class="o">.</span><span class="n">catalog</span><span class="p">()[</span><span class="s2">"node"</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"typed_"</span><span class="p">))</span>
 <span class="n">built</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">build_set</span><span class="p">([</span><span class="s2">"dq_corrections_active"</span><span class="p">,</span> <span class="o">*</span><span class="n">TYPED</span><span class="p">])</span>
@@ -7871,13 +7873,13 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <div class="jp-OutputArea-child jp-OutputArea-executeResult">
 <div class="jp-OutputPrompt jp-OutputArea-prompt">Out[1]:</div>
 <div class="jp-RenderedText jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/plain" tabindex="0">
-<pre>[]</pre>
+<pre>[Built(node='dq_partition_profile', layer='silver', materialized='table', rows=167526, seconds=8.83, pulled_forward=False)]</pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=612233d8">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6afb2dcd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7887,7 +7889,7 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9580f4be">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d3c54760">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7915,13 +7917,14 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <span class="n">total</span> <span class="o">=</span> <span class="n">surv</span><span class="o">.</span><span class="n">rows</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">surv</span><span class="o">.</span><span class="n">flagged</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> flagged rows of </span><span class="si">{</span><span class="n">total</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">surv</span><span class="o">.</span><span class="n">flagged</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> %), "</span>
+        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">surv</span><span class="o">.</span><span class="n">flagged</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> flagged rows of </span><span class="si">{</span><span class="n">total</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">surv</span><span class="o">.</span><span class="n">flagged</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">total</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> %), "</span>
         <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span><span class="si">}</span><span class="s2"> distinct (table, column, code) findings.** "</span>
-        <span class="o">+</span> <span class="p">(</span>
-            <span class="s2">"None beyond the bank-wide three."</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">5</span>
-            <span class="k">else</span> <span class="s2">"More findings than bank-wide: inspect below."</span>
+        <span class="o">+</span> <span class="s2">"Largest: "</span>
+        <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"`</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">table_name</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">column_name</span><span class="si">}</span><span class="s2">` </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">code</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">cells</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> cells)"</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">issues</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
         <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"."</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -7937,7 +7940,7 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_94a4f8fd_7484_46a8_8861_55e10ae44203">
+<table hidden="hidden" id="itables_3dbc2c1b_f188_4fe0_ba7c_680659f9c37f">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -7999,7 +8002,7 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 </tr>
 </tbody>
 </table>
-<div id="itables_94a4f8fd_7484_46a8_8861_55e10ae44203_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_3dbc2c1b_f188_4fe0_ba7c_680659f9c37f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>typed view</th>
 <th style="border:1px solid #ddd;padding:8px">rows</th>
 <th style="border:1px solid #ddd;padding:8px">flagged</th>
@@ -8020,12 +8023,12 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <tr><td style="border:1px solid #ddd;padding:8px">typed_service_agents</td><td style="border:1px solid #ddd;padding:8px">1200</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0.000</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">typed_transactions</td><td style="border:1px solid #ddd;padding:8px">854021</td><td style="border:1px solid #ddd;padding:8px">8610</td><td style="border:1px solid #ddd;padding:8px">1.008</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">typed_transactions_holdout</td><td style="border:1px solid #ddd;padding:8px">25984</td><td style="border:1px solid #ddd;padding:8px">285</td><td style="border:1px solid #ddd;padding:8px">1.097</td></tr>
-</tbody></table></div><script>document.getElementById("itables_94a4f8fd_7484_46a8_8861_55e10ae44203")?.removeAttribute("hidden");document.getElementById("itables_94a4f8fd_7484_46a8_8861_55e10ae44203_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_3dbc2c1b_f188_4fe0_ba7c_680659f9c37f")?.removeAttribute("hidden");document.getElementById("itables_3dbc2c1b_f188_4fe0_ba7c_680659f9c37f_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_94a4f8fd_7484_46a8_8861_55e10ae44203:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_3dbc2c1b_f188_4fe0_ba7c_680659f9c37f:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8050,7 +8053,7 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_d4ef7a4b_4a08_4a62_a64e_5b5e8f8bd6b6">
+<table hidden="hidden" id="itables_914f2131_cb01_4601_beee_86f6653027ad">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8112,7 +8115,7 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 </tr>
 </tbody>
 </table>
-<div id="itables_d4ef7a4b_4a08_4a62_a64e_5b5e8f8bd6b6_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_914f2131_cb01_4601_beee_86f6653027ad_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">table_name</th>
 <th style="border:1px solid #ddd;padding:8px">column_name</th>
@@ -8122,12 +8125,12 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <tr><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">transaction_country</td><td style="border:1px solid #ddd;padding:8px">V2</td><td style="border:1px solid #ddd;padding:8px">8610</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">subject</td><td style="border:1px solid #ddd;padding:8px">P</td><td style="border:1px solid #ddd;padding:8px">7514</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">transactions_holdout</td><td style="border:1px solid #ddd;padding:8px">transaction_country</td><td style="border:1px solid #ddd;padding:8px">V2</td><td style="border:1px solid #ddd;padding:8px">285</td></tr>
-</tbody></table></div><script>document.getElementById("itables_d4ef7a4b_4a08_4a62_a64e_5b5e8f8bd6b6")?.removeAttribute("hidden");document.getElementById("itables_d4ef7a4b_4a08_4a62_a64e_5b5e8f8bd6b6_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_914f2131_cb01_4601_beee_86f6653027ad")?.removeAttribute("hidden");document.getElementById("itables_914f2131_cb01_4601_beee_86f6653027ad_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_d4ef7a4b_4a08_4a62_a64e_5b5e8f8bd6b6:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_914f2131_cb01_4601_beee_86f6653027ad:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8149,13 +8152,13 @@ country</strong>, and whether the country's own vocabulary and emptiness pattern
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>Argentina: 16,409 flagged rows of 5,094,086 (0.32 %), 3 distinct (table, column, code) findings.</strong> None beyond the bank-wide three.</p>
+<p><strong>Argentina: 16,409 flagged rows of 5,094,086 (0.32 %), 3 distinct (table, column, code) findings.</strong> Largest: <code>transactions.transaction_country</code> V2 (8,610 cells), <code>campaign_sends.subject</code> P (7,514 cells), <code>transactions_holdout.transaction_country</code> V2 (285 cells).</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=83b957c3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=25dffbda">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8166,7 +8169,7 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d5b0351c">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=18f1803e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8191,7 +8194,10 @@ and the anonymous-traffic label in digital events. What it is here:</p>
         <span class="o">+</span> <span class="p">(</span>
             <span class="sa">f</span><span class="s2">"Here `Mexico` (no accent) is a **foreign destination** for </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s customers (</span><span class="si">{</span><span class="n">n_mex</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows), counted "</span>
             <span class="s2">"like USA, Spain or Brazil: correcting it to `México` changes nothing (both map to MX)."</span>
-            <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">!=</span> <span class="s2">"MX"</span>
+            <span class="k">if</span> <span class="n">COUNTRY</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"MX"</span><span class="p">,</span> <span class="s2">"ALL"</span><span class="p">)</span>
+            <span class="k">else</span> <span class="sa">f</span><span class="s2">"Bank-wide, `Mexico` (no accent, </span><span class="si">{</span><span class="n">n_mex</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows) is the generator's foreign-destination label: staging "</span>
+            <span class="s2">"maps it to MX, which makes it domestic for Mexican customers and cross-border for the others."</span>
+            <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">==</span> <span class="s2">"ALL"</span>
             <span class="k">else</span> <span class="sa">f</span><span class="s2">"For Mexican customers, `Mexico` (no accent, </span><span class="si">{</span><span class="n">n_mex</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> rows) is the generator's foreign label landing on "</span>
             <span class="s2">"their own country: staging maps it to MX, which makes those transactions domestic, as they geographically are."</span>
         <span class="p">)</span>
@@ -8205,7 +8211,7 @@ and the anonymous-traffic label in digital events. What it is here:</p>
         <span class="o">+</span> <span class="p">(</span>
             <span class="s2">"The anonymous traffic arrives under both spellings, `México` and `Mexico`: the IP attribution needed both "</span>
             <span class="s2">"names, which is why the cut lists every spelling of a country."</span>
-            <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">==</span> <span class="s2">"MX"</span>
+            <span class="k">if</span> <span class="n">COUNTRY</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"MX"</span><span class="p">,</span> <span class="s2">"ALL"</span><span class="p">)</span>
             <span class="k">else</span> <span class="s2">"Identified customers never log in from another country here either: login-country features stay silent."</span>
         <span class="p">)</span>
     <span class="p">)</span>
@@ -8223,7 +8229,7 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_818868cd_8961_4965_b42f_d0dd9d200f23">
+<table hidden="hidden" id="itables_25506234_a0e7_4636_bbf2_b0b1816af395">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8285,7 +8291,7 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_818868cd_8961_4965_b42f_d0dd9d200f23_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_25506234_a0e7_4636_bbf2_b0b1816af395_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>transaction_country</th>
 <th style="border:1px solid #ddd;padding:8px">transactions</th>
 </tr></thead><tbody>
@@ -8295,12 +8301,12 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 <tr><td style="border:1px solid #ddd;padding:8px">Colombia</td><td style="border:1px solid #ddd;padding:8px">8603</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Spain</td><td style="border:1px solid #ddd;padding:8px">8567</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Brazil</td><td style="border:1px solid #ddd;padding:8px">8470</td></tr>
-</tbody></table></div><script>document.getElementById("itables_818868cd_8961_4965_b42f_d0dd9d200f23")?.removeAttribute("hidden");document.getElementById("itables_818868cd_8961_4965_b42f_d0dd9d200f23_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_25506234_a0e7_4636_bbf2_b0b1816af395")?.removeAttribute("hidden");document.getElementById("itables_25506234_a0e7_4636_bbf2_b0b1816af395_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_818868cd_8961_4965_b42f_d0dd9d200f23:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_25506234_a0e7_4636_bbf2_b0b1816af395:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8323,7 +8329,7 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_f6e21bf5_cfe6_4f78_a961_b57b4b1d6409">
+<table hidden="hidden" id="itables_1ccd4f67_c311_4b72_bafe_aa794555454a">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8385,19 +8391,19 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_f6e21bf5_cfe6_4f78_a961_b57b4b1d6409_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_1ccd4f67_c311_4b72_bafe_aa794555454a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>anonymous</th>
 <th style="border:1px solid #ddd;padding:8px">ip_country</th>
 <th style="border:1px solid #ddd;padding:8px">events</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">Argentina</td><td style="border:1px solid #ddd;padding:8px">2300752</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Argentina</td><td style="border:1px solid #ddd;padding:8px">1134651</td></tr>
-</tbody></table></div><script>document.getElementById("itables_f6e21bf5_cfe6_4f78_a961_b57b4b1d6409")?.removeAttribute("hidden");document.getElementById("itables_f6e21bf5_cfe6_4f78_a961_b57b4b1d6409_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_1ccd4f67_c311_4b72_bafe_aa794555454a")?.removeAttribute("hidden");document.getElementById("itables_1ccd4f67_c311_4b72_bafe_aa794555454a_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_f6e21bf5_cfe6_4f78_a961_b57b4b1d6409:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_1ccd4f67_c311_4b72_bafe_aa794555454a:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8431,7 +8437,7 @@ and the anonymous-traffic label in digital events. What it is here:</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dcb645b5">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a757ba86">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8443,7 +8449,7 @@ misfire on this country's days.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b516f38b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d777e98b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8475,8 +8481,8 @@ misfire on this country's days.</p>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
         <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">emp</span><span class="p">)</span><span class="si">}</span><span class="s2"> columns differ from the contract's empty share by 2 points or more in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.** "</span>
-        <span class="s2">"These are the columns where a bank-wide baseline cannot describe this country; notebook 03 re-estimates "</span>
-        <span class="s2">"them on the country's reference window."</span>
+        <span class="s2">"These are the columns where the contract's baseline cannot describe this scope; notebook 03 re-estimates "</span>
+        <span class="s2">"them on the scope's reference window."</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -8492,7 +8498,7 @@ misfire on this country's days.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_9678fcca_5bc3_46a4_b14a_b0ba25438ea0">
+<table hidden="hidden" id="itables_99314686_b346_49db_a0f7_4eef26ec4f47">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8554,7 +8560,7 @@ misfire on this country's days.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_9678fcca_5bc3_46a4_b14a_b0ba25438ea0_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_99314686_b346_49db_a0f7_4eef26ec4f47_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>table_name</th>
 <th style="border:1px solid #ddd;padding:8px">column_name</th>
 <th style="border:1px solid #ddd;padding:8px">country_empty_pct</th>
@@ -8564,12 +8570,12 @@ misfire on this country's days.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">amount_usd</td><td style="border:1px solid #ddd;padding:8px">14.48</td><td style="border:1px solid #ddd;padding:8px">57.34</td><td style="border:1px solid #ddd;padding:8px">-42.86</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">customer_id</td><td style="border:1px solid #ddd;padding:8px">33.03</td><td style="border:1px solid #ddd;padding:8px">23.98</td><td style="border:1px solid #ddd;padding:8px">9.05</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">ip_city</td><td style="border:1px solid #ddd;padding:8px">36.56</td><td style="border:1px solid #ddd;padding:8px">27.98</td><td style="border:1px solid #ddd;padding:8px">8.58</td></tr>
-</tbody></table></div><script>document.getElementById("itables_9678fcca_5bc3_46a4_b14a_b0ba25438ea0")?.removeAttribute("hidden");document.getElementById("itables_9678fcca_5bc3_46a4_b14a_b0ba25438ea0_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_99314686_b346_49db_a0f7_4eef26ec4f47")?.removeAttribute("hidden");document.getElementById("itables_99314686_b346_49db_a0f7_4eef26ec4f47_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_9678fcca_5bc3_46a4_b14a_b0ba25438ea0:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_99314686_b346_49db_a0f7_4eef26ec4f47:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8604,9 +8610,9 @@ misfire on this country's days.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:520px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="a81deb00-a500-4892-a507-f4257ad0fe3c" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("a81deb00-a500-4892-a507-f4257ad0fe3c")) {                    Plotly.newPlot(                        "a81deb00-a500-4892-a507-f4257ad0fe3c",                        [{"hovertemplate":"gap_points=%{x}\u003cbr\u003ey=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"f8","bdata":"rkfhehRuRcCamZmZmRkiQClcj8L1KCFA"},"xaxis":"x","y":["transactions.amount_usd","digital_events.customer_id","digital_events.ip_city"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"gap_points"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Columns whose emptiness in Argentina differs from the contract (points)"},"barmode":"relative","height":520},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="0c249338-629c-4f97-9676-75fa26ac614b" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("0c249338-629c-4f97-9676-75fa26ac614b")) {                    Plotly.newPlot(                        "0c249338-629c-4f97-9676-75fa26ac614b",                        [{"hovertemplate":"gap_points=%{x}\u003cbr\u003ey=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"f8","bdata":"rkfhehRuRcCamZmZmRkiQClcj8L1KCFA"},"xaxis":"x","y":["transactions.amount_usd","digital_events.customer_id","digital_events.ip_city"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"gap_points"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Columns whose emptiness in Argentina differs from the contract (points)"},"barmode":"relative","height":520},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('a81deb00-a500-4892-a507-f4257ad0fe3c');
+var gd = document.getElementById('0c249338-629c-4f97-9676-75fa26ac614b');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8634,28 +8640,28 @@ if (outputEl) {{
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>3 columns differ from the contract's empty share by 2 points or more in Argentina.</strong> These are the columns where a bank-wide baseline cannot describe this country; notebook 03 re-estimates them on the country's reference window.</p>
+<p><strong>3 columns differ from the contract's empty share by 2 points or more in Argentina.</strong> These are the columns where the contract's baseline cannot describe this scope; notebook 03 re-estimates them on the scope's reference window.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=24fff6b7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=42d25bfd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="Findings-for-Argentina-and-what-to-do">Findings for Argentina and what to do<a class="anchor-link" href="#Findings-for-Argentina-and-what-to-do">¶</a></h2><ul>
-<li>The country's contract findings are the bank's (variant spellings, <code>nan</code> subjects) in the country's proportion:
-typing is structurally clean everywhere, so no country needs its own typing rules.</li>
+<li>The contract findings are the bank's (variant spellings, <code>nan</code> subjects) in the scope's proportion: typing is
+structurally clean everywhere, so no country needs its own typing rules.</li>
 <li>Emptiness differs by country where the product or channel mix differs: those baselines are re-based in notebook 03.</li>
 <li>Raw country text is never a feature: use the ISO codes from staging.</li>
 </ul>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e52e1436">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=475cbf75">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8677,7 +8683,7 @@ typing is structurally clean everywhere, so no country needs its own typing rule
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 13s
+<pre>notebook time 22s
 </pre>
 </div>
 </div>

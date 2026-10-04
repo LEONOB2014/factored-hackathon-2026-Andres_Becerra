@@ -7796,13 +7796,13 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7fc3ed99">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3023d3f8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="01-%C2%B7-Country-scope-and-the-country-lake-(Mexico)">01 · Country scope and the country lake (Mexico)<a class="anchor-link" href="#01-%C2%B7-Country-scope-and-the-country-lake-(Mexico)">¶</a></h1><p><strong>Country series · Mexico</strong> · <em>generated from <code>notebooks/country_template</code> by
+<h1 id="01-%C2%B7-Scope-and-lake-(Mexico)">01 · Scope and lake (Mexico)<a class="anchor-link" href="#01-%C2%B7-Scope-and-lake-(Mexico)">¶</a></h1><p><strong>Country series · Mexico</strong> · <em>generated from <code>notebooks/country_template</code> by
 <code>scripts/build_country_notebooks.py</code>: edit the template, not this file</em></p>
 <h2 id="Why-analyse-one-country-at-a-time">Why analyse one country at a time<a class="anchor-link" href="#Why-analyse-one-country-at-a-time">¶</a></h2><p>A bank that operates in Mexico, Colombia and Argentina runs three businesses: three currencies, three regulators,
 three calendars, three time zones, and customers who behave differently. Averages over the three hide all of it: an
@@ -7820,23 +7820,23 @@ imputations, anomaly thresholds, model choices) on that country's own data.</p>
 <tbody>
 <tr>
 <td>01</td>
-<td>what is in the country lake, and what is shared with the other countries</td>
+<td>what is in the lake, and how big it is</td>
 </tr>
 <tr>
 <td>02</td>
-<td>which contract findings does the country's data have</td>
+<td>which contract findings does the data have</td>
 </tr>
 <tr>
 <td>03</td>
-<td>does the global contract fit the country; how did its schema and distributions evolve</td>
+<td>does the global contract fit; how did the schema and distributions evolve</td>
 </tr>
 <tr>
 <td>04</td>
-<td>local time, the country's calendar (holidays, paydays), and what they explain</td>
+<td>local time, the calendar (holidays, paydays), and what they explain</td>
 </tr>
 <tr>
 <td>05</td>
-<td>currencies, conversion, imputation and the monthly grid in this country</td>
+<td>currencies, conversion, imputation and the monthly grid</td>
 </tr>
 <tr>
 <td>06</td>
@@ -7856,11 +7856,11 @@ imputations, anomaly thresholds, model choices) on that country's own data.</p>
 </tr>
 <tr>
 <td>12</td>
-<td>the integrity rules against global and country SLOs, and the gates</td>
+<td>the integrity rules against global and scoped SLOs, and the gates</td>
 </tr>
 <tr>
 <td>13</td>
-<td>anomalies and change points in the country's activity</td>
+<td>anomalies and change points in the activity</td>
 </tr>
 <tr>
 <td>14</td>
@@ -7871,7 +7871,7 @@ imputations, anomaly thresholds, model choices) on that country's own data.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e235ecd4">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=58da47c1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7881,8 +7881,11 @@ imputations, anomaly thresholds, model choices) on that country's own data.</p>
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"../../src"</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">IPython.display</span><span class="w"> </span><span class="kn">import</span> <span class="n">Markdown</span><span class="p">,</span> <span class="n">display</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itables</span><span class="w"> </span><span class="kn">import</span> <span class="n">show</span>
@@ -7891,12 +7894,22 @@ imputations, anomaly thresholds, model choices) on that country's own data.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span> <span class="k">as</span> <span class="n">pipe</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"MX"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
+<span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: home currency </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span><span class="si">}</span><span class="s2">, UTC</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2">, scratch lakehouse data/tmp/country/</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">/"</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">DATASET</span><span class="si">}</span><span class="s2"> dataset): "</span>
+    <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">"home currency, time zone and calendar per customer's country"</span>
+        <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">==</span> <span class="s2">"ALL"</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">"home currency </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span><span class="si">}</span><span class="s2">, UTC</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2">"</span>
+    <span class="p">)</span>
+    <span class="o">+</span> <span class="sa">f</span><span class="s2">"; scratch data/tmp/</span><span class="si">{</span><span class="n">DATASET</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">/"</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -7910,14 +7923,52 @@ imputations, anomaly thresholds, model choices) on that country's own data.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Mexico: home currency MXN, UTC-6, scratch lakehouse data/tmp/country/mx/
+<pre>Mexico (main dataset): home currency MXN, UTC-6; scratch data/tmp/main/mx/
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=69c45334">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0bdd9fd7">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="0-%C2%B7-The-dataset">0 · The dataset<a class="anchor-link" href="#0-%C2%B7-The-dataset">¶</a></h2><p>Main's lake, as landed and proven byte-exact. The same template runs on the quarantined backup in the
+backup-as-main series (<code>notebooks/backup_*</code>).</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=cc9698b2">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="k">if</span> <span class="n">DATASET</span> <span class="o">==</span> <span class="s2">"backup"</span><span class="p">:</span>
+    <span class="n">bk</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">build_backup_lake</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">default_lake</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">repo</span><span class="p">),</span> <span class="n">pl</span><span class="o">.</span><span class="n">source_lake</span><span class="p">)</span>
+    <span class="n">show</span><span class="p">(</span><span class="n">bk</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">gone</span> <span class="o">=</span> <span class="n">bk</span><span class="p">[</span><span class="n">bk</span><span class="o">.</span><span class="n">rule</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"missing"</span><span class="p">)]</span><span class="o">.</span><span class="n">table</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span>
+    <span class="n">tx_b</span> <span class="o">=</span> <span class="n">bk</span><span class="p">[(</span><span class="n">bk</span><span class="o">.</span><span class="n">zone</span> <span class="o">==</span> <span class="s2">"bronze_raw"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">bk</span><span class="o">.</span><span class="n">table</span> <span class="o">==</span> <span class="s2">"transactions"</span><span class="p">)]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">display</span><span class="p">(</span>
+        <span class="n">Markdown</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"**Bank-wide, the backup lacks </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gone</span><span class="p">)</span><span class="si">}</span><span class="s2"> of main's tables (</span><span class="si">{</span><span class="s1">', '</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">gone</span><span class="p">)</span><span class="si">}</span><span class="s2">)** and holds "</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">tx_b</span><span class="o">.</span><span class="n">rows_backup</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> transactions in its bronze zone against main's </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">tx_b</span><span class="o">.</span><span class="n">rows_main</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> "</span>
+            <span class="sa">f</span><span class="s2">"(</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">tx_b</span><span class="o">.</span><span class="n">rows_backup</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">tx_b</span><span class="o">.</span><span class="n">rows_main</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> %). Every model reading the missing tables builds empty "</span>
+            <span class="s2">"below; every notebook says what that costs."</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4855ea5c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7930,26 +7981,30 @@ the country;</li>
 <li>digital events of identified customers by <code>customer_id</code>; <strong>anonymous</strong> events by IP country (their only country
 signal);</li>
 <li>enterprise reference data (branches, agents, campaigns, exchange rates) is <strong>shared</strong>, not cut;</li>
-<li>the quarantined backup copy is cut the same way; the correction log and the proof manifests are shared.</li>
+<li>the quarantined copy is cut the same way; the correction log and the proof manifests are shared.</li>
 </ul>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b41d92af">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cd5ef2d0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">cut</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">build_country_lake</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">pipe</span><span class="o">.</span><span class="n">default_lake</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">repo</span><span class="p">),</span> <span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="p">)</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">cut</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_summary</span><span class="p">(</span><span class="n">pl</span><span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">cut</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">share</span> <span class="o">=</span> <span class="n">cut</span><span class="p">[(</span><span class="n">cut</span><span class="o">.</span><span class="n">zone</span> <span class="o">==</span> <span class="s2">"bronze_raw"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cut</span><span class="o">.</span><span class="n">table</span> <span class="o">==</span> <span class="s2">"customers"</span><span class="p">)]</span><span class="o">.</span><span class="n">kept_pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> holds </span><span class="si">{</span><span class="n">share</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of the bank's customers.** Customer-owned tables keep about the same "</span>
+        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2"> holds </span><span class="si">{</span><span class="n">share</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of the bank's customers.** Customer-owned tables keep about the same "</span>
         <span class="s2">"share; digital events keep a little more or less depending on the anonymous traffic attributed by IP."</span>
+        <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">!=</span> <span class="s2">"ALL"</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">"**The whole bank: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">cut</span><span class="p">[</span><span class="n">cut</span><span class="o">.</span><span class="n">zone</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">'bronze_raw'</span><span class="p">]</span><span class="o">.</span><span class="n">rows_kept</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> bronze rows in "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">int</span><span class="p">((</span><span class="n">cut</span><span class="o">.</span><span class="n">zone</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">'bronze_raw'</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">}</span><span class="s2"> tables, </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">cut</span><span class="p">[</span><span class="n">cut</span><span class="o">.</span><span class="n">zone</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="s1">'holdout_raw'</span><span class="p">]</span><span class="o">.</span><span class="n">rows_kept</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> "</span>
+        <span class="s2">"holdout rows.**"</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -7965,7 +8020,7 @@ signal);</li>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_e9399c14_90bb_463d_b650_3b4ba6710b41">
+<table hidden="hidden" id="itables_83aa21ca_ede8_49ba_ba98_bf81afdd5066">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8027,7 +8082,7 @@ signal);</li>
 </tr>
 </tbody>
 </table>
-<div id="itables_e9399c14_90bb_463d_b650_3b4ba6710b41_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_83aa21ca_ede8_49ba_ba98_bf81afdd5066_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>zone</th>
 <th style="border:1px solid #ddd;padding:8px">table</th>
 <th style="border:1px solid #ddd;padding:8px">rows_total</th>
@@ -8066,12 +8121,12 @@ signal);</li>
 <tr><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">400000</td><td style="border:1px solid #ddd;padding:8px">199861</td><td style="border:1px solid #ddd;padding:8px">customer of the country</td><td style="border:1px solid #ddd;padding:8px">49.97</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">service_agents</td><td style="border:1px solid #ddd;padding:8px">1200</td><td style="border:1px solid #ddd;padding:8px">1200</td><td style="border:1px solid #ddd;padding:8px">shared (not cut)</td><td style="border:1px solid #ddd;padding:8px">100.00</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">1839229</td><td style="border:1px solid #ddd;padding:8px">918479</td><td style="border:1px solid #ddd;padding:8px">customer of the country</td><td style="border:1px solid #ddd;padding:8px">49.94</td></tr>
-</tbody></table></div><script>document.getElementById("itables_e9399c14_90bb_463d_b650_3b4ba6710b41")?.removeAttribute("hidden");document.getElementById("itables_e9399c14_90bb_463d_b650_3b4ba6710b41_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_83aa21ca_ede8_49ba_ba98_bf81afdd5066")?.removeAttribute("hidden");document.getElementById("itables_83aa21ca_ede8_49ba_ba98_bf81afdd5066_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_e9399c14_90bb_463d_b650_3b4ba6710b41:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_83aa21ca_ede8_49ba_ba98_bf81afdd5066:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8100,12 +8155,12 @@ signal);</li>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=77fc00c7">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0dee9601">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
@@ -8141,9 +8196,9 @@ signal);</li>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:420px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="8253da25-1f20-4231-b8c4-0e7faee54103" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("8253da25-1f20-4231-b8c4-0e7faee54103")) {                    Plotly.newPlot(                        "8253da25-1f20-4231-b8c4-0e7faee54103",                        [{"hovertemplate":"rule=customer, or IP country when anonymous\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer, or IP country when anonymous","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"customer, or IP country when anonymous","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"rkfhehROR0A="},"xaxis":"x","y":["digital_events"],"yaxis":"y","type":"bar"},{"hovertemplate":"rule=customer of the country\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer of the country","marker":{"color":"#eb6834","pattern":{"shape":""}},"name":"customer of the country","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"hetRuB7lSEB7FK5H4fpIQFyPwvUo\u002fEhA4XoUrkcBSUDsUbgehQtJQM3MzMzMDElAUrgehesRSUA="},"xaxis":"x","y":["complaints","campaign_sends","satisfaction_surveys","call_center_interactions","transactions","products","call_transcripts"],"yaxis":"y","type":"bar"},{"hovertemplate":"rule=customer country\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer country","marker":{"color":"#1baf7a","pattern":{"shape":""}},"name":"customer country","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"uB6F61H4SEA="},"xaxis":"x","y":["customers"],"yaxis":"y","type":"bar"},{"hovertemplate":"rule=shared (not cut)\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"shared (not cut)","marker":{"color":"#eda100","pattern":{"shape":""}},"name":"shared (not cut)","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"AAAAAAAAWUAAAAAAAABZQAAAAAAAAFlAAAAAAAAAWUA="},"xaxis":"x","y":["branches","daily_exchange_rates","marketing_campaigns","service_agents"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"kept_pct"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"title":{},"tracegroupgap":0},"title":{"text":"Share of each bronze table kept for Mexico (%)"},"barmode":"relative","height":420},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="4a49b217-e3ba-4d5b-ab59-5a5dfc324fe2" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("4a49b217-e3ba-4d5b-ab59-5a5dfc324fe2")) {                    Plotly.newPlot(                        "4a49b217-e3ba-4d5b-ab59-5a5dfc324fe2",                        [{"hovertemplate":"rule=customer, or IP country when anonymous\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer, or IP country when anonymous","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"customer, or IP country when anonymous","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"rkfhehROR0A="},"xaxis":"x","y":["digital_events"],"yaxis":"y","type":"bar"},{"hovertemplate":"rule=customer of the country\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer of the country","marker":{"color":"#eb6834","pattern":{"shape":""}},"name":"customer of the country","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"hetRuB7lSEB7FK5H4fpIQFyPwvUo\u002fEhA4XoUrkcBSUDsUbgehQtJQM3MzMzMDElAUrgehesRSUA="},"xaxis":"x","y":["complaints","campaign_sends","satisfaction_surveys","call_center_interactions","transactions","products","call_transcripts"],"yaxis":"y","type":"bar"},{"hovertemplate":"rule=customer country\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer country","marker":{"color":"#1baf7a","pattern":{"shape":""}},"name":"customer country","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"uB6F61H4SEA="},"xaxis":"x","y":["customers"],"yaxis":"y","type":"bar"},{"hovertemplate":"rule=shared (not cut)\u003cbr\u003ekept_pct=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"shared (not cut)","marker":{"color":"#eda100","pattern":{"shape":""}},"name":"shared (not cut)","orientation":"h","showlegend":true,"textposition":"auto","x":{"dtype":"f8","bdata":"AAAAAAAAWUAAAAAAAABZQAAAAAAAAFlAAAAAAAAAWUA="},"xaxis":"x","y":["branches","daily_exchange_rates","marketing_campaigns","service_agents"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"kept_pct"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"title":{},"tracegroupgap":0},"title":{"text":"Share of each bronze table kept for Mexico (%)"},"barmode":"relative","height":420},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('8253da25-1f20-4231-b8c4-0e7faee54103');
+var gd = document.getElementById('4a49b217-e3ba-4d5b-ab59-5a5dfc324fe2');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8171,7 +8226,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6efbaa3d">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c72c1c23">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8185,24 +8240,24 @@ Notebook 02 measures what the attribution brought in.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=049ea143">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fce57226">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="2-%C2%B7-The-pipeline-is-the-same;-the-data-is-not">2 · The pipeline is the same; the data is not<a class="anchor-link" href="#2-%C2%B7-The-pipeline-is-the-same;-the-data-is-not">¶</a></h2><p>The country lakehouse is built by the same compiled dbt SQL as the bank-wide one (pipeline series), compiled against
-the country lake. One step differs, and it is a decision taken in notebook 03: the contract's drift baselines are
-re-estimated on the country's own reference window.</p>
+<h2 id="2-%C2%B7-The-pipeline-is-the-same;-the-data-is-not">2 · The pipeline is the same; the data is not<a class="anchor-link" href="#2-%C2%B7-The-pipeline-is-the-same;-the-data-is-not">¶</a></h2><p>The scope's lakehouse is built by the same compiled dbt SQL as the bank-wide one (pipeline series), compiled against
+the scope's lake. One step differs, and it is a decision taken in notebook 03: the contract's drift baselines are
+re-estimated on the scope's own reference window.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=64ac5c8c">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cabc5172">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">build_layer</span><span class="p">(</span><span class="s2">"seeds"</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -8225,7 +8280,7 @@ re-estimated on the country's own reference window.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_70c2e053_9ffa_4113_8640_cb894f8af1ef">
+<table hidden="hidden" id="itables_9458bbc5_6d47_4681_98b4_604f7070a0e2">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8287,7 +8342,7 @@ re-estimated on the country's own reference window.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_70c2e053_9ffa_4113_8640_cb894f8af1ef_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_9458bbc5_6d47_4681_98b4_604f7070a0e2_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>materialized</th>
 <th style="border:1px solid #ddd;padding:8px">external</th>
 <th style="border:1px solid #ddd;padding:8px">seed</th>
@@ -8310,12 +8365,12 @@ re-estimated on the country's own reference window.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">features_graph_knowledge</td><td style="border:1px solid #ddd;padding:8px">10</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">privacy_serving</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">9</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">audit</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-</tbody></table></div><script>document.getElementById("itables_70c2e053_9ffa_4113_8640_cb894f8af1ef")?.removeAttribute("hidden");document.getElementById("itables_70c2e053_9ffa_4113_8640_cb894f8af1ef_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_9458bbc5_6d47_4681_98b4_604f7070a0e2")?.removeAttribute("hidden");document.getElementById("itables_9458bbc5_6d47_4681_98b4_604f7070a0e2_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_70c2e053_9ffa_4113_8640_cb894f8af1ef:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_9458bbc5_6d47_4681_98b4_604f7070a0e2:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8340,7 +8395,7 @@ re-estimated on the country's own reference window.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_bdfbbe80_efdf_4366_9511_c110f9326a82">
+<table hidden="hidden" id="itables_cdd89702_96c6_4331_97c6_efdc1dab630f">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8402,19 +8457,19 @@ re-estimated on the country's own reference window.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_bdfbbe80_efdf_4366_9511_c110f9326a82_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_cdd89702_96c6_4331_97c6_efdc1dab630f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>node</th>
 <th style="border:1px solid #ddd;padding:8px">layer</th>
 <th style="border:1px solid #ddd;padding:8px">reads</th>
 <th style="border:1px solid #ddd;padding:8px">built_in</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">mart_credit_eligibility</td><td style="border:1px solid #ddd;padding:8px">gold</td><td style="border:1px solid #ddd;padding:8px">feat_credit_eligibility_pit</td><td style="border:1px solid #ddd;padding:8px">features_graph_knowledge</td></tr>
-</tbody></table></div><script>document.getElementById("itables_bdfbbe80_efdf_4366_9511_c110f9326a82")?.removeAttribute("hidden");document.getElementById("itables_bdfbbe80_efdf_4366_9511_c110f9326a82_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_cdd89702_96c6_4331_97c6_efdc1dab630f")?.removeAttribute("hidden");document.getElementById("itables_cdd89702_96c6_4331_97c6_efdc1dab630f_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_bdfbbe80_efdf_4366_9511_c110f9326a82:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_cdd89702_96c6_4331_97c6_efdc1dab630f:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8436,7 +8491,7 @@ re-estimated on the country's own reference window.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=32e6fc1b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f3d2aef0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8448,65 +8503,77 @@ too: it is in the DAG, not in the data.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=18577292">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=30cc50ac">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="3-%C2%B7-The-country-at-a-glance-(raw-bronze)">3 · The country at a glance (raw bronze)<a class="anchor-link" href="#3-%C2%B7-The-country-at-a-glance-(raw-bronze)">¶</a></h2>
+<h2 id="3-%C2%B7-Size-and-time-coverage-(raw-bronze)">3 · Size and time coverage (raw bronze)<a class="anchor-link" href="#3-%C2%B7-Size-and-time-coverage-(raw-bronze)">¶</a></h2><p>Rows and the first and last partition of every table: the coverage a model, a mart or a drift check can rely on.
+This table is written to <code>reports/tables</code> so the comparisons never need a lakehouse.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cedaebce">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=858423d9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">glance</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
-<span class="s2">    with c as (select * from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/customers/*/*.parquet', union_by_name = true)),</span>
-<span class="s2">         p as (select * from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/products/*/*.parquet', union_by_name = true)),</span>
-<span class="s2">         t as (select * from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/transactions/*/*.parquet', union_by_name = true))</span>
-<span class="s2">    select (select count(*) from c) as customers, (select count(*) from p) as products,</span>
-<span class="s2">           (select count(*) from t) as transactions,</span>
-<span class="s2">           round((select count(*) from t) / (select count(*) from c) / 35.0, 3) as tx_per_customer_month</span>
-<span class="s2">    """</span><span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
-<span class="n">show</span><span class="p">(</span><span class="n">glance</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">cur</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
-<span class="s2">    select 'products' as entity, currency, count(*) as n_rows</span>
-<span class="s2">    from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/products/*/*.parquet', union_by_name = true) group by all</span>
-<span class="s2">    union all</span>
-<span class="s2">    select 'transactions', currency, count(*)</span>
-<span class="s2">    from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/transactions/*/*.parquet', union_by_name = true) group by all</span>
-<span class="s2">    order by 1, 3 desc"""</span><span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-    <span class="n">cur</span><span class="p">,</span>
-    <span class="n">x</span><span class="o">=</span><span class="s2">"entity"</span><span class="p">,</span>
-    <span class="n">y</span><span class="o">=</span><span class="s2">"n_rows"</span><span class="p">,</span>
-    <span class="n">color</span><span class="o">=</span><span class="s2">"currency"</span><span class="p">,</span>
-    <span class="n">barmode</span><span class="o">=</span><span class="s2">"stack"</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Currencies of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s products and transactions"</span><span class="p">,</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">con</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">size</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">cut</span><span class="o">.</span><span class="n">itertuples</span><span class="p">():</span>
+    <span class="n">zone_dir</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">BACKUP_DIR</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">zone</span> <span class="o">==</span> <span class="s2">"backup"</span> <span class="k">else</span> <span class="n">r</span><span class="o">.</span><span class="n">zone</span>
+    <span class="n">glob</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">zone_dir</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">table</span><span class="si">}</span><span class="s2">/*/*.parquet"</span>
+    <span class="n">first</span><span class="p">,</span> <span class="n">last</span><span class="p">,</span> <span class="n">days</span> <span class="o">=</span> <span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        select min(_partition_date)::date, max(_partition_date)::date, count(distinct _partition_date)</span>
+<span class="s2">        from read_parquet('</span><span class="si">{</span><span class="n">glob</span><span class="si">}</span><span class="s2">', union_by_name = true, hive_partitioning = false)"""</span><span class="p">)</span><span class="o">.</span><span class="n">fetchone</span><span class="p">()</span>
+    <span class="n">size</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"dataset"</span><span class="p">:</span> <span class="n">DATASET</span><span class="p">,</span>
+            <span class="s2">"country"</span><span class="p">:</span> <span class="n">COUNTRY</span><span class="p">,</span>
+            <span class="s2">"zone"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">zone</span><span class="p">,</span>
+            <span class="s2">"table"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">table</span><span class="p">,</span>
+            <span class="s2">"rows"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">rows_kept</span><span class="p">),</span>
+            <span class="s2">"first_partition"</span><span class="p">:</span> <span class="n">first</span><span class="p">,</span>
+            <span class="s2">"last_partition"</span><span class="p">:</span> <span class="n">last</span><span class="p">,</span>
+            <span class="s2">"partitions"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">days</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+<span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<span class="n">size</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+<span class="n">size</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_size.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">events</span> <span class="o">=</span> <span class="n">size</span><span class="p">[(</span><span class="n">size</span><span class="o">.</span><span class="n">zone</span> <span class="o">==</span> <span class="s2">"bronze_raw"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">size</span><span class="o">.</span><span class="n">partitions</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)]</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">timeline</span><span class="p">(</span>
+    <span class="n">events</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+        <span class="n">first_partition</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">first_partition</span><span class="p">),</span>
+        <span class="n">last_partition</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">events</span><span class="o">.</span><span class="n">last_partition</span><span class="p">),</span>
+    <span class="p">),</span>
+    <span class="n">x_start</span><span class="o">=</span><span class="s2">"first_partition"</span><span class="p">,</span>
+    <span class="n">x_end</span><span class="o">=</span><span class="s2">"last_partition"</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="s2">"table"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: time span of each event table (bronze)"</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span> <span class="n">xaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span> <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">loc</span> <span class="o">=</span> <span class="n">cur</span><span class="p">[(</span><span class="n">cur</span><span class="o">.</span><span class="n">entity</span> <span class="o">==</span> <span class="s2">"transactions"</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"currency"</span><span class="p">)[</span><span class="s2">"n_rows"</span><span class="p">]</span>
-<span class="n">local_share</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">loc</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">spans</span> <span class="o">=</span> <span class="n">events</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"table"</span><span class="p">)</span>
+<span class="n">short</span> <span class="o">=</span> <span class="n">spans</span><span class="p">[</span><span class="n">spans</span><span class="o">.</span><span class="n">last_partition</span> <span class="o">&lt;</span> <span class="n">spans</span><span class="o">.</span><span class="n">last_partition</span><span class="o">.</span><span class="n">max</span><span class="p">()]</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">local_share</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s transactions are in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span><span class="si">}</span><span class="s2">**, the rest in "</span>
-        <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">loc</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %)"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span>
-        <span class="p">)</span>
-        <span class="o">+</span> <span class="s2">". "</span>
+        <span class="sa">f</span><span class="s2">"**Event tables run from </span><span class="si">{</span><span class="n">spans</span><span class="o">.</span><span class="n">first_partition</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">spans</span><span class="o">.</span><span class="n">last_partition</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">}</span><span class="s2">.** "</span>
         <span class="o">+</span> <span class="p">(</span>
-            <span class="s2">"There are no peso accounts at all: Mexican customers bank in US dollars, while their incomes are reported in "</span>
-            <span class="s2">"pesos. Every income-based ratio must convert incomes, never amounts."</span>
-            <span class="k">if</span> <span class="n">local_share</span> <span class="o">==</span> <span class="mi">0</span>
-            <span class="k">else</span> <span class="s2">"Amounts must be analysed per currency (or converted): pooling pesos and dollars mixes two scales that differ "</span>
-            <span class="s2">"by orders of magnitude."</span>
+            <span class="s2">"Every event table covers the same window."</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">len</span><span class="p">(</span><span class="n">short</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">"Tables that stop early: "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"`</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">` (last partition </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">last_partition</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">partitions</span><span class="si">}</span><span class="s2"> days)"</span>
+                <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">short</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="s2">". Every window-based feature, label and mart computed after that date sees no activity from them: "</span>
+            <span class="s2">"the notebooks below report the consequences."</span>
         <span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
@@ -8523,7 +8590,7 @@ too: it is in the DAG, not in the data.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_3a4015f0_c8a6_462f_a046_66a0db2ba417">
+<table hidden="hidden" id="itables_20fa16e1_2da4_40af_a773_350cd4a0cb3f">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8585,32 +8652,64 @@ too: it is in the DAG, not in the data.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_3a4015f0_c8a6_462f_a046_66a0db2ba417_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
-<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>customers</th>
-<th style="border:1px solid #ddd;padding:8px">products</th>
-<th style="border:1px solid #ddd;padding:8px">transactions</th>
-<th style="border:1px solid #ddd;padding:8px">tx_per_customer_month</th>
+<div id="itables_20fa16e1_2da4_40af_a773_350cd4a0cb3f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>dataset</th>
+<th style="border:1px solid #ddd;padding:8px">country</th>
+<th style="border:1px solid #ddd;padding:8px">zone</th>
+<th style="border:1px solid #ddd;padding:8px">table</th>
+<th style="border:1px solid #ddd;padding:8px">rows</th>
+<th style="border:1px solid #ddd;padding:8px">first_partition</th>
+<th style="border:1px solid #ddd;padding:8px">last_partition</th>
+<th style="border:1px solid #ddd;padding:8px">partitions</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">74907</td><td style="border:1px solid #ddd;padding:8px">200398</td><td style="border:1px solid #ddd;padding:8px">2150940</td><td style="border:1px solid #ddd;padding:8px">0.82</td></tr>
-</tbody></table></div><script>document.getElementById("itables_3a4015f0_c8a6_462f_a046_66a0db2ba417")?.removeAttribute("hidden");document.getElementById("itables_3a4015f0_c8a6_462f_a046_66a0db2ba417_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">branches</td><td style="border:1px solid #ddd;padding:8px">350</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">333388</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1066</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">83443</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1066</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">847984</td><td style="border:1px solid #ddd;padding:8px">2023-07-01</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1052</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">32460</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1066</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">74907</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">daily_exchange_rates</td><td style="border:1px solid #ddd;padding:8px">13164</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">7079335</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1066</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">marketing_campaigns</td><td style="border:1px solid #ddd;padding:8px">200</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">200398</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">103267</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1066</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">service_agents</td><td style="border:1px solid #ddd;padding:8px">1200</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">bronze_raw</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">2150940</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-17</td><td style="border:1px solid #ddd;padding:8px">1066</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">9801</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">2454</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">24739</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">915</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">201732</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">3015</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">holdout_raw</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">65491</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">31</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">branches</td><td style="border:1px solid #ddd;padding:8px">350</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">341657</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1097</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">868589</td><td style="border:1px solid #ddd;padding:8px">2023-07-01</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1083</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">33560</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1097</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">74973</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">daily_exchange_rates</td><td style="border:1px solid #ddd;padding:8px">13164</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">7422300</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1097</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">marketing_campaigns</td><td style="border:1px solid #ddd;padding:8px">200</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">199861</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">service_agents</td><td style="border:1px solid #ddd;padding:8px">1200</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-06-17</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">918479</td><td style="border:1px solid #ddd;padding:8px">2023-07-01</td><td style="border:1px solid #ddd;padding:8px">2024-09-25</td><td style="border:1px solid #ddd;padding:8px">453</td></tr>
+</tbody></table></div><script>document.getElementById("itables_20fa16e1_2da4_40af_a773_350cd4a0cb3f")?.removeAttribute("hidden");document.getElementById("itables_20fa16e1_2da4_40af_a773_350cd4a0cb3f_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_3a4015f0_c8a6_462f_a046_66a0db2ba417:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_20fa16e1_2da4_40af_a773_350cd4a0cb3f:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [3]}],
-          "data_json": "[[74907, 200398, 2150940, [\"0.82\", 0.82]]]",
-          "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
-          "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
+          "data_json": "[[\"main\", \"MX\", \"bronze_raw\", \"branches\", 350, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"bronze_raw\", \"call_center_interactions\", 333388, \"2023-06-17\", \"2026-05-17\", 1066], [\"main\", \"MX\", \"bronze_raw\", \"call_transcripts\", 83443, \"2023-06-17\", \"2026-05-17\", 1066], [\"main\", \"MX\", \"bronze_raw\", \"campaign_sends\", 847984, \"2023-07-01\", \"2026-05-17\", 1052], [\"main\", \"MX\", \"bronze_raw\", \"complaints\", 32460, \"2023-06-17\", \"2026-05-17\", 1066], [\"main\", \"MX\", \"bronze_raw\", \"customers\", 74907, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"bronze_raw\", \"daily_exchange_rates\", 13164, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"bronze_raw\", \"digital_events\", 7079335, \"2023-06-17\", \"2026-05-17\", 1066], [\"main\", \"MX\", \"bronze_raw\", \"marketing_campaigns\", 200, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"bronze_raw\", \"products\", 200398, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"bronze_raw\", \"satisfaction_surveys\", 103267, \"2023-06-17\", \"2026-05-17\", 1066], [\"main\", \"MX\", \"bronze_raw\", \"service_agents\", 1200, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"bronze_raw\", \"transactions\", 2150940, \"2023-06-17\", \"2026-05-17\", 1066], [\"main\", \"MX\", \"holdout_raw\", \"call_center_interactions\", 9801, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"holdout_raw\", \"call_transcripts\", 2454, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"holdout_raw\", \"campaign_sends\", 24739, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"holdout_raw\", \"complaints\", 915, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"holdout_raw\", \"digital_events\", 201732, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"holdout_raw\", \"satisfaction_surveys\", 3015, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"holdout_raw\", \"transactions\", 65491, \"2026-05-18\", \"2026-06-17\", 31], [\"main\", \"MX\", \"backup\", \"branches\", 350, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"backup\", \"call_center_interactions\", 341657, \"2023-06-17\", \"2026-06-17\", 1097], [\"main\", \"MX\", \"backup\", \"campaign_sends\", 868589, \"2023-07-01\", \"2026-06-17\", 1083], [\"main\", \"MX\", \"backup\", \"complaints\", 33560, \"2023-06-17\", \"2026-06-17\", 1097], [\"main\", \"MX\", \"backup\", \"customers\", 74973, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"backup\", \"daily_exchange_rates\", 13164, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"backup\", \"digital_events\", 7422300, \"2023-06-17\", \"2026-06-17\", 1097], [\"main\", \"MX\", \"backup\", \"marketing_campaigns\", 200, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"backup\", \"products\", 199861, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"backup\", \"service_agents\", 1200, \"2026-06-17\", \"2026-06-17\", 1], [\"main\", \"MX\", \"backup\", \"transactions\", 918479, \"2023-07-01\", \"2024-09-25\", 453]]",
+          "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
           "paging": false,
           "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>customers</th>\n      <th>products</th>\n      <th>transactions</th>\n      <th>tx_per_customer_month</th>\n    </tr>\n  </thead></table>",
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>dataset</th>\n      <th>country</th>\n      <th>zone</th>\n      <th>table</th>\n      <th>rows</th>\n      <th>first_partition</th>\n      <th>last_partition</th>\n      <th>partitions</th>\n    </tr>\n  </thead></table>",
           "text_in_header_can_be_selected": true
         };
         new ITable(table, dt_args);
@@ -8622,9 +8721,235 @@ too: it is in the DAG, not in the data.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:320px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="ca0186f9-73a6-423f-bde8-724b062cfa95" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("ca0186f9-73a6-423f-bde8-724b062cfa95")) {                    Plotly.newPlot(                        "ca0186f9-73a6-423f-bde8-724b062cfa95",                        [{"hovertemplate":"currency=USD\u003cbr\u003eentity=%{x}\u003cbr\u003en_rows=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"USD","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"USD","orientation":"v","showlegend":true,"textposition":"auto","x":["products","transactions"],"xaxis":"x","y":{"dtype":"i4","bdata":"zg4DABzSIAA="},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"n_rows"}},"legend":{"title":{"text":"currency"},"tracegroupgap":0},"title":{"text":"Currencies of Mexico's products and transactions"},"barmode":"stack","height":320},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="27f62e5b-3ea2-4bbe-a9fb-159ccca71845" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("27f62e5b-3ea2-4bbe-a9fb-159ccca71845")) {                    Plotly.newPlot(                        "27f62e5b-3ea2-4bbe-a9fb-159ccca71845",                        [{"base":["2023-06-17T00:00:00","2023-06-17T00:00:00","2023-07-01T00:00:00","2023-06-17T00:00:00","2023-06-17T00:00:00","2023-06-17T00:00:00","2023-06-17T00:00:00"],"hovertemplate":"first_partition=%{base}\u003cbr\u003elast_partition=%{x}\u003cbr\u003etable=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":[92016000000,92016000000,90806400000,92016000000,92016000000,92016000000,92016000000],"xaxis":"x","y":["call_center_interactions","call_transcripts","campaign_sends","complaints","digital_events","satisfaction_surveys","transactions"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"type":"date"},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"tracegroupgap":0},"title":{"text":"Mexico: time span of each event table (bronze)"},"barmode":"overlay","height":320},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('ca0186f9-73a6-423f-bde8-724b062cfa95');
+var gd = document.getElementById('27f62e5b-3ea2-4bbe-a9fb-159ccca71845');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script> </div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
+<p><strong>Event tables run from 2023-06-17 to 2026-05-17.</strong> Every event table covers the same window.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ca2fa388">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="4-%C2%B7-The-scope-at-a-glance-(raw-bronze)">4 · The scope at a glance (raw bronze)<a class="anchor-link" href="#4-%C2%B7-The-scope-at-a-glance-(raw-bronze)">¶</a></h2>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ef027c5d">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">glance</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">    with c as (select * from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/customers/*/*.parquet', union_by_name = true)),</span>
+<span class="s2">         p as (select * from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/products/*/*.parquet', union_by_name = true)),</span>
+<span class="s2">         t as (select * from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/transactions/*/*.parquet', union_by_name = true))</span>
+<span class="s2">    select (select count(*) from c) as customers, (select count(*) from p) as products,</span>
+<span class="s2">           (select count(*) from t) as transactions,</span>
+<span class="s2">           (select count(distinct date_trunc('month', _partition_date)) from t) as months_with_transactions,</span>
+<span class="s2">           round((select count(*) from t) / (select count(*) from c)</span>
+<span class="s2">                 / greatest((select count(distinct date_trunc('month', _partition_date)) from t), 1), 3)</span>
+<span class="s2">             as tx_per_customer_month</span>
+<span class="s2">    """</span><span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
+<span class="n">show</span><span class="p">(</span><span class="n">glance</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">cur</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">    select 'products' as entity, currency, count(*) as n_rows</span>
+<span class="s2">    from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/products/*/*.parquet', union_by_name = true) group by all</span>
+<span class="s2">    union all</span>
+<span class="s2">    select 'transactions', currency, count(*)</span>
+<span class="s2">    from read_parquet('</span><span class="si">{</span><span class="n">pl</span><span class="o">.</span><span class="n">lake</span><span class="si">}</span><span class="s2">/bronze_raw/transactions/*/*.parquet', union_by_name = true) group by all</span>
+<span class="s2">    order by 1, 3 desc"""</span><span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+    <span class="n">cur</span><span class="p">,</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">"entity"</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="s2">"n_rows"</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">"currency"</span><span class="p">,</span>
+    <span class="n">barmode</span><span class="o">=</span><span class="s2">"stack"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"Currencies of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s products and transactions"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">320</span><span class="p">,</span> <span class="n">xaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">loc</span> <span class="o">=</span> <span class="n">cur</span><span class="p">[(</span><span class="n">cur</span><span class="o">.</span><span class="n">entity</span> <span class="o">==</span> <span class="s2">"transactions"</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"currency"</span><span class="p">)[</span><span class="s2">"n_rows"</span><span class="p">]</span>
+<span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">==</span> <span class="s2">"ALL"</span><span class="p">:</span>
+    <span class="n">display</span><span class="p">(</span>
+        <span class="n">Markdown</span><span class="p">(</span>
+            <span class="s2">"**The bank's transactions by currency:** "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">loc</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loc</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+            <span class="o">+</span> <span class="s2">". Three scales in one column: every amount statistic is computed per currency (or in USD), never "</span>
+            <span class="s2">"pooled. The country scopes show where each currency lives."</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">local_share</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">loc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">loc</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">display</span><span class="p">(</span>
+        <span class="n">Markdown</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">local_share</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s transactions are in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span><span class="si">}</span><span class="s2">**, the rest in "</span>
+            <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">loc</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %)"</span>
+                <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">loc</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="n">CTRY</span><span class="o">.</span><span class="n">home_currency</span>
+            <span class="p">)</span>
+            <span class="o">+</span> <span class="s2">". "</span>
+            <span class="o">+</span> <span class="p">(</span>
+                <span class="s2">"There are no peso accounts at all: Mexican customers bank in US dollars, while their incomes are "</span>
+                <span class="s2">"reported in pesos. Every income-based ratio must convert incomes, never amounts."</span>
+                <span class="k">if</span> <span class="n">local_share</span> <span class="o">==</span> <span class="mi">0</span>
+                <span class="k">else</span> <span class="s2">"Amounts must be analysed per currency (or converted): pooling pesos and dollars mixes two scales "</span>
+                <span class="s2">"that differ by orders of magnitude."</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<!--| quarto-html-table-processing: none -->
+<table hidden="hidden" id="itables_ff7be350_b2e4_47e6_99a7_85a1d2e9fc06">
+<tbody>
+<tr>
+<td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g style="fill:var(--itables-logo-paper,#d9d7fc)">
+<path d="M100,400H500V357H100Z"></path>
+<path d="M100,300H400V257H100Z"></path>
+<path d="M0,200H400V157H0Z"></path>
+<path d="M100,100H500V57H100Z"></path>
+<path d="M100,350H500V307H100Z"></path>
+<path d="M100,250H400V207H100Z"></path>
+<path d="M0,150H400V107H0Z"></path>
+<path d="M100,50H500V7H100Z"></path>
+</g>
+<g style="fill:var(--itables-logo-ink,#1a1366);stroke:var(--itables-logo-ink,#1a1366);">
+<rect height="43" width="400" x="100" y="7">
+<animate attributename="width" dur="5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="5s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<rect height="43" width="400" x="0" y="107">
+<animate attributename="width" dur="3.5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="3.5s" repeatcount="indefinite" values="0;0;400"></animate>
+</rect>
+<rect height="43" width="300" x="100" y="207">
+<animate attributename="width" dur="3s" repeatcount="indefinite" values="0;300;0"></animate>
+<animate attributename="x" dur="3s" repeatcount="indefinite" values="100;100;400"></animate>
+</rect>
+<rect height="43" width="400" x="100" y="307">
+<animate attributename="width" dur="4s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="4s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<g rx="5" style="fill:transparent;stroke-width:8; stroke-linejoin:round">
+<g transform="translate(45 50) rotate(-45)">
+<circle cx="0" cy="0" r="33"></circle>
+<rect height="30" width="16" x="-8" y="32"></rect>
+</g>
+<g transform="translate(450 152)">
+<polyline points="-15,-20 -35,-20 -35,40 25,40 25,20"></polyline>
+<rect height="60" width="60" x="-15" y="-40"></rect>
+</g>
+<g transform="translate(50 352)">
+<polygon points="-35,-5 0,-40 35,-5"></polygon>
+<polygon points="-35,10 0,45 35,10"></polygon>
+</g>
+<g transform="translate(75 250)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+<g transform="translate(425 250) rotate(180)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+</g>
+</g>
+</svg>
+</a>
+        Loading ITables v2.9.1 from the internet...
+        (need <a href="https://itables.org/troubleshooting.html">help</a>?)
+      </td>
+</tr>
+</tbody>
+</table>
+<div id="itables_ff7be350_b2e4_47e6_99a7_85a1d2e9fc06_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>customers</th>
+<th style="border:1px solid #ddd;padding:8px">products</th>
+<th style="border:1px solid #ddd;padding:8px">transactions</th>
+<th style="border:1px solid #ddd;padding:8px">months_with_transactions</th>
+<th style="border:1px solid #ddd;padding:8px">tx_per_customer_month</th>
+</tr></thead><tbody>
+<tr><td style="border:1px solid #ddd;padding:8px">74907</td><td style="border:1px solid #ddd;padding:8px">200398</td><td style="border:1px solid #ddd;padding:8px">2150940</td><td style="border:1px solid #ddd;padding:8px">36</td><td style="border:1px solid #ddd;padding:8px">0.798</td></tr>
+</tbody></table></div><script>document.getElementById("itables_ff7be350_b2e4_47e6_99a7_85a1d2e9fc06")?.removeAttribute("hidden");document.getElementById("itables_ff7be350_b2e4_47e6_99a7_85a1d2e9fc06_fallback")?.setAttribute("hidden", "hidden");</script>
+<link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
+<script type="module">
+    import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
+
+    document.querySelectorAll("#itables_ff7be350_b2e4_47e6_99a7_85a1d2e9fc06:not(.dataTable)").forEach(table => {
+        if (!(table instanceof HTMLTableElement))
+            return;
+
+        let dt_args = {
+          "classes": ["display", "nowrap", "compact"],
+          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [4]}],
+          "data_json": "[[74907, 200398, 2150940, 36, [\"0.798\", 0.798]]]",
+          "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
+          "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
+          "order": [],
+          "paging": false,
+          "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>customers</th>\n      <th>products</th>\n      <th>transactions</th>\n      <th>months_with_transactions</th>\n      <th>tx_per_customer_month</th>\n    </tr>\n  </thead></table>",
+          "text_in_header_can_be_selected": true
+        };
+        new ITable(table, dt_args);
+    });
+</script>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div style="height:320px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="f07d3c3d-4d24-4a40-9674-2a92dcdc815d" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("f07d3c3d-4d24-4a40-9674-2a92dcdc815d")) {                    Plotly.newPlot(                        "f07d3c3d-4d24-4a40-9674-2a92dcdc815d",                        [{"hovertemplate":"currency=USD\u003cbr\u003eentity=%{x}\u003cbr\u003en_rows=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"USD","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"USD","orientation":"v","showlegend":true,"textposition":"auto","x":["products","transactions"],"xaxis":"x","y":{"dtype":"i4","bdata":"zg4DABzSIAA="},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"n_rows"}},"legend":{"title":{"text":"currency"},"tracegroupgap":0},"title":{"text":"Currencies of Mexico's products and transactions"},"barmode":"stack","height":320},                        {"responsive": true}                    ).then(function(){
+
+var gd = document.getElementById('f07d3c3d-4d24-4a40-9674-2a92dcdc815d');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8658,27 +8983,28 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=862a2e5e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2aa3e711">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Findings-for-Mexico-and-what-to-do">Findings for Mexico and what to do<a class="anchor-link" href="#Findings-for-Mexico-and-what-to-do">¶</a></h2><p>The computed statements above are the findings of this notebook; the cross-country comparison
-(<code>notebooks/country_compare</code>) puts them side by side. The method decisions taken here hold for all countries:</p>
+<h2 id="Findings-for-Mexico-and-what-to-do">Findings for Mexico and what to do<a class="anchor-link" href="#Findings-for-Mexico-and-what-to-do">¶</a></h2><p>The computed statements above are the findings of this notebook; the comparisons (<code>notebooks/country_compare</code>,
+<code>notebooks/dataset_compare</code>) put them side by side. The method decisions taken here hold for every scope:</p>
 <ul>
 <li>cut by customer, anonymous traffic by IP country, reference data shared;</li>
-<li>analyse amounts per currency, convert incomes, never pool scales.</li>
+<li>analyse amounts per currency, convert incomes, never pool scales;</li>
+<li>know each table's time coverage before trusting any window computed on it.</li>
 </ul>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=74ab5897">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=681d5f06">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [8]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -8695,7 +9021,7 @@ if (outputEl) {{
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 88s
+<pre>notebook time 93s
 </pre>
 </div>
 </div>

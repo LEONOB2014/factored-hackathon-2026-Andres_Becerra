@@ -7796,13 +7796,13 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1ddda415">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f1e5fa56">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="14-%C2%B7-Which-targets-are-learnable?-Candidate-models,-out-of-time-(Colombia)">14 · Which targets are learnable? Candidate models, out of time (Colombia)<a class="anchor-link" href="#14-%C2%B7-Which-targets-are-learnable?-Candidate-models,-out-of-time-(Colombia)">¶</a></h1><p><strong>Country series · Colombia</strong> · <em>an additional component of the country series; generated from
+<h1 id="14-%C2%B7-Which-targets-are-learnable?-Candidate-models,-out-of-time-(Colombia)">14 · Which targets are learnable? Candidate models, out of time (Colombia)<a class="anchor-link" href="#14-%C2%B7-Which-targets-are-learnable?-Candidate-models,-out-of-time-(Colombia)">¶</a></h1><p><strong>Country series · Colombia</strong> · <em>an additional component of the series; generated from
 <code>notebooks/country_template</code>: edit the template</em></p>
 <p>Every use case the bank wants to automate has a <strong>target</strong>: a column a model would predict. Before building any
 model, a model-risk function asks whether the target can be predicted <strong>at all</strong> from information available at
@@ -7866,7 +7866,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=9302c81a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=a2f0630e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7888,12 +7888,14 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"CO"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
 <span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"features_graph_knowledge"</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">enrich_transactions</span><span class="p">(</span><span class="n">pl</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
@@ -7912,6 +7914,11 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
             <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">**: test AUC </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'auc'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'auc_lo'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'auc_hi'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">], AP </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'ap'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> against a base "</span>
             <span class="sa">f</span><span class="s2">"rate of </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'base_rate'</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> (lift </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'ap_lift'</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">) → **</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'verdict'</span><span class="p">]</span><span class="si">}</span><span class="s2">**. "</span>
             <span class="o">+</span> <span class="p">(</span><span class="sa">f</span><span class="s2">"Most important (permutation, AUC drop): </span><span class="si">{</span><span class="n">imp</span><span class="si">}</span><span class="s2">. "</span> <span class="k">if</span> <span class="n">imp</span> <span class="k">else</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="o">+</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Features with no value in this dataset, dropped: </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'dropped_empty_features'</span><span class="p">]</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"dropped_empty_features"</span><span class="p">)</span>
+                <span class="k">else</span> <span class="s2">""</span>
+            <span class="p">)</span>
             <span class="o">+</span> <span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"The best single feature alone (`</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'best_single_feature'</span><span class="p">]</span><span class="si">}</span><span class="s2">`, either direction) reaches AUC "</span>
                 <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'best_single_auc'</span><span class="p">]</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">: the model adds </span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'auc'</span><span class="p">]</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">r</span><span class="p">[</span><span class="s1">'best_single_auc'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.3f</span><span class="si">}</span><span class="s2">."</span>
@@ -7940,7 +7947,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=86e75160">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1a51d060">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7950,7 +7957,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9d3dce0d">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9a350964">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7996,7 +8003,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5d387728">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=42b06a07">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8009,7 +8016,7 @@ active in the 180 days before it.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c7c08f47">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=af0110f3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8093,7 +8100,21 @@ active in the 180 days before it.</p>
     <span class="s2">"sessions_3m"</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">run</span><span class="p">(</span><span class="s2">"complaint in next 90 days"</span><span class="p">,</span> <span class="n">cust</span><span class="p">,</span> <span class="s2">"label_complaint_90d"</span><span class="p">,</span> <span class="s2">"cutoff"</span><span class="p">,</span> <span class="n">CF</span><span class="p">)</span>
-<span class="n">act</span> <span class="o">=</span> <span class="n">cust</span><span class="p">[</span><span class="n">cust</span><span class="o">.</span><span class="n">active_before</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="c1"># a dormancy label needs the whole 90-day future observed: a cutoff whose window passes the last transaction would</span>
+<span class="c1"># call every customer dormant because the data stops, not because the customer did</span>
+<span class="n">tx_end</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timestamp</span><span class="p">(</span>
+    <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"select max(transaction_ts_utc) as m from </span><span class="si">{int_transactions_enriched}</span><span class="s2">"</span><span class="p">)</span><span class="o">.</span><span class="n">m</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="p">)</span>
+<span class="n">observed</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cust</span><span class="o">.</span><span class="n">cutoff</span><span class="p">)</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">days</span><span class="o">=</span><span class="mi">90</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">tx_end</span>
+<span class="n">censored</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">cust</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">observed</span><span class="p">,</span> <span class="s2">"cutoff"</span><span class="p">])</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">unique</span><span class="p">())</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">Markdown</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"Dormancy cutoffs whose 90-day window ends after the last transaction (</span><span class="si">{</span><span class="n">tx_end</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">) are dropped: "</span>
+        <span class="o">+</span> <span class="p">(</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">censored</span><span class="p">)</span> <span class="k">if</span> <span class="n">censored</span> <span class="k">else</span> <span class="s2">"none"</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">"."</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">act</span> <span class="o">=</span> <span class="n">cust</span><span class="p">[</span><span class="n">cust</span><span class="o">.</span><span class="n">active_before</span> <span class="o">&amp;</span> <span class="n">observed</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 <span class="n">run</span><span class="p">(</span>
     <span class="s2">"dormant in next 90 days"</span><span class="p">,</span>
     <span class="n">act</span><span class="p">,</span>
@@ -8119,13 +8140,19 @@ active in the 180 days before it.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
+<p>Dormancy cutoffs whose 90-day window ends after the last transaction (2026-05-18) are dropped: none.</p>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
 <p><strong>dormant in next 90 days</strong>: test AUC 0.724 [0.718, 0.730], AP 0.2445 against a base rate of 0.1302 (lift 1.88) → <strong>learnable: build and monitor a model</strong>. Most important (permutation, AUC drop): tx_6m (+0.219), outflow_6m (+0.002), inflow_6m (+0.002), tx_3m (+0.001), credit_score (+0.001). The best single feature alone (<code>tx_6m</code>, either direction) reaches AUC 0.722: the model adds +0.001.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1b90f84a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=76316e5c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8138,7 +8165,7 @@ values; the permutation importances show whether the verdict rests on them or on
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a8b4f199">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=965bfcef">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8149,7 +8176,7 @@ their behaviour in the 6 months <strong>before</strong> the snapshot. Split by p
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b3d30b73">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ca56fbfc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8205,7 +8232,7 @@ their behaviour in the 6 months <strong>before</strong> the snapshot. Split by p
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ff0fd7ef">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a97a6df7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8218,7 +8245,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3f94b346">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ef1a5ae4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8228,7 +8255,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=382f1d6f">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cb41e1cd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8236,13 +8263,15 @@ reason.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">camp</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">camp</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">    select m.send_ts_utc, m.send_channel, m.campaign_objective, m.promoted_product, m.target_segment, m.segment,</span>
 <span class="s2">           m.target_segment = m.segment as segment_match, m.prior_sends_7d, m.prior_sends_30d,</span>
 <span class="s2">           m.accepts_marketing_current, m.already_held_promoted_product, m.send_cost,</span>
 <span class="s2">           k.iso_weekday, k.is_holiday, k.is_payday, k.days_since_payday, k.is_month_end, m.outcome_converted</span>
-<span class="s2">    from </span><span class="se">{{</span><span class="s2">mart_campaign_compliance_uplift</span><span class="se">}}</span><span class="s2"> m</span>
-<span class="s2">    left join main.calendar_local k on k.local_date = cast(m.send_ts_utc + interval (</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">}</span><span class="s2">) hour as date)</span>
+<span class="s2">    from </span><span class="si">{mart_campaign_compliance_uplift}</span><span class="s2"> m</span>
+<span class="s2">    left join main.customer_local cl on cl.customer_id = m.customer_id</span>
+<span class="s2">    left join main.calendar_local k</span>
+<span class="s2">      on k.country_code = cl.country_code and k.local_date = cast(m.send_ts_utc + to_hours(cl.utc_offset) as date)</span>
 <span class="s2">    where m.treatment_delivered"""</span><span class="p">)</span>
 <span class="n">MF</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"send_channel"</span><span class="p">,</span>
@@ -8281,7 +8310,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d8fb9e38">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=53c8a95c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8293,7 +8322,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a54ab283">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=310df401">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8303,7 +8332,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a1908be0">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=078f9f0a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8311,13 +8340,15 @@ reason.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">cx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">cx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
 <span class="s2">    select j.interaction_ts_utc, j.interaction_type, j.channel, j.contact_reason, j.duration_seconds,</span>
 <span class="s2">           j.wait_time_seconds, j.was_resolved, j.was_escalated, j.requires_followup, j.sentiment_score,</span>
 <span class="s2">           j.prior_contacts_30d, j.agent_experience_level, j.agent_type, j.accent_matched,</span>
 <span class="s2">           k.iso_weekday, k.is_holiday, j.complaint_within_14d</span>
-<span class="s2">    from </span><span class="se">{{</span><span class="s2">mart_cx_journey</span><span class="se">}}</span><span class="s2"> j</span>
-<span class="s2">    left join main.calendar_local k on k.local_date = cast(j.interaction_ts_utc + interval (</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">}</span><span class="s2">) hour as date)"""</span><span class="p">)</span>
+<span class="s2">    from </span><span class="si">{mart_cx_journey}</span><span class="s2"> j</span>
+<span class="s2">    left join main.customer_local cl on cl.customer_id = j.customer_id</span>
+<span class="s2">    left join main.calendar_local k</span>
+<span class="s2">      on k.country_code = cl.country_code and k.local_date = cast(j.interaction_ts_utc + to_hours(cl.utc_offset) as date)"""</span><span class="p">)</span>
 <span class="n">XF</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"interaction_type"</span><span class="p">,</span>
     <span class="s2">"channel"</span><span class="p">,</span>
@@ -8354,7 +8385,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e7747220">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e25141e6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8364,7 +8395,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f85a80c0">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=73c470c5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8374,8 +8405,10 @@ reason.</p>
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
 <span class="n">res</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"country"</span><span class="p">,</span> <span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">res</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">"dataset"</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">cols</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"country"</span><span class="p">,</span>
+    <span class="s2">"dataset"</span><span class="p">,</span>
     <span class="s2">"name"</span><span class="p">,</span>
     <span class="s2">"train_rows"</span><span class="p">,</span>
     <span class="s2">"test_rows"</span><span class="p">,</span>
@@ -8392,8 +8425,9 @@ reason.</p>
     <span class="s2">"best_single_auc"</span><span class="p">,</span>
     <span class="s2">"verdict"</span><span class="p">,</span>
     <span class="s2">"split_at"</span><span class="p">,</span>
+    <span class="s2">"dropped_empty_features"</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">res</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"country_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_learnability.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">res</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_learnability.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">cols</span><span class="p">]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
 <span class="n">ok</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">auc</span><span class="p">)]</span>
@@ -8410,7 +8444,7 @@ reason.</p>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">add_vline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: out-of-time test AUC per candidate target (95 % CI)"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: out-of-time test AUC per candidate target (95 % CI)"</span><span class="p">,</span>
     <span class="n">height</span><span class="o">=</span><span class="mi">380</span><span class="p">,</span>
     <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">xaxis_range</span><span class="o">=</span><span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">],</span>
@@ -8429,7 +8463,7 @@ reason.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_e6d526ac_5da6_4e96_91d6_d95c244e402d">
+<table hidden="hidden" id="itables_a9345266_37ca_4eef_8dc7_7cccbd7642fc">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8491,8 +8525,9 @@ reason.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_e6d526ac_5da6_4e96_91d6_d95c244e402d_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_a9345266_37ca_4eef_8dc7_7cccbd7642fc_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>country</th>
+<th style="border:1px solid #ddd;padding:8px">dataset</th>
 <th style="border:1px solid #ddd;padding:8px">name</th>
 <th style="border:1px solid #ddd;padding:8px">train_rows</th>
 <th style="border:1px solid #ddd;padding:8px">test_rows</th>
@@ -8509,33 +8544,34 @@ reason.</p>
 <th style="border:1px solid #ddd;padding:8px">best_single_auc</th>
 <th style="border:1px solid #ddd;padding:8px">verdict</th>
 <th style="border:1px solid #ddd;padding:8px">split_at</th>
+<th style="border:1px solid #ddd;padding:8px">dropped_empty_features</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">fraud (honest)</td><td style="border:1px solid #ddd;padding:8px">954004</td><td style="border:1px solid #ddd;padding:8px">318002</td><td style="border:1px solid #ddd;padding:8px">266</td><td style="border:1px solid #ddd;padding:8px">0.0008</td><td style="border:1px solid #ddd;padding:8px">0.5086</td><td style="border:1px solid #ddd;padding:8px">0.4737</td><td style="border:1px solid #ddd;padding:8px">0.5435</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0007</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">1.0178</td><td style="border:1px solid #ddd;padding:8px">transaction_type</td><td style="border:1px solid #ddd;padding:8px">0.5361</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-22 01:49:08.500000</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">fraud with fraud_score (leak)</td><td style="border:1px solid #ddd;padding:8px">954004</td><td style="border:1px solid #ddd;padding:8px">318002</td><td style="border:1px solid #ddd;padding:8px">266</td><td style="border:1px solid #ddd;padding:8px">0.0008</td><td style="border:1px solid #ddd;padding:8px">0.8330</td><td style="border:1px solid #ddd;padding:8px">0.8028</td><td style="border:1px solid #ddd;padding:8px">0.8632</td><td style="border:1px solid #ddd;padding:8px">0.5982</td><td style="border:1px solid #ddd;padding:8px">0.5435</td><td style="border:1px solid #ddd;padding:8px">0.6561</td><td style="border:1px solid #ddd;padding:8px">715.1478</td><td style="border:1px solid #ddd;padding:8px">fraud_score</td><td style="border:1px solid #ddd;padding:8px">0.8638</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-08-22 01:49:08.500000</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">complaint in next 90 days</td><td style="border:1px solid #ddd;padding:8px">248660</td><td style="border:1px solid #ddd;padding:8px">83846</td><td style="border:1px solid #ddd;padding:8px">3053</td><td style="border:1px solid #ddd;padding:8px">0.0364</td><td style="border:1px solid #ddd;padding:8px">0.5063</td><td style="border:1px solid #ddd;padding:8px">0.4958</td><td style="border:1px solid #ddd;padding:8px">0.5168</td><td style="border:1px solid #ddd;padding:8px">0.0367</td><td style="border:1px solid #ddd;padding:8px">0.0351</td><td style="border:1px solid #ddd;padding:8px">0.0386</td><td style="border:1px solid #ddd;padding:8px">1.0077</td><td style="border:1px solid #ddd;padding:8px">sentiment_3m</td><td style="border:1px solid #ddd;padding:8px">0.5083</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">dormant in next 90 days</td><td style="border:1px solid #ddd;padding:8px">215370</td><td style="border:1px solid #ddd;padding:8px">72688</td><td style="border:1px solid #ddd;padding:8px">9467</td><td style="border:1px solid #ddd;padding:8px">0.1302</td><td style="border:1px solid #ddd;padding:8px">0.7237</td><td style="border:1px solid #ddd;padding:8px">0.7177</td><td style="border:1px solid #ddd;padding:8px">0.7298</td><td style="border:1px solid #ddd;padding:8px">0.2445</td><td style="border:1px solid #ddd;padding:8px">0.2378</td><td style="border:1px solid #ddd;padding:8px">0.2523</td><td style="border:1px solid #ddd;padding:8px">1.8775</td><td style="border:1px solid #ddd;padding:8px">tx_6m</td><td style="border:1px solid #ddd;padding:8px">0.7223</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">more than 30 days past due</td><td style="border:1px solid #ddd;padding:8px">28169</td><td style="border:1px solid #ddd;padding:8px">9392</td><td style="border:1px solid #ddd;padding:8px">953</td><td style="border:1px solid #ddd;padding:8px">0.1015</td><td style="border:1px solid #ddd;padding:8px">0.4964</td><td style="border:1px solid #ddd;padding:8px">0.4771</td><td style="border:1px solid #ddd;padding:8px">0.5157</td><td style="border:1px solid #ddd;padding:8px">0.1016</td><td style="border:1px solid #ddd;padding:8px">0.0932</td><td style="border:1px solid #ddd;padding:8px">0.1117</td><td style="border:1px solid #ddd;padding:8px">1.0016</td><td style="border:1px solid #ddd;padding:8px">tenure_days</td><td style="border:1px solid #ddd;padding:8px">0.5107</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2024-06-17 00:00:00</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">campaign conversion</td><td style="border:1px solid #ddd;padding:8px">361170</td><td style="border:1px solid #ddd;padding:8px">120391</td><td style="border:1px solid #ddd;padding:8px">737</td><td style="border:1px solid #ddd;padding:8px">0.0061</td><td style="border:1px solid #ddd;padding:8px">0.6285</td><td style="border:1px solid #ddd;padding:8px">0.6068</td><td style="border:1px solid #ddd;padding:8px">0.6502</td><td style="border:1px solid #ddd;padding:8px">0.0086</td><td style="border:1px solid #ddd;padding:8px">0.0078</td><td style="border:1px solid #ddd;padding:8px">0.0094</td><td style="border:1px solid #ddd;padding:8px">1.3967</td><td style="border:1px solid #ddd;padding:8px">send_channel</td><td style="border:1px solid #ddd;padding:8px">0.5643</td><td style="border:1px solid #ddd;padding:8px">weak signal: rules, not models</td><td style="border:1px solid #ddd;padding:8px">2025-08-29 01:06:29</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">complaint within 14 days of a contact</td><td style="border:1px solid #ddd;padding:8px">150624</td><td style="border:1px solid #ddd;padding:8px">50209</td><td style="border:1px solid #ddd;padding:8px">272</td><td style="border:1px solid #ddd;padding:8px">0.0054</td><td style="border:1px solid #ddd;padding:8px">0.5005</td><td style="border:1px solid #ddd;padding:8px">0.4661</td><td style="border:1px solid #ddd;padding:8px">0.5349</td><td style="border:1px solid #ddd;padding:8px">0.0055</td><td style="border:1px solid #ddd;padding:8px">0.0048</td><td style="border:1px solid #ddd;padding:8px">0.0073</td><td style="border:1px solid #ddd;padding:8px">1.0130</td><td style="border:1px solid #ddd;padding:8px">accent_matched</td><td style="border:1px solid #ddd;padding:8px">0.5254</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-26 12:14:50</td></tr>
-</tbody></table></div><script>document.getElementById("itables_e6d526ac_5da6_4e96_91d6_d95c244e402d")?.removeAttribute("hidden");document.getElementById("itables_e6d526ac_5da6_4e96_91d6_d95c244e402d_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">fraud (honest)</td><td style="border:1px solid #ddd;padding:8px">954004</td><td style="border:1px solid #ddd;padding:8px">318002</td><td style="border:1px solid #ddd;padding:8px">266</td><td style="border:1px solid #ddd;padding:8px">0.0008</td><td style="border:1px solid #ddd;padding:8px">0.5086</td><td style="border:1px solid #ddd;padding:8px">0.4737</td><td style="border:1px solid #ddd;padding:8px">0.5435</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0007</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">1.0178</td><td style="border:1px solid #ddd;padding:8px">transaction_type</td><td style="border:1px solid #ddd;padding:8px">0.5361</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-22 01:49:08.500000</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">fraud with fraud_score (leak)</td><td style="border:1px solid #ddd;padding:8px">954004</td><td style="border:1px solid #ddd;padding:8px">318002</td><td style="border:1px solid #ddd;padding:8px">266</td><td style="border:1px solid #ddd;padding:8px">0.0008</td><td style="border:1px solid #ddd;padding:8px">0.8330</td><td style="border:1px solid #ddd;padding:8px">0.8028</td><td style="border:1px solid #ddd;padding:8px">0.8632</td><td style="border:1px solid #ddd;padding:8px">0.5982</td><td style="border:1px solid #ddd;padding:8px">0.5435</td><td style="border:1px solid #ddd;padding:8px">0.6561</td><td style="border:1px solid #ddd;padding:8px">715.1478</td><td style="border:1px solid #ddd;padding:8px">fraud_score</td><td style="border:1px solid #ddd;padding:8px">0.8638</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-08-22 01:49:08.500000</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">complaint in next 90 days</td><td style="border:1px solid #ddd;padding:8px">248660</td><td style="border:1px solid #ddd;padding:8px">83846</td><td style="border:1px solid #ddd;padding:8px">3053</td><td style="border:1px solid #ddd;padding:8px">0.0364</td><td style="border:1px solid #ddd;padding:8px">0.5063</td><td style="border:1px solid #ddd;padding:8px">0.4958</td><td style="border:1px solid #ddd;padding:8px">0.5168</td><td style="border:1px solid #ddd;padding:8px">0.0367</td><td style="border:1px solid #ddd;padding:8px">0.0351</td><td style="border:1px solid #ddd;padding:8px">0.0386</td><td style="border:1px solid #ddd;padding:8px">1.0077</td><td style="border:1px solid #ddd;padding:8px">sentiment_3m</td><td style="border:1px solid #ddd;padding:8px">0.5083</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">dormant in next 90 days</td><td style="border:1px solid #ddd;padding:8px">215370</td><td style="border:1px solid #ddd;padding:8px">72688</td><td style="border:1px solid #ddd;padding:8px">9467</td><td style="border:1px solid #ddd;padding:8px">0.1302</td><td style="border:1px solid #ddd;padding:8px">0.7237</td><td style="border:1px solid #ddd;padding:8px">0.7177</td><td style="border:1px solid #ddd;padding:8px">0.7298</td><td style="border:1px solid #ddd;padding:8px">0.2445</td><td style="border:1px solid #ddd;padding:8px">0.2378</td><td style="border:1px solid #ddd;padding:8px">0.2522</td><td style="border:1px solid #ddd;padding:8px">1.8773</td><td style="border:1px solid #ddd;padding:8px">tx_6m</td><td style="border:1px solid #ddd;padding:8px">0.7223</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">more than 30 days past due</td><td style="border:1px solid #ddd;padding:8px">28169</td><td style="border:1px solid #ddd;padding:8px">9392</td><td style="border:1px solid #ddd;padding:8px">953</td><td style="border:1px solid #ddd;padding:8px">0.1015</td><td style="border:1px solid #ddd;padding:8px">0.4964</td><td style="border:1px solid #ddd;padding:8px">0.4771</td><td style="border:1px solid #ddd;padding:8px">0.5157</td><td style="border:1px solid #ddd;padding:8px">0.1016</td><td style="border:1px solid #ddd;padding:8px">0.0932</td><td style="border:1px solid #ddd;padding:8px">0.1117</td><td style="border:1px solid #ddd;padding:8px">1.0016</td><td style="border:1px solid #ddd;padding:8px">tenure_days</td><td style="border:1px solid #ddd;padding:8px">0.5107</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2024-06-17 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">campaign conversion</td><td style="border:1px solid #ddd;padding:8px">361170</td><td style="border:1px solid #ddd;padding:8px">120391</td><td style="border:1px solid #ddd;padding:8px">737</td><td style="border:1px solid #ddd;padding:8px">0.0061</td><td style="border:1px solid #ddd;padding:8px">0.6285</td><td style="border:1px solid #ddd;padding:8px">0.6068</td><td style="border:1px solid #ddd;padding:8px">0.6502</td><td style="border:1px solid #ddd;padding:8px">0.0086</td><td style="border:1px solid #ddd;padding:8px">0.0078</td><td style="border:1px solid #ddd;padding:8px">0.0094</td><td style="border:1px solid #ddd;padding:8px">1.3967</td><td style="border:1px solid #ddd;padding:8px">send_channel</td><td style="border:1px solid #ddd;padding:8px">0.5643</td><td style="border:1px solid #ddd;padding:8px">weak signal: rules, not models</td><td style="border:1px solid #ddd;padding:8px">2025-08-29 01:06:29</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">complaint within 14 days of a contact</td><td style="border:1px solid #ddd;padding:8px">150624</td><td style="border:1px solid #ddd;padding:8px">50209</td><td style="border:1px solid #ddd;padding:8px">272</td><td style="border:1px solid #ddd;padding:8px">0.0054</td><td style="border:1px solid #ddd;padding:8px">0.5005</td><td style="border:1px solid #ddd;padding:8px">0.4661</td><td style="border:1px solid #ddd;padding:8px">0.5349</td><td style="border:1px solid #ddd;padding:8px">0.0055</td><td style="border:1px solid #ddd;padding:8px">0.0048</td><td style="border:1px solid #ddd;padding:8px">0.0073</td><td style="border:1px solid #ddd;padding:8px">1.0130</td><td style="border:1px solid #ddd;padding:8px">accent_matched</td><td style="border:1px solid #ddd;padding:8px">0.5254</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-26 12:14:50</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+</tbody></table></div><script>document.getElementById("itables_a9345266_37ca_4eef_8dc7_7cccbd7642fc")?.removeAttribute("hidden");document.getElementById("itables_a9345266_37ca_4eef_8dc7_7cccbd7642fc_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_e6d526ac_5da6_4e96_91d6_d95c244e402d:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_a9345266_37ca_4eef_8dc7_7cccbd7642fc:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [5, 6, 7, 8, 9, 10, 11, 12, 14]}],
-          "data_json": "[[\"CO\", \"fraud (honest)\", 954004, 318002, 266, [\"0.0008\", 0.0008], [\"0.5086\", 0.5086], [\"0.4737\", 0.4737], [\"0.5435\", 0.5435], [\"0.0009\", 0.0009], [\"0.0007\", 0.0007], [\"0.0010\", 0.001], [\"1.0178\", 1.0178], \"transaction_type\", [\"0.5361\", 0.5361], \"no evidence of signal\", \"2025-08-22 01:49:08.500000\"], [\"CO\", \"fraud with fraud_score (leak)\", 954004, 318002, 266, [\"0.0008\", 0.0008], [\"0.8330\", 0.833], [\"0.8028\", 0.8028], [\"0.8632\", 0.8632], [\"0.5982\", 0.5982], [\"0.5435\", 0.5435], [\"0.6561\", 0.6561], [\"715.1478\", 715.1478], \"fraud_score\", [\"0.8638\", 0.8638], \"learnable: build and monitor a model\", \"2025-08-22 01:49:08.500000\"], [\"CO\", \"complaint in next 90 days\", 248660, 83846, 3053, [\"0.0364\", 0.0364], [\"0.5063\", 0.5063], [\"0.4958\", 0.4958], [\"0.5168\", 0.5168], [\"0.0367\", 0.0367], [\"0.0351\", 0.0351], [\"0.0386\", 0.0386], [\"1.0077\", 1.0077], \"sentiment_3m\", [\"0.5083\", 0.5083], \"no evidence of signal\", \"2025-10-01 00:00:00\"], [\"CO\", \"dormant in next 90 days\", 215370, 72688, 9467, [\"0.1302\", 0.1302], [\"0.7237\", 0.7237], [\"0.7177\", 0.7177], [\"0.7298\", 0.7298], [\"0.2445\", 0.2445], [\"0.2378\", 0.2378], [\"0.2523\", 0.2523], [\"1.8775\", 1.8775], \"tx_6m\", [\"0.7223\", 0.7223], \"learnable: build and monitor a model\", \"2025-10-01 00:00:00\"], [\"CO\", \"more than 30 days past due\", 28169, 9392, 953, [\"0.1015\", 0.1015], [\"0.4964\", 0.4964], [\"0.4771\", 0.4771], [\"0.5157\", 0.5157], [\"0.1016\", 0.1016], [\"0.0932\", 0.0932], [\"0.1117\", 0.1117], [\"1.0016\", 1.0016], \"tenure_days\", [\"0.5107\", 0.5107], \"no evidence of signal\", \"2024-06-17 00:00:00\"], [\"CO\", \"campaign conversion\", 361170, 120391, 737, [\"0.0061\", 0.0061], [\"0.6285\", 0.6285], [\"0.6068\", 0.6068], [\"0.6502\", 0.6502], [\"0.0086\", 0.0086], [\"0.0078\", 0.0078], [\"0.0094\", 0.0094], [\"1.3967\", 1.3967], \"send_channel\", [\"0.5643\", 0.5643], \"weak signal: rules, not models\", \"2025-08-29 01:06:29\"], [\"CO\", \"complaint within 14 days of a contact\", 150624, 50209, 272, [\"0.0054\", 0.0054], [\"0.5005\", 0.5005], [\"0.4661\", 0.4661], [\"0.5349\", 0.5349], [\"0.0055\", 0.0055], [\"0.0048\", 0.0048], [\"0.0073\", 0.0073], [\"1.0130\", 1.013], \"accent_matched\", [\"0.5254\", 0.5254], \"no evidence of signal\", \"2025-08-26 12:14:50\"]]",
+          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [6, 7, 8, 9, 10, 11, 12, 13, 15]}],
+          "data_json": "[[\"CO\", \"main\", \"fraud (honest)\", 954004, 318002, 266, [\"0.0008\", 0.0008], [\"0.5086\", 0.5086], [\"0.4737\", 0.4737], [\"0.5435\", 0.5435], [\"0.0009\", 0.0009], [\"0.0007\", 0.0007], [\"0.0010\", 0.001], [\"1.0178\", 1.0178], \"transaction_type\", [\"0.5361\", 0.5361], \"no evidence of signal\", \"2025-08-22 01:49:08.500000\", \"\"], [\"CO\", \"main\", \"fraud with fraud_score (leak)\", 954004, 318002, 266, [\"0.0008\", 0.0008], [\"0.8330\", 0.833], [\"0.8028\", 0.8028], [\"0.8632\", 0.8632], [\"0.5982\", 0.5982], [\"0.5435\", 0.5435], [\"0.6561\", 0.6561], [\"715.1478\", 715.1478], \"fraud_score\", [\"0.8638\", 0.8638], \"learnable: build and monitor a model\", \"2025-08-22 01:49:08.500000\", \"\"], [\"CO\", \"main\", \"complaint in next 90 days\", 248660, 83846, 3053, [\"0.0364\", 0.0364], [\"0.5063\", 0.5063], [\"0.4958\", 0.4958], [\"0.5168\", 0.5168], [\"0.0367\", 0.0367], [\"0.0351\", 0.0351], [\"0.0386\", 0.0386], [\"1.0077\", 1.0077], \"sentiment_3m\", [\"0.5083\", 0.5083], \"no evidence of signal\", \"2025-10-01 00:00:00\", \"\"], [\"CO\", \"main\", \"dormant in next 90 days\", 215370, 72688, 9467, [\"0.1302\", 0.1302], [\"0.7237\", 0.7237], [\"0.7177\", 0.7177], [\"0.7298\", 0.7298], [\"0.2445\", 0.2445], [\"0.2378\", 0.2378], [\"0.2522\", 0.2522], [\"1.8773\", 1.8773], \"tx_6m\", [\"0.7223\", 0.7223], \"learnable: build and monitor a model\", \"2025-10-01 00:00:00\", \"\"], [\"CO\", \"main\", \"more than 30 days past due\", 28169, 9392, 953, [\"0.1015\", 0.1015], [\"0.4964\", 0.4964], [\"0.4771\", 0.4771], [\"0.5157\", 0.5157], [\"0.1016\", 0.1016], [\"0.0932\", 0.0932], [\"0.1117\", 0.1117], [\"1.0016\", 1.0016], \"tenure_days\", [\"0.5107\", 0.5107], \"no evidence of signal\", \"2024-06-17 00:00:00\", \"\"], [\"CO\", \"main\", \"campaign conversion\", 361170, 120391, 737, [\"0.0061\", 0.0061], [\"0.6285\", 0.6285], [\"0.6068\", 0.6068], [\"0.6502\", 0.6502], [\"0.0086\", 0.0086], [\"0.0078\", 0.0078], [\"0.0094\", 0.0094], [\"1.3967\", 1.3967], \"send_channel\", [\"0.5643\", 0.5643], \"weak signal: rules, not models\", \"2025-08-29 01:06:29\", \"\"], [\"CO\", \"main\", \"complaint within 14 days of a contact\", 150624, 50209, 272, [\"0.0054\", 0.0054], [\"0.5005\", 0.5005], [\"0.4661\", 0.4661], [\"0.5349\", 0.5349], [\"0.0055\", 0.0055], [\"0.0048\", 0.0048], [\"0.0073\", 0.0073], [\"1.0130\", 1.013], \"accent_matched\", [\"0.5254\", 0.5254], \"no evidence of signal\", \"2025-08-26 12:14:50\", \"\"]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
           "paging": false,
           "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>country</th>\n      <th>name</th>\n      <th>train_rows</th>\n      <th>test_rows</th>\n      <th>test_positives</th>\n      <th>base_rate</th>\n      <th>auc</th>\n      <th>auc_lo</th>\n      <th>auc_hi</th>\n      <th>ap</th>\n      <th>ap_lo</th>\n      <th>ap_hi</th>\n      <th>ap_lift</th>\n      <th>best_single_feature</th>\n      <th>best_single_auc</th>\n      <th>verdict</th>\n      <th>split_at</th>\n    </tr>\n  </thead></table>",
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>country</th>\n      <th>dataset</th>\n      <th>name</th>\n      <th>train_rows</th>\n      <th>test_rows</th>\n      <th>test_positives</th>\n      <th>base_rate</th>\n      <th>auc</th>\n      <th>auc_lo</th>\n      <th>auc_hi</th>\n      <th>ap</th>\n      <th>ap_lo</th>\n      <th>ap_hi</th>\n      <th>ap_lift</th>\n      <th>best_single_feature</th>\n      <th>best_single_auc</th>\n      <th>verdict</th>\n      <th>split_at</th>\n      <th>dropped_empty_features</th>\n    </tr>\n  </thead></table>",
           "text_in_header_can_be_selected": true
         };
         new ITable(table, dt_args);
@@ -8557,9 +8593,9 @@ reason.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:380px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="8fe291a2-e89d-4da7-bf60-f2a0aa70a385" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("8fe291a2-e89d-4da7-bf60-f2a0aa70a385")) {                    Plotly.newPlot(                        "8fe291a2-e89d-4da7-bf60-f2a0aa70a385",                        [{"error_x":{"array":{"dtype":"f8","bdata":"MLvcJhneoT\u002fgOGR5dfKeP4A6aqPvcYU\u002fAPTVR+zPeD8w1HtK7sKTP2C3PW6lPZY\u002fgHxHgH2eoT8="},"arrayminus":{"dtype":"f8","bdata":"KLvcJhneoT\u002fgOGR5dfKeP4A6aqPvcYU\u002fAPTVR+zPeD8w1HtK7sKTP2C3PW6lPZY\u002fgHxHgH2eoT8="},"symmetric":false,"type":"data"},"marker":{"size":10},"mode":"markers","x":{"dtype":"f8","bdata":"JVMvkk1G4D\u002fWtClFtafqP3+A1KB5M+A\u002fnff8A+go5z+jNqV2R8TfP+TSojzrHOQ\u002fJtpHIUUE4D8="},"y":["fraud (honest)","fraud with fraud_score (leak)","complaint in next 90 days","dormant in next 90 days","more than 30 days past due","campaign conversion","complaint within 14 days of a contact"],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0.5,"x1":0.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"xaxis":{"range":[0.3,1.0]},"title":{"text":"Colombia: out-of-time test AUC per candidate target (95 % CI)"},"height":380,"yaxis":{"title":{}}},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="76c6b0ad-9eee-49aa-b3e3-4ecba396c277" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("76c6b0ad-9eee-49aa-b3e3-4ecba396c277")) {                    Plotly.newPlot(                        "76c6b0ad-9eee-49aa-b3e3-4ecba396c277",                        [{"error_x":{"array":{"dtype":"f8","bdata":"MLvcJhneoT\u002fgOGR5dfKeP4A6aqPvcYU\u002fABBri+zPeD8w1HtK7sKTP2C3PW6lPZY\u002fgHxHgH2eoT8="},"arrayminus":{"dtype":"f8","bdata":"KLvcJhneoT\u002fgOGR5dfKeP4A6aqPvcYU\u002fABBri+zPeD8w1HtK7sKTP2C3PW6lPZY\u002fgHxHgH2eoT8="},"symmetric":false,"type":"data"},"marker":{"size":10},"mode":"markers","x":{"dtype":"f8","bdata":"JVMvkk1G4D\u002fWtClFtafqP3+A1KB5M+A\u002fMuFHneco5z+jNqV2R8TfP+TSojzrHOQ\u002fJtpHIUUE4D8="},"y":["fraud (honest)","fraud with fraud_score (leak)","complaint in next 90 days","dormant in next 90 days","more than 30 days past due","campaign conversion","complaint within 14 days of a contact"],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0.5,"x1":0.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"xaxis":{"range":[0.3,1.0]},"title":{"text":"Colombia: out-of-time test AUC per candidate target (95 % CI)"},"height":380,"yaxis":{"title":{}}},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('8fe291a2-e89d-4da7-bf60-f2a0aa70a385');
+var gd = document.getElementById('76c6b0ad-9eee-49aa-b3e3-4ecba396c277');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8587,7 +8623,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=67006006">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a46101d3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8605,7 +8641,7 @@ champion–challenger rollout. A moderate one gets more data before a model.</li
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=335b0147">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4e7bdd43">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

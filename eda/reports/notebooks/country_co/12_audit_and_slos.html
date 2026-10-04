@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=62aa4dfe">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0c7d8d77">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7810,7 +7810,7 @@ the SLO of each rule should be for this country.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=732a7843">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6c8f2507">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7830,12 +7830,14 @@ the SLO of each rule should be for this country.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"CO"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
 <span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"privacy_serving"</span><span class="p">)</span>
 <span class="n">AUDIT</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">catalog</span><span class="p">()</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s2">"layer == 'audit'"</span><span class="p">)[</span><span class="s2">"node"</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 <span class="n">built</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">build_set</span><span class="p">(</span><span class="n">AUDIT</span><span class="p">)</span>
@@ -7851,20 +7853,20 @@ the SLO of each rule should be for this country.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>  table     audit_backup_reconciliation                                5 rows     2.2s
-  table     audit_partition_manifest                               6,382 rows     1.2s
+<pre>  table     audit_backup_reconciliation                                5 rows     2.7s
+  table     audit_partition_manifest                               6,382 rows     2.1s
   table     audit_scd2_change_log                                      0 rows     0.0s
-  table     dq_cell_findings                                      24,884 rows     5.4s
-  table     dq_integrity_findings                              2,717,807 rows     3.9s
+  table     dq_cell_findings                                      24,884 rows     6.1s
+  table     dq_integrity_findings                              2,717,807 rows     4.4s
   view      dq_findings                                        2,742,691 rows     0.0s
-  table     dq_rule_summary                                          156 rows     1.4s
+  table     dq_rule_summary                                          156 rows     1.6s
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7324801a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=12837d72">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7874,7 +7876,7 @@ the SLO of each rule should be for this country.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=40dae205">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4c25927c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7883,7 +7885,9 @@ the SLO of each rule should be for this country.</p>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">slo</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">country_rule_slo</span><span class="p">(</span><span class="n">pl</span><span class="p">)</span>
-<span class="n">slo</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">COUNTRY</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"country_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_rule_slo.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">slo</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">DATASET</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+    <span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_rule_slo.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
 <span class="n">show</span><span class="p">(</span><span class="n">slo</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
     <span class="n">slo</span><span class="p">,</span>
@@ -7892,7 +7896,7 @@ the SLO of each rule should be for this country.</p>
     <span class="n">color</span><span class="o">=</span><span class="s2">"severity"</span><span class="p">,</span>
     <span class="n">hover_name</span><span class="o">=</span><span class="s2">"rule_id"</span><span class="p">,</span>
     <span class="n">symbol</span><span class="o">=</span><span class="s2">"breaches_global_slo"</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: rule rates against the bank-wide baseline (%)"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: rule rates against the bank-wide baseline (%)"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">add_shape</span><span class="p">(</span><span class="nb">type</span><span class="o">=</span><span class="s2">"line"</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">y0</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">x1</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">y1</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">420</span><span class="p">)</span>
@@ -7906,6 +7910,8 @@ the SLO of each rule should be for this country.</p>
             <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">diff</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
         <span class="p">)</span>
         <span class="o">+</span> <span class="s2">"."</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="k">else</span> <span class="sa">f</span><span class="s2">"**No rule differs from the bank-wide baseline by a point or more in </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.**"</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -7921,7 +7927,7 @@ the SLO of each rule should be for this country.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_b6eadf0f_d71a_4db2_8384_01eceb35cf93">
+<table hidden="hidden" id="itables_bc3f11c1_17c7_4660_957c_2c5bea319a36">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -7983,7 +7989,7 @@ the SLO of each rule should be for this country.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_b6eadf0f_d71a_4db2_8384_01eceb35cf93_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_bc3f11c1_17c7_4660_957c_2c5bea319a36_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>rule_id</th>
 <th style="border:1px solid #ddd;padding:8px">severity</th>
 <th style="border:1px solid #ddd;padding:8px">table_name</th>
@@ -7993,45 +7999,45 @@ the SLO of each rule should be for this country.</p>
 <th style="border:1px solid #ddd;padding:8px">country_max_pct</th>
 <th style="border:1px solid #ddd;padding:8px">breaches_global_slo</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">R19</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">46.492</td><td style="border:1px solid #ddd;padding:8px">46.48</td><td style="border:1px solid #ddd;padding:8px">51.18</td><td style="border:1px solid #ddd;padding:8px">51.193</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R03</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">4.608</td><td style="border:1px solid #ddd;padding:8px">4.60</td><td style="border:1px solid #ddd;padding:8px">5.11</td><td style="border:1px solid #ddd;padding:8px">5.119</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R18</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">4.476</td><td style="border:1px solid #ddd;padding:8px">2.25</td><td style="border:1px solid #ddd;padding:8px">2.52</td><td style="border:1px solid #ddd;padding:8px">5.013</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R02</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">50.168</td><td style="border:1px solid #ddd;padding:8px">49.90</td><td style="border:1px solid #ddd;padding:8px">52.00</td><td style="border:1px solid #ddd;padding:8px">52.279</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R05</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">2.088</td><td style="border:1px solid #ddd;padding:8px">2.07</td><td style="border:1px solid #ddd;padding:8px">2.50</td><td style="border:1px solid #ddd;padding:8px">2.522</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R11</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">1.230</td><td style="border:1px solid #ddd;padding:8px">1.15</td><td style="border:1px solid #ddd;padding:8px">1.32</td><td style="border:1px solid #ddd;padding:8px">1.412</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R27</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">100.000</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.100</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R01</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">19.229</td><td style="border:1px solid #ddd;padding:8px">18.70</td><td style="border:1px solid #ddd;padding:8px">20.00</td><td style="border:1px solid #ddd;padding:8px">20.566</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R24</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">service_agents</td><td style="border:1px solid #ddd;padding:8px">69.250</td><td style="border:1px solid #ddd;padding:8px">69.25</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.000</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R25</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">20.087</td><td style="border:1px solid #ddd;padding:8px">66.43</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R10</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">0.145</td><td style="border:1px solid #ddd;padding:8px">0.15</td><td style="border:1px solid #ddd;padding:8px">0.21</td><td style="border:1px solid #ddd;padding:8px">0.245</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R22</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">13.827</td><td style="border:1px solid #ddd;padding:8px">14.17</td><td style="border:1px solid #ddd;padding:8px">15.63</td><td style="border:1px solid #ddd;padding:8px">15.252</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R13</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">0.713</td><td style="border:1px solid #ddd;padding:8px">0.76</td><td style="border:1px solid #ddd;padding:8px">0.88</td><td style="border:1px solid #ddd;padding:8px">0.826</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R23</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">99.996</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.096</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R26</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">2.060</td><td style="border:1px solid #ddd;padding:8px">7.00</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R07</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">6.147</td><td style="border:1px solid #ddd;padding:8px">6.28</td><td style="border:1px solid #ddd;padding:8px">7.00</td><td style="border:1px solid #ddd;padding:8px">6.852</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R02</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">50.168</td><td style="border:1px solid #ddd;padding:8px">49.90</td><td style="border:1px solid #ddd;padding:8px">52.00</td><td style="border:1px solid #ddd;padding:8px">52.279</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R03</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">4.608</td><td style="border:1px solid #ddd;padding:8px">4.60</td><td style="border:1px solid #ddd;padding:8px">5.11</td><td style="border:1px solid #ddd;padding:8px">5.119</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R04</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R05</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">2.088</td><td style="border:1px solid #ddd;padding:8px">2.07</td><td style="border:1px solid #ddd;padding:8px">2.50</td><td style="border:1px solid #ddd;padding:8px">2.522</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R06</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">6.269</td><td style="border:1px solid #ddd;padding:8px">6.21</td><td style="border:1px solid #ddd;padding:8px">7.00</td><td style="border:1px solid #ddd;padding:8px">7.067</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R12</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">1.437</td><td style="border:1px solid #ddd;padding:8px">1.55</td><td style="border:1px solid #ddd;padding:8px">1.76</td><td style="border:1px solid #ddd;padding:8px">1.632</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R15</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">8.332</td><td style="border:1px solid #ddd;padding:8px">8.30</td><td style="border:1px solid #ddd;padding:8px">9.00</td><td style="border:1px solid #ddd;padding:8px">9.035</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R16</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">8.536</td><td style="border:1px solid #ddd;padding:8px">8.44</td><td style="border:1px solid #ddd;padding:8px">9.00</td><td style="border:1px solid #ddd;padding:8px">9.102</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R20</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">25.548</td><td style="border:1px solid #ddd;padding:8px">23.98</td><td style="border:1px solid #ddd;padding:8px">25.00</td><td style="border:1px solid #ddd;padding:8px">26.635</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R21</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">49.651</td><td style="border:1px solid #ddd;padding:8px">50.06</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R07</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">6.147</td><td style="border:1px solid #ddd;padding:8px">6.28</td><td style="border:1px solid #ddd;padding:8px">7.00</td><td style="border:1px solid #ddd;padding:8px">6.852</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R08</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R09</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">R04</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R10</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">0.145</td><td style="border:1px solid #ddd;padding:8px">0.15</td><td style="border:1px solid #ddd;padding:8px">0.21</td><td style="border:1px solid #ddd;padding:8px">0.245</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R11</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">1.230</td><td style="border:1px solid #ddd;padding:8px">1.15</td><td style="border:1px solid #ddd;padding:8px">1.32</td><td style="border:1px solid #ddd;padding:8px">1.412</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R12</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">1.437</td><td style="border:1px solid #ddd;padding:8px">1.55</td><td style="border:1px solid #ddd;padding:8px">1.76</td><td style="border:1px solid #ddd;padding:8px">1.632</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R13</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">0.713</td><td style="border:1px solid #ddd;padding:8px">0.76</td><td style="border:1px solid #ddd;padding:8px">0.88</td><td style="border:1px solid #ddd;padding:8px">0.826</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R15</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">8.332</td><td style="border:1px solid #ddd;padding:8px">8.30</td><td style="border:1px solid #ddd;padding:8px">9.00</td><td style="border:1px solid #ddd;padding:8px">9.035</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R16</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">8.536</td><td style="border:1px solid #ddd;padding:8px">8.44</td><td style="border:1px solid #ddd;padding:8px">9.00</td><td style="border:1px solid #ddd;padding:8px">9.102</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R17</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">50.09</td><td style="border:1px solid #ddd;padding:8px">55.15</td><td style="border:1px solid #ddd;padding:8px">0.100</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-</tbody></table></div><script>document.getElementById("itables_b6eadf0f_d71a_4db2_8384_01eceb35cf93")?.removeAttribute("hidden");document.getElementById("itables_b6eadf0f_d71a_4db2_8384_01eceb35cf93_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">R18</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">4.476</td><td style="border:1px solid #ddd;padding:8px">2.25</td><td style="border:1px solid #ddd;padding:8px">2.52</td><td style="border:1px solid #ddd;padding:8px">5.013</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R19</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">46.492</td><td style="border:1px solid #ddd;padding:8px">46.48</td><td style="border:1px solid #ddd;padding:8px">51.18</td><td style="border:1px solid #ddd;padding:8px">51.193</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R20</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">25.548</td><td style="border:1px solid #ddd;padding:8px">23.98</td><td style="border:1px solid #ddd;padding:8px">25.00</td><td style="border:1px solid #ddd;padding:8px">26.635</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R21</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">49.651</td><td style="border:1px solid #ddd;padding:8px">50.06</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R22</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">13.827</td><td style="border:1px solid #ddd;padding:8px">14.17</td><td style="border:1px solid #ddd;padding:8px">15.63</td><td style="border:1px solid #ddd;padding:8px">15.252</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R23</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">99.996</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.096</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R24</td><td style="border:1px solid #ddd;padding:8px">B</td><td style="border:1px solid #ddd;padding:8px">service_agents</td><td style="border:1px solid #ddd;padding:8px">69.250</td><td style="border:1px solid #ddd;padding:8px">69.25</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.000</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R25</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">20.087</td><td style="border:1px solid #ddd;padding:8px">66.43</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R26</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">2.060</td><td style="border:1px solid #ddd;padding:8px">7.00</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">0.000</td><td style="border:1px solid #ddd;padding:8px">True</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">R27</td><td style="border:1px solid #ddd;padding:8px">C</td><td style="border:1px solid #ddd;padding:8px">call_transcripts</td><td style="border:1px solid #ddd;padding:8px">100.000</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">100.100</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+</tbody></table></div><script>document.getElementById("itables_bc3f11c1_17c7_4660_957c_2c5bea319a36")?.removeAttribute("hidden");document.getElementById("itables_bc3f11c1_17c7_4660_957c_2c5bea319a36_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_b6eadf0f_d71a_4db2_8384_01eceb35cf93:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_bc3f11c1_17c7_4660_957c_2c5bea319a36:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [3, 4, 5, 6]}],
-          "data_json": "[[\"R19\", \"C\", \"transactions\", [\"46.492\", 46.492], [\"46.48\", 46.48], [\"51.18\", 51.18], [\"51.193\", 51.193], false], [\"R03\", \"A\", \"transactions\", [\"4.608\", 4.608], [\"4.60\", 4.6], [\"5.11\", 5.11], [\"5.119\", 5.119], false], [\"R18\", \"C\", \"transactions\", [\"4.476\", 4.476], [\"2.25\", 2.25], [\"2.52\", 2.52], [\"5.013\", 5.013], true], [\"R02\", \"A\", \"products\", [\"50.168\", 50.168], [\"49.90\", 49.9], [\"52.00\", 52.0], [\"52.279\", 52.279], false], [\"R05\", \"B\", \"customers\", [\"2.088\", 2.088], [\"2.07\", 2.07], [\"2.50\", 2.5], [\"2.522\", 2.522], false], [\"R11\", \"B\", \"complaints\", [\"1.230\", 1.23], [\"1.15\", 1.15], [\"1.32\", 1.32], [\"1.412\", 1.412], false], [\"R27\", \"C\", \"call_transcripts\", [\"100.000\", 100.0], [\"100.00\", 100.0], [\"100.00\", 100.0], [\"100.100\", 100.1], false], [\"R01\", \"A\", \"transactions\", [\"19.229\", 19.229], [\"18.70\", 18.7], [\"20.00\", 20.0], [\"20.566\", 20.566], false], [\"R24\", \"B\", \"service_agents\", [\"69.250\", 69.25], [\"69.25\", 69.25], [\"100.00\", 100.0], [\"100.000\", 100.0], false], [\"R25\", \"A\", \"complaints\", [\"20.087\", 20.087], [\"66.43\", 66.43], [\"0.00\", 0.0], [\"0.000\", 0.0], true], [\"R10\", \"B\", \"transactions\", [\"0.145\", 0.145], [\"0.15\", 0.15], [\"0.21\", 0.21], [\"0.245\", 0.245], false], [\"R22\", \"B\", \"products\", [\"13.827\", 13.827], [\"14.17\", 14.17], [\"15.63\", 15.63], [\"15.252\", 15.252], false], [\"R13\", \"B\", \"complaints\", [\"0.713\", 0.713], [\"0.76\", 0.76], [\"0.88\", 0.88], [\"0.826\", 0.826], false], [\"R23\", \"B\", \"customers\", [\"99.996\", 99.996], [\"100.00\", 100.0], [\"100.00\", 100.0], [\"100.096\", 100.096], false], [\"R26\", \"A\", \"digital_events\", [\"2.060\", 2.06], [\"7.00\", 7.0], [\"0.00\", 0.0], [\"0.000\", 0.0], true], [\"R07\", \"B\", \"products\", [\"6.147\", 6.147], [\"6.28\", 6.28], [\"7.00\", 7.0], [\"6.852\", 6.852], false], [\"R06\", \"B\", \"customers\", [\"6.269\", 6.269], [\"6.21\", 6.21], [\"7.00\", 7.0], [\"7.067\", 7.067], false], [\"R12\", \"B\", \"complaints\", [\"1.437\", 1.437], [\"1.55\", 1.55], [\"1.76\", 1.76], [\"1.632\", 1.632], false], [\"R15\", \"C\", \"call_center_interactions\", [\"8.332\", 8.332], [\"8.30\", 8.3], [\"9.00\", 9.0], [\"9.035\", 9.035], false], [\"R16\", \"C\", \"complaints\", [\"8.536\", 8.536], [\"8.44\", 8.44], [\"9.00\", 9.0], [\"9.102\", 9.102], false], [\"R20\", \"C\", \"digital_events\", [\"25.548\", 25.548], [\"23.98\", 23.98], [\"25.00\", 25.0], [\"26.635\", 26.635], true], [\"R21\", \"A\", \"campaign_sends\", [\"49.651\", 49.651], [\"50.06\", 50.06], [\"0.00\", 0.0], [\"0.000\", 0.0], true], [\"R08\", \"B\", \"products\", [\"0.000\", 0.0], [\"0.00\", 0.0], [\"0.00\", 0.0], [\"0.000\", 0.0], false], [\"R09\", \"B\", \"products\", [\"0.000\", 0.0], [\"0.00\", 0.0], [\"0.00\", 0.0], [\"0.000\", 0.0], false], [\"R04\", \"A\", \"transactions\", [\"0.000\", 0.0], [\"0.00\", 0.0], [\"0.00\", 0.0], [\"0.000\", 0.0], false], [\"R17\", \"C\", \"transactions\", [\"0.000\", 0.0], [\"50.09\", 50.09], [\"55.15\", 55.15], [\"0.100\", 0.1], false]]",
+          "data_json": "[[\"R01\", \"A\", \"transactions\", [\"19.229\", 19.229], [\"18.70\", 18.7], [\"20.00\", 20.0], [\"20.566\", 20.566], false], [\"R02\", \"A\", \"products\", [\"50.168\", 50.168], [\"49.90\", 49.9], [\"52.00\", 52.0], [\"52.279\", 52.279], false], [\"R03\", \"A\", \"transactions\", [\"4.608\", 4.608], [\"4.60\", 4.6], [\"5.11\", 5.11], [\"5.119\", 5.119], false], [\"R04\", \"A\", \"transactions\", [\"0.000\", 0.0], [\"0.00\", 0.0], [\"0.00\", 0.0], [\"0.000\", 0.0], false], [\"R05\", \"B\", \"customers\", [\"2.088\", 2.088], [\"2.07\", 2.07], [\"2.50\", 2.5], [\"2.522\", 2.522], false], [\"R06\", \"B\", \"customers\", [\"6.269\", 6.269], [\"6.21\", 6.21], [\"7.00\", 7.0], [\"7.067\", 7.067], false], [\"R07\", \"B\", \"products\", [\"6.147\", 6.147], [\"6.28\", 6.28], [\"7.00\", 7.0], [\"6.852\", 6.852], false], [\"R08\", \"B\", \"products\", [\"0.000\", 0.0], [\"0.00\", 0.0], [\"0.00\", 0.0], [\"0.000\", 0.0], false], [\"R09\", \"B\", \"products\", [\"0.000\", 0.0], [\"0.00\", 0.0], [\"0.00\", 0.0], [\"0.000\", 0.0], false], [\"R10\", \"B\", \"transactions\", [\"0.145\", 0.145], [\"0.15\", 0.15], [\"0.21\", 0.21], [\"0.245\", 0.245], false], [\"R11\", \"B\", \"complaints\", [\"1.230\", 1.23], [\"1.15\", 1.15], [\"1.32\", 1.32], [\"1.412\", 1.412], false], [\"R12\", \"B\", \"complaints\", [\"1.437\", 1.437], [\"1.55\", 1.55], [\"1.76\", 1.76], [\"1.632\", 1.632], false], [\"R13\", \"B\", \"complaints\", [\"0.713\", 0.713], [\"0.76\", 0.76], [\"0.88\", 0.88], [\"0.826\", 0.826], false], [\"R15\", \"C\", \"call_center_interactions\", [\"8.332\", 8.332], [\"8.30\", 8.3], [\"9.00\", 9.0], [\"9.035\", 9.035], false], [\"R16\", \"C\", \"complaints\", [\"8.536\", 8.536], [\"8.44\", 8.44], [\"9.00\", 9.0], [\"9.102\", 9.102], false], [\"R17\", \"C\", \"transactions\", [\"0.000\", 0.0], [\"50.09\", 50.09], [\"55.15\", 55.15], [\"0.100\", 0.1], false], [\"R18\", \"C\", \"transactions\", [\"4.476\", 4.476], [\"2.25\", 2.25], [\"2.52\", 2.52], [\"5.013\", 5.013], true], [\"R19\", \"C\", \"transactions\", [\"46.492\", 46.492], [\"46.48\", 46.48], [\"51.18\", 51.18], [\"51.193\", 51.193], false], [\"R20\", \"C\", \"digital_events\", [\"25.548\", 25.548], [\"23.98\", 23.98], [\"25.00\", 25.0], [\"26.635\", 26.635], true], [\"R21\", \"A\", \"campaign_sends\", [\"49.651\", 49.651], [\"50.06\", 50.06], [\"0.00\", 0.0], [\"0.000\", 0.0], true], [\"R22\", \"B\", \"products\", [\"13.827\", 13.827], [\"14.17\", 14.17], [\"15.63\", 15.63], [\"15.252\", 15.252], false], [\"R23\", \"B\", \"customers\", [\"99.996\", 99.996], [\"100.00\", 100.0], [\"100.00\", 100.0], [\"100.096\", 100.096], false], [\"R24\", \"B\", \"service_agents\", [\"69.250\", 69.25], [\"69.25\", 69.25], [\"100.00\", 100.0], [\"100.000\", 100.0], false], [\"R25\", \"A\", \"complaints\", [\"20.087\", 20.087], [\"66.43\", 66.43], [\"0.00\", 0.0], [\"0.000\", 0.0], true], [\"R26\", \"A\", \"digital_events\", [\"2.060\", 2.06], [\"7.00\", 7.0], [\"0.00\", 0.0], [\"0.000\", 0.0], true], [\"R27\", \"C\", \"call_transcripts\", [\"100.000\", 100.0], [\"100.00\", 100.0], [\"100.00\", 100.0], [\"100.100\", 100.1], false]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
@@ -8059,9 +8065,9 @@ the SLO of each rule should be for this country.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:420px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="822fe1af-2539-4e4f-903f-9cb74eacefbe" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("822fe1af-2539-4e4f-903f-9cb74eacefbe")) {                    Plotly.newPlot(                        "822fe1af-2539-4e4f-903f-9cb74eacefbe",                        [{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=C\u003cbr\u003ebreaches_global_slo=False\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R19","R27","R15","R16","R17"],"legendgroup":"C, False","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"C, False","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"PQrXo3A9R0AAAAAAAABZQJqZmZmZmSBA4XoUrkfhIEDsUbgehQtJQA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"5dAi2\u002fk+R0AAAAAAAABZQESLbOf7qSBA30+Nl24SIUAAAAAAAAAAAA=="},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=C\u003cbr\u003ebreaches_global_slo=True\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R18","R20"],"legendgroup":"C, True","marker":{"color":"#2a78d6","symbol":"diamond"},"mode":"markers","name":"C, True","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"AAAAAAAAAkB7FK5H4fo3QA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"gZVDi2znEUA\u002fNV66SYw5QA=="},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=A\u003cbr\u003ebreaches_global_slo=False\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R03","R02","R01","R04"],"legendgroup":"A, False","marker":{"color":"#eb6834","symbol":"circle"},"mode":"markers","name":"A, False","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"ZmZmZmZmEkAzMzMzM\u002fNIQDMzMzMzszJAAAAAAAAAAAA="},"xaxis":"x","y":{"dtype":"f8","bdata":"O99PjZduEkAv3SQGgRVJQLTIdr6fOjNAAAAAAAAAAAA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=A\u003cbr\u003ebreaches_global_slo=True\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R25","R26","R21"],"legendgroup":"A, True","marker":{"color":"#eb6834","symbol":"diamond"},"mode":"markers","name":"A, True","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"7FG4HoWbUEAAAAAAAAAcQEjhehSuB0lA"},"xaxis":"x","y":{"dtype":"f8","bdata":"g8DKoUUWNEB7FK5H4XoAQBfZzvdT00hA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=B\u003cbr\u003ebreaches_global_slo=False\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R05","R11","R24","R10","R22","R13","R23","R07","R06","R12","R08","R09"],"legendgroup":"B, False","marker":{"color":"#1baf7a","symbol":"circle"},"mode":"markers","name":"B, False","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"j8L1KFyPAEBmZmZmZmbyPwAAAAAAUFFAMzMzMzMzwz\u002fXo3A9ClcsQFK4HoXrUeg\u002fAAAAAAAAWUAfhetRuB4ZQNejcD0K1xhAzczMzMzM+D8AAAAAAAAAAAAAAAAAAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"TmIQWDm0AECuR+F6FK7zPwAAAAAAUFFAj8L1KFyPwj+BlUOLbKcrQDeJQWDl0OY\u002fObTIdr7\u002fWEBKDAIrh5YYQPp+arx0ExlAy6FFtvP99j8AAAAAAAAAAAAAAAAAAAAA"},"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"global_baseline_pct"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"country_rate_pct"}},"legend":{"title":{"text":"severity, breaches_global_slo"},"tracegroupgap":0},"title":{"text":"Colombia: rule rates against the bank-wide baseline (%)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":100,"y0":0,"y1":100}],"height":420},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="a929c2c9-e102-4425-9889-f5e592396e82" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("a929c2c9-e102-4425-9889-f5e592396e82")) {                    Plotly.newPlot(                        "a929c2c9-e102-4425-9889-f5e592396e82",                        [{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=A\u003cbr\u003ebreaches_global_slo=False\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R01","R02","R03","R04"],"legendgroup":"A, False","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"A, False","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"MzMzMzOzMkAzMzMzM\u002fNIQGZmZmZmZhJAAAAAAAAAAAA="},"xaxis":"x","y":{"dtype":"f8","bdata":"tMh2vp86M0Av3SQGgRVJQDvfT42XbhJAAAAAAAAAAAA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=A\u003cbr\u003ebreaches_global_slo=True\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R21","R25","R26"],"legendgroup":"A, True","marker":{"color":"#2a78d6","symbol":"diamond"},"mode":"markers","name":"A, True","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"SOF6FK4HSUDsUbgehZtQQAAAAAAAABxA"},"xaxis":"x","y":{"dtype":"f8","bdata":"F9nO91PTSECDwMqhRRY0QHsUrkfhegBA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=B\u003cbr\u003ebreaches_global_slo=False\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R05","R06","R07","R08","R09","R10","R11","R12","R13","R22","R23","R24"],"legendgroup":"B, False","marker":{"color":"#eb6834","symbol":"circle"},"mode":"markers","name":"B, False","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"j8L1KFyPAEDXo3A9CtcYQB+F61G4HhlAAAAAAAAAAAAAAAAAAAAAADMzMzMzM8M\u002fZmZmZmZm8j\u002fNzMzMzMz4P1K4HoXrUeg\u002f16NwPQpXLEAAAAAAAABZQAAAAAAAUFFA"},"xaxis":"x","y":{"dtype":"f8","bdata":"TmIQWDm0AED6fmq8dBMZQEoMAiuHlhhAAAAAAAAAAAAAAAAAAAAAAI\u002fC9Shcj8I\u002frkfhehSu8z\u002fLoUW28\u002f32PzeJQWDl0OY\u002fgZVDi2ynK0A5tMh2vv9YQAAAAAAAUFFA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=C\u003cbr\u003ebreaches_global_slo=False\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R15","R16","R17","R19","R27"],"legendgroup":"C, False","marker":{"color":"#1baf7a","symbol":"circle"},"mode":"markers","name":"C, False","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"mpmZmZmZIEDhehSuR+EgQOxRuB6FC0lAPQrXo3A9R0AAAAAAAABZQA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"RIts5\u002fupIEDfT42XbhIhQAAAAAAAAAAA5dAi2\u002fk+R0AAAAAAAABZQA=="},"yaxis":"y","type":"scatter"},{"hovertemplate":"\u003cb\u003e%{hovertext}\u003c\u002fb\u003e\u003cbr\u003e\u003cbr\u003eseverity=C\u003cbr\u003ebreaches_global_slo=True\u003cbr\u003eglobal_baseline_pct=%{x}\u003cbr\u003ecountry_rate_pct=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","hovertext":["R18","R20"],"legendgroup":"C, True","marker":{"color":"#1baf7a","symbol":"diamond"},"mode":"markers","name":"C, True","orientation":"v","showlegend":true,"x":{"dtype":"f8","bdata":"AAAAAAAAAkB7FK5H4fo3QA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"gZVDi2znEUA\u002fNV66SYw5QA=="},"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"global_baseline_pct"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"country_rate_pct"}},"legend":{"title":{"text":"severity, breaches_global_slo"},"tracegroupgap":0},"title":{"text":"Colombia: rule rates against the bank-wide baseline (%)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":100,"y0":0,"y1":100}],"height":420},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('822fe1af-2539-4e4f-903f-9cb74eacefbe');
+var gd = document.getElementById('a929c2c9-e102-4425-9889-f5e592396e82');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8095,13 +8101,13 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dbc56ab4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fa73c4a9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>How to read the differences.</strong></p>
+<p><strong>How to read the differences (country scopes).</strong></p>
 <ul>
 <li><strong>R17</strong> (USD label on a Mexican customer) is by definition a Mexican rule: about 100 % of Mexican transactions,
 0 % elsewhere. A bank-wide rate of 50 % describes no country.</li>
@@ -8119,17 +8125,17 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5d410dd4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=14063a23">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="2-%C2%B7-The-gates,-emulated-on-the-country">2 · The gates, emulated on the country<a class="anchor-link" href="#2-%C2%B7-The-gates,-emulated-on-the-country">¶</a></h2>
+<h2 id="2-%C2%B7-The-gates,-emulated-on-the-scope">2 · The gates, emulated on the scope<a class="anchor-link" href="#2-%C2%B7-The-gates,-emulated-on-the-scope">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=69b22edb">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=91dc1989">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8169,7 +8175,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_3c829b48_1cf9_4b2d_b31b_2a68fd2d03ef">
+<table hidden="hidden" id="itables_02ab3554_7d1e_47e3_b28e_b2ea8a0cbce1">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8231,7 +8237,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_3c829b48_1cf9_4b2d_b31b_2a68fd2d03ef_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_02ab3554_7d1e_47e3_b28e_b2ea8a0cbce1_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>rule_id</th>
 <th style="border:1px solid #ddd;padding:8px">severity</th>
 <th style="border:1px solid #ddd;padding:8px">rate_pct</th>
@@ -8243,12 +8249,12 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">R21</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">49.651</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R25</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">20.087</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">R26</td><td style="border:1px solid #ddd;padding:8px">A</td><td style="border:1px solid #ddd;padding:8px">2.060</td><td style="border:1px solid #ddd;padding:8px">0.00</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-</tbody></table></div><script>document.getElementById("itables_3c829b48_1cf9_4b2d_b31b_2a68fd2d03ef")?.removeAttribute("hidden");document.getElementById("itables_3c829b48_1cf9_4b2d_b31b_2a68fd2d03ef_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_02ab3554_7d1e_47e3_b28e_b2ea8a0cbce1")?.removeAttribute("hidden");document.getElementById("itables_02ab3554_7d1e_47e3_b28e_b2ea8a0cbce1_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_3c829b48_1cf9_4b2d_b31b_2a68fd2d03ef:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_02ab3554_7d1e_47e3_b28e_b2ea8a0cbce1:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8271,12 +8277,181 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b770d7f2">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2ee32f78">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="3-%C2%B7-Reconciliation-against-the-quarantined-copy">3 · Reconciliation against the quarantined copy<a class="anchor-link" href="#3-%C2%B7-Reconciliation-against-the-quarantined-copy">¶</a></h2><p><code>audit_backup_reconciliation</code> compares the authoritative bronze with the copy in quarantine, key by key, as landed
+text: a true backup gives the same keys and identical records.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ae114221">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">rec</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"select * from </span><span class="si">{audit_backup_reconciliation}</span><span class="s2"> order by table_name"</span><span class="p">)</span>
+<span class="n">rec</span><span class="p">[</span><span class="s2">"changed_pct_of_shared"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="mi">100</span> <span class="o">*</span> <span class="n">rec</span><span class="o">.</span><span class="n">shared_changed</span> <span class="o">/</span> <span class="n">rec</span><span class="o">.</span><span class="n">shared_keys</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">shared_keys</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+<span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">rec</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">DATASET</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+    <span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_reconciliation.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
+<span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="n">rec</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">Markdown</span><span class="p">(</span>
+        <span class="s2">"**Reconciliation:** "</span>
+        <span class="o">+</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">table_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">shared_keys</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> shared keys, </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">only_main</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> only here, </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">only_backup</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> only in the "</span>
+            <span class="sa">f</span><span class="s2">"copy, </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">changed_pct_of_shared</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> % of shared records changed"</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">itertuples</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="s2">". "</span>
+        <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">"The copy is not a backup of this data: any equality test would fail loudly."</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">shared_changed</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span> <span class="ow">or</span> <span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">only_backup</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">any</span><span class="p">()</span>
+            <span class="k">else</span> <span class="s2">"The copy matches."</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<!--| quarto-html-table-processing: none -->
+<table hidden="hidden" id="itables_45d5ccd4_3ce0_4f22_aefb_ee87ad5253c4">
+<tbody>
+<tr>
+<td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g style="fill:var(--itables-logo-paper,#d9d7fc)">
+<path d="M100,400H500V357H100Z"></path>
+<path d="M100,300H400V257H100Z"></path>
+<path d="M0,200H400V157H0Z"></path>
+<path d="M100,100H500V57H100Z"></path>
+<path d="M100,350H500V307H100Z"></path>
+<path d="M100,250H400V207H100Z"></path>
+<path d="M0,150H400V107H0Z"></path>
+<path d="M100,50H500V7H100Z"></path>
+</g>
+<g style="fill:var(--itables-logo-ink,#1a1366);stroke:var(--itables-logo-ink,#1a1366);">
+<rect height="43" width="400" x="100" y="7">
+<animate attributename="width" dur="5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="5s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<rect height="43" width="400" x="0" y="107">
+<animate attributename="width" dur="3.5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="3.5s" repeatcount="indefinite" values="0;0;400"></animate>
+</rect>
+<rect height="43" width="300" x="100" y="207">
+<animate attributename="width" dur="3s" repeatcount="indefinite" values="0;300;0"></animate>
+<animate attributename="x" dur="3s" repeatcount="indefinite" values="100;100;400"></animate>
+</rect>
+<rect height="43" width="400" x="100" y="307">
+<animate attributename="width" dur="4s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="4s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<g rx="5" style="fill:transparent;stroke-width:8; stroke-linejoin:round">
+<g transform="translate(45 50) rotate(-45)">
+<circle cx="0" cy="0" r="33"></circle>
+<rect height="30" width="16" x="-8" y="32"></rect>
+</g>
+<g transform="translate(450 152)">
+<polyline points="-15,-20 -35,-20 -35,40 25,40 25,20"></polyline>
+<rect height="60" width="60" x="-15" y="-40"></rect>
+</g>
+<g transform="translate(50 352)">
+<polygon points="-35,-5 0,-40 35,-5"></polygon>
+<polygon points="-35,10 0,45 35,10"></polygon>
+</g>
+<g transform="translate(75 250)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+<g transform="translate(425 250) rotate(180)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+</g>
+</g>
+</svg>
+</a>
+        Loading ITables v2.9.1 from the internet...
+        (need <a href="https://itables.org/troubleshooting.html">help</a>?)
+      </td>
+</tr>
+</tbody>
+</table>
+<div id="itables_45d5ccd4_3ce0_4f22_aefb_ee87ad5253c4_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>table_name</th>
+<th style="border:1px solid #ddd;padding:8px">main_rows</th>
+<th style="border:1px solid #ddd;padding:8px">backup_rows</th>
+<th style="border:1px solid #ddd;padding:8px">shared_keys</th>
+<th style="border:1px solid #ddd;padding:8px">only_main</th>
+<th style="border:1px solid #ddd;padding:8px">only_backup</th>
+<th style="border:1px solid #ddd;padding:8px">shared_identical</th>
+<th style="border:1px solid #ddd;padding:8px">shared_changed</th>
+<th style="border:1px solid #ddd;padding:8px">changed_pct_of_shared</th>
+</tr></thead><tbody>
+<tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">200833</td><td style="border:1px solid #ddd;padding:8px">205543</td><td style="border:1px solid #ddd;padding:8px">3141</td><td style="border:1px solid #ddd;padding:8px">197692</td><td style="border:1px solid #ddd;padding:8px">202402</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">3141</td><td style="border:1px solid #ddd;padding:8px">100.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">19764</td><td style="border:1px solid #ddd;padding:8px">20162</td><td style="border:1px solid #ddd;padding:8px">6000</td><td style="border:1px solid #ddd;padding:8px">13764</td><td style="border:1px solid #ddd;padding:8px">14162</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">6000</td><td style="border:1px solid #ddd;padding:8px">100.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">customers</td><td style="border:1px solid #ddd;padding:8px">45251</td><td style="border:1px solid #ddd;padding:8px">44983</td><td style="border:1px solid #ddd;padding:8px">94</td><td style="border:1px solid #ddd;padding:8px">45157</td><td style="border:1px solid #ddd;padding:8px">44889</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">94</td><td style="border:1px solid #ddd;padding:8px">100.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">products</td><td style="border:1px solid #ddd;padding:8px">120160</td><td style="border:1px solid #ddd;padding:8px">119827</td><td style="border:1px solid #ddd;padding:8px">12791</td><td style="border:1px solid #ddd;padding:8px">107369</td><td style="border:1px solid #ddd;padding:8px">107036</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">12791</td><td style="border:1px solid #ddd;padding:8px">100.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">1289357</td><td style="border:1px solid #ddd;padding:8px">551953</td><td style="border:1px solid #ddd;padding:8px">5598</td><td style="border:1px solid #ddd;padding:8px">1283759</td><td style="border:1px solid #ddd;padding:8px">546355</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">5598</td><td style="border:1px solid #ddd;padding:8px">100.0</td></tr>
+</tbody></table></div><script>document.getElementById("itables_45d5ccd4_3ce0_4f22_aefb_ee87ad5253c4")?.removeAttribute("hidden");document.getElementById("itables_45d5ccd4_3ce0_4f22_aefb_ee87ad5253c4_fallback")?.setAttribute("hidden", "hidden");</script>
+<link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
+<script type="module">
+    import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
+
+    document.querySelectorAll("#itables_45d5ccd4_3ce0_4f22_aefb_ee87ad5253c4:not(.dataTable)").forEach(table => {
+        if (!(table instanceof HTMLTableElement))
+            return;
+
+        let dt_args = {
+          "classes": ["display", "nowrap", "compact"],
+          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [8]}],
+          "data_json": "[[\"call_center_interactions\", 200833, 205543, 3141, 197692, 202402, 0, 3141, [\"100.0\", 100.0]], [\"complaints\", 19764, 20162, 6000, 13764, 14162, 0, 6000, [\"100.0\", 100.0]], [\"customers\", 45251, 44983, 94, 45157, 44889, 0, 94, [\"100.0\", 100.0]], [\"products\", 120160, 119827, 12791, 107369, 107036, 0, 12791, [\"100.0\", 100.0]], [\"transactions\", 1289357, 551953, 5598, 1283759, 546355, 0, 5598, [\"100.0\", 100.0]]]",
+          "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
+          "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
+          "order": [],
+          "paging": false,
+          "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>table_name</th>\n      <th>main_rows</th>\n      <th>backup_rows</th>\n      <th>shared_keys</th>\n      <th>only_main</th>\n      <th>only_backup</th>\n      <th>shared_identical</th>\n      <th>shared_changed</th>\n      <th>changed_pct_of_shared</th>\n    </tr>\n  </thead></table>",
+          "text_in_header_can_be_selected": true
+        };
+        new ITable(table, dt_args);
+    });
+</script>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
+<p><strong>Reconciliation:</strong> call_center_interactions: 3,141 shared keys, 197,692 only here, 202,402 only in the copy, 100 % of shared records changed; complaints: 6,000 shared keys, 13,764 only here, 14,162 only in the copy, 100 % of shared records changed; customers: 94 shared keys, 45,157 only here, 44,889 only in the copy, 100 % of shared records changed; products: 12,791 shared keys, 107,369 only here, 107,036 only in the copy, 100 % of shared records changed; transactions: 5,598 shared keys, 1,283,759 only here, 546,355 only in the copy, 100 % of shared records changed. The copy is not a backup of this data: any equality test would fail loudly.</p>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e27af143">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">ensure_until</span><span class="p">(</span><span class="s2">"audit"</span><span class="p">)</span>
@@ -8299,7 +8474,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_4ea87764_9ca8_45ad_b7af_7983153f8b89">
+<table hidden="hidden" id="itables_4401498a_5762_47d9_b89a_8728b1853efe">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8361,7 +8536,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_4ea87764_9ca8_45ad_b7af_7983153f8b89_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_4401498a_5762_47d9_b89a_8728b1853efe_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>status</th>
 <th style="border:1px solid #ddd;padding:8px">pass</th>
 <th style="border:1px solid #ddd;padding:8px">warn</th>
@@ -8376,12 +8551,12 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">gold</td><td style="border:1px solid #ddd;padding:8px">21</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">privacy_serving</td><td style="border:1px solid #ddd;padding:8px">7</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">silver</td><td style="border:1px solid #ddd;padding:8px">48</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-</tbody></table></div><script>document.getElementById("itables_4ea87764_9ca8_45ad_b7af_7983153f8b89")?.removeAttribute("hidden");document.getElementById("itables_4ea87764_9ca8_45ad_b7af_7983153f8b89_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_4401498a_5762_47d9_b89a_8728b1853efe")?.removeAttribute("hidden");document.getElementById("itables_4401498a_5762_47d9_b89a_8728b1853efe_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_4ea87764_9ca8_45ad_b7af_7983153f8b89:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_4401498a_5762_47d9_b89a_8728b1853efe:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8404,7 +8579,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_83c1bde0_41c0_4955_b70b_633e883677e6">
+<table hidden="hidden" id="itables_613bde28_3caa_4599_ac5f_7f911ddaed11">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8466,7 +8641,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_83c1bde0_41c0_4955_b70b_633e883677e6_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_613bde28_3caa_4599_ac5f_7f911ddaed11_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">layer</th>
 <th style="border:1px solid #ddd;padding:8px">test</th>
@@ -8479,12 +8654,12 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">56</td><td style="border:1px solid #ddd;padding:8px">silver</td><td style="border:1px solid #ddd;padding:8px">relationships_stg_complaints_affected_product_id__product_id__ref_stg_products_</td><td style="border:1px solid #ddd;padding:8px">9147</td><td style="border:1px solid #ddd;padding:8px">warn</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">57</td><td style="border:1px solid #ddd;padding:8px">silver</td><td style="border:1px solid #ddd;padding:8px">relationships_stg_customers_registration_branch_id__branch_id__ref_stg_branches_</td><td style="border:1px solid #ddd;padding:8px">45249</td><td style="border:1px solid #ddd;padding:8px">warn</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">58</td><td style="border:1px solid #ddd;padding:8px">silver</td><td style="border:1px solid #ddd;padding:8px">relationships_stg_service_agents_assigned_branch_id__branch_id__ref_stg_branches_</td><td style="border:1px solid #ddd;padding:8px">831</td><td style="border:1px solid #ddd;padding:8px">warn</td></tr>
-</tbody></table></div><script>document.getElementById("itables_83c1bde0_41c0_4955_b70b_633e883677e6")?.removeAttribute("hidden");document.getElementById("itables_83c1bde0_41c0_4955_b70b_633e883677e6_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_613bde28_3caa_4599_ac5f_7f911ddaed11")?.removeAttribute("hidden");document.getElementById("itables_613bde28_3caa_4599_ac5f_7f911ddaed11_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_83c1bde0_41c0_4955_b70b_633e883677e6:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_613bde28_3caa_4599_ac5f_7f911ddaed11:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8506,7 +8681,7 @@ R25, R26) at 0 %: geography changes a baseline, not a policy.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4c42c985">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0b4f03a8">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8517,12 +8692,12 @@ zero-tolerance policies shared, and the gate evaluated per country so one countr
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=776821b8">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7bfc41a7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -8539,7 +8714,7 @@ zero-tolerance policies shared, and the gate evaluated per country so one countr
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 16s
+<pre>notebook time 174s
 </pre>
 </div>
 </div>

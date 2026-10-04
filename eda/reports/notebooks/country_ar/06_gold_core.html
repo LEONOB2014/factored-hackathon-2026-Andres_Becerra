@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=78676c35">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b3915c56">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7810,7 +7810,7 @@ and keys hold.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ac845db0">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=dc67897c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7820,6 +7820,7 @@ and keys hold.</p>
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"../../src"</span><span class="p">)</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
@@ -7830,10 +7831,14 @@ and keys hold.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"AR"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
+<span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"silver"</span><span class="p">)</span>
 <span class="n">SNAPS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"snap_branches"</span><span class="p">,</span> <span class="s2">"snap_customers"</span><span class="p">,</span> <span class="s2">"snap_products"</span><span class="p">,</span> <span class="s2">"snap_service_agents"</span><span class="p">]</span>
 <span class="n">CORE</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
@@ -7867,13 +7872,13 @@ and keys hold.</p>
   table     dim_branch                                               350 rows     0.0s
   table     dim_campaign                                             200 rows     0.0s
   table     dim_country                                                6 rows     0.0s
-  table     dim_customer                                          29,842 rows     0.0s
+  table     dim_customer                                          29,842 rows     0.1s
   table     dim_date                                               2,557 rows     0.0s
   table     dim_merchant                                              24 rows     0.0s
   table     dim_product                                           79,442 rows     0.3s
-  table     fct_campaign_send                                    337,106 rows     0.9s
+  table     fct_campaign_send                                    337,106 rows     0.8s
   table     fct_complaint                                         12,967 rows     0.3s
-  table     fct_digital_session                                  404,130 rows     1.8s
+  table     fct_digital_session                                  404,130 rows     1.6s
   table     fct_interaction                                      132,398 rows     0.6s
   table     fct_transaction                                      854,021 rows     1.0s
 </pre>
@@ -7882,7 +7887,7 @@ and keys hold.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f2a1a775">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cce7d5af">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7892,7 +7897,7 @@ and keys hold.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b5db4111">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fbedf31b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7915,15 +7920,30 @@ and keys hold.</p>
     <span class="n">y</span><span class="o">=</span><span class="s2">"value"</span><span class="p">,</span>
     <span class="n">color</span><span class="o">=</span><span class="s2">"variable"</span><span class="p">,</span>
     <span class="n">barmode</span><span class="o">=</span><span class="s2">"group"</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: transactions whose point-in-time join finds no version (%)"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: transactions whose point-in-time join finds no version (%)"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">yaxis_title</span><span class="o">=</span><span class="s2">"%"</span><span class="p">,</span> <span class="n">legend_title</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">why</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<span class="s2">    select count(*) filter (where customer_sk is null or product_sk is null) as missing,</span>
+<span class="s2">           count(*) filter (where (customer_sk is null or product_sk is null)</span>
+<span class="s2">                              and (customer_sk is not null or f.transaction_ts_utc &lt; c.registration_date)</span>
+<span class="s2">                              and (product_sk is not null or f.transaction_ts_utc &lt; p.opening_date)) as predates</span>
+<span class="s2">    from </span><span class="si">{fct_transaction}</span><span class="s2"> f left join </span><span class="si">{int_customer_profile}</span><span class="s2"> c using (customer_id)</span>
+<span class="s2">    left join </span><span class="si">{int_products_enriched}</span><span class="s2"> p using (product_id)"""</span><span class="p">)</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">explained</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">why</span><span class="o">.</span><span class="n">predates</span> <span class="o">/</span> <span class="nb">max</span><span class="p">(</span><span class="n">why</span><span class="o">.</span><span class="n">missing</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">cov</span><span class="o">.</span><span class="n">missing_either_pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s transactions lose at least one key**, every one because "</span>
-        <span class="s2">"it predates the customer's registration or the product's opening (an independence of dates in the generator). "</span>
-        <span class="s2">"The fix is the same in every country: the first version is valid from the beginning of time."</span>
+        <span class="sa">f</span><span class="s2">"**</span><span class="si">{</span><span class="n">cov</span><span class="o">.</span><span class="n">missing_either_pct</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">'s transactions lose at least one key**; "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">explained</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % of those because they predate the customer's registration or the product's opening (an "</span>
+        <span class="s2">"independence of dates in the generator). The fix is the same in every country: the first version is valid "</span>
+        <span class="s2">"from the beginning of time."</span>
+        <span class="o">+</span> <span class="p">(</span>
+            <span class="s2">" The share is higher than main's 19 % because this dataset's transactions are concentrated in the "</span>
+            <span class="s2">"first fifteen months, when fewer customers and products had been opened."</span>
+            <span class="k">if</span> <span class="n">DATASET</span> <span class="o">==</span> <span class="s2">"backup"</span>
+            <span class="k">else</span> <span class="s2">""</span>
+        <span class="p">)</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -7939,7 +7959,7 @@ and keys hold.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_093e864b_907e_45c5_865c_38b914345700">
+<table hidden="hidden" id="itables_fedd2862_7cc4_4494_90e9_f04988afbfa0">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8001,19 +8021,19 @@ and keys hold.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_093e864b_907e_45c5_865c_38b914345700_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_fedd2862_7cc4_4494_90e9_f04988afbfa0_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>transactions</th>
 <th style="border:1px solid #ddd;padding:8px">missing_customer_sk_pct</th>
 <th style="border:1px solid #ddd;padding:8px">missing_product_sk_pct</th>
 <th style="border:1px solid #ddd;padding:8px">missing_either_pct</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">854021</td><td style="border:1px solid #ddd;padding:8px">19.46</td><td style="border:1px solid #ddd;padding:8px">19.15</td><td style="border:1px solid #ddd;padding:8px">33.82</td></tr>
-</tbody></table></div><script>document.getElementById("itables_093e864b_907e_45c5_865c_38b914345700")?.removeAttribute("hidden");document.getElementById("itables_093e864b_907e_45c5_865c_38b914345700_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_fedd2862_7cc4_4494_90e9_f04988afbfa0")?.removeAttribute("hidden");document.getElementById("itables_fedd2862_7cc4_4494_90e9_f04988afbfa0_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_093e864b_907e_45c5_865c_38b914345700:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_fedd2862_7cc4_4494_90e9_f04988afbfa0:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8048,9 +8068,9 @@ and keys hold.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:300px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="128c62f5-e3a7-48c2-8616-62607228e367" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("128c62f5-e3a7-48c2-8616-62607228e367")) {                    Plotly.newPlot(                        "128c62f5-e3a7-48c2-8616-62607228e367",                        [{"alignmentgroup":"True","hovertemplate":"variable=customer_pct\u003cbr\u003eyear=%{x}\u003cbr\u003evalue=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer_pct","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"customer_pct","offsetgroup":"customer_pct","orientation":"v","showlegend":true,"textposition":"auto","x":{"dtype":"i2","bdata":"5wfoB+kH6gc="},"xaxis":"x","y":{"dtype":"f8","bdata":"ZmZmZmYmQUBmZmZmZuY4QAAAAAAAAChAAAAAAAAADEA="},"yaxis":"y","type":"bar"},{"alignmentgroup":"True","hovertemplate":"variable=product_pct\u003cbr\u003eyear=%{x}\u003cbr\u003evalue=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"product_pct","marker":{"color":"#eb6834","pattern":{"shape":""}},"name":"product_pct","offsetgroup":"product_pct","orientation":"v","showlegend":true,"textposition":"auto","x":{"dtype":"i2","bdata":"5wfoB+kH6gc="},"xaxis":"x","y":{"dtype":"f8","bdata":"mpmZmZnZQEDNzMzMzEw4QM3MzMzMzCdAAAAAAAAADEA="},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"year"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"%"}},"legend":{"title":{},"tracegroupgap":0},"title":{"text":"Argentina: transactions whose point-in-time join finds no version (%)"},"barmode":"group","height":300},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="685a5a07-3cdd-457d-9dd4-c4cabf05afe6" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("685a5a07-3cdd-457d-9dd4-c4cabf05afe6")) {                    Plotly.newPlot(                        "685a5a07-3cdd-457d-9dd4-c4cabf05afe6",                        [{"alignmentgroup":"True","hovertemplate":"variable=customer_pct\u003cbr\u003eyear=%{x}\u003cbr\u003evalue=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"customer_pct","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"customer_pct","offsetgroup":"customer_pct","orientation":"v","showlegend":true,"textposition":"auto","x":{"dtype":"i2","bdata":"5wfoB+kH6gc="},"xaxis":"x","y":{"dtype":"f8","bdata":"ZmZmZmYmQUBmZmZmZuY4QAAAAAAAAChAAAAAAAAADEA="},"yaxis":"y","type":"bar"},{"alignmentgroup":"True","hovertemplate":"variable=product_pct\u003cbr\u003eyear=%{x}\u003cbr\u003evalue=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"product_pct","marker":{"color":"#eb6834","pattern":{"shape":""}},"name":"product_pct","offsetgroup":"product_pct","orientation":"v","showlegend":true,"textposition":"auto","x":{"dtype":"i2","bdata":"5wfoB+kH6gc="},"xaxis":"x","y":{"dtype":"f8","bdata":"mpmZmZnZQEDNzMzMzEw4QM3MzMzMzCdAAAAAAAAADEA="},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"year"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"%"}},"legend":{"title":{},"tracegroupgap":0},"title":{"text":"Argentina: transactions whose point-in-time join finds no version (%)"},"barmode":"group","height":300},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('128c62f5-e3a7-48c2-8616-62607228e367');
+var gd = document.getElementById('685a5a07-3cdd-457d-9dd4-c4cabf05afe6');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8078,13 +8098,13 @@ if (outputEl) {{
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>33.8 % of Argentina's transactions lose at least one key</strong>, every one because it predates the customer's registration or the product's opening (an independence of dates in the generator). The fix is the same in every country: the first version is valid from the beginning of time.</p>
+<p><strong>33.8 % of Argentina's transactions lose at least one key</strong>; 100.0 % of those because they predate the customer's registration or the product's opening (an independence of dates in the generator). The fix is the same in every country: the first version is valid from the beginning of time.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=921e301f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b1303836">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8094,7 +8114,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=62222c23">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7e69c667">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8140,7 +8160,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_67877cdc_ca98_4fd9_a57a_2af06f5c620b">
+<table hidden="hidden" id="itables_96cc2e02_5ab3_487f_ba59_58c9f1afdd7a">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8202,7 +8222,7 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_67877cdc_ca98_4fd9_a57a_2af06f5c620b_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_96cc2e02_5ab3_487f_ba59_58c9f1afdd7a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>fact</th>
 <th style="border:1px solid #ddd;padding:8px">foreign key</th>
 <th style="border:1px solid #ddd;padding:8px">rows</th>
@@ -8216,12 +8236,12 @@ if (outputEl) {{
 <tr><td style="border:1px solid #ddd;padding:8px">fct_campaign_send</td><td style="border:1px solid #ddd;padding:8px">campaign_id → dim_campaign</td><td style="border:1px solid #ddd;padding:8px">337106</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">fct_complaint</td><td style="border:1px solid #ddd;padding:8px">customer_id → dim_customer</td><td style="border:1px solid #ddd;padding:8px">12967</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">100.00</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">fct_digital_session</td><td style="border:1px solid #ddd;padding:8px">customer_id → dim_customer</td><td style="border:1px solid #ddd;padding:8px">404130</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">70.47</td><td style="border:1px solid #ddd;padding:8px">0</td></tr>
-</tbody></table></div><script>document.getElementById("itables_67877cdc_ca98_4fd9_a57a_2af06f5c620b")?.removeAttribute("hidden");document.getElementById("itables_67877cdc_ca98_4fd9_a57a_2af06f5c620b_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_96cc2e02_5ab3_487f_ba59_58c9f1afdd7a")?.removeAttribute("hidden");document.getElementById("itables_96cc2e02_5ab3_487f_ba59_58c9f1afdd7a_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_67877cdc_ca98_4fd9_a57a_2af06f5c620b:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_96cc2e02_5ab3_487f_ba59_58c9f1afdd7a:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8245,7 +8265,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c1304043">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=2bcdadff">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8257,7 +8277,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fd501b83">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=802c3585">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8267,7 +8287,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ab327b74">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4d0bea42">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8300,7 +8320,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_86ee0d25_57f1_4386_80d2_501865d7fadf">
+<table hidden="hidden" id="itables_e4c31a1e_06bb_41ff_b8f1_eaf527cce4d7">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8362,7 +8382,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 </tr>
 </tbody>
 </table>
-<div id="itables_86ee0d25_57f1_4386_80d2_501865d7fadf_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_e4c31a1e_06bb_41ff_b8f1_eaf527cce4d7_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>segment</th>
 <th style="border:1px solid #ddd;padding:8px">customers</th>
 <th style="border:1px solid #ddd;padding:8px">median_score</th>
@@ -8372,12 +8392,12 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 <tr><td style="border:1px solid #ddd;padding:8px">Plus</td><td style="border:1px solid #ddd;padding:8px">7441</td><td style="border:1px solid #ddd;padding:8px">699.0</td><td style="border:1px solid #ddd;padding:8px">50.1</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Premium</td><td style="border:1px solid #ddd;padding:8px">2979</td><td style="border:1px solid #ddd;padding:8px">798.0</td><td style="border:1px solid #ddd;padding:8px">50.7</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Student</td><td style="border:1px solid #ddd;padding:8px">1498</td><td style="border:1px solid #ddd;padding:8px">650.0</td><td style="border:1px solid #ddd;padding:8px">47.6</td></tr>
-</tbody></table></div><script>document.getElementById("itables_86ee0d25_57f1_4386_80d2_501865d7fadf")?.removeAttribute("hidden");document.getElementById("itables_86ee0d25_57f1_4386_80d2_501865d7fadf_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_e4c31a1e_06bb_41ff_b8f1_eaf527cce4d7")?.removeAttribute("hidden");document.getElementById("itables_e4c31a1e_06bb_41ff_b8f1_eaf527cce4d7_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_86ee0d25_57f1_4386_80d2_501865d7fadf:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_e4c31a1e_06bb_41ff_b8f1_eaf527cce4d7:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8402,7 +8422,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_4222dd41_f215_487f_89d8_b5490327a69f">
+<table hidden="hidden" id="itables_0316d03a_233a_49d9_a56e_261b1748d34b">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8464,7 +8484,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 </tr>
 </tbody>
 </table>
-<div id="itables_4222dd41_f215_487f_89d8_b5490327a69f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_0316d03a_233a_49d9_a56e_261b1748d34b_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>product_family</th>
 <th style="border:1px solid #ddd;padding:8px">currency</th>
 <th style="border:1px solid #ddd;padding:8px">products</th>
@@ -8481,12 +8501,12 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 <tr><td style="border:1px solid #ddd;padding:8px">insurance</td><td style="border:1px solid #ddd;padding:8px">ARS</td><td style="border:1px solid #ddd;padding:8px">373</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">investment</td><td style="border:1px solid #ddd;padding:8px">USD</td><td style="border:1px solid #ddd;padding:8px">104</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">insurance</td><td style="border:1px solid #ddd;padding:8px">USD</td><td style="border:1px solid #ddd;padding:8px">30</td></tr>
-</tbody></table></div><script>document.getElementById("itables_4222dd41_f215_487f_89d8_b5490327a69f")?.removeAttribute("hidden");document.getElementById("itables_4222dd41_f215_487f_89d8_b5490327a69f_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_0316d03a_233a_49d9_a56e_261b1748d34b")?.removeAttribute("hidden");document.getElementById("itables_0316d03a_233a_49d9_a56e_261b1748d34b_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_4222dd41_f215_487f_89d8_b5490327a69f:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_0316d03a_233a_49d9_a56e_261b1748d34b:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8507,12 +8527,169 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1949ba08">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7f319308">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="4-%C2%B7-The-scope's-profile">4 · The scope's profile<a class="anchor-link" href="#4-%C2%B7-The-scope's-profile">¶</a></h2><p>One row of conformed figures (silver and gold) that the comparison notebooks read instead of a lakehouse: size,
+activity, currency, anonymous traffic, income and ticket.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ab766eb1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
 <div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">HOME</span> <span class="o">=</span> <span class="s2">" "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+    <span class="sa">f</span><span class="s2">"when '</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">' then '</span><span class="si">{</span><span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">home_currency</span><span class="si">}</span><span class="s2">'"</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_codes</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="p">)</span>
+<span class="n">prof</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">    select (select count(*) from </span><span class="se">{{</span><span class="s2">int_customer_profile</span><span class="se">}}</span><span class="s2">) as customers,</span>
+<span class="s2">           (select count(*) from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span><span class="s2">) as transactions,</span>
+<span class="s2">           (select min(transaction_ts_utc)::date from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span><span class="s2">) as first_tx_day,</span>
+<span class="s2">           (select max(transaction_ts_utc)::date from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span><span class="s2">) as last_tx_day,</span>
+<span class="s2">           (select round(avg(n_tx), 3) from </span><span class="se">{{</span><span class="s2">int_customer_month_tx</span><span class="se">}}</span><span class="s2">) as tx_per_customer_month,</span>
+<span class="s2">           (select round(100 * avg((t.currency = case c.country_code </span><span class="si">{</span><span class="n">HOME</span><span class="si">}</span><span class="s2"> end)::int), 1)</span>
+<span class="s2">              from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span><span class="s2"> t join </span><span class="se">{{</span><span class="s2">stg_customers</span><span class="se">}}</span><span class="s2"> c using (customer_id))</span>
+<span class="s2">             as home_currency_tx_pct,</span>
+<span class="s2">           (select round(100 * avg((customer_id is null)::int), 1) from </span><span class="se">{{</span><span class="s2">fct_digital_session</span><span class="se">}}</span><span class="s2">)</span>
+<span class="s2">             as anonymous_sessions_pct,</span>
+<span class="s2">           (select round(median(monthly_income_usd), 0) from </span><span class="se">{{</span><span class="s2">int_customer_profile</span><span class="se">}}</span><span class="s2">) as median_income_usd,</span>
+<span class="s2">           (select round(median(amount_usd), 0) from </span><span class="se">{{</span><span class="s2">int_transactions_enriched</span><span class="se">}}</span><span class="s2">) as median_tx_usd"""</span><span class="p">)</span>
+<span class="n">prof</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"dataset"</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
+<span class="n">prof</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"country"</span><span class="p">,</span> <span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">prof</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_profile.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="n">prof</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<!--| quarto-html-table-processing: none -->
+<table hidden="hidden" id="itables_1e74248d_451a_4a52_903c_cd67da152a51">
+<tbody>
+<tr>
+<td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g style="fill:var(--itables-logo-paper,#d9d7fc)">
+<path d="M100,400H500V357H100Z"></path>
+<path d="M100,300H400V257H100Z"></path>
+<path d="M0,200H400V157H0Z"></path>
+<path d="M100,100H500V57H100Z"></path>
+<path d="M100,350H500V307H100Z"></path>
+<path d="M100,250H400V207H100Z"></path>
+<path d="M0,150H400V107H0Z"></path>
+<path d="M100,50H500V7H100Z"></path>
+</g>
+<g style="fill:var(--itables-logo-ink,#1a1366);stroke:var(--itables-logo-ink,#1a1366);">
+<rect height="43" width="400" x="100" y="7">
+<animate attributename="width" dur="5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="5s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<rect height="43" width="400" x="0" y="107">
+<animate attributename="width" dur="3.5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="3.5s" repeatcount="indefinite" values="0;0;400"></animate>
+</rect>
+<rect height="43" width="300" x="100" y="207">
+<animate attributename="width" dur="3s" repeatcount="indefinite" values="0;300;0"></animate>
+<animate attributename="x" dur="3s" repeatcount="indefinite" values="100;100;400"></animate>
+</rect>
+<rect height="43" width="400" x="100" y="307">
+<animate attributename="width" dur="4s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="4s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<g rx="5" style="fill:transparent;stroke-width:8; stroke-linejoin:round">
+<g transform="translate(45 50) rotate(-45)">
+<circle cx="0" cy="0" r="33"></circle>
+<rect height="30" width="16" x="-8" y="32"></rect>
+</g>
+<g transform="translate(450 152)">
+<polyline points="-15,-20 -35,-20 -35,40 25,40 25,20"></polyline>
+<rect height="60" width="60" x="-15" y="-40"></rect>
+</g>
+<g transform="translate(50 352)">
+<polygon points="-35,-5 0,-40 35,-5"></polygon>
+<polygon points="-35,10 0,45 35,10"></polygon>
+</g>
+<g transform="translate(75 250)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+<g transform="translate(425 250) rotate(180)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+</g>
+</g>
+</svg>
+</a>
+        Loading ITables v2.9.1 from the internet...
+        (need <a href="https://itables.org/troubleshooting.html">help</a>?)
+      </td>
+</tr>
+</tbody>
+</table>
+<div id="itables_1e74248d_451a_4a52_903c_cd67da152a51_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>country</th>
+<th style="border:1px solid #ddd;padding:8px">dataset</th>
+<th style="border:1px solid #ddd;padding:8px">customers</th>
+<th style="border:1px solid #ddd;padding:8px">transactions</th>
+<th style="border:1px solid #ddd;padding:8px">first_tx_day</th>
+<th style="border:1px solid #ddd;padding:8px">last_tx_day</th>
+<th style="border:1px solid #ddd;padding:8px">tx_per_customer_month</th>
+<th style="border:1px solid #ddd;padding:8px">home_currency_tx_pct</th>
+<th style="border:1px solid #ddd;padding:8px">anonymous_sessions_pct</th>
+<th style="border:1px solid #ddd;padding:8px">median_income_usd</th>
+<th style="border:1px solid #ddd;padding:8px">median_tx_usd</th>
+</tr></thead><tbody>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">29842</td><td style="border:1px solid #ddd;padding:8px">854021</td><td style="border:1px solid #ddd;padding:8px">2023-06-17</td><td style="border:1px solid #ddd;padding:8px">2026-05-18</td><td style="border:1px solid #ddd;padding:8px">0.795</td><td style="border:1px solid #ddd;padding:8px">90.1</td><td style="border:1px solid #ddd;padding:8px">29.5</td><td style="border:1px solid #ddd;padding:8px">2304.0</td><td style="border:1px solid #ddd;padding:8px">466.0</td></tr>
+</tbody></table></div><script>document.getElementById("itables_1e74248d_451a_4a52_903c_cd67da152a51")?.removeAttribute("hidden");document.getElementById("itables_1e74248d_451a_4a52_903c_cd67da152a51_fallback")?.setAttribute("hidden", "hidden");</script>
+<link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
+<script type="module">
+    import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
+
+    document.querySelectorAll("#itables_1e74248d_451a_4a52_903c_cd67da152a51:not(.dataTable)").forEach(table => {
+        if (!(table instanceof HTMLTableElement))
+            return;
+
+        let dt_args = {
+          "classes": ["display", "nowrap", "compact"],
+          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [6, 7, 8, 9, 10]}],
+          "data_json": "[[\"AR\", \"main\", 29842, 854021, \"2023-06-17\", \"2026-05-18\", [\"0.795\", 0.795], [\"90.1\", 90.1], [\"29.5\", 29.5], [\"2304.0\", 2304.0], [\"466.0\", 466.0]]]",
+          "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
+          "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
+          "order": [],
+          "paging": false,
+          "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>country</th>\n      <th>dataset</th>\n      <th>customers</th>\n      <th>transactions</th>\n      <th>first_tx_day</th>\n      <th>last_tx_day</th>\n      <th>tx_per_customer_month</th>\n      <th>home_currency_tx_pct</th>\n      <th>anonymous_sessions_pct</th>\n      <th>median_income_usd</th>\n      <th>median_tx_usd</th>\n    </tr>\n  </thead></table>",
+          "text_in_header_can_be_selected": true
+        };
+        new ITable(table, dt_args);
+    });
+</script>
+</div>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=780413f6">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">ensure_until</span><span class="p">(</span><span class="s2">"gold"</span><span class="p">)</span>
@@ -8538,7 +8715,7 @@ dimensions (agents, campaigns, merchants) resolve too. The country star is as so
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=01fa11ea">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fbbca485">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8549,12 +8726,12 @@ common to every country.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3fd8fcbc">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=dd682a19">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
@@ -8571,7 +8748,7 @@ common to every country.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 8s
+<pre>notebook time 15s
 </pre>
 </div>
 </div>

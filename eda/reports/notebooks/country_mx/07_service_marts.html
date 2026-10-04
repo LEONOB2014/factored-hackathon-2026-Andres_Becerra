@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6b9d6345">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=38f36f8b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7810,7 +7810,7 @@ look the same here.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0d0a3292">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4e23751f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7829,10 +7829,12 @@ look the same here.</p>
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
 
 <span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"MX"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
+<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"main"</span>
+<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"country"</span>
+<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">)</span>
+<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
 <span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"snapshots"</span><span class="p">)</span>
 <span class="n">MARTS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"mart_customer_360"</span><span class="p">,</span>
@@ -7858,7 +7860,7 @@ look the same here.</p>
 <pre>  table     mart_product_recent_transactions                   2,144,101 rows     1.1s
   table     mart_account_payment_inquiry                         200,398 rows     0.7s
   table     mart_card_support                                     70,012 rows     0.6s
-  table     mart_customer_360                                     74,907 rows     2.9s
+  table     mart_customer_360                                     74,907 rows     3.2s
   table     mart_cx_journey                                      333,388 rows     1.7s
   table     mart_transaction_disputes                             13,022 rows     0.3s
 </pre>
@@ -7867,7 +7869,7 @@ look the same here.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7d34371c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dfcf51a0">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7877,7 +7879,7 @@ look the same here.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c13db17b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=22c51bbf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7910,7 +7912,7 @@ look the same here.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_2141b563_91d4_4570_859a_50f7586ba69d">
+<table hidden="hidden" id="itables_98f53ab8_d224_4022_af5a_a44efac5eb3c">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -7972,7 +7974,7 @@ look the same here.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_2141b563_91d4_4570_859a_50f7586ba69d_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_98f53ab8_d224_4022_af5a_a44efac5eb3c_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>customers</th>
 <th style="border:1px solid #ddd;padding:8px">avg_tx_90d</th>
 <th style="border:1px solid #ddd;padding:8px">no_tx_90d_pct</th>
@@ -7982,12 +7984,12 @@ look the same here.</p>
 <th style="border:1px solid #ddd;padding:8px">products_per_customer</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">74907</td><td style="border:1px solid #ddd;padding:8px">2.49</td><td style="border:1px solid #ddd;padding:8px">22.0</td><td style="border:1px solid #ddd;padding:8px">25.0</td><td style="border:1px solid #ddd;padding:8px">44.9</td><td style="border:1px solid #ddd;padding:8px">32.1</td><td style="border:1px solid #ddd;padding:8px">2.68</td></tr>
-</tbody></table></div><script>document.getElementById("itables_2141b563_91d4_4570_859a_50f7586ba69d")?.removeAttribute("hidden");document.getElementById("itables_2141b563_91d4_4570_859a_50f7586ba69d_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_98f53ab8_d224_4022_af5a_a44efac5eb3c")?.removeAttribute("hidden");document.getElementById("itables_98f53ab8_d224_4022_af5a_a44efac5eb3c_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_2141b563_91d4_4570_859a_50f7586ba69d:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_98f53ab8_d224_4022_af5a_a44efac5eb3c:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8012,7 +8014,7 @@ look the same here.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_c0147349_4dfe_4f75_bd07_dcc0c8994211">
+<table hidden="hidden" id="itables_c5e9c1cc_2323_4652_94ce_e19f052399cb">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8074,7 +8076,7 @@ look the same here.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_c0147349_4dfe_4f75_bd07_dcc0c8994211_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_c5e9c1cc_2323_4652_94ce_e19f052399cb_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>segment</th>
 <th style="border:1px solid #ddd;padding:8px">customers</th>
 <th style="border:1px solid #ddd;padding:8px">tx_365d</th>
@@ -8085,12 +8087,12 @@ look the same here.</p>
 <tr><td style="border:1px solid #ddd;padding:8px">Plus</td><td style="border:1px solid #ddd;padding:8px">18797</td><td style="border:1px solid #ddd;padding:8px">9.9</td><td style="border:1px solid #ddd;padding:8px">4923.0</td><td style="border:1px solid #ddd;padding:8px">0.153</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Premium</td><td style="border:1px solid #ddd;padding:8px">7644</td><td style="border:1px solid #ddd;padding:8px">9.8</td><td style="border:1px solid #ddd;padding:8px">4685.0</td><td style="border:1px solid #ddd;padding:8px">0.143</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Student</td><td style="border:1px solid #ddd;padding:8px">3703</td><td style="border:1px solid #ddd;padding:8px">9.9</td><td style="border:1px solid #ddd;padding:8px">4696.0</td><td style="border:1px solid #ddd;padding:8px">0.146</td></tr>
-</tbody></table></div><script>document.getElementById("itables_c0147349_4dfe_4f75_bd07_dcc0c8994211")?.removeAttribute("hidden");document.getElementById("itables_c0147349_4dfe_4f75_bd07_dcc0c8994211_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_c5e9c1cc_2323_4652_94ce_e19f052399cb")?.removeAttribute("hidden");document.getElementById("itables_c5e9c1cc_2323_4652_94ce_e19f052399cb_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_c0147349_4dfe_4f75_bd07_dcc0c8994211:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_c5e9c1cc_2323_4652_94ce_e19f052399cb:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8114,7 +8116,7 @@ look the same here.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9ff0a194">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=be26801b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8124,7 +8126,7 @@ look the same here.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cc69be02">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c76b0857">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8141,7 +8143,7 @@ look the same here.</p>
     <span class="n">x</span><span class="o">=</span><span class="s2">"cards"</span><span class="p">,</span>
     <span class="n">y</span><span class="o">=</span><span class="s2">"next_best_action"</span><span class="p">,</span>
     <span class="n">orientation</span><span class="o">=</span><span class="s2">"h"</span><span class="p">,</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: next best action per card"</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: next best action per card"</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">yaxis</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">autorange</span><span class="o">=</span><span class="s2">"reversed"</span><span class="p">))</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
@@ -8169,9 +8171,9 @@ look the same here.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:300px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="2a199bc1-e221-435b-aae8-eff6bdc09ab4" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("2a199bc1-e221-435b-aae8-eff6bdc09ab4")) {                    Plotly.newPlot(                        "2a199bc1-e221-435b-aae8-eff6bdc09ab4",                        [{"hovertemplate":"cards=%{x}\u003cbr\u003enext_best_action=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"i4","bdata":"ZpAAAKhsAACaDQAAUQQAAIkBAAD6AAAA"},"xaxis":"x","y":["NONE","REISSUE_CARD","UNBLOCK_AFTER_STRONG_AUTH","PROACTIVE_RENEWAL","EXPLAIN_LIMIT_OR_OFFER_INCREASE_REVIEW","FRAUD_REVIEW_AND_BLOCK"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"cards"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Mexico: next best action per card"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="59f7f19f-c32c-41f1-b922-1eb17fb26a9b" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("59f7f19f-c32c-41f1-b922-1eb17fb26a9b")) {                    Plotly.newPlot(                        "59f7f19f-c32c-41f1-b922-1eb17fb26a9b",                        [{"hovertemplate":"cards=%{x}\u003cbr\u003enext_best_action=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"h","showlegend":false,"textposition":"auto","x":{"dtype":"i4","bdata":"ZpAAAKhsAACaDQAAUQQAAIkBAAD6AAAA"},"xaxis":"x","y":["NONE","REISSUE_CARD","UNBLOCK_AFTER_STRONG_AUTH","PROACTIVE_RENEWAL","EXPLAIN_LIMIT_OR_OFFER_INCREASE_REVIEW","FRAUD_REVIEW_AND_BLOCK"],"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"cards"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{},"autorange":"reversed"},"legend":{"tracegroupgap":0},"title":{"text":"Mexico: next best action per card"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('2a199bc1-e221-435b-aae8-eff6bdc09ab4');
+var gd = document.getElementById('59f7f19f-c32c-41f1-b922-1eb17fb26a9b');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8200,7 +8202,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_8f2f8b9c_3265_4800_bed2_f8bb1b9c0765">
+<table hidden="hidden" id="itables_88ab3337_232f_4fe6_a07a_b3992c5c53de">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8262,7 +8264,7 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_8f2f8b9c_3265_4800_bed2_f8bb1b9c0765_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_88ab3337_232f_4fe6_a07a_b3992c5c53de_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>next_best_action</th>
 <th style="border:1px solid #ddd;padding:8px">cards</th>
 <th style="border:1px solid #ddd;padding:8px">share %</th>
@@ -8273,12 +8275,12 @@ if (outputEl) {{
 <tr><td style="border:1px solid #ddd;padding:8px">PROACTIVE_RENEWAL</td><td style="border:1px solid #ddd;padding:8px">1105</td><td style="border:1px solid #ddd;padding:8px">1.58</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">EXPLAIN_LIMIT_OR_OFFER_INCREASE_REVIEW</td><td style="border:1px solid #ddd;padding:8px">393</td><td style="border:1px solid #ddd;padding:8px">0.56</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">FRAUD_REVIEW_AND_BLOCK</td><td style="border:1px solid #ddd;padding:8px">250</td><td style="border:1px solid #ddd;padding:8px">0.36</td></tr>
-</tbody></table></div><script>document.getElementById("itables_8f2f8b9c_3265_4800_bed2_f8bb1b9c0765")?.removeAttribute("hidden");document.getElementById("itables_8f2f8b9c_3265_4800_bed2_f8bb1b9c0765_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_88ab3337_232f_4fe6_a07a_b3992c5c53de")?.removeAttribute("hidden");document.getElementById("itables_88ab3337_232f_4fe6_a07a_b3992c5c53de_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_8f2f8b9c_3265_4800_bed2_f8bb1b9c0765:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_88ab3337_232f_4fe6_a07a_b3992c5c53de:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8302,7 +8304,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=860869a3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8323b2f7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8312,7 +8314,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5e5cd0a8">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=79ec02ec">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8357,7 +8359,9 @@ if (outputEl) {{
 <span class="p">}</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**Regulatory clock for </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:** </span><span class="si">{</span><span class="n">reg</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span><span class="si">}</span><span class="s2">. The mart computes generic SLA clocks; the recommendation "</span>
+        <span class="sa">f</span><span class="s2">"**Regulatory clock for </span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">:** "</span>
+        <span class="o">+</span> <span class="p">(</span><span class="n">reg</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span> <span class="k">if</span> <span class="n">COUNTRY</span> <span class="o">!=</span> <span class="s2">"ALL"</span> <span class="k">else</span> <span class="s2">"; "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">reg</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>
+        <span class="o">+</span> <span class="s2">". The mart computes generic SLA clocks; the recommendation "</span>
         <span class="s2">"stands: a compliance-owned seed of deadlines per country, so a breach is measured against this country's rule. "</span>
         <span class="s2">"(The deadlines quoted are the general rules; compliance must confirm them per product and case type.)"</span>
     <span class="p">)</span>
@@ -8375,7 +8379,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_af16379a_405d_4131_9d09_7649ab750eed">
+<table hidden="hidden" id="itables_d3c459e3_4eee_4289_83a1_a526c7a95556">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8437,27 +8441,27 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_af16379a_405d_4131_9d09_7649ab750eed_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_d3c459e3_4eee_4289_83a1_a526c7a95556_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>names_a_product</th>
 <th style="border:1px solid #ddd;padding:8px">disputes</th>
 <th style="border:1px solid #ddd;padding:8px">with_transactions_in_window</th>
 <th style="border:1px solid #ddd;padding:8px">with_candidate</th>
 <th style="border:1px solid #ddd;padding:8px">linked_medium_or_better</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">8643</td><td style="border:1px solid #ddd;padding:8px">5827</td><td style="border:1px solid #ddd;padding:8px">21</td><td style="border:1px solid #ddd;padding:8px">21</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">4379</td><td style="border:1px solid #ddd;padding:8px">3006</td><td style="border:1px solid #ddd;padding:8px">3006</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-</tbody></table></div><script>document.getElementById("itables_af16379a_405d_4131_9d09_7649ab750eed")?.removeAttribute("hidden");document.getElementById("itables_af16379a_405d_4131_9d09_7649ab750eed_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">8643</td><td style="border:1px solid #ddd;padding:8px">5827</td><td style="border:1px solid #ddd;padding:8px">21</td><td style="border:1px solid #ddd;padding:8px">21</td></tr>
+</tbody></table></div><script>document.getElementById("itables_d3c459e3_4eee_4289_83a1_a526c7a95556")?.removeAttribute("hidden");document.getElementById("itables_d3c459e3_4eee_4289_83a1_a526c7a95556_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_af16379a_405d_4131_9d09_7649ab750eed:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_d3c459e3_4eee_4289_83a1_a526c7a95556:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[true, 8643, 5827, 21, 21], [false, 4379, 3006, 3006, 6]]",
+          "data_json": "[[false, 4379, 3006, 3006, 6], [true, 8643, 5827, 21, 21]]",
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
           "paging": false,
@@ -8480,7 +8484,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_891d1f47_2a26_4cbe_8ba9_e21b4c64bd46">
+<table hidden="hidden" id="itables_65adba69_d213_43f9_8eb4_d2bf9aa6d6fd">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8542,19 +8546,19 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_891d1f47_2a26_4cbe_8ba9_e21b4c64bd46_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_65adba69_d213_43f9_8eb4_d2bf9aa6d6fd_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>disputes</th>
 <th style="border:1px solid #ddd;padding:8px">via_regulator</th>
 <th style="border:1px solid #ddd;padding:8px">sla_breached_pct</th>
 <th style="border:1px solid #ddd;padding:8px">median_hours_to_first_response</th>
 </tr></thead><tbody>
 <tr><td style="border:1px solid #ddd;padding:8px">13022</td><td style="border:1px solid #ddd;padding:8px">145</td><td style="border:1px solid #ddd;padding:8px">20.2</td><td style="border:1px solid #ddd;padding:8px">37.0</td></tr>
-</tbody></table></div><script>document.getElementById("itables_891d1f47_2a26_4cbe_8ba9_e21b4c64bd46")?.removeAttribute("hidden");document.getElementById("itables_891d1f47_2a26_4cbe_8ba9_e21b4c64bd46_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_65adba69_d213_43f9_8eb4_d2bf9aa6d6fd")?.removeAttribute("hidden");document.getElementById("itables_65adba69_d213_43f9_8eb4_d2bf9aa6d6fd_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_891d1f47_2a26_4cbe_8ba9_e21b4c64bd46:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_65adba69_d213_43f9_8eb4_d2bf9aa6d6fd:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8584,7 +8588,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ff943614">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=075ad858">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8594,7 +8598,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f32d7861">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7d562e8e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8612,6 +8616,10 @@ if (outputEl) {{
     <span class="n">Markdown</span><span class="p">(</span>
         <span class="s2">"Complaint contacts resolve far less often at first contact than transactional ones in every country; the labels "</span>
         <span class="s2">"for an escalation model (`complaint_within_14d`) are rare, and notebook 14 tests whether they are learnable here."</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cx</span><span class="p">)</span>
+        <span class="k">else</span> <span class="s2">"**The CX journey is empty**: "</span>
+        <span class="o">+</span> <span class="n">country</span><span class="o">.</span><span class="n">why_empty</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"call_center_interactions"</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">". Every contact-centre mart, label and SLA of this dataset is empty with it."</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -8627,7 +8635,7 @@ if (outputEl) {{
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_f16de7fd_5285_452d_92a6_9c8debd1d3b5">
+<table hidden="hidden" id="itables_484e28dc_4e73_4318_a71c_c837b63cccb9">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8689,7 +8697,7 @@ if (outputEl) {{
 </tr>
 </tbody>
 </table>
-<div id="itables_f16de7fd_5285_452d_92a6_9c8debd1d3b5_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_484e28dc_4e73_4318_a71c_c837b63cccb9_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>contact_reason</th>
 <th style="border:1px solid #ddd;padding:8px">contacts</th>
 <th style="border:1px solid #ddd;padding:8px">resolved_pct</th>
@@ -8703,12 +8711,12 @@ if (outputEl) {{
 <tr><td style="border:1px solid #ddd;padding:8px">Técnico</td><td style="border:1px solid #ddd;padding:8px">50160</td><td style="border:1px solid #ddd;padding:8px">70.0</td><td style="border:1px solid #ddd;padding:8px">0.46</td><td style="border:1px solid #ddd;padding:8px">0.57</td><td style="border:1px solid #ddd;padding:8px">-0.066</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Comercial</td><td style="border:1px solid #ddd;padding:8px">26862</td><td style="border:1px solid #ddd;padding:8px">65.3</td><td style="border:1px solid #ddd;padding:8px">0.26</td><td style="border:1px solid #ddd;padding:8px">0.58</td><td style="border:1px solid #ddd;padding:8px">-0.066</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">Retención</td><td style="border:1px solid #ddd;padding:8px">9987</td><td style="border:1px solid #ddd;padding:8px">60.0</td><td style="border:1px solid #ddd;padding:8px">0.13</td><td style="border:1px solid #ddd;padding:8px">0.69</td><td style="border:1px solid #ddd;padding:8px">-0.061</td></tr>
-</tbody></table></div><script>document.getElementById("itables_f16de7fd_5285_452d_92a6_9c8debd1d3b5")?.removeAttribute("hidden");document.getElementById("itables_f16de7fd_5285_452d_92a6_9c8debd1d3b5_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_484e28dc_4e73_4318_a71c_c837b63cccb9")?.removeAttribute("hidden");document.getElementById("itables_484e28dc_4e73_4318_a71c_c837b63cccb9_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_f16de7fd_5285_452d_92a6_9c8debd1d3b5:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_484e28dc_4e73_4318_a71c_c837b63cccb9:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8738,7 +8746,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4180300b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3f0fa6d2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8750,7 +8758,7 @@ and measure SLAs against this country's regulator.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1cedfdee">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c58276ed">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8772,7 +8780,7 @@ and measure SLAs against this country's regulator.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 9s
+<pre>notebook time 8s
 </pre>
 </div>
 </div>
