@@ -60,9 +60,12 @@ def main() -> None:
         }
         cols = ", ".join(f'"{c}"' for c in new_types)
         t0 = time.time()
-        n_new, h_new = con.sql(f"SELECT count(*), bit_xor(hash(row({cols}))) FROM v").fetchone()
+        # sum, not bit_xor, of row hashes: XOR cancels duplicate rows in pairs
+        n_new, h_new = con.sql(
+            f"SELECT count(*), sum(hash(row({cols}))::hugeint) FROM v"
+        ).fetchone()
         n_old, h_old = con.sql(
-            f"SELECT count(*), bit_xor(hash(row({cols}))) FROM {typed_bronze}"
+            f"SELECT count(*), sum(hash(row({cols}))::hugeint) FROM {typed_bronze}"
         ).fetchone()
         flagged, cells = con.sql(
             "SELECT count(*) FILTER (WHERE len(_dq_issues) > 0), coalesce(sum(len(_dq_issues)), 0) FROM v"
