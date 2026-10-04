@@ -15,9 +15,14 @@ docker compose --profile stream build         # Flink with connectors, fraud sco
 ```
 MinIO's own images are no longer public; the stack uses Chainguard's signed build (`cgr.dev/chainguard/minio`).
 
+Rebuild an image after **any** change to its Dockerfile or requirements: a running stack keeps the image it was
+started with. To check, compare `docker image inspect latam/airflow:3.1.0 --format '{{.Created}}'` with
+`git log -1 --format=%cI -- platform/docker/airflow`. Library code (`platform/libs`), DAGs and dbt are mounted, so
+they need no rebuild.
+
 ## 2 · Start profiles
 ```bash
-docker compose --profile core --profile graph --profile ml --profile obs up -d    # ~3 GB RAM at rest
+docker compose --profile core --profile graph --profile ml --profile obs up -d    # ~4.5 GB RAM at rest
 docker compose --profile core --profile ml --profile stream up -d                  # add streaming for the demo
 ```
 | UI | URL (localhost only) |
@@ -47,11 +52,15 @@ Watch decisions in Grafana or `SELECT * FROM decisions.fraud_decision_log ORDER 
 ## 5 · Verify the guarantees
 ```bash
 uv run pytest platform/libs/tests -q                                  # PII guard, ledger, GenAI audit, DP, KB
+uv run pytest platform/libs/tests/test_dag_sources.py -q             # DAG sources, static (also in CI)
 docker compose exec airflow-scheduler python -m pytest /opt/latam/platform/airflow/tests -q   # DAG integrity
+docker compose exec airflow-scheduler airflow dags list-import-errors     # must print no errors
 cd platform/dbt && DBT_PROFILES_DIR=. uv run dbt build                 # data tests, governance tests, unit tests
 uv run python -m latam_platform.cli governance-check                   # manifest vs policies
 cd platform/infra/terraform/gcp/envs/mx && terraform init -backend=false && terraform validate
 ```
+The DAG integrity tests need pytest in the Airflow image: if `No module named pytest`, the image predates the
+Dockerfile, rebuild it (§1).
 Tamper demonstrations (safe on the local stack): see [04 §4.1](04_audit_and_lineage.md); after trying them,
 recreate the audit volume (`docker compose rm -sf pg-audit && docker volume rm latam-platform_pg-audit-data`)
 because a detected tamper stays in the chain by design.
@@ -65,6 +74,11 @@ dbt while an Airflow dbt run is active (DuckDB has a single writer).
 Tasks run inside the scheduler (LocalExecutor, 4 GB limit). DuckDB is capped at 1.5 GB per task and every heavy
 DuckDB task shares the one-slot `duckdb_lakehouse` pool; the bronze build processes one month of files at a time
 in a file-backed database. Start the stream profile without the obs profile if memory is tight.
+
+The memory **limits** of `core` alone add up to 7.9 GB (scheduler 4 GB), and every extra profile adds 1–4 GB of
+limits, so a dbt run with every profile up can push the VM to its ceiling. Measured at rest on 2026-10-04:
+`core` 2.5 GB; plus `graph`, `ml` and Marquez 4.1 GB. Start `graph`, `ml` and `obs` after a heavy dbt run, or give
+Docker more memory.
 
 ## 8 · Lossless bronze (bronze of record)
 Every landed record is stored with every field as its original text in `data/lake/bronze_raw` (facts after the
@@ -115,3 +129,25 @@ to run (`chmod -R a-w data/lake/archive/bronze_typed_v1`).
 docker compose exec airflow-scheduler /opt/airflow/platform-venv/bin/python -m latam_platform.cli archive-typed-bronze
 docker compose exec airflow-scheduler bash -lc 'cd /opt/latam/platform/dbt && /opt/airflow/dbt-venv/bin/dbt parse --quiet --target-path target-airflow'
 ```
+
+## 10 · Deploying a merged change
+The stack serves whatever checkout it was started from (the `develop` worktree). To deploy a merged change:
+
+1. **Wait until no run is active.** A run parked on a human approval (for example `ml_fraud_ensemble` waiting for
+   `model_risk_approval`) does not count:
+   ```bash
+   docker compose exec airflow-scheduler python -c "
+   from airflow.settings import Session; from sqlalchemy import text
+   print(Session().execute(text(\"select dag_id, state from dag_run where state in ('running','queued')\")).fetchall())"
+   ```
+   The daily `landing_ingest` (00:00 UTC) triggers the whole chain, which takes about an hour.
+2. **Update the checkout:** `git -C <stack worktree> pull --ff-only`. `latam_platform` is loaded from the mount
+   through a `.pth` file, so library, DAG and dbt changes need no image rebuild (Dockerfile changes do, §1).
+3. **Re-parse the manifest** Cosmos renders:
+   `docker compose exec airflow-scheduler bash -lc 'cd /opt/latam/platform/dbt && /opt/airflow/dbt-venv/bin/dbt parse --quiet --target-path target-airflow'`
+4. **Check the DAGs load:** `airflow dags list-import-errors` is empty.
+5. **Run and check:** trigger `dbt_lakehouse`, then read the return values of `drift_holds` (held partitions),
+   `dq_gate` (blocking rules) and `governance_gate` (errors) in the run.
+
+If Docker Desktop restarts during a run, Airflow resumes it when the stack is back; clear a task only if it stays
+`running` past the heartbeat timeout (5 minutes).
