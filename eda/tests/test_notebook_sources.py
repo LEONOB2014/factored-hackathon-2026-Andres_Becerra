@@ -114,7 +114,8 @@ def test_executed_notebook_matches_its_source(src):
 #   medallion/   the re-analysis layer by layer (raw -> bronze -> silver -> gold)
 #   model_risk/  schema forensics, keys, drift MRM, segmentation and text
 SUBSERIES = {
-    name: sorted((NOTEBOOKS / name).glob("[0-9][0-9]_*.py")) for name in ("medallion", "model_risk")
+    name: sorted((NOTEBOOKS / name).glob("[0-9][0-9]_*.py"))
+    for name in ("medallion", "model_risk", "pipeline")
 }
 SUB_SOURCES = [p for paths in SUBSERIES.values() for p in paths]
 
