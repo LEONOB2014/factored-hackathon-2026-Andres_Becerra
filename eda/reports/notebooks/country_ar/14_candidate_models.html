@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=97fc3a01">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f618d55c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7866,7 +7866,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=5aa829d9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=2be01a30">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7947,7 +7947,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3768bc8b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=820e042f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7957,7 +7957,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3f05fe88">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d42df8e2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7991,19 +7991,19 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>fraud (honest)</strong>: test AUC 0.501 [0.462, 0.540], AP 0.0010 against a base rate of 0.0010 (lift 1.05) → <strong>no evidence of signal</strong>. Most important (permutation, AUC drop): transaction_category (+0.053), last_login_channel (+0.022), product_family (+0.015), days_since_payday (+0.013), hours_since_prev_tx (+0.013). The best single feature alone (<code>km_from_prev_tx</code>, either direction) reaches AUC 0.542: the model adds -0.041.</p>
+<p><strong>fraud (honest)</strong>: test AUC 0.510 [0.471, 0.550], AP 0.0010 against a base rate of 0.0010 (lift 1.04) → <strong>no evidence of signal</strong>. Most important (permutation, AUC drop): transaction_category (+0.078), minutes_since_last_login (+0.051), hours_since_prev_tx (+0.041), amount_zscore_vs_history (+0.038), amount_usd (+0.036). The best single feature alone (<code>km_from_prev_tx</code>, either direction) reaches AUC 0.542: the model adds -0.031.</p>
 </div>
 </div>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>fraud with fraud_score (leak)</strong>: test AUC 0.819 [0.783, 0.854], AP 0.5669 against a base rate of 0.0010 (lift 571.32) → <strong>learnable: build and monitor a model</strong>. Most important (permutation, AUC drop): fraud_score (+0.266), iso_weekday (+0.013), hours_since_prev_tx (+0.008), days_since_payday (+0.008), transaction_category (+0.007). The best single feature alone (<code>fraud_score</code>, either direction) reaches AUC 0.859: the model adds -0.041.</p>
+<p><strong>fraud with fraud_score (leak)</strong>: test AUC 0.810 [0.774, 0.846], AP 0.5662 against a base rate of 0.0010 (lift 570.65) → <strong>learnable: build and monitor a model</strong>. Most important (permutation, AUC drop): fraud_score (+0.251), amount_zscore_vs_history (+0.010), iso_weekday (+0.009), days_since_payday (+0.005), amount_to_hist_max (+0.004). The best single feature alone (<code>fraud_score</code>, either direction) reaches AUC 0.859: the model adds -0.049.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=42354645">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=99836b32">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8016,7 +8016,7 @@ active in the 180 days before it.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=470d8deb">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1967a367">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8152,7 +8152,7 @@ active in the 180 days before it.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a10efc66">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e491bcf1">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8165,7 +8165,7 @@ values; the permutation importances show whether the verdict rests on them or on
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=612ea573">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5e5f06b3">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8176,7 +8176,7 @@ their behaviour in the 6 months <strong>before</strong> the snapshot. Split by p
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=9a08df87">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=74c7f598">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8232,7 +8232,7 @@ their behaviour in the 6 months <strong>before</strong> the snapshot. Split by p
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=756855ce">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=28b02d48">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8245,7 +8245,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d668969e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=eed4436a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8255,7 +8255,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4d9eb9dd">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=8159e658">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8304,13 +8304,13 @@ reason.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>campaign conversion</strong>: test AUC 0.641 [0.614, 0.669], AP 0.0086 against a base rate of 0.0058 (lift 1.48) → <strong>weak signal: rules, not models</strong>. Most important (permutation, AUC drop): send_channel (+0.154), promoted_product (+0.007), prior_sends_7d (+0.007), segment_match (+0.007), iso_weekday (+0.007). The best single feature alone (<code>target_segment</code>, either direction) reaches AUC 0.548: the model adds +0.093.</p>
+<p><strong>campaign conversion</strong>: test AUC 0.637 [0.609, 0.664], AP 0.0092 against a base rate of 0.0058 (lift 1.58) → <strong>moderate signal: a model may help, validate further</strong>. Most important (permutation, AUC drop): send_channel (+0.155), prior_sends_7d (+0.005), segment_match (+0.005), promoted_product (+0.003), is_month_end (+0.001). The best single feature alone (<code>target_segment</code>, either direction) reaches AUC 0.548: the model adds +0.088.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f176b1f3">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0655d809">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8322,7 +8322,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0f52c080">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3e679fac">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8332,7 +8332,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=07909074">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=df05ce2f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8340,15 +8340,19 @@ reason.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">cx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">CONTACT_DAY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">(</span>
+    <span class="s2">"MX"</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="s2">"call_center_interactions"</span>
+<span class="p">)</span>  <span class="c1"># contacts' delivery day: ts − 8 h</span>
+<span class="n">cx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">    select j.interaction_ts_utc, j.interaction_type, j.channel, j.contact_reason, j.duration_seconds,</span>
 <span class="s2">           j.wait_time_seconds, j.was_resolved, j.was_escalated, j.requires_followup, j.sentiment_score,</span>
 <span class="s2">           j.prior_contacts_30d, j.agent_experience_level, j.agent_type, j.accent_matched,</span>
 <span class="s2">           k.iso_weekday, k.is_holiday, j.complaint_within_14d</span>
-<span class="s2">    from </span><span class="si">{mart_cx_journey}</span><span class="s2"> j</span>
+<span class="s2">    from </span><span class="se">{{</span><span class="s2">mart_cx_journey</span><span class="se">}}</span><span class="s2"> j</span>
 <span class="s2">    left join main.customer_local cl on cl.customer_id = j.customer_id</span>
 <span class="s2">    left join main.calendar_local k</span>
-<span class="s2">      on k.country_code = cl.country_code and k.local_date = cast(j.interaction_ts_utc + to_hours(cl.utc_offset) as date)"""</span><span class="p">)</span>
+<span class="s2">      on k.country_code = cl.country_code</span>
+<span class="s2">     and k.local_date = cast(j.interaction_ts_utc + to_hours(</span><span class="si">{</span><span class="n">CONTACT_DAY</span><span class="si">}</span><span class="s2">) as date)"""</span><span class="p">)</span>
 <span class="n">XF</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"interaction_type"</span><span class="p">,</span>
     <span class="s2">"channel"</span><span class="p">,</span>
@@ -8379,13 +8383,13 @@ reason.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>complaint within 14 days of a contact</strong>: test AUC 0.460 [0.419, 0.502], AP 0.0049 against a base rate of 0.0053 (lift 0.93) → <strong>no evidence of signal</strong>. Most important (permutation, AUC drop): agent_type (+0.016), agent_experience_level (+0.006), accent_matched (+0.003), is_holiday (+0.002), requires_followup (+0.001). The best single feature alone (<code>interaction_type</code>, either direction) reaches AUC 0.533: the model adds -0.072.</p>
+<p><strong>complaint within 14 days of a contact</strong>: test AUC 0.472 [0.430, 0.514], AP 0.0051 against a base rate of 0.0053 (lift 0.96) → <strong>no evidence of signal</strong>. Most important (permutation, AUC drop): agent_type (+0.013), agent_experience_level (+0.010), is_holiday (+0.006), iso_weekday (+0.006), was_escalated (+0.003). The best single feature alone (<code>interaction_type</code>, either direction) reaches AUC 0.533: the model adds -0.061.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f2cf7537">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cfc8300a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8395,7 +8399,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0c1b77bf">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7d4b32d9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8463,7 +8467,7 @@ reason.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_a5775f06_7c7b_450e_b784_b4b12bdbb6a8">
+<table hidden="hidden" id="itables_2758edef_6abc_4865_a13f_79f58fba0147">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8525,7 +8529,7 @@ reason.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_a5775f06_7c7b_450e_b784_b4b12bdbb6a8_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_2758edef_6abc_4865_a13f_79f58fba0147_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>country</th>
 <th style="border:1px solid #ddd;padding:8px">dataset</th>
 <th style="border:1px solid #ddd;padding:8px">name</th>
@@ -8546,26 +8550,26 @@ reason.</p>
 <th style="border:1px solid #ddd;padding:8px">split_at</th>
 <th style="border:1px solid #ddd;padding:8px">dropped_empty_features</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">fraud (honest)</td><td style="border:1px solid #ddd;padding:8px">631896</td><td style="border:1px solid #ddd;padding:8px">210633</td><td style="border:1px solid #ddd;padding:8px">209</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.5011</td><td style="border:1px solid #ddd;padding:8px">0.4619</td><td style="border:1px solid #ddd;padding:8px">0.5402</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0013</td><td style="border:1px solid #ddd;padding:8px">1.0478</td><td style="border:1px solid #ddd;padding:8px">km_from_prev_tx</td><td style="border:1px solid #ddd;padding:8px">0.5417</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-21 10:01:19</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">fraud with fraud_score (leak)</td><td style="border:1px solid #ddd;padding:8px">631896</td><td style="border:1px solid #ddd;padding:8px">210633</td><td style="border:1px solid #ddd;padding:8px">209</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.8185</td><td style="border:1px solid #ddd;padding:8px">0.7834</td><td style="border:1px solid #ddd;padding:8px">0.8536</td><td style="border:1px solid #ddd;padding:8px">0.5669</td><td style="border:1px solid #ddd;padding:8px">0.5086</td><td style="border:1px solid #ddd;padding:8px">0.6369</td><td style="border:1px solid #ddd;padding:8px">571.3159</td><td style="border:1px solid #ddd;padding:8px">fraud_score</td><td style="border:1px solid #ddd;padding:8px">0.8593</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-08-21 10:01:19</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">fraud (honest)</td><td style="border:1px solid #ddd;padding:8px">631896</td><td style="border:1px solid #ddd;padding:8px">210633</td><td style="border:1px solid #ddd;padding:8px">209</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.5103</td><td style="border:1px solid #ddd;padding:8px">0.4709</td><td style="border:1px solid #ddd;padding:8px">0.5497</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0013</td><td style="border:1px solid #ddd;padding:8px">1.0449</td><td style="border:1px solid #ddd;padding:8px">km_from_prev_tx</td><td style="border:1px solid #ddd;padding:8px">0.5417</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-21 10:01:19</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">fraud with fraud_score (leak)</td><td style="border:1px solid #ddd;padding:8px">631896</td><td style="border:1px solid #ddd;padding:8px">210633</td><td style="border:1px solid #ddd;padding:8px">209</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.8100</td><td style="border:1px solid #ddd;padding:8px">0.7744</td><td style="border:1px solid #ddd;padding:8px">0.8455</td><td style="border:1px solid #ddd;padding:8px">0.5662</td><td style="border:1px solid #ddd;padding:8px">0.5084</td><td style="border:1px solid #ddd;padding:8px">0.6364</td><td style="border:1px solid #ddd;padding:8px">570.6514</td><td style="border:1px solid #ddd;padding:8px">fraud_score</td><td style="border:1px solid #ddd;padding:8px">0.8593</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-08-21 10:01:19</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">complaint in next 90 days</td><td style="border:1px solid #ddd;padding:8px">163940</td><td style="border:1px solid #ddd;padding:8px">55351</td><td style="border:1px solid #ddd;padding:8px">1998</td><td style="border:1px solid #ddd;padding:8px">0.0361</td><td style="border:1px solid #ddd;padding:8px">0.5032</td><td style="border:1px solid #ddd;padding:8px">0.4903</td><td style="border:1px solid #ddd;padding:8px">0.5161</td><td style="border:1px solid #ddd;padding:8px">0.0370</td><td style="border:1px solid #ddd;padding:8px">0.0344</td><td style="border:1px solid #ddd;padding:8px">0.0398</td><td style="border:1px solid #ddd;padding:8px">1.0248</td><td style="border:1px solid #ddd;padding:8px">monthly_income_usd</td><td style="border:1px solid #ddd;padding:8px">0.5130</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">dormant in next 90 days</td><td style="border:1px solid #ddd;padding:8px">141750</td><td style="border:1px solid #ddd;padding:8px">47848</td><td style="border:1px solid #ddd;padding:8px">6246</td><td style="border:1px solid #ddd;padding:8px">0.1305</td><td style="border:1px solid #ddd;padding:8px">0.7276</td><td style="border:1px solid #ddd;padding:8px">0.7202</td><td style="border:1px solid #ddd;padding:8px">0.7351</td><td style="border:1px solid #ddd;padding:8px">0.2454</td><td style="border:1px solid #ddd;padding:8px">0.2390</td><td style="border:1px solid #ddd;padding:8px">0.2532</td><td style="border:1px solid #ddd;padding:8px">1.8802</td><td style="border:1px solid #ddd;padding:8px">tx_6m</td><td style="border:1px solid #ddd;padding:8px">0.7267</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">more than 30 days past due</td><td style="border:1px solid #ddd;padding:8px">18707</td><td style="border:1px solid #ddd;padding:8px">6250</td><td style="border:1px solid #ddd;padding:8px">605</td><td style="border:1px solid #ddd;padding:8px">0.0968</td><td style="border:1px solid #ddd;padding:8px">0.5185</td><td style="border:1px solid #ddd;padding:8px">0.4941</td><td style="border:1px solid #ddd;padding:8px">0.5429</td><td style="border:1px solid #ddd;padding:8px">0.1046</td><td style="border:1px solid #ddd;padding:8px">0.0945</td><td style="border:1px solid #ddd;padding:8px">0.1163</td><td style="border:1px solid #ddd;padding:8px">1.0811</td><td style="border:1px solid #ddd;padding:8px">avg_payments_6m</td><td style="border:1px solid #ddd;padding:8px">0.5183</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2024-06-14 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">campaign conversion</td><td style="border:1px solid #ddd;padding:8px">237570</td><td style="border:1px solid #ddd;padding:8px">79191</td><td style="border:1px solid #ddd;padding:8px">461</td><td style="border:1px solid #ddd;padding:8px">0.0058</td><td style="border:1px solid #ddd;padding:8px">0.6415</td><td style="border:1px solid #ddd;padding:8px">0.6141</td><td style="border:1px solid #ddd;padding:8px">0.6689</td><td style="border:1px solid #ddd;padding:8px">0.0086</td><td style="border:1px solid #ddd;padding:8px">0.0076</td><td style="border:1px solid #ddd;padding:8px">0.0099</td><td style="border:1px solid #ddd;padding:8px">1.4804</td><td style="border:1px solid #ddd;padding:8px">target_segment</td><td style="border:1px solid #ddd;padding:8px">0.5484</td><td style="border:1px solid #ddd;padding:8px">weak signal: rules, not models</td><td style="border:1px solid #ddd;padding:8px">2025-08-28 17:33:14</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">complaint within 14 days of a contact</td><td style="border:1px solid #ddd;padding:8px">99298</td><td style="border:1px solid #ddd;padding:8px">33100</td><td style="border:1px solid #ddd;padding:8px">177</td><td style="border:1px solid #ddd;padding:8px">0.0053</td><td style="border:1px solid #ddd;padding:8px">0.4605</td><td style="border:1px solid #ddd;padding:8px">0.4191</td><td style="border:1px solid #ddd;padding:8px">0.5018</td><td style="border:1px solid #ddd;padding:8px">0.0049</td><td style="border:1px solid #ddd;padding:8px">0.0042</td><td style="border:1px solid #ddd;padding:8px">0.0062</td><td style="border:1px solid #ddd;padding:8px">0.9250</td><td style="border:1px solid #ddd;padding:8px">interaction_type</td><td style="border:1px solid #ddd;padding:8px">0.5329</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-26 03:10:18.250000</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
-</tbody></table></div><script>document.getElementById("itables_a5775f06_7c7b_450e_b784_b4b12bdbb6a8")?.removeAttribute("hidden");document.getElementById("itables_a5775f06_7c7b_450e_b784_b4b12bdbb6a8_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">campaign conversion</td><td style="border:1px solid #ddd;padding:8px">237570</td><td style="border:1px solid #ddd;padding:8px">79191</td><td style="border:1px solid #ddd;padding:8px">461</td><td style="border:1px solid #ddd;padding:8px">0.0058</td><td style="border:1px solid #ddd;padding:8px">0.6369</td><td style="border:1px solid #ddd;padding:8px">0.6094</td><td style="border:1px solid #ddd;padding:8px">0.6643</td><td style="border:1px solid #ddd;padding:8px">0.0092</td><td style="border:1px solid #ddd;padding:8px">0.0080</td><td style="border:1px solid #ddd;padding:8px">0.0113</td><td style="border:1px solid #ddd;padding:8px">1.5766</td><td style="border:1px solid #ddd;padding:8px">target_segment</td><td style="border:1px solid #ddd;padding:8px">0.5484</td><td style="border:1px solid #ddd;padding:8px">moderate signal: a model may help, validate further</td><td style="border:1px solid #ddd;padding:8px">2025-08-28 17:33:14</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">main</td><td style="border:1px solid #ddd;padding:8px">complaint within 14 days of a contact</td><td style="border:1px solid #ddd;padding:8px">99298</td><td style="border:1px solid #ddd;padding:8px">33100</td><td style="border:1px solid #ddd;padding:8px">177</td><td style="border:1px solid #ddd;padding:8px">0.0053</td><td style="border:1px solid #ddd;padding:8px">0.4721</td><td style="border:1px solid #ddd;padding:8px">0.4303</td><td style="border:1px solid #ddd;padding:8px">0.5139</td><td style="border:1px solid #ddd;padding:8px">0.0051</td><td style="border:1px solid #ddd;padding:8px">0.0044</td><td style="border:1px solid #ddd;padding:8px">0.0066</td><td style="border:1px solid #ddd;padding:8px">0.9618</td><td style="border:1px solid #ddd;padding:8px">interaction_type</td><td style="border:1px solid #ddd;padding:8px">0.5329</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-08-26 03:10:18.250000</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+</tbody></table></div><script>document.getElementById("itables_2758edef_6abc_4865_a13f_79f58fba0147")?.removeAttribute("hidden");document.getElementById("itables_2758edef_6abc_4865_a13f_79f58fba0147_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_a5775f06_7c7b_450e_b784_b4b12bdbb6a8:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_2758edef_6abc_4865_a13f_79f58fba0147:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [6, 7, 8, 9, 10, 11, 12, 13, 15]}],
-          "data_json": "[[\"AR\", \"main\", \"fraud (honest)\", 631896, 210633, 209, [\"0.0010\", 0.001], [\"0.5011\", 0.5011], [\"0.4619\", 0.4619], [\"0.5402\", 0.5402], [\"0.0010\", 0.001], [\"0.0009\", 0.0009], [\"0.0013\", 0.0013], [\"1.0478\", 1.0478], \"km_from_prev_tx\", [\"0.5417\", 0.5417], \"no evidence of signal\", \"2025-08-21 10:01:19\", \"\"], [\"AR\", \"main\", \"fraud with fraud_score (leak)\", 631896, 210633, 209, [\"0.0010\", 0.001], [\"0.8185\", 0.8185], [\"0.7834\", 0.7834], [\"0.8536\", 0.8536], [\"0.5669\", 0.5669], [\"0.5086\", 0.5086], [\"0.6369\", 0.6369], [\"571.3159\", 571.3159], \"fraud_score\", [\"0.8593\", 0.8593], \"learnable: build and monitor a model\", \"2025-08-21 10:01:19\", \"\"], [\"AR\", \"main\", \"complaint in next 90 days\", 163940, 55351, 1998, [\"0.0361\", 0.0361], [\"0.5032\", 0.5032], [\"0.4903\", 0.4903], [\"0.5161\", 0.5161], [\"0.0370\", 0.037], [\"0.0344\", 0.0344], [\"0.0398\", 0.0398], [\"1.0248\", 1.0248], \"monthly_income_usd\", [\"0.5130\", 0.513], \"no evidence of signal\", \"2025-10-01 00:00:00\", \"\"], [\"AR\", \"main\", \"dormant in next 90 days\", 141750, 47848, 6246, [\"0.1305\", 0.1305], [\"0.7276\", 0.7276], [\"0.7202\", 0.7202], [\"0.7351\", 0.7351], [\"0.2454\", 0.2454], [\"0.2390\", 0.239], [\"0.2532\", 0.2532], [\"1.8802\", 1.8802], \"tx_6m\", [\"0.7267\", 0.7267], \"learnable: build and monitor a model\", \"2025-10-01 00:00:00\", \"\"], [\"AR\", \"main\", \"more than 30 days past due\", 18707, 6250, 605, [\"0.0968\", 0.0968], [\"0.5185\", 0.5185], [\"0.4941\", 0.4941], [\"0.5429\", 0.5429], [\"0.1046\", 0.1046], [\"0.0945\", 0.0945], [\"0.1163\", 0.1163], [\"1.0811\", 1.0811], \"avg_payments_6m\", [\"0.5183\", 0.5183], \"no evidence of signal\", \"2024-06-14 00:00:00\", \"\"], [\"AR\", \"main\", \"campaign conversion\", 237570, 79191, 461, [\"0.0058\", 0.0058], [\"0.6415\", 0.6415], [\"0.6141\", 0.6141], [\"0.6689\", 0.6689], [\"0.0086\", 0.0086], [\"0.0076\", 0.0076], [\"0.0099\", 0.0099], [\"1.4804\", 1.4804], \"target_segment\", [\"0.5484\", 0.5484], \"weak signal: rules, not models\", \"2025-08-28 17:33:14\", \"\"], [\"AR\", \"main\", \"complaint within 14 days of a contact\", 99298, 33100, 177, [\"0.0053\", 0.0053], [\"0.4605\", 0.4605], [\"0.4191\", 0.4191], [\"0.5018\", 0.5018], [\"0.0049\", 0.0049], [\"0.0042\", 0.0042], [\"0.0062\", 0.0062], [\"0.9250\", 0.925], \"interaction_type\", [\"0.5329\", 0.5329], \"no evidence of signal\", \"2025-08-26 03:10:18.250000\", \"\"]]",
+          "data_json": "[[\"AR\", \"main\", \"fraud (honest)\", 631896, 210633, 209, [\"0.0010\", 0.001], [\"0.5103\", 0.5103], [\"0.4709\", 0.4709], [\"0.5497\", 0.5497], [\"0.0010\", 0.001], [\"0.0009\", 0.0009], [\"0.0013\", 0.0013], [\"1.0449\", 1.0449], \"km_from_prev_tx\", [\"0.5417\", 0.5417], \"no evidence of signal\", \"2025-08-21 10:01:19\", \"\"], [\"AR\", \"main\", \"fraud with fraud_score (leak)\", 631896, 210633, 209, [\"0.0010\", 0.001], [\"0.8100\", 0.81], [\"0.7744\", 0.7744], [\"0.8455\", 0.8455], [\"0.5662\", 0.5662], [\"0.5084\", 0.5084], [\"0.6364\", 0.6364], [\"570.6514\", 570.6514], \"fraud_score\", [\"0.8593\", 0.8593], \"learnable: build and monitor a model\", \"2025-08-21 10:01:19\", \"\"], [\"AR\", \"main\", \"complaint in next 90 days\", 163940, 55351, 1998, [\"0.0361\", 0.0361], [\"0.5032\", 0.5032], [\"0.4903\", 0.4903], [\"0.5161\", 0.5161], [\"0.0370\", 0.037], [\"0.0344\", 0.0344], [\"0.0398\", 0.0398], [\"1.0248\", 1.0248], \"monthly_income_usd\", [\"0.5130\", 0.513], \"no evidence of signal\", \"2025-10-01 00:00:00\", \"\"], [\"AR\", \"main\", \"dormant in next 90 days\", 141750, 47848, 6246, [\"0.1305\", 0.1305], [\"0.7276\", 0.7276], [\"0.7202\", 0.7202], [\"0.7351\", 0.7351], [\"0.2454\", 0.2454], [\"0.2390\", 0.239], [\"0.2532\", 0.2532], [\"1.8802\", 1.8802], \"tx_6m\", [\"0.7267\", 0.7267], \"learnable: build and monitor a model\", \"2025-10-01 00:00:00\", \"\"], [\"AR\", \"main\", \"more than 30 days past due\", 18707, 6250, 605, [\"0.0968\", 0.0968], [\"0.5185\", 0.5185], [\"0.4941\", 0.4941], [\"0.5429\", 0.5429], [\"0.1046\", 0.1046], [\"0.0945\", 0.0945], [\"0.1163\", 0.1163], [\"1.0811\", 1.0811], \"avg_payments_6m\", [\"0.5183\", 0.5183], \"no evidence of signal\", \"2024-06-14 00:00:00\", \"\"], [\"AR\", \"main\", \"campaign conversion\", 237570, 79191, 461, [\"0.0058\", 0.0058], [\"0.6369\", 0.6369], [\"0.6094\", 0.6094], [\"0.6643\", 0.6643], [\"0.0092\", 0.0092], [\"0.0080\", 0.008], [\"0.0113\", 0.0113], [\"1.5766\", 1.5766], \"target_segment\", [\"0.5484\", 0.5484], \"moderate signal: a model may help, validate further\", \"2025-08-28 17:33:14\", \"\"], [\"AR\", \"main\", \"complaint within 14 days of a contact\", 99298, 33100, 177, [\"0.0053\", 0.0053], [\"0.4721\", 0.4721], [\"0.4303\", 0.4303], [\"0.5139\", 0.5139], [\"0.0051\", 0.0051], [\"0.0044\", 0.0044], [\"0.0066\", 0.0066], [\"0.9618\", 0.9618], \"interaction_type\", [\"0.5329\", 0.5329], \"no evidence of signal\", \"2025-08-26 03:10:18.250000\", \"\"]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
@@ -8593,9 +8597,9 @@ reason.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:380px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="1872cb79-866e-4050-a779-92189180573f" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("1872cb79-866e-4050-a779-92189180573f")) {                    Plotly.newPlot(                        "1872cb79-866e-4050-a779-92189180573f",                        [{"error_x":{"array":{"dtype":"f8","bdata":"YHoJWv8PpD\u002fQkdLL1fOhP4BpP8fEdIo\u002fAMmUcadyfj8ANr+MCAOZP8A9OxFLFJw\u002fUDdp6Z4spT8="},"arrayminus":{"dtype":"f8","bdata":"WHoJWv8PpD\u002fQkdLL1fOhP2BpP8fEdIo\u002fAMmUcadyfj8ANr+MCAOZP8A9OxFLFJw\u002fUDdp6Z4spT8="},"symmetric":false,"type":"data"},"marker":{"size":10},"mode":"markers","x":{"dtype":"f8","bdata":"RBTD7bYI4D\u002fjWQ+hLzHqP\u002fTbtWoJGuA\u002fR2STv6ZI5z9T7reUlJfgP36QstEmh+Q\u002fJN35XJl43T8="},"y":["fraud (honest)","fraud with fraud_score (leak)","complaint in next 90 days","dormant in next 90 days","more than 30 days past due","campaign conversion","complaint within 14 days of a contact"],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0.5,"x1":0.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"xaxis":{"range":[0.3,1.0]},"title":{"text":"Argentina: out-of-time test AUC per candidate target (95 % CI)"},"height":380,"yaxis":{"title":{}}},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="6f3c1515-6032-4945-92bf-34e9578d255d" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("6f3c1515-6032-4945-92bf-34e9578d255d")) {                    Plotly.newPlot(                        "6f3c1515-6032-4945-92bf-34e9578d255d",                        [{"error_x":{"array":{"dtype":"f8","bdata":"ILjfQxYupD8wwdswuTiiP4DBwCTMdIo\u002fAMmUcadyfj8ANr+MCAOZP6Al9+OyGJw\u002f8PB1mv1ipT8="},"arrayminus":{"dtype":"f8","bdata":"ILjfQxYupD8wwdswuTiiP4DBwCTMdIo\u002fAMmUcadyfj8ANr+MCAOZP6Al9+OyGJw\u002f8PB1mv1ipT8="},"symmetric":false,"type":"data"},"marker":{"size":10},"mode":"markers","x":{"dtype":"f8","bdata":"QQVGgFlU4D+gIP\u002feJuvpPwt7HUAYGuA\u002fR2STv6ZI5z9T7reUlJfgP7BI+B0wYeQ\u002fBJXsVvk23j8="},"y":["fraud (honest)","fraud with fraud_score (leak)","complaint in next 90 days","dormant in next 90 days","more than 30 days past due","campaign conversion","complaint within 14 days of a contact"],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0.5,"x1":0.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"xaxis":{"range":[0.3,1.0]},"title":{"text":"Argentina: out-of-time test AUC per candidate target (95 % CI)"},"height":380,"yaxis":{"title":{}}},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('1872cb79-866e-4050-a779-92189180573f');
+var gd = document.getElementById('6f3c1515-6032-4945-92bf-34e9578d255d');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8623,7 +8627,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1e9e3b22">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=97378a05">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8641,7 +8645,7 @@ champion–challenger rollout. A moderate one gets more data before a model.</li
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=41d0943d">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=43450b3a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8678,7 +8682,7 @@ champion–challenger rollout. A moderate one gets more data before a model.</li
 <li>complaint in next 90 days: no evidence of signal</li>
 <li>dormant in next 90 days: learnable: build and monitor a model</li>
 <li>more than 30 days past due: no evidence of signal</li>
-<li>campaign conversion: weak signal: rules, not models</li>
+<li>campaign conversion: moderate signal: a model may help, validate further</li>
 <li>complaint within 14 days of a contact: no evidence of signal</li>
 </ul>
 </div>

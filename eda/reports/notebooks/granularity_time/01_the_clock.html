@@ -3,7 +3,7 @@
 <html lang="en">
 <head><meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>04_local_time_and_calendar</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
+<title>01_the_clock</title><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.1.10/require.min.js"></script>
 <style type="text/css">
     pre { line-height: 125%; }
 td.linenos .normal { color: inherit; background-color: transparent; padding-left: 5px; padding-right: 5px; }
@@ -7796,41 +7796,28 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dfb9cfc7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1448bd88">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h1 id="04-%C2%B7-Staging,-local-time-and-the-country-calendar-(Mexico)">04 · Staging, local time and the country calendar (Mexico)<a class="anchor-link" href="#04-%C2%B7-Staging,-local-time-and-the-country-calendar-(Mexico)">¶</a></h1><p><strong>Backup-as-main series · Mexico</strong> · <em>generated from <code>notebooks/country_template</code>: edit the template</em></p>
-<p>Staging names the source timestamps <code>*_ts_utc</code> (pipeline series, notebook 04). For behaviour, what matters is the
-<strong>customer's</strong> local day: when salaries arrive, which days banks close, when the weekend starts. This notebook
-places every transaction on its day (the source's business clock) and enriches it with the country's calendar, then
-measures what the calendar explains.</p>
-<p><strong>Decisions.</strong></p>
-<ul>
-<li><strong>The delivery day, not each country's legal time.</strong> The source states no timezone, and the data decides it. Every
-event belongs to a daily delivery batch (<code>process_date</code>), and the generator drew its weekly rhythm on that day:
-hour of day is independent of weekday only once each timestamp is shifted back to the start of its batch window
-(−6 hours for transactions, digital events and sends, −8 hours for contacts and complaints), where
-<code>cast(ts + offset as date) = process_date</code> for every row (<code>notebooks/granularity_time/01</code>). The same day boundary
-applies to every market (<code>country.PROCESS_DAY_OFFSET</code>, <code>enrich_transactions(clock="business")</code>). An earlier
-version used each country's legal offset (Colombia UTC−5, Argentina UTC−3), which cut the weekends 1 and 3 hours
-off their true boundary: Argentina's weekend looked weaker and its Mondays quieter, both artefacts. On real data
-whose timestamps are true UTC, <code>clock="local"</code> applies the legal offsets (fixed offsets are exact for 2023–2026: no
-DST in Mexico since 2022 outside border cities, none in Colombia, none in Argentina since 2009).</li>
-<li><strong>The customer's country, not the transaction's</strong>: a cross-border purchase still happens in the customer's day
-(and its own local time stays in silver as <code>transaction_ts_local</code>).</li>
-<li><strong>Calendar variables</strong> (<code>country.calendar</code>): weekday, weekend, statutory <strong>and bank</strong> holidays (Mexico's banks also
-close on Holy Thursday, Good Friday, 2 November and 12 December), long weekends, <strong>paydays</strong> (Mexico and
-Colombia pay fortnightly on the 15th and the last day, moved back to the previous business day; Argentina monthly
-in the first business days), days since payday, month start and end, week of month, bonus months (aguinaldo,
-prima).</li>
-</ul>
+<h1 id="01-%C2%B7-The-clock:-in-which-time-were-the-data's-days-drawn?">01 · The clock: in which time were the data's days drawn?<a class="anchor-link" href="#01-%C2%B7-The-clock:-in-which-time-were-the-data's-days-drawn?">¶</a></h1><p><strong>Granularity series II · time and cells</strong> · grain: the hour, read straight from lossless bronze</p>
+<p><strong>Why this matters.</strong> Every daily figure of the platform depends on where a day starts: a weekend, a holiday, a
+payday, a month end, a daily control chart, the <code>is_weekend</code> and <code>local_hour</code> fraud features. The source never states
+the timezone of its timestamps (<code>docs/strategy/12_development_path.md</code> lists "explicit time zones" as a data request),
+and the platform assumed each country's legal local time. This notebook asks the data itself.</p>
+<p><strong>Method: the weekly rhythm as a clock.</strong> If days are drawn in some clock with a weekly rhythm (fewer events at the
+weekend) and the time within the day is drawn independently of the weekday, then <strong>only in that clock</strong> is hour of day
+independent of weekday: in any other clock the weekend boundary cuts through the hours (Saturday's last hours spill
+into Sunday, and so on). For each shift k of −12 to +12 hours added to the raw timestamps, the chi-square test of
+independence between weekday and hour is computed (<code>granularity.clock_scan</code>). The minimising shift is the clock; at
+the right shift the statistic falls to about its degrees of freedom (138 = 6 × 23), the value expected under
+independence.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2c02523e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=3819ecd7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7843,6 +7830,7 @@ prima).</li>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">"../../src"</span><span class="p">)</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">duckdb</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">plotly.express</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">px</span>
@@ -7851,26 +7839,45 @@ prima).</li>
 <span class="kn">from</span><span class="w"> </span><span class="nn">itables</span><span class="w"> </span><span class="kn">import</span> <span class="n">show</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">country</span><span class="p">,</span> <span class="n">theme</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">granularity</span> <span class="k">as</span> <span class="n">g</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">latam_eda</span><span class="w"> </span><span class="kn">import</span> <span class="n">pipeline</span> <span class="k">as</span> <span class="n">pipe</span>
 
-<span class="n">COUNTRY</span> <span class="o">=</span> <span class="s2">"MX"</span>
-<span class="n">DATASET</span> <span class="o">=</span> <span class="s2">"backup"</span>
-<span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">"backup"</span>
-<span class="n">CTRY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">SCOPES</span><span class="p">[</span><span class="n">COUNTRY</span><span class="p">]</span>
 <span class="n">OUT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">"../../reports/tables"</span><span class="p">)</span>
 <span class="n">OUT</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">theme</span><span class="o">.</span><span class="n">register</span><span class="p">()</span>
 <span class="n">t0</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-<span class="n">pl</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">session</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">DATASET</span><span class="p">)</span>
-<span class="n">country</span><span class="o">.</span><span class="n">prepare</span><span class="p">(</span><span class="n">pl</span><span class="p">,</span> <span class="s2">"seeds"</span><span class="p">)</span>
-<span class="n">STG</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">n</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">pl</span><span class="o">.</span><span class="n">catalog</span><span class="p">()[</span><span class="s2">"node"</span><span class="p">]</span> <span class="k">if</span> <span class="n">n</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"stg_"</span><span class="p">))</span>
-<span class="n">built</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">build_set</span><span class="p">(</span><span class="n">STG</span><span class="p">)</span>
-<span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"int_transactions_enriched"</span><span class="p">))</span>
-<span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_codes</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">):</span>
-    <span class="n">c</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: delivery day = timestamp </span><span class="si">{</span><span class="n">country</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">(</span><span class="n">code</span><span class="p">)</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> h (legal local time UTC</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">timezone</span><span class="si">}</span><span class="s2">)"</span>
+<span class="n">LAKE</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">default_lake</span><span class="p">(</span><span class="n">pipe</span><span class="o">.</span><span class="n">repo_root</span><span class="p">(</span><span class="n">Path</span><span class="o">.</span><span class="n">cwd</span><span class="p">()))</span> <span class="o">/</span> <span class="s2">"bronze_raw"</span>
+<span class="n">con</span> <span class="o">=</span> <span class="n">duckdb</span><span class="o">.</span><span class="n">connect</span><span class="p">()</span>
+<span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SET threads = 4"</span><span class="p">)</span>
+<span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="s2">"SET memory_limit = '4GB'"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">raw</span><span class="p">(</span><span class="n">table</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">"read_parquet('</span><span class="si">{</span><span class="n">LAKE</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">table</span><span class="si">}</span><span class="s2">/*/*.parquet', union_by_name = true, hive_partitioning = false)"</span>
+
+
+<span class="n">PROCESSES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"transactions"</span><span class="p">:</span> <span class="s2">"transaction_date"</span><span class="p">,</span>
+    <span class="s2">"call_center_interactions"</span><span class="p">:</span> <span class="s2">"interaction_date"</span><span class="p">,</span>
+    <span class="s2">"digital_events"</span><span class="p">:</span> <span class="s2">"event_date"</span><span class="p">,</span>
+    <span class="s2">"complaints"</span><span class="p">:</span> <span class="s2">"creation_date"</span><span class="p">,</span>
+    <span class="s2">"campaign_sends"</span><span class="p">:</span> <span class="s2">"send_date"</span><span class="p">,</span>
+    <span class="s2">"satisfaction_surveys"</span><span class="p">:</span> <span class="s2">"survey_date"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">MARKET</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"México"</span><span class="p">:</span> <span class="s2">"MX"</span><span class="p">,</span> <span class="s2">"Colombia"</span><span class="p">:</span> <span class="s2">"CO"</span><span class="p">,</span> <span class="s2">"Argentina"</span><span class="p">:</span> <span class="s2">"AR"</span><span class="p">}</span>
+<span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"create table cust as select customer_id, country from </span><span class="si">{</span><span class="n">raw</span><span class="p">(</span><span class="s1">'customers'</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="c1"># hourly counts per process and market (raw clock, hour-floored): the only input of everything below</span>
+<span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">PROCESSES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
+<span class="s2">        select '</span><span class="si">{</span><span class="n">t</span><span class="si">}</span><span class="s2">' as process, k.country, date_trunc('hour', try_cast(r.</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> as timestamp)) as hour_start, count(*) as n</span>
+<span class="s2">        from </span><span class="si">{</span><span class="n">raw</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="si">}</span><span class="s2"> r join cust k using (customer_id)</span>
+<span class="s2">        where try_cast(r.</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> as timestamp) is not null group by all"""</span><span class="p">)</span><span class="o">.</span><span class="n">df</span><span class="p">()</span>
     <span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">country</span><span class="o">.</span><span class="n">enrich_transactions</span><span class="p">(</span><span class="n">pl</span><span class="p">))</span>
+<span class="n">hourly</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">parts</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">hourly</span><span class="p">[</span><span class="s2">"market"</span><span class="p">]</span> <span class="o">=</span> <span class="n">hourly</span><span class="o">.</span><span class="n">country</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">MARKET</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">hourly</span><span class="p">)</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> (process, market, hour) cells, </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">hourly</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> events"</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -7883,73 +7890,24 @@ prima).</li>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>  table     dq_partition_releases_active                               0 rows     0.0s
-  table     dq_partition_header                                    4,833 rows     0.1s
-  table     dq_schema_drift                                        2,218 rows     0.0s
-  table     dq_partition_holds                                     2,118 rows     0.0s
-  table     dq_corrections_active                                      0 rows     0.0s
-  view      typed_branches                                           350 rows     0.0s
-  view      stg_branches                                             350 rows     0.0s
-  view      typed_call_center_interactions                       331,915 rows     0.1s
-  view      stg_call_center_interactions                               0 rows     0.1s
-  view      typed_call_transcripts                                     0 rows     0.0s
-  view      stg_call_transcripts                                       0 rows     0.0s
-  view      typed_campaign_sends                                 843,001 rows     0.1s
-  view      stg_campaign_sends                                         0 rows     0.1s
-  view      typed_complaints                                      32,592 rows     0.1s
-  view      stg_complaints                                        32,592 rows     0.1s
-  view      typed_customers                                       74,973 rows     0.0s
-  view      stg_customers                                         74,973 rows     0.0s
-  view      typed_daily_exchange_rates                            13,164 rows     0.0s
-  view      stg_daily_exchange_rates                              13,164 rows     0.0s
-  view      typed_digital_events                               7,209,527 rows     0.1s
-  view      stg_digital_events                                 7,209,527 rows     0.1s
-  view      typed_digital_events_holdout                         212,773 rows     0.0s
-  view      stg_digital_events_holdout                           212,773 rows     0.0s
-  view      typed_marketing_campaigns                                200 rows     0.0s
-  view      stg_marketing_campaigns                                  200 rows     0.0s
-  view      typed_products                                       199,861 rows     0.0s
-  view      stg_products                                         199,861 rows     0.0s
-  view      typed_satisfaction_surveys                                 0 rows     0.0s
-  view      stg_satisfaction_surveys                                   0 rows     0.0s
-  view      typed_service_agents                                   1,200 rows     0.0s
-  view      stg_service_agents                                     1,200 rows     0.0s
-  view      typed_transactions                                   918,479 rows     0.0s
-  view      stg_transactions                                     918,479 rows     0.0s
-  view      typed_transactions_holdout                                 0 rows     0.0s
-  view      stg_transactions_holdout                                   0 rows     0.0s
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Mexico: delivery day = timestamp -6 h (legal local time UTC-6, America/Mexico_City)
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>   n_rows  with_calendar
-0  918479         918479
+<pre>414,762 (process, market, hour) cells, 18,475,509 events
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d5e7b625">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=05176b89">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="1-%C2%B7-The-calendar">1 · The calendar<a class="anchor-link" href="#1-%C2%B7-The-calendar">¶</a></h2>
+<h2 id="1-%C2%B7-Hour-of-day,-as-delivered">1 · Hour of day, as delivered<a class="anchor-link" href="#1-%C2%B7-Hour-of-day,-as-delivered">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4800ff6c">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b03a8474">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7957,308 +7915,22 @@ prima).</li>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [2]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">cal</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"select * from main.calendar_local"</span><span class="p">)</span>
-<span class="n">hol</span> <span class="o">=</span> <span class="n">cal</span><span class="p">[</span><span class="n">cal</span><span class="o">.</span><span class="n">is_holiday</span><span class="p">][[</span><span class="s2">"country_code"</span><span class="p">,</span> <span class="s2">"local_date"</span><span class="p">,</span> <span class="s2">"holiday_name"</span><span class="p">,</span> <span class="s2">"iso_weekday"</span><span class="p">]]</span>
-<span class="n">show</span><span class="p">(</span><span class="n">hol</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">summary</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"country_code"</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-    <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
-        <span class="p">{</span>
-            <span class="s2">"days"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">g</span><span class="p">),</span>
-            <span class="s2">"holidays"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">is_holiday</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="s2">"on_weekdays"</span><span class="p">:</span> <span class="nb">int</span><span class="p">((</span><span class="n">g</span><span class="o">.</span><span class="n">is_holiday</span> <span class="o">&amp;</span> <span class="o">~</span><span class="n">g</span><span class="o">.</span><span class="n">is_weekend</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="s2">"long_weekend_days"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">is_long_weekend</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-            <span class="s2">"paydays"</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">is_payday</span><span class="o">.</span><span class="n">sum</span><span class="p">()),</span>
-        <span class="p">}</span>
-    <span class="p">),</span>
-    <span class="n">include_groups</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">prof</span> <span class="o">=</span> <span class="n">hourly</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">h</span><span class="o">=</span><span class="n">hourly</span><span class="o">.</span><span class="n">hour_start</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">hour</span><span class="p">)</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"process"</span><span class="p">,</span> <span class="s2">"h"</span><span class="p">])</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">prof</span><span class="p">[</span><span class="s2">"share %"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">prof</span><span class="o">.</span><span class="n">n</span> <span class="o">/</span> <span class="n">prof</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"process"</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="s2">"sum"</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">prof</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"h"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"share %"</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">"process"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s2">"Share of events by hour of the raw timestamp"</span>
 <span class="p">)</span>
-<span class="n">show</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
-<!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_573cef19_48e0_46c0_9076_4fc287625d9f">
-<tbody>
-<tr>
-<td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g style="fill:var(--itables-logo-paper,#d9d7fc)">
-<path d="M100,400H500V357H100Z"></path>
-<path d="M100,300H400V257H100Z"></path>
-<path d="M0,200H400V157H0Z"></path>
-<path d="M100,100H500V57H100Z"></path>
-<path d="M100,350H500V307H100Z"></path>
-<path d="M100,250H400V207H100Z"></path>
-<path d="M0,150H400V107H0Z"></path>
-<path d="M100,50H500V7H100Z"></path>
-</g>
-<g style="fill:var(--itables-logo-ink,#1a1366);stroke:var(--itables-logo-ink,#1a1366);">
-<rect height="43" width="400" x="100" y="7">
-<animate attributename="width" dur="5s" repeatcount="indefinite" values="0;400;0"></animate>
-<animate attributename="x" dur="5s" repeatcount="indefinite" values="100;100;500"></animate>
-</rect>
-<rect height="43" width="400" x="0" y="107">
-<animate attributename="width" dur="3.5s" repeatcount="indefinite" values="0;400;0"></animate>
-<animate attributename="x" dur="3.5s" repeatcount="indefinite" values="0;0;400"></animate>
-</rect>
-<rect height="43" width="300" x="100" y="207">
-<animate attributename="width" dur="3s" repeatcount="indefinite" values="0;300;0"></animate>
-<animate attributename="x" dur="3s" repeatcount="indefinite" values="100;100;400"></animate>
-</rect>
-<rect height="43" width="400" x="100" y="307">
-<animate attributename="width" dur="4s" repeatcount="indefinite" values="0;400;0"></animate>
-<animate attributename="x" dur="4s" repeatcount="indefinite" values="100;100;500"></animate>
-</rect>
-<g rx="5" style="fill:transparent;stroke-width:8; stroke-linejoin:round">
-<g transform="translate(45 50) rotate(-45)">
-<circle cx="0" cy="0" r="33"></circle>
-<rect height="30" width="16" x="-8" y="32"></rect>
-</g>
-<g transform="translate(450 152)">
-<polyline points="-15,-20 -35,-20 -35,40 25,40 25,20"></polyline>
-<rect height="60" width="60" x="-15" y="-40"></rect>
-</g>
-<g transform="translate(50 352)">
-<polygon points="-35,-5 0,-40 35,-5"></polygon>
-<polygon points="-35,10 0,45 35,10"></polygon>
-</g>
-<g transform="translate(75 250)">
-<polyline points="-30,30 -60,0 -30,-30"></polyline>
-<polyline points="0,30 -30,0 0,-30"></polyline>
-</g>
-<g transform="translate(425 250) rotate(180)">
-<polyline points="-30,30 -60,0 -30,-30"></polyline>
-<polyline points="0,30 -30,0 0,-30"></polyline>
-</g>
-</g>
-</g>
-</svg>
-</a>
-        Loading ITables v2.9.1 from the internet...
-        (need <a href="https://itables.org/troubleshooting.html">help</a>?)
-      </td>
-</tr>
-</tbody>
-</table>
-<div id="itables_573cef19_48e0_46c0_9076_4fc287625d9f_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
-<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
-<th style="border:1px solid #ddd;padding:8px">country_code</th>
-<th style="border:1px solid #ddd;padding:8px">local_date</th>
-<th style="border:1px solid #ddd;padding:8px">holiday_name</th>
-<th style="border:1px solid #ddd;padding:8px">iso_weekday</th>
-</tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">107</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2023-09-16</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">154</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2023-11-02</td><td style="border:1px solid #ddd;padding:8px">Día de Muertos (bancario)</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">172</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2023-11-20</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">194</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2023-12-12</td><td style="border:1px solid #ddd;padding:8px">Día de la Virgen de Guadalupe (bancario)</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">207</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">214</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">249</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-02-05</td><td style="border:1px solid #ddd;padding:8px">Día de la Constitución</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">291</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-03-18</td><td style="border:1px solid #ddd;padding:8px">Natalicio de Benito Juárez</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">301</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-03-28</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo (bancario)</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">302</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-03-29</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo (bancario)</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">335</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">473</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-09-16</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">488</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-10-01</td><td style="border:1px solid #ddd;padding:8px">Transmisión del Poder Ejecutivo Federal</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">520</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-11-02</td><td style="border:1px solid #ddd;padding:8px">Día de Muertos (bancario)</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">536</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-11-18</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">560</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-12-12</td><td style="border:1px solid #ddd;padding:8px">Día de la Virgen de Guadalupe (bancario)</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">573</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2024-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">580</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">613</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-02-03</td><td style="border:1px solid #ddd;padding:8px">Día de la Constitución</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">655</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-03-17</td><td style="border:1px solid #ddd;padding:8px">Natalicio de Benito Juárez</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">686</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-04-17</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo (bancario)</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">687</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-04-18</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo (bancario)</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">700</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">838</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-09-16</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">885</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-11-02</td><td style="border:1px solid #ddd;padding:8px">Día de Muertos (bancario)</td><td style="border:1px solid #ddd;padding:8px">7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">900</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-11-17</td><td style="border:1px solid #ddd;padding:8px">Día de la Revolución</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">925</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-12-12</td><td style="border:1px solid #ddd;padding:8px">Día de la Virgen de Guadalupe (bancario)</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">938</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2025-12-25</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">945</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2026-01-01</td><td style="border:1px solid #ddd;padding:8px">Año Nuevo</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">977</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2026-02-02</td><td style="border:1px solid #ddd;padding:8px">Día de la Constitución</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1019</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2026-03-16</td><td style="border:1px solid #ddd;padding:8px">Natalicio de Benito Juárez</td><td style="border:1px solid #ddd;padding:8px">1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1036</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2026-04-02</td><td style="border:1px solid #ddd;padding:8px">Jueves Santo (bancario)</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1037</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2026-04-03</td><td style="border:1px solid #ddd;padding:8px">Viernes Santo (bancario)</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">1065</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">2026-05-01</td><td style="border:1px solid #ddd;padding:8px">Día del Trabajo</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-</tbody></table></div><script>document.getElementById("itables_573cef19_48e0_46c0_9076_4fc287625d9f")?.removeAttribute("hidden");document.getElementById("itables_573cef19_48e0_46c0_9076_4fc287625d9f_fallback")?.setAttribute("hidden", "hidden");</script>
-<link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
-<script type="module">
-    import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
-
-    document.querySelectorAll("#itables_573cef19_48e0_46c0_9076_4fc287625d9f:not(.dataTable)").forEach(table => {
-        if (!(table instanceof HTMLTableElement))
-            return;
-
-        let dt_args = {
-          "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[107, \"MX\", \"2023-09-16\", \"D\\u00eda de la Independencia\", 6], [154, \"MX\", \"2023-11-02\", \"D\\u00eda de Muertos (bancario)\", 4], [172, \"MX\", \"2023-11-20\", \"D\\u00eda de la Revoluci\\u00f3n\", 1], [194, \"MX\", \"2023-12-12\", \"D\\u00eda de la Virgen de Guadalupe (bancario)\", 2], [207, \"MX\", \"2023-12-25\", \"Navidad\", 1], [214, \"MX\", \"2024-01-01\", \"A\\u00f1o Nuevo\", 1], [249, \"MX\", \"2024-02-05\", \"D\\u00eda de la Constituci\\u00f3n\", 1], [291, \"MX\", \"2024-03-18\", \"Natalicio de Benito Ju\\u00e1rez\", 1], [301, \"MX\", \"2024-03-28\", \"Jueves Santo (bancario)\", 4], [302, \"MX\", \"2024-03-29\", \"Viernes Santo (bancario)\", 5], [335, \"MX\", \"2024-05-01\", \"D\\u00eda del Trabajo\", 3], [473, \"MX\", \"2024-09-16\", \"D\\u00eda de la Independencia\", 1], [488, \"MX\", \"2024-10-01\", \"Transmisi\\u00f3n del Poder Ejecutivo Federal\", 2], [520, \"MX\", \"2024-11-02\", \"D\\u00eda de Muertos (bancario)\", 6], [536, \"MX\", \"2024-11-18\", \"D\\u00eda de la Revoluci\\u00f3n\", 1], [560, \"MX\", \"2024-12-12\", \"D\\u00eda de la Virgen de Guadalupe (bancario)\", 4], [573, \"MX\", \"2024-12-25\", \"Navidad\", 3], [580, \"MX\", \"2025-01-01\", \"A\\u00f1o Nuevo\", 3], [613, \"MX\", \"2025-02-03\", \"D\\u00eda de la Constituci\\u00f3n\", 1], [655, \"MX\", \"2025-03-17\", \"Natalicio de Benito Ju\\u00e1rez\", 1], [686, \"MX\", \"2025-04-17\", \"Jueves Santo (bancario)\", 4], [687, \"MX\", \"2025-04-18\", \"Viernes Santo (bancario)\", 5], [700, \"MX\", \"2025-05-01\", \"D\\u00eda del Trabajo\", 4], [838, \"MX\", \"2025-09-16\", \"D\\u00eda de la Independencia\", 2], [885, \"MX\", \"2025-11-02\", \"D\\u00eda de Muertos (bancario)\", 7], [900, \"MX\", \"2025-11-17\", \"D\\u00eda de la Revoluci\\u00f3n\", 1], [925, \"MX\", \"2025-12-12\", \"D\\u00eda de la Virgen de Guadalupe (bancario)\", 5], [938, \"MX\", \"2025-12-25\", \"Navidad\", 4], [945, \"MX\", \"2026-01-01\", \"A\\u00f1o Nuevo\", 4], [977, \"MX\", \"2026-02-02\", \"D\\u00eda de la Constituci\\u00f3n\", 1], [1019, \"MX\", \"2026-03-16\", \"Natalicio de Benito Ju\\u00e1rez\", 1], [1036, \"MX\", \"2026-04-02\", \"Jueves Santo (bancario)\", 4], [1037, \"MX\", \"2026-04-03\", \"Viernes Santo (bancario)\", 5], [1065, \"MX\", \"2026-05-01\", \"D\\u00eda del Trabajo\", 5]]",
-          "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
-          "order": [],
-          "paging": false,
-          "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>country_code</th>\n      <th>local_date</th>\n      <th>holiday_name</th>\n      <th>iso_weekday</th>\n    </tr>\n  </thead></table>",
-          "text_in_header_can_be_selected": true
-        };
-        new ITable(table, dt_args);
-    });
-</script>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
-<!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_a6c85c6d_3b48_40ce_a3c8_25e0b49301c9">
-<tbody>
-<tr>
-<td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
-<g style="fill:var(--itables-logo-paper,#d9d7fc)">
-<path d="M100,400H500V357H100Z"></path>
-<path d="M100,300H400V257H100Z"></path>
-<path d="M0,200H400V157H0Z"></path>
-<path d="M100,100H500V57H100Z"></path>
-<path d="M100,350H500V307H100Z"></path>
-<path d="M100,250H400V207H100Z"></path>
-<path d="M0,150H400V107H0Z"></path>
-<path d="M100,50H500V7H100Z"></path>
-</g>
-<g style="fill:var(--itables-logo-ink,#1a1366);stroke:var(--itables-logo-ink,#1a1366);">
-<rect height="43" width="400" x="100" y="7">
-<animate attributename="width" dur="5s" repeatcount="indefinite" values="0;400;0"></animate>
-<animate attributename="x" dur="5s" repeatcount="indefinite" values="100;100;500"></animate>
-</rect>
-<rect height="43" width="400" x="0" y="107">
-<animate attributename="width" dur="3.5s" repeatcount="indefinite" values="0;400;0"></animate>
-<animate attributename="x" dur="3.5s" repeatcount="indefinite" values="0;0;400"></animate>
-</rect>
-<rect height="43" width="300" x="100" y="207">
-<animate attributename="width" dur="3s" repeatcount="indefinite" values="0;300;0"></animate>
-<animate attributename="x" dur="3s" repeatcount="indefinite" values="100;100;400"></animate>
-</rect>
-<rect height="43" width="400" x="100" y="307">
-<animate attributename="width" dur="4s" repeatcount="indefinite" values="0;400;0"></animate>
-<animate attributename="x" dur="4s" repeatcount="indefinite" values="100;100;500"></animate>
-</rect>
-<g rx="5" style="fill:transparent;stroke-width:8; stroke-linejoin:round">
-<g transform="translate(45 50) rotate(-45)">
-<circle cx="0" cy="0" r="33"></circle>
-<rect height="30" width="16" x="-8" y="32"></rect>
-</g>
-<g transform="translate(450 152)">
-<polyline points="-15,-20 -35,-20 -35,40 25,40 25,20"></polyline>
-<rect height="60" width="60" x="-15" y="-40"></rect>
-</g>
-<g transform="translate(50 352)">
-<polygon points="-35,-5 0,-40 35,-5"></polygon>
-<polygon points="-35,10 0,45 35,10"></polygon>
-</g>
-<g transform="translate(75 250)">
-<polyline points="-30,30 -60,0 -30,-30"></polyline>
-<polyline points="0,30 -30,0 0,-30"></polyline>
-</g>
-<g transform="translate(425 250) rotate(180)">
-<polyline points="-30,30 -60,0 -30,-30"></polyline>
-<polyline points="0,30 -30,0 0,-30"></polyline>
-</g>
-</g>
-</g>
-</svg>
-</a>
-        Loading ITables v2.9.1 from the internet...
-        (need <a href="https://itables.org/troubleshooting.html">help</a>?)
-      </td>
-</tr>
-</tbody>
-</table>
-<div id="itables_a6c85c6d_3b48_40ce_a3c8_25e0b49301c9_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
-<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
-<th style="border:1px solid #ddd;padding:8px">days</th>
-<th style="border:1px solid #ddd;padding:8px">holidays</th>
-<th style="border:1px solid #ddd;padding:8px">on_weekdays</th>
-<th style="border:1px solid #ddd;padding:8px">long_weekend_days</th>
-<th style="border:1px solid #ddd;padding:8px">paydays</th>
-</tr>
-<tr>
-<th style="border:1px solid #ddd;padding:8px">country_code</th>
-<th style="border:1px solid #ddd;padding:8px"></th>
-<th style="border:1px solid #ddd;padding:8px"></th>
-<th style="border:1px solid #ddd;padding:8px"></th>
-<th style="border:1px solid #ddd;padding:8px"></th>
-<th style="border:1px solid #ddd;padding:8px"></th>
-</tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">1157</td><td style="border:1px solid #ddd;padding:8px">34</td><td style="border:1px solid #ddd;padding:8px">31</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">76</td></tr>
-</tbody></table></div><script>document.getElementById("itables_a6c85c6d_3b48_40ce_a3c8_25e0b49301c9")?.removeAttribute("hidden");document.getElementById("itables_a6c85c6d_3b48_40ce_a3c8_25e0b49301c9_fallback")?.setAttribute("hidden", "hidden");</script>
-<link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
-<script type="module">
-    import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
-
-    document.querySelectorAll("#itables_a6c85c6d_3b48_40ce_a3c8_25e0b49301c9:not(.dataTable)").forEach(table => {
-        if (!(table instanceof HTMLTableElement))
-            return;
-
-        let dt_args = {
-          "classes": ["display", "nowrap", "compact"],
-          "data_json": "[[\"MX\", 1157, 34, 31, 20, 76]]",
-          "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
-          "order": [],
-          "paging": false,
-          "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>days</th>\n      <th>holidays</th>\n      <th>on_weekdays</th>\n      <th>long_weekend_days</th>\n      <th>paydays</th>\n    </tr>\n    <tr>\n      <th>country_code</th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n      <th></th>\n    </tr>\n  </thead></table>",
-          "text_in_header_can_be_selected": true
-        };
-        new ITable(table, dt_args);
-    });
-</script>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0268c0b1">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="2-%C2%B7-Time-of-day,-in-local-time">2 · Time of day, in local time<a class="anchor-link" href="#2-%C2%B7-Time-of-day,-in-local-time">¶</a></h2>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f4ab8b3f">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">hours</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span>
-    <span class="s2">"select local_hour_customer as local_hour, count(*) as transactions from main.tx_local group by 1 order by 1"</span>
-<span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
-    <span class="n">hours</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s2">"local_hour"</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s2">"transactions"</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: transactions by local hour"</span>
-<span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_hline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">100</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">,</span> <span class="n">annotation_text</span><span class="o">=</span><span class="s2">"uniform (4.17 %)"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">"hour of day (raw clock)"</span><span class="p">,</span> <span class="n">yaxis_range</span><span class="o">=</span><span class="p">[</span><span class="mf">3.5</span><span class="p">,</span> <span class="mf">4.8</span><span class="p">])</span>
 <span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-<span class="n">cv</span> <span class="o">=</span> <span class="n">hours</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">hours</span><span class="o">.</span><span class="n">transactions</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+<span class="n">cv</span> <span class="o">=</span> <span class="n">prof</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"process"</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">std</span><span class="p">()</span> <span class="o">/</span> <span class="n">x</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">"**Hour-of-day coefficient of variation: </span><span class="si">{</span><span class="n">cv</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">.** "</span>
-        <span class="o">+</span> <span class="p">(</span>
-            <span class="s2">"Local time shifts the uniform UTC profile by the offset and leaves it uniform: there is no daily cycle to "</span>
-            <span class="s2">"model, in any time zone. Time-of-day features stay in the design and carry no signal here."</span>
-            <span class="k">if</span> <span class="n">cv</span> <span class="o">&lt;</span> <span class="mf">0.05</span>
-            <span class="k">else</span> <span class="s2">"There is a daily cycle in local time: time-of-day features can carry signal."</span>
-        <span class="p">)</span>
+        <span class="s2">"**Every process is flat over the 24 hours** (coefficient of variation of the hourly counts: "</span>
+        <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">cv</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="o">+</span> <span class="s2">"). There is no morning peak, lunchtime or night trough in any clock: an hour is an hour. A real bank's "</span>
+        <span class="s2">"transactions peak around midday and fall to a few percent of the peak at night, and its contact centre has a "</span>
+        <span class="s2">"pronounced morning peak; neither exists here, so the intraday shape cannot be modelled on this data."</span>
     <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
@@ -8283,10 +7955,10 @@ prima).</li>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
-<div style="height:300px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="6e208cc1-acab-4c5e-af28-7f299fa8d537" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("6e208cc1-acab-4c5e-af28-7f299fa8d537")) {                    Plotly.newPlot(                        "6e208cc1-acab-4c5e-af28-7f299fa8d537",                        [{"hovertemplate":"local_hour=%{x}\u003cbr\u003etransactions=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":{"dtype":"i1","bdata":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX"},"xaxis":"x","y":{"dtype":"i4","bdata":"NJYAACuWAAD1lQAAFJUAAFOUAADIlQAAvpUAAJaWAABmlAAAiZUAAAWVAAB7lgAAwJQAADOWAABBlgAANJQAAFiVAAD1lAAAX5UAANmUAAAClgAAS5YAAPOVAABclAAA"},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"local_hour"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"transactions"}},"legend":{"tracegroupgap":0},"title":{"text":"Mexico: transactions by local hour"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
+<div style="height:360px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="655c5886-35c6-49ac-9217-e645c4a5c4f1" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("655c5886-35c6-49ac-9217-e645c4a5c4f1")) {                    Plotly.newPlot(                        "655c5886-35c6-49ac-9217-e645c4a5c4f1",                        [{"hovertemplate":"process=call_center_interactions\u003cbr\u003eh=%{x}\u003cbr\u003eshare %=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"call_center_interactions","line":{"color":"#2a78d6","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"call_center_interactions","orientation":"v","showlegend":true,"x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"Z6H0EVShEECzo2wDkZwQQCOGFmwXcxBA6G3JLsjYEEA12HIJbJYQQMifDo32xhBA19ozsRiiEEDcQ0C9zpUQQJlqdho8rBBArjpg99qoEEDURkob67EQQC+wn90QthBAFzZwFGGyEECHb6+zJbMQQLZNsu+hoxBAIsdPTHKGEED2qO5S6rMQQGZPH3\u002fQ9RBALcUgEaWbEEChvgHzXboQQEDsnySCwhBA8RMqmm2SEEBcjcf2PXUQQLTPJLBXyhBA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"process=campaign_sends\u003cbr\u003eh=%{x}\u003cbr\u003eshare %=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"campaign_sends","line":{"color":"#eb6834","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"campaign_sends","orientation":"v","showlegend":true,"x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"8splH66sEEDHNQXw4owQQFVNo62erBBAMZJQPmqkEECMns6RkaoQQBgwEo4OtxBAOKVZg+TaEEAneYvGcbgQQLj6Mzx5qxBAK80+xcm8EEC3HjN6ZpoQQNk2gKxrsBBAGqjEylOqEEBadgOsDLIQQFAkQ68wpxBApF0HBb6lEEAZzMMIQZkQQBV\u002fZMzlpBBAQA1xObS0EEC3LNv+X7oQQEv74rDCoRBAVT\u002f7KKWMEEB+I66WR5oQQJ6RockgrhBA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"process=complaints\u003cbr\u003eh=%{x}\u003cbr\u003eshare %=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"complaints","line":{"color":"#1baf7a","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"complaints","orientation":"v","showlegend":true,"x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"tocXqD1dEED03zaGUu8QQBJMo\u002fB35xBABFYQQEo8EUAWninWMcsQQFbIiJA2nxBASNL13wj0EED7WoBe6cQQQMGranx7xhBAgoELwnbyEEBfwxhylxYRQKEWOx953BBAjE3blpD0D0BdQ9JozXQQQGgQoiYeLhBAutmdjfdAEECokYT3D7IQQE0kfMXC1xBAKg8GX\u002fZLEECvDM7PpocQQEqkNbz4NRBAiyUYjeq5EEDkaV3MWqIQQIKBC8J28hBA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"process=digital_events\u003cbr\u003eh=%{x}\u003cbr\u003eshare %=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"digital_events","line":{"color":"#eda100","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"digital_events","orientation":"v","showlegend":true,"x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"x6opudSOEEAEtcwIpKgQQAN\u002fR8HkqhBAoleU0bq4EEBcN3JJPacQQCoTy24ctRBAC+9qstbFEECKA16NZoQQQDMpSqfKrBBA1KrzwDyuEEDdI0odTLUQQNAmgdfDrBBA\u002fK5NbnGXEEAmXZ+uYpkQQJN76TrXvhBA9QxBgcC6EECXZv+4L7MQQM56IwxIohBAo\u002fYi5hibEEAKfJPw+c8QQMHilyLgmhBAHoIMuBKoEEBfSA1x2bIQQMbXe5V2oBBA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"process=satisfaction_surveys\u003cbr\u003eh=%{x}\u003cbr\u003eshare %=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"satisfaction_surveys","line":{"color":"#e87ba4","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"satisfaction_surveys","orientation":"v","showlegend":true,"x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"vL+J6E7bEEAa77GaTNwQQJSnpJJVahBA20kXZJhNEEDgT4hqxKgQQKQy1AeUvRBA69RG2dagEEAR6H1e4psQQGrS7\u002fDfZRBAP3+wHMKpEEBHgTaIPnQQQDt+7eaDxBBAi2bZDQXEEECxOst5POMQQM9GzsLdnRBAHXLqneIJEUAPZUVbTG4QQCz4a0Iz5xBAEifDd7Z3EED+YDmEU9kQQO8UTyjpYRBA9Nt6FUHhEEDqlQHAAsUQQNIITN9HpxBA"},"yaxis":"y","type":"scatter"},{"hovertemplate":"process=transactions\u003cbr\u003eh=%{x}\u003cbr\u003eshare %=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"transactions","line":{"color":"#008300","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines","name":"transactions","orientation":"v","showlegend":true,"x":{"dtype":"i4","bdata":"AAAAAAEAAAACAAAAAwAAAAQAAAAFAAAABgAAAAcAAAAIAAAACQAAAAoAAAALAAAADAAAAA0AAAAOAAAADwAAABAAAAARAAAAEgAAABMAAAAUAAAAFQAAABYAAAAXAAAA"},"xaxis":"x","y":{"dtype":"f8","bdata":"PErorwuoEEDoACoa37IQQD5jWmCCrxBAg\u002foTd\u002fyvEEAALDkgXJsQQEQcW14rqxBA06pZVvGiEEB4L6pTVakQQC4mCVmNnBBAi8yGJRyzEEBCY2dsBKUQQLvNbPVHphBAMzhyfounEEAzcV9q8bIQQOAut2u\u002frxBA1CNKxberEEDswDOjAKsQQNz1vHPXrhBADSJxDfa+EEAMXjeZTZUQQFrZv3djrhBAOzF2\u002f5SgEEA8XETJh70QQAl3nD1CpxBA"},"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"hour of day (raw clock)"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"share %"},"range":[3.5,4.8]},"legend":{"title":{"text":"process"},"tracegroupgap":0},"title":{"text":"Share of events by hour of the raw timestamp"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":4.166666666666667,"y1":4.166666666666667,"yref":"y"}],"annotations":[{"showarrow":false,"text":"uniform (4.17 %)","x":1,"xanchor":"right","xref":"x domain","y":4.166666666666667,"yanchor":"bottom","yref":"y"}],"height":360},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('6e208cc1-acab-4c5e-af28-7f299fa8d537');
+var gd = document.getElementById('655c5886-35c6-49ac-9217-e645c4a5c4f1');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8314,26 +7986,263 @@ if (outputEl) {{
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>Hour-of-day coefficient of variation: 0.005.</strong> Local time shifts the uniform UTC profile by the offset and leaves it uniform: there is no daily cycle to model, in any time zone. Time-of-day features stay in the design and carry no signal here.</p>
+<p><strong>Every process is flat over the 24 hours</strong> (coefficient of variation of the hourly counts: call_center_interactions 0.007, campaign_sends 0.004, complaints 0.019, digital_events 0.004, satisfaction_surveys 0.012, transactions 0.002). There is no morning peak, lunchtime or night trough in any clock: an hour is an hour. A real bank's transactions peak around midday and fall to a few percent of the peak at night, and its contact centre has a pronounced morning peak; neither exists here, so the intraday shape cannot be modelled on this data.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6df97cad">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=48c3960d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="3-%C2%B7-What-the-calendar-explains:-a-regression-on-daily-volume">3 · What the calendar explains: a regression on daily volume<a class="anchor-link" href="#3-%C2%B7-What-the-calendar-explains:-a-regression-on-daily-volume">¶</a></h2><p>Daily transaction counts (local date) regressed on weekday, holiday, long weekend, payday window, month end and a
-linear trend, by <strong>OLS on log counts</strong>: on a log scale a coefficient β is a percentage effect, exp(β) − 1, and daily
-counts in the thousands make the log-normal approximation accurate. Standard errors are heteroscedasticity-robust
-(HC3). The first and last partial months are excluded.</p>
+<h2 id="2-%C2%B7-The-clock-scan">2 · The clock scan<a class="anchor-link" href="#2-%C2%B7-The-clock-scan">¶</a></h2>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=82f710c5">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e8d513fe">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea">
+<div class="jp-InputPrompt jp-InputArea-prompt">In [3]:</div>
+<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
+<div class="cm-editor cm-s-jupyter">
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">scans</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">proc</span><span class="p">,</span> <span class="n">mk</span><span class="p">),</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">hourly</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"process"</span><span class="p">,</span> <span class="s2">"market"</span><span class="p">]):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">clock_scan</span><span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">hour_start</span><span class="p">,</span> <span class="n">counts</span><span class="o">=</span><span class="n">d</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+    <span class="n">s</span><span class="p">[</span><span class="s2">"process"</span><span class="p">],</span> <span class="n">s</span><span class="p">[</span><span class="s2">"market"</span><span class="p">]</span> <span class="o">=</span> <span class="n">proc</span><span class="p">,</span> <span class="n">mk</span>
+    <span class="n">scans</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">s</span><span class="p">)</span>
+<span class="n">scan</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">scans</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">line</span><span class="p">(</span>
+    <span class="n">scan</span><span class="p">[</span><span class="n">scan</span><span class="o">.</span><span class="n">process</span> <span class="o">==</span> <span class="s2">"transactions"</span><span class="p">],</span>
+    <span class="n">x</span><span class="o">=</span><span class="s2">"shift_hours"</span><span class="p">,</span>
+    <span class="n">y</span><span class="o">=</span><span class="s2">"chi2_over_dof"</span><span class="p">,</span>
+    <span class="n">color</span><span class="o">=</span><span class="s2">"market"</span><span class="p">,</span>
+    <span class="n">log_y</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">markers</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">title</span><span class="o">=</span><span class="s2">"Transactions: dependence between weekday and hour (χ² / dof) by clock shift"</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">add_hline</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">,</span> <span class="n">annotation_text</span><span class="o">=</span><span class="s2">"independence"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">360</span><span class="p">,</span> <span class="n">xaxis_title</span><span class="o">=</span><span class="s2">"hours added to the raw timestamps"</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">scan</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">scan</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">"process"</span><span class="p">,</span> <span class="s2">"market"</span><span class="p">])</span><span class="o">.</span><span class="n">chi2</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()]</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"process"</span><span class="p">,</span> <span class="s2">"market"</span><span class="p">])</span>
+<span class="n">at0</span> <span class="o">=</span> <span class="n">scan</span><span class="p">[</span><span class="n">scan</span><span class="o">.</span><span class="n">shift_hours</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s2">"process"</span><span class="p">,</span> <span class="s2">"market"</span><span class="p">])</span><span class="o">.</span><span class="n">chi2_over_dof</span>
+<span class="n">legal</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">m</span><span class="p">):</span> <span class="n">scan</span><span class="p">[</span>
+            <span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">process</span> <span class="o">==</span> <span class="n">p</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">market</span> <span class="o">==</span> <span class="n">m</span><span class="p">)</span>
+            <span class="o">&amp;</span> <span class="p">(</span><span class="n">scan</span><span class="o">.</span><span class="n">shift_hours</span> <span class="o">==</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">m</span><span class="p">]</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">)</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">chi2_over_dof</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">best</span><span class="o">.</span><span class="n">index</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="n">clock</span> <span class="o">=</span> <span class="n">best</span><span class="p">[[</span><span class="s2">"shift_hours"</span><span class="p">,</span> <span class="s2">"chi2_over_dof"</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span>
+    <span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"shift_hours"</span><span class="p">:</span> <span class="s2">"best shift (h)"</span><span class="p">,</span> <span class="s2">"chi2_over_dof"</span><span class="p">:</span> <span class="s2">"χ²/dof at best"</span><span class="p">}</span>
+<span class="p">)</span>
+<span class="n">clock</span><span class="p">[</span><span class="s2">"χ²/dof at legal local time"</span><span class="p">]</span> <span class="o">=</span> <span class="n">legal</span>
+<span class="n">clock</span><span class="p">[</span><span class="s2">"χ²/dof at raw clock (0 h)"</span><span class="p">]</span> <span class="o">=</span> <span class="n">at0</span>
+<span class="n">clock</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+<span class="n">clock</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="s2">"granularity_time_clock.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="n">clock</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">per_process</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"process"</span><span class="p">)[</span><span class="s2">"best shift (h)"</span><span class="p">]</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">mode</span><span class="p">()</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">same</span> <span class="o">=</span> <span class="n">clock</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"process"</span><span class="p">)[</span><span class="s2">"best shift (h)"</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span><span class="o">.</span><span class="n">eq</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">Markdown</span><span class="p">(</span>
+        <span class="s2">"**Every market of a process aligns at the same shift, and the shift depends on the process, not the market:** "</span>
+        <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> h"</span> <span class="o">+</span> <span class="p">(</span><span class="s2">""</span> <span class="k">if</span> <span class="n">same</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">else</span> <span class="s2">" (varies)"</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">per_process</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="o">+</span> <span class="sa">f</span><span class="s2">". At the best shift the dependence falls to χ²/dof </span><span class="si">{</span><span class="n">clock</span><span class="p">[</span><span class="s1">'χ²/dof at best'</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> (independence is "</span>
+        <span class="sa">f</span><span class="s2">"1), against </span><span class="si">{</span><span class="n">clock</span><span class="p">[</span><span class="s1">'χ²/dof at raw clock (0 h)'</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> on the raw clock and "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">clock</span><span class="p">[</span><span class="s1">'χ²/dof at legal local time'</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> on each country's legal local time. The shifts are the start "</span>
+        <span class="s2">"hours of each process's daily delivery batch (06:00 UTC for transactions, digital events and sends; 08:00 UTC for "</span>
+        <span class="s2">"contacts and complaints): the next section checks that directly."</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell-outputWrapper">
+<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
+</div>
+<div class="jp-OutputArea jp-Cell-outputArea">
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<div style="height:360px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="1ffe1726-4ab3-4ad4-98bf-51467e28c7e5" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("1ffe1726-4ab3-4ad4-98bf-51467e28c7e5")) {                    Plotly.newPlot(                        "1ffe1726-4ab3-4ad4-98bf-51467e28c7e5",                        [{"hovertemplate":"market=AR\u003cbr\u003eshift_hours=%{x}\u003cbr\u003echi2_over_dof=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"AR","line":{"color":"#2a78d6","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"AR","orientation":"v","showlegend":true,"x":{"dtype":"i1","bdata":"9PX29\u002fj5+vv8\u002ff7\u002fAAECAwQFBgcICQoLDA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"hrx88T4TUkAwDblknE1PQKiFnMIyyUpAfJq7XklkRUBtld1tLIs+QMNQ22QycTBAcI4tFMWO8j\u002f+2A0BhagvQPwVZNohED5A7amlHuChRUCwGwBldX9LQMqPJXVYKFBAwKoBK4Z3UkDBRy+nrxtUQPWEBRJFq1VAYtIJm1mlVkBv6iZmYCJXQK0\u002fS7fGzldAZtitwCoMWEDT5YXtNAtYQG2KB+VnT1dA+TPgvvyRVkD5cxv\u002fpFpVQGRSfPCy1lNAhrx88T4TUkA="},"yaxis":"y","type":"scatter"},{"hovertemplate":"market=CO\u003cbr\u003eshift_hours=%{x}\u003cbr\u003echi2_over_dof=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"CO","line":{"color":"#eb6834","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"CO","orientation":"v","showlegend":true,"x":{"dtype":"i1","bdata":"9PX29\u002fj5+vv8\u002ff7\u002fAAECAwQFBgcICQoLDA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"uvHOG6EdW0DvhJ39N\u002fFXQEAfKTWKN1RA0P0TZd54UECoS+c5a2RHQPfksHnE9jhAdckn4OBx7z\u002fnmA8LJy46QHrwJth450dAcPoEq7\u002f1UEB3GD5pKz1VQPGWl6V1xlhAGfE2E3nmW0AwgdIrGUNeQOFxlGEjUGBApyUQ0RMaYUDy0XfNiahhQL9xgch0AmJAdLyC3zwmYkC7wfgCbO9hQLWYBXFelWFAwNogD+8IYUCDY6nODxlgQKfUrd21+l1AuvHOG6EdW0A="},"yaxis":"y","type":"scatter"},{"hovertemplate":"market=MX\u003cbr\u003eshift_hours=%{x}\u003cbr\u003echi2_over_dof=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"MX","line":{"color":"#1baf7a","dash":"solid"},"marker":{"symbol":"circle"},"mode":"lines+markers","name":"MX","orientation":"v","showlegend":true,"x":{"dtype":"i1","bdata":"9PX29\u002fj5+vv8\u002ff7\u002fAAECAwQFBgcICQoLDA=="},"xaxis":"x","y":{"dtype":"f8","bdata":"AH9zZrIxZ0Dt+kwKHVNkQCjICwQPL2FAP5oLkm\u002fWWkAssp4GMSVTQGvGPZdMOURA5MTLmIr58j8erm8YP3BEQAhyYx2JPVNAicxcyh6sW0AyIFxkG3ZhQGaL1Ghhp2RARHuGAKozZ0Bo4Ko0goBpQF1aZwIVQGtAoivpN5fEbECyg+WNRqttQClaDcEpWm5AdcRyBFd4bkBkQGasIWNuQISU5jgrwW1AzELpgdvwbEBA\u002foj1DlFrQIrEC8EKRWlAAH9zZrIxZ0A="},"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"hours added to the raw timestamps"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"chi2_over_dof"},"type":"log"},"legend":{"title":{"text":"market"},"tracegroupgap":0},"title":{"text":"Transactions: dependence between weekday and hour (\u03c7\u00b2 \u002f dof) by clock shift"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":1,"xref":"x domain","y0":1,"y1":1,"yref":"y"}],"annotations":[{"showarrow":false,"text":"independence","x":1,"xanchor":"right","xref":"x domain","y":1,"yanchor":"bottom","yref":"y"}],"height":360},                        {"responsive": true}                    ).then(function(){
+
+var gd = document.getElementById('1ffe1726-4ab3-4ad4-98bf-51467e28c7e5');
+var x = new MutationObserver(function (mutations, observer) {{
+        var display = window.getComputedStyle(gd).display;
+        if (!display || display === 'none') {{
+            console.log([gd, 'removed!']);
+            Plotly.purge(gd);
+            observer.disconnect();
+        }}
+}});
+
+// Listen for the removal of the full notebook cells
+var notebookContainer = gd.closest('#notebook-container');
+if (notebookContainer) {{
+    x.observe(notebookContainer, {childList: true});
+}}
+
+// Listen for the clearing of the current output cell
+var outputEl = gd.closest('.output');
+if (outputEl) {{
+    x.observe(outputEl, {childList: true});
+}}
+
+                        })                };            </script> </div>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
+<!--| quarto-html-table-processing: none -->
+<table hidden="hidden" id="itables_ee9a27c8_c45b_4bbe_aa24_64530cbbe46a">
+<tbody>
+<tr>
+<td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g style="fill:var(--itables-logo-paper,#d9d7fc)">
+<path d="M100,400H500V357H100Z"></path>
+<path d="M100,300H400V257H100Z"></path>
+<path d="M0,200H400V157H0Z"></path>
+<path d="M100,100H500V57H100Z"></path>
+<path d="M100,350H500V307H100Z"></path>
+<path d="M100,250H400V207H100Z"></path>
+<path d="M0,150H400V107H0Z"></path>
+<path d="M100,50H500V7H100Z"></path>
+</g>
+<g style="fill:var(--itables-logo-ink,#1a1366);stroke:var(--itables-logo-ink,#1a1366);">
+<rect height="43" width="400" x="100" y="7">
+<animate attributename="width" dur="5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="5s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<rect height="43" width="400" x="0" y="107">
+<animate attributename="width" dur="3.5s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="3.5s" repeatcount="indefinite" values="0;0;400"></animate>
+</rect>
+<rect height="43" width="300" x="100" y="207">
+<animate attributename="width" dur="3s" repeatcount="indefinite" values="0;300;0"></animate>
+<animate attributename="x" dur="3s" repeatcount="indefinite" values="100;100;400"></animate>
+</rect>
+<rect height="43" width="400" x="100" y="307">
+<animate attributename="width" dur="4s" repeatcount="indefinite" values="0;400;0"></animate>
+<animate attributename="x" dur="4s" repeatcount="indefinite" values="100;100;500"></animate>
+</rect>
+<g rx="5" style="fill:transparent;stroke-width:8; stroke-linejoin:round">
+<g transform="translate(45 50) rotate(-45)">
+<circle cx="0" cy="0" r="33"></circle>
+<rect height="30" width="16" x="-8" y="32"></rect>
+</g>
+<g transform="translate(450 152)">
+<polyline points="-15,-20 -35,-20 -35,40 25,40 25,20"></polyline>
+<rect height="60" width="60" x="-15" y="-40"></rect>
+</g>
+<g transform="translate(50 352)">
+<polygon points="-35,-5 0,-40 35,-5"></polygon>
+<polygon points="-35,10 0,45 35,10"></polygon>
+</g>
+<g transform="translate(75 250)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+<g transform="translate(425 250) rotate(180)">
+<polyline points="-30,30 -60,0 -30,-30"></polyline>
+<polyline points="0,30 -30,0 0,-30"></polyline>
+</g>
+</g>
+</g>
+</svg>
+</a>
+        Loading ITables v2.9.1 from the internet...
+        (need <a href="https://itables.org/troubleshooting.html">help</a>?)
+      </td>
+</tr>
+</tbody>
+</table>
+<div id="itables_ee9a27c8_c45b_4bbe_aa24_64530cbbe46a_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>process</th>
+<th style="border:1px solid #ddd;padding:8px">market</th>
+<th style="border:1px solid #ddd;padding:8px">best shift (h)</th>
+<th style="border:1px solid #ddd;padding:8px">χ²/dof at best</th>
+<th style="border:1px solid #ddd;padding:8px">χ²/dof at legal local time</th>
+<th style="border:1px solid #ddd;padding:8px">χ²/dof at raw clock (0 h)</th>
+</tr></thead><tbody>
+<tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">-8</td><td style="border:1px solid #ddd;padding:8px">0.97</td><td style="border:1px solid #ddd;padding:8px">19.46</td><td style="border:1px solid #ddd;padding:8px">25.36</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">-8</td><td style="border:1px solid #ddd;padding:8px">0.92</td><td style="border:1px solid #ddd;padding:8px">19.94</td><td style="border:1px solid #ddd;padding:8px">36.78</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">-8</td><td style="border:1px solid #ddd;padding:8px">0.83</td><td style="border:1px solid #ddd;padding:8px">23.60</td><td style="border:1px solid #ddd;padding:8px">59.66</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">0.78</td><td style="border:1px solid #ddd;padding:8px">18.85</td><td style="border:1px solid #ddd;padding:8px">30.24</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">1.15</td><td style="border:1px solid #ddd;padding:8px">10.98</td><td style="border:1px solid #ddd;padding:8px">44.23</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">1.08</td><td style="border:1px solid #ddd;padding:8px">1.08</td><td style="border:1px solid #ddd;padding:8px">75.51</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">-8</td><td style="border:1px solid #ddd;padding:8px">1.04</td><td style="border:1px solid #ddd;padding:8px">2.74</td><td style="border:1px solid #ddd;padding:8px">3.43</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">-8</td><td style="border:1px solid #ddd;padding:8px">1.17</td><td style="border:1px solid #ddd;padding:8px">2.92</td><td style="border:1px solid #ddd;padding:8px">5.00</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">-8</td><td style="border:1px solid #ddd;padding:8px">1.11</td><td style="border:1px solid #ddd;padding:8px">3.86</td><td style="border:1px solid #ddd;padding:8px">7.47</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">10.44</td><td style="border:1px solid #ddd;padding:8px">86.00</td><td style="border:1px solid #ddd;padding:8px">133.42</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">8.69</td><td style="border:1px solid #ddd;padding:8px">44.84</td><td style="border:1px solid #ddd;padding:8px">188.35</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">10.26</td><td style="border:1px solid #ddd;padding:8px">10.26</td><td style="border:1px solid #ddd;padding:8px">331.32</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">4</td><td style="border:1px solid #ddd;padding:8px">2.33</td><td style="border:1px solid #ddd;padding:8px">2.92</td><td style="border:1px solid #ddd;padding:8px">2.75</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">8</td><td style="border:1px solid #ddd;padding:8px">3.65</td><td style="border:1px solid #ddd;padding:8px">4.97</td><td style="border:1px solid #ddd;padding:8px">4.07</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">4</td><td style="border:1px solid #ddd;padding:8px">5.12</td><td style="border:1px solid #ddd;padding:8px">9.12</td><td style="border:1px solid #ddd;padding:8px">5.49</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">1.16</td><td style="border:1px solid #ddd;padding:8px">43.26</td><td style="border:1px solid #ddd;padding:8px">73.87</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">0.98</td><td style="border:1px solid #ddd;padding:8px">26.18</td><td style="border:1px solid #ddd;padding:8px">111.60</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">-6</td><td style="border:1px solid #ddd;padding:8px">1.19</td><td style="border:1px solid #ddd;padding:8px">1.19</td><td style="border:1px solid #ddd;padding:8px">185.61</td></tr>
+</tbody></table></div><script>document.getElementById("itables_ee9a27c8_c45b_4bbe_aa24_64530cbbe46a")?.removeAttribute("hidden");document.getElementById("itables_ee9a27c8_c45b_4bbe_aa24_64530cbbe46a_fallback")?.setAttribute("hidden", "hidden");</script>
+<link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
+<script type="module">
+    import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
+
+    document.querySelectorAll("#itables_ee9a27c8_c45b_4bbe_aa24_64530cbbe46a:not(.dataTable)").forEach(table => {
+        if (!(table instanceof HTMLTableElement))
+            return;
+
+        let dt_args = {
+          "classes": ["display", "nowrap", "compact"],
+          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [3, 4, 5]}],
+          "data_json": "[[\"call_center_interactions\", \"AR\", -8, [\"0.97\", 0.97], [\"19.46\", 19.46], [\"25.36\", 25.36]], [\"call_center_interactions\", \"CO\", -8, [\"0.92\", 0.92], [\"19.94\", 19.94], [\"36.78\", 36.78]], [\"call_center_interactions\", \"MX\", -8, [\"0.83\", 0.83], [\"23.60\", 23.6], [\"59.66\", 59.66]], [\"campaign_sends\", \"AR\", -6, [\"0.78\", 0.78], [\"18.85\", 18.85], [\"30.24\", 30.24]], [\"campaign_sends\", \"CO\", -6, [\"1.15\", 1.15], [\"10.98\", 10.98], [\"44.23\", 44.23]], [\"campaign_sends\", \"MX\", -6, [\"1.08\", 1.08], [\"1.08\", 1.08], [\"75.51\", 75.51]], [\"complaints\", \"AR\", -8, [\"1.04\", 1.04], [\"2.74\", 2.74], [\"3.43\", 3.43]], [\"complaints\", \"CO\", -8, [\"1.17\", 1.17], [\"2.92\", 2.92], [\"5.00\", 5.0]], [\"complaints\", \"MX\", -8, [\"1.11\", 1.11], [\"3.86\", 3.86], [\"7.47\", 7.47]], [\"digital_events\", \"AR\", -6, [\"10.44\", 10.44], [\"86.00\", 86.0], [\"133.42\", 133.42]], [\"digital_events\", \"CO\", -6, [\"8.69\", 8.69], [\"44.84\", 44.84], [\"188.35\", 188.35]], [\"digital_events\", \"MX\", -6, [\"10.26\", 10.26], [\"10.26\", 10.26], [\"331.32\", 331.32]], [\"satisfaction_surveys\", \"AR\", 4, [\"2.33\", 2.33], [\"2.92\", 2.92], [\"2.75\", 2.75]], [\"satisfaction_surveys\", \"CO\", 8, [\"3.65\", 3.65], [\"4.97\", 4.97], [\"4.07\", 4.07]], [\"satisfaction_surveys\", \"MX\", 4, [\"5.12\", 5.12], [\"9.12\", 9.12], [\"5.49\", 5.49]], [\"transactions\", \"AR\", -6, [\"1.16\", 1.16], [\"43.26\", 43.26], [\"73.87\", 73.87]], [\"transactions\", \"CO\", -6, [\"0.98\", 0.98], [\"26.18\", 26.18], [\"111.60\", 111.6]], [\"transactions\", \"MX\", -6, [\"1.19\", 1.19], [\"1.19\", 1.19], [\"185.61\", 185.61]]]",
+          "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
+          "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
+          "order": [],
+          "paging": false,
+          "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>process</th>\n      <th>market</th>\n      <th>best shift (h)</th>\n      <th>\u03c7\u00b2/dof at best</th>\n      <th>\u03c7\u00b2/dof at legal local time</th>\n      <th>\u03c7\u00b2/dof at raw clock (0 h)</th>\n    </tr>\n  </thead></table>",
+          "text_in_header_can_be_selected": true
+        };
+        new ITable(table, dt_args);
+    });
+</script>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
+<p><strong>Every market of a process aligns at the same shift, and the shift depends on the process, not the market:</strong> call_center_interactions -8 h, campaign_sends -6 h, complaints -8 h, digital_events -6 h, satisfaction_surveys +4 h (varies), transactions -6 h. At the best shift the dependence falls to χ²/dof 1.16 (independence is 1), against 41 on the raw clock and 11 on each country's legal local time. The shifts are the start hours of each process's daily delivery batch (06:00 UTC for transactions, digital events and sends; 08:00 UTC for contacts and complaints): the next section checks that directly.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=36f2638b">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h3 id="The-clock-is-the-delivery-day">The clock is the delivery day<a class="anchor-link" href="#The-clock-is-the-delivery-day">¶</a></h3><p>Every row carries <code>process_date</code>, the daily batch it was delivered in. If the generator drew the weekly rhythm on
+that day and placed the timestamp inside the batch window, then the timestamp shifted back to the window's start
+must land on <code>process_date</code> for every row.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4eb52041">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8341,43 +8250,37 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-InputPrompt jp-InputArea-prompt">In [4]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">daily</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
-<span class="s2">    select k.country_code, t.local_date, count(*) as n_tx, sum(t.amount_usd) as usd,</span>
-<span class="s2">           any_value(k.iso_weekday) as iso_weekday, any_value(k.is_holiday) as is_holiday,</span>
-<span class="s2">           any_value(k.is_long_weekend) as is_long_weekend, any_value(k.is_payday) as is_payday,</span>
-<span class="s2">           any_value(k.days_since_payday) as days_since_payday, any_value(k.is_month_end) as is_month_end,</span>
-<span class="s2">           any_value(k.is_bonus_month) as is_bonus_month</span>
-<span class="s2">    from main.tx_local t join main.calendar_local k</span>
-<span class="s2">      on k.country_code = t.customer_country_code and k.local_date = t.local_date</span>
-<span class="s2">    group by 1, 2 order by 1, 2"""</span><span class="p">)</span>
-<span class="n">daily</span><span class="p">[</span><span class="s2">"local_date"</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="p">)</span>
-<span class="n">daily</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">full_months</span><span class="p">(</span><span class="n">daily</span><span class="p">)</span>
-<span class="n">FE</span> <span class="o">=</span> <span class="s2">" + C(country_code)"</span> <span class="k">if</span> <span class="n">daily</span><span class="o">.</span><span class="n">country_code</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="s2">""</span>
-<span class="n">daily</span><span class="p">[</span><span class="s2">"log_n"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">n_tx</span><span class="p">)</span>
-<span class="n">daily</span><span class="p">[</span><span class="s2">"t"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span> <span class="o">-</span> <span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mf">365.25</span>
-<span class="n">daily</span><span class="p">[</span><span class="s2">"payday_window"</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily</span><span class="o">.</span><span class="n">days_since_payday</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span>
-<span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"is_holiday"</span><span class="p">,</span> <span class="s2">"is_long_weekend"</span><span class="p">,</span> <span class="s2">"is_month_end"</span><span class="p">,</span> <span class="s2">"is_bonus_month"</span><span class="p">,</span> <span class="s2">"payday_window"</span><span class="p">]:</span>
-    <span class="n">daily</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">daily</span><span class="p">[</span><span class="n">c</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<span class="n">model</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span>
-    <span class="s2">"log_n ~ C(iso_weekday) + is_holiday + is_long_weekend + payday_window + is_month_end + "</span>
-    <span class="s2">"is_bonus_month + t"</span> <span class="o">+</span> <span class="n">FE</span><span class="p">,</span>
-    <span class="n">data</span><span class="o">=</span><span class="n">daily</span><span class="p">,</span>
-<span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cov_type</span><span class="o">=</span><span class="s2">"HC3"</span><span class="p">)</span>
-<span class="n">coef</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
-    <span class="p">{</span>
-        <span class="s2">"coef"</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">params</span><span class="p">,</span>
-        <span class="s2">"ci_low"</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">conf_int</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span>
-        <span class="s2">"ci_high"</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">conf_int</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
-        <span class="s2">"p_value"</span><span class="p">:</span> <span class="n">model</span><span class="o">.</span><span class="n">pvalues</span><span class="p">,</span>
-    <span class="p">}</span>
-<span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">"Intercept"</span><span class="p">)</span>
-<span class="n">coef</span><span class="p">[</span><span class="s2">"effect %"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">coef</span><span class="o">.</span><span class="n">coef</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-<span class="n">coef</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">country</span><span class="o">=</span><span class="n">COUNTRY</span><span class="p">,</span> <span class="n">dataset</span><span class="o">=</span><span class="n">DATASET</span><span class="p">,</span> <span class="n">r2</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="p">)</span><span class="o">.</span><span class="n">rename_axis</span><span class="p">(</span>
-    <span class="s2">"term"</span>
-<span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">COUNTRY</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="si">}</span><span class="s2">_calendar_effects.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="n">show</span><span class="p">(</span><span class="n">coef</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span>
-    <span class="sa">f</span><span class="s2">"R² = </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">model</span><span class="o">.</span><span class="n">nobs</span><span class="p">)</span><span class="si">}</span><span class="s2"> (country, day) rows, </span><span class="si">{</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">daily</span><span class="o">.</span><span class="n">local_date</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">date</span><span class="p">()</span><span class="si">}</span><span class="s2">"</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">match</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">PROCESSES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">con</span><span class="o">.</span><span class="n">sql</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""select </span><span class="si">{</span><span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"avg((cast(try_cast(</span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2"> as timestamp) + interval (</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">) hour as date) = try_cast(process_date as date))::int) as s</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">k</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">6</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">8</span><span class="p">,</span><span class="w"> </span><span class="o">-</span><span class="mi">10</span><span class="p">))</span><span class="si">}</span>
+<span class="s2">                    from </span><span class="si">{</span><span class="n">raw</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="si">}</span><span class="s2">"""</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">df</span><span class="p">()</span>
+        <span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">match</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">"process"</span><span class="p">:</span> <span class="n">t</span><span class="p">,</span>
+            <span class="s2">"share = process_date at 0 h"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">s0</span><span class="p">,</span>
+            <span class="s2">"at −6 h"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">s6</span><span class="p">,</span>
+            <span class="s2">"at −8 h"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">s8</span><span class="p">,</span>
+            <span class="s2">"at −10 h"</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">s10</span><span class="p">,</span>
+            <span class="s2">"library offset (h)"</span><span class="p">:</span> <span class="n">country</span><span class="o">.</span><span class="n">PROCESS_DAY_OFFSET</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">t</span><span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+<span class="n">match</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">exact</span> <span class="o">=</span> <span class="n">match</span><span class="p">[</span><span class="n">match</span><span class="p">[[</span><span class="s2">"at −6 h"</span><span class="p">,</span> <span class="s2">"at −8 h"</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.995</span><span class="p">]</span>
+<span class="n">display</span><span class="p">(</span>
+    <span class="n">Markdown</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"**For </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">exact</span><span class="p">)</span><span class="si">}</span><span class="s2"> of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="p">)</span><span class="si">}</span><span class="s2"> processes the shifted timestamp equals `process_date` on "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="mi">100</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">exact</span><span class="p">[[</span><span class="s1">'at −6 h'</span><span class="p">,</span><span class="w"> </span><span class="s1">'at −8 h'</span><span class="p">]]</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % or more of rows.** The generator drew each event's "</span>
+        <span class="s2">"day as a delivery day with the weekly rhythm, then placed its timestamp uniformly inside that day's batch window. "</span>
+        <span class="s2">"**The data's business day is the delivery day (`process_date`), the same for every market**; the timestamps are "</span>
+        <span class="s2">"UTC and say nothing about the customer's local time. Surveys arrive in roughly 42-hour windows and have no "</span>
+        <span class="s2">"fixed offset. The library now encodes this (`country.PROCESS_DAY_OFFSET`); the granularity day facts use "</span>
+        <span class="s2">"`process_date` directly."</span>
+    <span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -8392,7 +8295,7 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_cfae4cf0_13c4_476a_ae83_4266f8204982">
+<table hidden="hidden" id="itables_577ea01c_5af7_489f_a96e_da715ed519b0">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8454,45 +8357,39 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 </tr>
 </tbody>
 </table>
-<div id="itables_cfae4cf0_13c4_476a_ae83_4266f8204982_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
-<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
-<th style="border:1px solid #ddd;padding:8px">coef</th>
-<th style="border:1px solid #ddd;padding:8px">ci_low</th>
-<th style="border:1px solid #ddd;padding:8px">ci_high</th>
-<th style="border:1px solid #ddd;padding:8px">p_value</th>
-<th style="border:1px solid #ddd;padding:8px">effect %</th>
+<div id="itables_577ea01c_5af7_489f_a96e_da715ed519b0_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>process</th>
+<th style="border:1px solid #ddd;padding:8px">share = process_date at 0 h</th>
+<th style="border:1px solid #ddd;padding:8px">at −6 h</th>
+<th style="border:1px solid #ddd;padding:8px">at −8 h</th>
+<th style="border:1px solid #ddd;padding:8px">at −10 h</th>
+<th style="border:1px solid #ddd;padding:8px">library offset (h)</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.2]</td><td style="border:1px solid #ddd;padding:8px">-0.0098</td><td style="border:1px solid #ddd;padding:8px">-0.0524</td><td style="border:1px solid #ddd;padding:8px">0.0328</td><td style="border:1px solid #ddd;padding:8px">0.6513</td><td style="border:1px solid #ddd;padding:8px">-1.0</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.3]</td><td style="border:1px solid #ddd;padding:8px">-0.0088</td><td style="border:1px solid #ddd;padding:8px">-0.0518</td><td style="border:1px solid #ddd;padding:8px">0.0342</td><td style="border:1px solid #ddd;padding:8px">0.6880</td><td style="border:1px solid #ddd;padding:8px">-0.9</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.4]</td><td style="border:1px solid #ddd;padding:8px">-0.0105</td><td style="border:1px solid #ddd;padding:8px">-0.0541</td><td style="border:1px solid #ddd;padding:8px">0.0332</td><td style="border:1px solid #ddd;padding:8px">0.6385</td><td style="border:1px solid #ddd;padding:8px">-1.0</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.5]</td><td style="border:1px solid #ddd;padding:8px">-0.0016</td><td style="border:1px solid #ddd;padding:8px">-0.0474</td><td style="border:1px solid #ddd;padding:8px">0.0441</td><td style="border:1px solid #ddd;padding:8px">0.9439</td><td style="border:1px solid #ddd;padding:8px">-0.2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.6]</td><td style="border:1px solid #ddd;padding:8px">-0.5307</td><td style="border:1px solid #ddd;padding:8px">-0.5724</td><td style="border:1px solid #ddd;padding:8px">-0.4890</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">-41.2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.7]</td><td style="border:1px solid #ddd;padding:8px">-0.5441</td><td style="border:1px solid #ddd;padding:8px">-0.5888</td><td style="border:1px solid #ddd;padding:8px">-0.4994</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">-42.0</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_holiday</td><td style="border:1px solid #ddd;padding:8px">0.0126</td><td style="border:1px solid #ddd;padding:8px">-0.0720</td><td style="border:1px solid #ddd;padding:8px">0.0972</td><td style="border:1px solid #ddd;padding:8px">0.7704</td><td style="border:1px solid #ddd;padding:8px">1.3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_long_weekend</td><td style="border:1px solid #ddd;padding:8px">0.0197</td><td style="border:1px solid #ddd;padding:8px">-0.0821</td><td style="border:1px solid #ddd;padding:8px">0.1215</td><td style="border:1px solid #ddd;padding:8px">0.7048</td><td style="border:1px solid #ddd;padding:8px">2.0</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">payday_window</td><td style="border:1px solid #ddd;padding:8px">0.0172</td><td style="border:1px solid #ddd;padding:8px">-0.0127</td><td style="border:1px solid #ddd;padding:8px">0.0471</td><td style="border:1px solid #ddd;padding:8px">0.2585</td><td style="border:1px solid #ddd;padding:8px">1.7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_month_end</td><td style="border:1px solid #ddd;padding:8px">-0.0016</td><td style="border:1px solid #ddd;padding:8px">-0.0449</td><td style="border:1px solid #ddd;padding:8px">0.0416</td><td style="border:1px solid #ddd;padding:8px">0.9407</td><td style="border:1px solid #ddd;padding:8px">-0.2</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_bonus_month</td><td style="border:1px solid #ddd;padding:8px">0.0087</td><td style="border:1px solid #ddd;padding:8px">-0.0348</td><td style="border:1px solid #ddd;padding:8px">0.0523</td><td style="border:1px solid #ddd;padding:8px">0.6947</td><td style="border:1px solid #ddd;padding:8px">0.9</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">t</td><td style="border:1px solid #ddd;padding:8px">-0.0157</td><td style="border:1px solid #ddd;padding:8px">-0.0504</td><td style="border:1px solid #ddd;padding:8px">0.0189</td><td style="border:1px solid #ddd;padding:8px">0.3742</td><td style="border:1px solid #ddd;padding:8px">-1.6</td></tr>
-</tbody></table></div><script>document.getElementById("itables_cfae4cf0_13c4_476a_ae83_4266f8204982")?.removeAttribute("hidden");document.getElementById("itables_cfae4cf0_13c4_476a_ae83_4266f8204982_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">transactions</td><td style="border:1px solid #ddd;padding:8px">0.7500</td><td style="border:1px solid #ddd;padding:8px">1.0000</td><td style="border:1px solid #ddd;padding:8px">0.9168</td><td style="border:1px solid #ddd;padding:8px">0.8335</td><td style="border:1px solid #ddd;padding:8px">-6.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">call_center_interactions</td><td style="border:1px solid #ddd;padding:8px">0.6672</td><td style="border:1px solid #ddd;padding:8px">0.9169</td><td style="border:1px solid #ddd;padding:8px">1.0000</td><td style="border:1px solid #ddd;padding:8px">0.9167</td><td style="border:1px solid #ddd;padding:8px">-8.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">digital_events</td><td style="border:1px solid #ddd;padding:8px">0.7483</td><td style="border:1px solid #ddd;padding:8px">0.9982</td><td style="border:1px solid #ddd;padding:8px">0.9186</td><td style="border:1px solid #ddd;padding:8px">0.8354</td><td style="border:1px solid #ddd;padding:8px">-6.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">complaints</td><td style="border:1px solid #ddd;padding:8px">0.6635</td><td style="border:1px solid #ddd;padding:8px">0.9157</td><td style="border:1px solid #ddd;padding:8px">1.0000</td><td style="border:1px solid #ddd;padding:8px">0.9157</td><td style="border:1px solid #ddd;padding:8px">-8.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">campaign_sends</td><td style="border:1px solid #ddd;padding:8px">0.7502</td><td style="border:1px solid #ddd;padding:8px">1.0000</td><td style="border:1px solid #ddd;padding:8px">0.9161</td><td style="border:1px solid #ddd;padding:8px">0.8326</td><td style="border:1px solid #ddd;padding:8px">-6.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">satisfaction_surveys</td><td style="border:1px solid #ddd;padding:8px">0.2054</td><td style="border:1px solid #ddd;padding:8px">0.4008</td><td style="border:1px solid #ddd;padding:8px">0.4803</td><td style="border:1px solid #ddd;padding:8px">0.5611</td><td style="border:1px solid #ddd;padding:8px">NaN</td></tr>
+</tbody></table></div><script>document.getElementById("itables_577ea01c_5af7_489f_a96e_da715ed519b0")?.removeAttribute("hidden");document.getElementById("itables_577ea01c_5af7_489f_a96e_da715ed519b0_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_cfae4cf0_13c4_476a_ae83_4266f8204982:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_577ea01c_5af7_489f_a96e_da715ed519b0:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [1, 2, 3, 4, 5]}],
-          "data_json": "[[\"C(iso_weekday)[T.2]\", [\"-0.0098\", -0.0098], [\"-0.0524\", -0.0524], [\"0.0328\", 0.0328], [\"0.6513\", 0.6513], [\"-1.0\", -1.0]], [\"C(iso_weekday)[T.3]\", [\"-0.0088\", -0.0088], [\"-0.0518\", -0.0518], [\"0.0342\", 0.0342], [\"0.6880\", 0.688], [\"-0.9\", -0.9]], [\"C(iso_weekday)[T.4]\", [\"-0.0105\", -0.0105], [\"-0.0541\", -0.0541], [\"0.0332\", 0.0332], [\"0.6385\", 0.6385], [\"-1.0\", -1.0]], [\"C(iso_weekday)[T.5]\", [\"-0.0016\", -0.0016], [\"-0.0474\", -0.0474], [\"0.0441\", 0.0441], [\"0.9439\", 0.9439], [\"-0.2\", -0.2]], [\"C(iso_weekday)[T.6]\", [\"-0.5307\", -0.5307], [\"-0.5724\", -0.5724], [\"-0.4890\", -0.489], [\"0.0000\", 0.0], [\"-41.2\", -41.2]], [\"C(iso_weekday)[T.7]\", [\"-0.5441\", -0.5441], [\"-0.5888\", -0.5888], [\"-0.4994\", -0.4994], [\"0.0000\", 0.0], [\"-42.0\", -42.0]], [\"is_holiday\", [\"0.0126\", 0.0126], [\"-0.0720\", -0.072], [\"0.0972\", 0.0972], [\"0.7704\", 0.7704], [\"1.3\", 1.3]], [\"is_long_weekend\", [\"0.0197\", 0.0197], [\"-0.0821\", -0.0821], [\"0.1215\", 0.1215], [\"0.7048\", 0.7048], [\"2.0\", 2.0]], [\"payday_window\", [\"0.0172\", 0.0172], [\"-0.0127\", -0.0127], [\"0.0471\", 0.0471], [\"0.2585\", 0.2585], [\"1.7\", 1.7]], [\"is_month_end\", [\"-0.0016\", -0.0016], [\"-0.0449\", -0.0449], [\"0.0416\", 0.0416], [\"0.9407\", 0.9407], [\"-0.2\", -0.2]], [\"is_bonus_month\", [\"0.0087\", 0.0087], [\"-0.0348\", -0.0348], [\"0.0523\", 0.0523], [\"0.6947\", 0.6947], [\"0.9\", 0.9]], [\"t\", [\"-0.0157\", -0.0157], [\"-0.0504\", -0.0504], [\"0.0189\", 0.0189], [\"0.3742\", 0.3742], [\"-1.6\", -1.6]]]",
+          "data_json": "[[\"transactions\", [\"0.7500\", 0.75], [\"1.0000\", 1.0], [\"0.9168\", 0.9168], [\"0.8335\", 0.8335], [\"-6.0\", -6.0]], [\"call_center_interactions\", [\"0.6672\", 0.6672], [\"0.9169\", 0.9169], [\"1.0000\", 1.0], [\"0.9167\", 0.9167], [\"-8.0\", -8.0]], [\"digital_events\", [\"0.7483\", 0.7483], [\"0.9982\", 0.9982], [\"0.9186\", 0.9186], [\"0.8354\", 0.8354], [\"-6.0\", -6.0]], [\"complaints\", [\"0.6635\", 0.6635], [\"0.9157\", 0.9157], [\"1.0000\", 1.0], [\"0.9157\", 0.9157], [\"-8.0\", -8.0]], [\"campaign_sends\", [\"0.7502\", 0.7502], [\"1.0000\", 1.0], [\"0.9161\", 0.9161], [\"0.8326\", 0.8326], [\"-6.0\", -6.0]], [\"satisfaction_surveys\", [\"0.2054\", 0.2054], [\"0.4008\", 0.4008], [\"0.4803\", 0.4803], [\"0.5611\", 0.5611], [\"NaN\", \"___NaN___\"]]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
-          "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
+          "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
           "paging": false,
           "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      <th></th>\n      <th>coef</th>\n      <th>ci_low</th>\n      <th>ci_high</th>\n      <th>p_value</th>\n      <th>effect %</th>\n    </tr>\n  </thead></table>",
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>process</th>\n      <th>share = process_date at 0 h</th>\n      <th>at \u22126 h</th>\n      <th>at \u22128 h</th>\n      <th>at \u221210 h</th>\n      <th>library offset (h)</th>\n    </tr>\n  </thead></table>",
           "text_in_header_can_be_selected": true
         };
         new ITable(table, dt_args);
@@ -8502,14 +8399,26 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 </div>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>R² = 0.803 on 428 (country, day) rows, 2023-07-01 to 2024-08-31
-</pre>
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
+<p><strong>For 5 of 6 processes the shifted timestamp equals <code>process_date</code> on 99.8 % or more of rows.</strong> The generator drew each event's day as a delivery day with the weekly rhythm, then placed its timestamp uniformly inside that day's batch window. <strong>The data's business day is the delivery day (<code>process_date</code>), the same for every market</strong>; the timestamps are UTC and say nothing about the customer's local time. Surveys arrive in roughly 42-hour windows and have no fixed offset. The library now encodes this (<code>country.PROCESS_DAY_OFFSET</code>); the granularity day facts use <code>process_date</code> directly.</p>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6b57d489">
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=645439bd">
+<div class="jp-Cell-inputWrapper" tabindex="0">
+<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
+</div>
+<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
+</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
+<h2 id="3-%C2%B7-What-the-wrong-clock-did-to-the-calendar-findings">3 · What the wrong clock did to the calendar findings<a class="anchor-link" href="#3-%C2%B7-What-the-wrong-clock-did-to-the-calendar-findings">¶</a></h2><p>The country series placed each customer's day on the legal local time (Colombia UTC−5, Argentina UTC−3). The table
+re-estimates, per market, the calendar regression of notebook 04 of the country series (log daily transactions on
+weekday, holiday, payday window, month end and trend, HC3 errors) on both clocks.</p>
+</div>
+</div>
+</div>
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4c48e489">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8517,148 +8426,62 @@ counts in the thousands make the log-normal approximation accurate. Standard err
 <div class="jp-InputPrompt jp-InputArea-prompt">In [5]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">eff</span> <span class="o">=</span> <span class="n">coef</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">"index"</span><span class="p">:</span> <span class="s2">"term"</span><span class="p">})</span>
-<span class="n">eff</span><span class="p">[</span><span class="s2">"lo %"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eff</span><span class="o">.</span><span class="n">ci_low</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">eff</span><span class="p">[</span><span class="s2">"hi %"</span><span class="p">]</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">eff</span><span class="o">.</span><span class="n">ci_high</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
-<span class="n">fig</span> <span class="o">=</span> <span class="n">px</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span>
-    <span class="n">eff</span><span class="p">,</span>
-    <span class="n">x</span><span class="o">=</span><span class="s2">"effect %"</span><span class="p">,</span>
-    <span class="n">y</span><span class="o">=</span><span class="s2">"term"</span><span class="p">,</span>
-    <span class="n">error_x</span><span class="o">=</span><span class="n">eff</span><span class="p">[</span><span class="s2">"hi %"</span><span class="p">]</span> <span class="o">-</span> <span class="n">eff</span><span class="p">[</span><span class="s2">"effect %"</span><span class="p">],</span>
-    <span class="n">error_x_minus</span><span class="o">=</span><span class="n">eff</span><span class="p">[</span><span class="s2">"effect %"</span><span class="p">]</span> <span class="o">-</span> <span class="n">eff</span><span class="p">[</span><span class="s2">"lo %"</span><span class="p">],</span>
-    <span class="n">title</span><span class="o">=</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">CTRY</span><span class="o">.</span><span class="n">title</span><span class="si">}</span><span class="s2">: calendar effects on daily volume (95 % CI)"</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">add_vline</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">line_dash</span><span class="o">=</span><span class="s2">"dot"</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">height</span><span class="o">=</span><span class="mi">420</span><span class="p">,</span> <span class="n">yaxis_title</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-<span class="n">fig</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">says</span><span class="p">(</span><span class="n">term</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-    <span class="k">if</span> <span class="n">term</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">coef</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: not estimable."</span>
-    <span class="n">r</span> <span class="o">=</span> <span class="n">coef</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">term</span><span class="p">]</span>
-    <span class="n">sig</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">p_value</span> <span class="o">&lt;</span> <span class="mf">0.01</span>
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">: **</span><span class="si">{</span><span class="n">r</span><span class="p">[</span><span class="s1">'effect %'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> %** "</span> <span class="o">+</span> <span class="p">(</span>
-        <span class="s2">"(significant)"</span> <span class="k">if</span> <span class="n">sig</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">"(not significant, p = </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">p_value</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)"</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">tx</span> <span class="o">=</span> <span class="n">hourly</span><span class="p">[</span><span class="n">hourly</span><span class="o">.</span><span class="n">process</span> <span class="o">==</span> <span class="s2">"transactions"</span><span class="p">]</span>
+<span class="n">rec</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">mk</span><span class="p">,</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">tx</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">"market"</span><span class="p">):</span>
+    <span class="n">cal</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">country</span><span class="o">.</span><span class="n">calendar</span><span class="p">(</span><span class="n">mk</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">assign</span><span class="p">(</span><span class="n">local_date</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_datetime</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">local_date</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"local_date"</span><span class="p">)</span>
     <span class="p">)</span>
-
-
+    <span class="k">for</span> <span class="n">clk</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">"local"</span><span class="p">,</span> <span class="s2">"business"</span><span class="p">]:</span>
+        <span class="n">day</span> <span class="o">=</span> <span class="p">(</span><span class="n">d</span><span class="o">.</span><span class="n">hour_start</span> <span class="o">+</span> <span class="n">pd</span><span class="o">.</span><span class="n">Timedelta</span><span class="p">(</span><span class="n">hours</span><span class="o">=</span><span class="n">country</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">(</span><span class="n">mk</span><span class="p">,</span> <span class="n">clk</span><span class="p">)))</span><span class="o">.</span><span class="n">dt</span><span class="o">.</span><span class="n">normalize</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">day</span><span class="p">)</span><span class="o">.</span><span class="n">n</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">y</span><span class="p">[(</span><span class="n">y</span><span class="o">.</span><span class="n">index</span> <span class="o">&gt;=</span> <span class="s2">"2023-07-01"</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">index</span> <span class="o">&lt;</span> <span class="s2">"2026-05-01"</span><span class="p">)]</span>
+        <span class="n">k</span> <span class="o">=</span> <span class="n">cal</span><span class="o">.</span><span class="n">reindex</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"y"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">y</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()),</span>
+                <span class="s2">"wd"</span><span class="p">:</span> <span class="n">y</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">weekday</span><span class="p">,</span>
+                <span class="s2">"hol"</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">is_holiday</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                <span class="s2">"pay"</span><span class="p">:</span> <span class="p">(</span><span class="n">k</span><span class="o">.</span><span class="n">days_since_payday</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">99</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                <span class="s2">"me"</span><span class="p">:</span> <span class="n">k</span><span class="o">.</span><span class="n">is_month_end</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+                <span class="s2">"t"</span><span class="p">:</span> <span class="p">((</span><span class="n">y</span><span class="o">.</span><span class="n">index</span> <span class="o">-</span> <span class="n">y</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">.</span><span class="n">days</span> <span class="o">/</span> <span class="mf">365.25</span><span class="p">)</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">smf</span><span class="o">.</span><span class="n">ols</span><span class="p">(</span><span class="s2">"y ~ C(wd) + hol + pay + me + t"</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cov_type</span><span class="o">=</span><span class="s2">"HC3"</span><span class="p">)</span>
+        <span class="n">eff</span> <span class="o">=</span> <span class="k">lambda</span> <span class="n">term</span><span class="p">:</span> <span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="n">term</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># noqa: E731</span>
+        <span class="n">mon</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">params</span><span class="p">[[</span><span class="sa">f</span><span class="s2">"C(wd)[T.</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">]"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>  <span class="c1"># Tue..Fri against Monday</span>
+        <span class="n">rec</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">"market"</span><span class="p">:</span> <span class="n">mk</span><span class="p">,</span>
+                <span class="s2">"clock"</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">clk</span><span class="si">}</span><span class="s2"> (UTC</span><span class="si">{</span><span class="n">country</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">(</span><span class="n">mk</span><span class="p">,</span><span class="w"> </span><span class="n">clk</span><span class="p">)</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2">)"</span><span class="p">,</span>
+                <span class="s2">"Saturday %"</span><span class="p">:</span> <span class="n">eff</span><span class="p">(</span><span class="s2">"C(wd)[T.5]"</span><span class="p">),</span>
+                <span class="s2">"Sunday %"</span><span class="p">:</span> <span class="n">eff</span><span class="p">(</span><span class="s2">"C(wd)[T.6]"</span><span class="p">),</span>
+                <span class="s2">"Monday vs Tue–Fri %"</span><span class="p">:</span> <span class="o">-</span><span class="mi">100</span> <span class="o">*</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">mon</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">),</span>
+                <span class="s2">"holiday %"</span><span class="p">:</span> <span class="n">eff</span><span class="p">(</span><span class="s2">"hol"</span><span class="p">),</span>
+                <span class="s2">"holiday p"</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">pvalues</span><span class="p">[</span><span class="s2">"hol"</span><span class="p">],</span>
+                <span class="s2">"payday window %"</span><span class="p">:</span> <span class="n">eff</span><span class="p">(</span><span class="s2">"pay"</span><span class="p">),</span>
+                <span class="s2">"payday p"</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">pvalues</span><span class="p">[</span><span class="s2">"pay"</span><span class="p">],</span>
+                <span class="s2">"R²"</span><span class="p">:</span> <span class="n">m</span><span class="o">.</span><span class="n">rsquared</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+<span class="n">recon</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+<span class="n">recon</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">OUT</span> <span class="o">/</span> <span class="s2">"granularity_time_reconciliation.csv"</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">show</span><span class="p">(</span><span class="n">recon</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">loc</span> <span class="o">=</span> <span class="n">recon</span><span class="p">[</span><span class="n">recon</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"local"</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"market"</span><span class="p">)</span>
+<span class="n">bus</span> <span class="o">=</span> <span class="n">recon</span><span class="p">[</span><span class="n">recon</span><span class="o">.</span><span class="n">clock</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"business"</span><span class="p">)]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">"market"</span><span class="p">)</span>
 <span class="n">display</span><span class="p">(</span>
     <span class="n">Markdown</span><span class="p">(</span>
-        <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="p">[</span>
-                <span class="s2">"**What the calendar explains in "</span> <span class="o">+</span> <span class="n">CTRY</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">"** (R² </span><span class="si">{</span><span class="n">model</span><span class="o">.</span><span class="n">rsquared</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">):"</span><span class="p">,</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"C(iso_weekday)[T.6]"</span><span class="p">,</span> <span class="s2">"Saturday versus Monday"</span><span class="p">),</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"C(iso_weekday)[T.7]"</span><span class="p">,</span> <span class="s2">"Sunday versus Monday"</span><span class="p">),</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"is_holiday"</span><span class="p">,</span> <span class="s2">"a holiday"</span><span class="p">),</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"payday_window"</span><span class="p">,</span> <span class="s2">"the three days after a payday"</span><span class="p">),</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"is_month_end"</span><span class="p">,</span> <span class="s2">"month end"</span><span class="p">),</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"is_bonus_month"</span><span class="p">,</span> <span class="s2">"bonus month"</span><span class="p">),</span>
-                <span class="s2">"* "</span> <span class="o">+</span> <span class="n">says</span><span class="p">(</span><span class="s2">"t"</span><span class="p">,</span> <span class="s2">"trend per year"</span><span class="p">),</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
+        <span class="sa">f</span><span class="s2">"**On the business clock the weekend is the same in every market** (Saturday </span><span class="si">{</span><span class="n">bus</span><span class="p">[</span><span class="s1">'Saturday %'</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % to "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">bus</span><span class="p">[</span><span class="s1">'Saturday %'</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %, Sunday </span><span class="si">{</span><span class="n">bus</span><span class="p">[</span><span class="s1">'Sunday %'</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % to </span><span class="si">{</span><span class="n">bus</span><span class="p">[</span><span class="s1">'Sunday %'</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> %), and the "</span>
+        <span class="sa">f</span><span class="s2">"model explains more (R² </span><span class="si">{</span><span class="n">bus</span><span class="p">[</span><span class="s1">'R²'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2"> against </span><span class="si">{</span><span class="n">loc</span><span class="p">[</span><span class="s1">'R²'</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="si">:</span><span class="s2">.3f</span><span class="si">}</span><span class="s2">). On the legal clocks Argentina's "</span>
+        <span class="sa">f</span><span class="s2">"Saturday looked </span><span class="si">{</span><span class="n">loc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'AR'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Saturday %'</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> % and its Monday </span><span class="si">{</span><span class="n">loc</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'AR'</span><span class="p">,</span><span class="w"> </span><span class="s1">'Monday vs Tue–Fri %'</span><span class="p">]</span><span class="si">:</span><span class="s2">+.1f</span><span class="si">}</span><span class="s2"> % "</span>
+        <span class="sa">f</span><span class="s1">'against the other weekdays (business clock: </span><span class="si">{</span><span class="n">bus</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"AR"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Monday vs Tue–Fri %"</span><span class="p">]</span><span class="si">:</span><span class="s1">+.1f</span><span class="si">}</span><span class="s1"> %): the "national" '</span>
+        <span class="s2">"patterns the country series reported for Argentina and Colombia were **three and one hours of Sunday counted as "</span>
+        <span class="s2">"Monday**. Holidays and paydays stay without effect on either clock (every holiday p &gt; "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">min</span><span class="p">(</span><span class="n">recon</span><span class="p">[</span><span class="s1">'holiday p'</span><span class="p">])</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">): the calendar beyond the weekend is absent from the data, not hidden by the clock."</span>
     <span class="p">)</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell-outputWrapper">
-<div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
-</div>
-<div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
-<div style="height:420px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="4013d932-1297-49ca-99a1-1df63fead230" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("4013d932-1297-49ca-99a1-1df63fead230")) {                    Plotly.newPlot(                        "4013d932-1297-49ca-99a1-1df63fead230",                        [{"error_x":{"array":{"dtype":"f8","bdata":"OThJz2NVEUB1SvnC4YMRQMVKKhW5exFA7uMIcADUEkAAaU6mczMEQCDFgw\u002flgAVA6P5Qx8HPIUDO5Bekv9UlQD47Kovm\u002fAhAPFZTsanLEUAKzQdNHOARQI8zHF0XGgxA"},"arrayminus":{"dtype":"f8","bdata":"S+6dM6NvEEDumRU3gZkQQKZ41wmVDBFA+9WGycK0EUBQMN9PrQwDQGBQeztpAwRAp3+0ScZ9IEBGFCC05sQjQLDFKxB8qAdA\u002f6G7wdbCEEAOjTT4gUwRQMtpgMrufwpA"}},"hovertemplate":"effect %=%{x}\u003cbr\u003eterm=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"","orientation":"h","showlegend":false,"x":{"dtype":"f8","bdata":"AAAAAAAA8L\u002fNzMzMzMzsvwAAAAAAAPC\u002fmpmZmZmZyb+amZmZmZlEwAAAAAAAAEXAzczMzMzM9D8AAAAAAAAAQDMzMzMzM\u002fs\u002fmpmZmZmZyb\u002fNzMzMzMzsP5qZmZmZmfm\u002f"},"xaxis":"x","y":["C(iso_weekday)[T.2]","C(iso_weekday)[T.3]","C(iso_weekday)[T.4]","C(iso_weekday)[T.5]","C(iso_weekday)[T.6]","C(iso_weekday)[T.7]","is_holiday","is_long_weekend","payday_window","is_month_end","is_bonus_month","t"],"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"effect %"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"tracegroupgap":0},"title":{"text":"Mexico: calendar effects on daily volume (95 % CI)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":0,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"height":420},                        {"responsive": true}                    ).then(function(){
-
-var gd = document.getElementById('4013d932-1297-49ca-99a1-1df63fead230');
-var x = new MutationObserver(function (mutations, observer) {{
-        var display = window.getComputedStyle(gd).display;
-        if (!display || display === 'none') {{
-            console.log([gd, 'removed!']);
-            Plotly.purge(gd);
-            observer.disconnect();
-        }}
-}});
-
-// Listen for the removal of the full notebook cells
-var notebookContainer = gd.closest('#notebook-container');
-if (notebookContainer) {{
-    x.observe(notebookContainer, {childList: true});
-}}
-
-// Listen for the clearing of the current output cell
-var outputEl = gd.closest('.output');
-if (outputEl) {{
-    x.observe(outputEl, {childList: true});
-}}
-
-                        })                };            </script> </div>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>What the calendar explains in Mexico</strong> (R² 0.80):</p>
-<ul>
-<li>Saturday versus Monday: <strong>-41.2 %</strong> (significant)</li>
-<li>Sunday versus Monday: <strong>-42.0 %</strong> (significant)</li>
-<li>a holiday: <strong>+1.3 %</strong> (not significant, p = 0.77)</li>
-<li>the three days after a payday: <strong>+1.7 %</strong> (not significant, p = 0.26)</li>
-<li>month end: <strong>-0.2 %</strong> (not significant, p = 0.94)</li>
-<li>bonus month: <strong>+0.9 %</strong> (not significant, p = 0.69)</li>
-<li>trend per year: <strong>-1.6 %</strong> (not significant, p = 0.37)</li>
-</ul>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e5d21b33">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>How to read it.</strong> A real bank would show strong holiday dips (branches and transfers close), payday spikes
-(salaries arrive, bills are paid) and month-end peaks. Effects that are absent or insignificant here are absent from
-the <strong>generator</strong>, not from banking: weekday seasonality is the only calendar structure this synthetic data was built
-with. The enrichment is still right to keep: the same columns will carry signal on real data, and notebook 14 lets
-every model use them.</p>
-</div>
-</div>
-</div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3232131f">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
-</div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="4-%C2%B7-The-enriched-transaction-table">4 · The enriched transaction table<a class="anchor-link" href="#4-%C2%B7-The-enriched-transaction-table">¶</a></h2><p><code>main.tx_local</code> is the conformed transaction with local time and calendar: the input of notebooks 09, 13 and 14.
-<strong>Recommendation:</strong> promote <code>country.calendar</code> to a dbt seed (<code>country_calendar.csv</code>, regenerated yearly) and the
-local columns to <code>int_transactions_enriched</code>, so every mart and feature shares one definition of a local day.</p>
-</div>
-</div>
-</div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6ea1ee79">
-<div class="jp-Cell-inputWrapper" tabindex="0">
-<div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
-</div>
-<div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
-<div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
-<div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">show</span><span class="p">(</span>
-    <span class="n">pl</span><span class="o">.</span><span class="n">safe</span><span class="p">(</span>
-        <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""select transaction_id, transaction_ts_utc, ts_customer_local, local_date, local_hour_customer,</span>
-<span class="s2">                            iso_weekday, is_holiday, holiday_name, is_payday, days_since_payday, is_month_end</span>
-<span class="s2">                     from main.tx_local where is_holiday limit 8"""</span><span class="p">)</span>
-    <span class="p">),</span>
-    <span class="n">paging</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -8673,7 +8496,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_7827b608_e247_4331_8dce_f612699aa162">
+<table hidden="hidden" id="itables_e14c24a0_199e_4a27_9146_84a8af427000">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8735,46 +8558,43 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </tr>
 </tbody>
 </table>
-<div id="itables_7827b608_e247_4331_8dce_f612699aa162_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
-<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>transaction_id</th>
-<th style="border:1px solid #ddd;padding:8px">transaction_ts_utc</th>
-<th style="border:1px solid #ddd;padding:8px">ts_customer_local</th>
-<th style="border:1px solid #ddd;padding:8px">local_date</th>
-<th style="border:1px solid #ddd;padding:8px">local_hour_customer</th>
-<th style="border:1px solid #ddd;padding:8px">iso_weekday</th>
-<th style="border:1px solid #ddd;padding:8px">is_holiday</th>
-<th style="border:1px solid #ddd;padding:8px">holiday_name</th>
-<th style="border:1px solid #ddd;padding:8px">is_payday</th>
-<th style="border:1px solid #ddd;padding:8px">days_since_payday</th>
-<th style="border:1px solid #ddd;padding:8px">is_month_end</th>
+<div id="itables_e14c24a0_199e_4a27_9146_84a8af427000_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>market</th>
+<th style="border:1px solid #ddd;padding:8px">clock</th>
+<th style="border:1px solid #ddd;padding:8px">Saturday %</th>
+<th style="border:1px solid #ddd;padding:8px">Sunday %</th>
+<th style="border:1px solid #ddd;padding:8px">Monday vs Tue–Fri %</th>
+<th style="border:1px solid #ddd;padding:8px">holiday %</th>
+<th style="border:1px solid #ddd;padding:8px">holiday p</th>
+<th style="border:1px solid #ddd;padding:8px">payday window %</th>
+<th style="border:1px solid #ddd;padding:8px">payday p</th>
+<th style="border:1px solid #ddd;padding:8px">R²</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-434TTRDJYUDHLMVFO9E2</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 20:27:27</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 14:27:27</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">14</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-1PBPJCL67GS143UFKZGK</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 17:51:54</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 11:51:54</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">11</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-PVBA81R29SV2NFPT0KNJ</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 18:00:42</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 12:00:42</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">12</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-X0CPAO4DDTBKG4O8XFS8</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 06:33:29</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 00:33:29</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-RTJ4G9LVK5MSVHHK0ICF</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 23:18:44</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 17:18:44</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">17</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-Z6946N4HPVJ8JLZZ5EY4</td><td style="border:1px solid #ddd;padding:8px">2023-12-26 05:24:50</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 23:24:50</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">23</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-LIL1JEM7G902GT000FGJ</td><td style="border:1px solid #ddd;padding:8px">2023-12-26 00:14:22</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 18:14:22</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">18</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-4A1XFORG8PXN408PAXSL</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 20:19:46</td><td style="border:1px solid #ddd;padding:8px">2023-12-25 14:19:46</td><td style="border:1px solid #ddd;padding:8px">2023-12-25</td><td style="border:1px solid #ddd;padding:8px">14</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Navidad</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">10.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-</tbody></table></div><script>document.getElementById("itables_7827b608_e247_4331_8dce_f612699aa162")?.removeAttribute("hidden");document.getElementById("itables_7827b608_e247_4331_8dce_f612699aa162_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">local (UTC-3)</td><td style="border:1px solid #ddd;padding:8px">-30.655</td><td style="border:1px solid #ddd;padding:8px">-35.878</td><td style="border:1px solid #ddd;padding:8px">-6.783</td><td style="border:1px solid #ddd;padding:8px">-0.940</td><td style="border:1px solid #ddd;padding:8px">0.554</td><td style="border:1px solid #ddd;padding:8px">-0.683</td><td style="border:1px solid #ddd;padding:8px">0.539</td><td style="border:1px solid #ddd;padding:8px">0.785</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">business (UTC-6)</td><td style="border:1px solid #ddd;padding:8px">-39.056</td><td style="border:1px solid #ddd;padding:8px">-38.904</td><td style="border:1px solid #ddd;padding:8px">-1.627</td><td style="border:1px solid #ddd;padding:8px">-0.485</td><td style="border:1px solid #ddd;padding:8px">0.785</td><td style="border:1px solid #ddd;padding:8px">-0.677</td><td style="border:1px solid #ddd;padding:8px">0.600</td><td style="border:1px solid #ddd;padding:8px">0.776</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">local (UTC-5)</td><td style="border:1px solid #ddd;padding:8px">-36.225</td><td style="border:1px solid #ddd;padding:8px">-38.347</td><td style="border:1px solid #ddd;padding:8px">-3.181</td><td style="border:1px solid #ddd;padding:8px">-1.599</td><td style="border:1px solid #ddd;padding:8px">0.393</td><td style="border:1px solid #ddd;padding:8px">-1.512</td><td style="border:1px solid #ddd;padding:8px">0.110</td><td style="border:1px solid #ddd;padding:8px">0.788</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">business (UTC-6)</td><td style="border:1px solid #ddd;padding:8px">-38.989</td><td style="border:1px solid #ddd;padding:8px">-39.416</td><td style="border:1px solid #ddd;padding:8px">-1.518</td><td style="border:1px solid #ddd;padding:8px">-1.623</td><td style="border:1px solid #ddd;padding:8px">0.406</td><td style="border:1px solid #ddd;padding:8px">-1.639</td><td style="border:1px solid #ddd;padding:8px">0.099</td><td style="border:1px solid #ddd;padding:8px">0.786</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">local (UTC-6)</td><td style="border:1px solid #ddd;padding:8px">-38.763</td><td style="border:1px solid #ddd;padding:8px">-38.785</td><td style="border:1px solid #ddd;padding:8px">-2.118</td><td style="border:1px solid #ddd;padding:8px">1.160</td><td style="border:1px solid #ddd;padding:8px">0.598</td><td style="border:1px solid #ddd;padding:8px">-1.880</td><td style="border:1px solid #ddd;padding:8px">0.055</td><td style="border:1px solid #ddd;padding:8px">0.789</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">business (UTC-6)</td><td style="border:1px solid #ddd;padding:8px">-38.763</td><td style="border:1px solid #ddd;padding:8px">-38.785</td><td style="border:1px solid #ddd;padding:8px">-2.118</td><td style="border:1px solid #ddd;padding:8px">1.160</td><td style="border:1px solid #ddd;padding:8px">0.598</td><td style="border:1px solid #ddd;padding:8px">-1.880</td><td style="border:1px solid #ddd;padding:8px">0.055</td><td style="border:1px solid #ddd;padding:8px">0.789</td></tr>
+</tbody></table></div><script>document.getElementById("itables_e14c24a0_199e_4a27_9146_84a8af427000")?.removeAttribute("hidden");document.getElementById("itables_e14c24a0_199e_4a27_9146_84a8af427000_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_7827b608_e247_4331_8dce_f612699aa162:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_e14c24a0_199e_4a27_9146_84a8af427000:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
-          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [9]}],
-          "data_json": "[[\"TRX-434TTRDJYUDHLMVFO9E2\", \"2023-12-25 20:27:27\", \"2023-12-25 14:27:27\", \"2023-12-25\", 14, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-1PBPJCL67GS143UFKZGK\", \"2023-12-25 17:51:54\", \"2023-12-25 11:51:54\", \"2023-12-25\", 11, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-PVBA81R29SV2NFPT0KNJ\", \"2023-12-25 18:00:42\", \"2023-12-25 12:00:42\", \"2023-12-25\", 12, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-X0CPAO4DDTBKG4O8XFS8\", \"2023-12-25 06:33:29\", \"2023-12-25 00:33:29\", \"2023-12-25\", 0, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-RTJ4G9LVK5MSVHHK0ICF\", \"2023-12-25 23:18:44\", \"2023-12-25 17:18:44\", \"2023-12-25\", 17, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-Z6946N4HPVJ8JLZZ5EY4\", \"2023-12-26 05:24:50\", \"2023-12-25 23:24:50\", \"2023-12-25\", 23, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-LIL1JEM7G902GT000FGJ\", \"2023-12-26 00:14:22\", \"2023-12-25 18:14:22\", \"2023-12-25\", 18, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false], [\"TRX-4A1XFORG8PXN408PAXSL\", \"2023-12-25 20:19:46\", \"2023-12-25 14:19:46\", \"2023-12-25\", 14, 1, true, \"Navidad\", false, [\"10.0\", 10.0], false]]",
+          "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [2, 3, 4, 5, 6, 7, 8, 9]}],
+          "data_json": "[[\"AR\", \"local (UTC-3)\", [\"-30.655\", -30.655], [\"-35.878\", -35.878], [\"-6.783\", -6.783], [\"-0.940\", -0.94], [\"0.554\", 0.554], [\"-0.683\", -0.683], [\"0.539\", 0.539], [\"0.785\", 0.785]], [\"AR\", \"business (UTC-6)\", [\"-39.056\", -39.056], [\"-38.904\", -38.904], [\"-1.627\", -1.627], [\"-0.485\", -0.485], [\"0.785\", 0.785], [\"-0.677\", -0.677], [\"0.600\", 0.6], [\"0.776\", 0.776]], [\"CO\", \"local (UTC-5)\", [\"-36.225\", -36.225], [\"-38.347\", -38.347], [\"-3.181\", -3.181], [\"-1.599\", -1.599], [\"0.393\", 0.393], [\"-1.512\", -1.512], [\"0.110\", 0.11], [\"0.788\", 0.788]], [\"CO\", \"business (UTC-6)\", [\"-38.989\", -38.989], [\"-39.416\", -39.416], [\"-1.518\", -1.518], [\"-1.623\", -1.623], [\"0.406\", 0.406], [\"-1.639\", -1.639], [\"0.099\", 0.099], [\"0.786\", 0.786]], [\"MX\", \"local (UTC-6)\", [\"-38.763\", -38.763], [\"-38.785\", -38.785], [\"-2.118\", -2.118], [\"1.160\", 1.16], [\"0.598\", 0.598], [\"-1.880\", -1.88], [\"0.055\", 0.055], [\"0.789\", 0.789]], [\"MX\", \"business (UTC-6)\", [\"-38.763\", -38.763], [\"-38.785\", -38.785], [\"-2.118\", -2.118], [\"1.160\", 1.16], [\"0.598\", 0.598], [\"-1.880\", -1.88], [\"0.055\", 0.055], [\"0.789\", 0.789]]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
           "paging": false,
           "style": {"caption-side": "bottom", "margin": "auto", "table-layout": "auto", "width": "auto"},
-          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>transaction_id</th>\n      <th>transaction_ts_utc</th>\n      <th>ts_customer_local</th>\n      <th>local_date</th>\n      <th>local_hour_customer</th>\n      <th>iso_weekday</th>\n      <th>is_holiday</th>\n      <th>holiday_name</th>\n      <th>is_payday</th>\n      <th>days_since_payday</th>\n      <th>is_month_end</th>\n    </tr>\n  </thead></table>",
+          "table_html": "<table><thead>\n    <tr style=\"text-align: right;\">\n      \n      <th>market</th>\n      <th>clock</th>\n      <th>Saturday %</th>\n      <th>Sunday %</th>\n      <th>Monday vs Tue\u2013Fri %</th>\n      <th>holiday %</th>\n      <th>holiday p</th>\n      <th>payday window %</th>\n      <th>payday p</th>\n      <th>R\u00b2</th>\n    </tr>\n  </thead></table>",
           "text_in_header_can_be_selected": true
         };
         new ITable(table, dt_args);
@@ -8782,30 +8602,51 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </script>
 </div>
 </div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
+<p><strong>On the business clock the weekend is the same in every market</strong> (Saturday -39.1 % to -38.8 %, Sunday -39.4 % to -38.8 %), and the model explains more (R² 0.783 against 0.787). On the legal clocks Argentina's Saturday looked -30.7 % and its Monday -6.8 % against the other weekdays (business clock: -1.6 %): the "national" patterns the country series reported for Argentina and Colombia were <strong>three and one hours of Sunday counted as Monday</strong>. Holidays and paydays stay without effect on either clock (every holiday p &gt; 0.39): the calendar beyond the weekend is absent from the data, not hidden by the clock.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=968c1ad7">
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0b19a9b7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="Findings-for-Mexico-and-what-to-do">Findings for Mexico and what to do<a class="anchor-link" href="#Findings-for-Mexico-and-what-to-do">¶</a></h2><p>The statements computed above are this notebook's findings. Across countries: local time is a fixed offset,
-the calendar is the country's own (bank holidays included), and the regression tells which calendar effects the data
-actually contains before any model is asked to learn them.</p>
+<h2 id="What-this-means,-and-what-was-changed">What this means, and what was changed<a class="anchor-link" href="#What-this-means,-and-what-was-changed">¶</a></h2><ul>
+<li><strong>The business day is now explicit</strong> (<code>country.PROCESS_DAY_OFFSET</code>, <code>enrich_transactions(clock="business")</code>; the
+granularity day facts use <code>process_date</code>), and the country, backup-as-main and granularity notebooks that depend on
+a day boundary were re-executed on it.</li>
+<li><strong>The platform has two defects of the same kind</strong> (ADR-014; P0 items of v0.3.0 in
+<code>docs/strategy/12_development_path.md</code> §12.7):<ul>
+<li><code>transaction_ts_local</code>, <code>local_hour</code> and <code>is_weekend</code> in <code>int_transactions_enriched</code> (macro
+<code>enrich_transactions</code>) use the transaction country's legal offset, so the fraud features read Colombian and
+Argentine weekends three and one hours off. They should be derived from the delivery day.</li>
+<li>Integrity rules <strong>R15</strong> (contacts) and <strong>R16</strong> (complaints) test <code>timestamp − 6 h = process_date</code>; for these two
+processes the delivery day starts at 08:00 UTC, so their ~8 % "violations" are an artefact of the wrong offset
+(at −8 h the match is 100 %, section 2). The rules should use each process's own window start.</li>
+</ul>
+</li>
+<li><strong>For real data the question returns</strong>: the source contract must declare the clock of every timestamp and the
+window of every delivery; this scan and the <code>process_date</code> match are the tests that verify the declaration on every
+delivery.</li>
+</ul>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7b878651">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e683174a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea">
-<div class="jp-InputPrompt jp-InputArea-prompt">In [7]:</div>
+<div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">pl</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">con</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"notebook time </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">t0</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">s"</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -8819,7 +8660,7 @@ actually contains before any model is asked to learn them.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 120s
+<pre>notebook time 10s
 </pre>
 </div>
 </div>

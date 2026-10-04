@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=388ba7c9">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=664bdba9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7866,7 +7866,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=bc5706a9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs" id="cell-id=b40a1087">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7947,7 +7947,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f367b6ae">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1e1487b5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7957,7 +7957,7 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c6939ae9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cccf1cab">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7991,19 +7991,19 @@ bootstrap interval, read against the base rate (AP lift = AP / base rate; a rand
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>fraud (honest)</strong>: test AUC 0.489 [0.462, 0.517], AP 0.0009 against a base rate of 0.0009 (lift 1.00) → <strong>no evidence of signal</strong>. Most important (permutation, AUC drop): amount_usd (+0.021), channel (+0.019), amount_to_hist_max (+0.018), days_since_payday (+0.011), product_family (+0.004). The best single feature alone (<code>implied_speed_kmh</code>, either direction) reaches AUC 0.576: the model adds -0.087.</p>
+<p><strong>fraud (honest)</strong>: test AUC 0.482 [0.455, 0.510], AP 0.0009 against a base rate of 0.0009 (lift 0.95) → <strong>no evidence of signal</strong>. Most important (permutation, AUC drop): channel (+0.015), product_family (+0.012), amount_usd (+0.007), transaction_type (+0.002), days_since_payday (+0.001). The best single feature alone (<code>implied_speed_kmh</code>, either direction) reaches AUC 0.576: the model adds -0.094.</p>
 </div>
 </div>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
-<p><strong>fraud with fraud_score (leak)</strong>: test AUC 0.829 [0.805, 0.853], AP 0.5422 against a base rate of 0.0009 (lift 585.23) → <strong>learnable: build and monitor a model</strong>. Most important (permutation, AUC drop): fraud_score (+0.320), minutes_since_last_login (+0.029), days_since_payday (+0.020), amount_zscore_vs_history (+0.015), hist_tx_count (+0.015). The best single feature alone (<code>fraud_score</code>, either direction) reaches AUC 0.860: the model adds -0.031.</p>
+<p><strong>fraud with fraud_score (leak)</strong>: test AUC 0.835 [0.811, 0.859], AP 0.5430 against a base rate of 0.0009 (lift 586.06) → <strong>learnable: build and monitor a model</strong>. Most important (permutation, AUC drop): fraud_score (+0.304), days_since_payday (+0.020), hist_tx_count (+0.020), channel (+0.011), hour_deviation (+0.011). The best single feature alone (<code>fraud_score</code>, either direction) reaches AUC 0.860: the model adds -0.025.</p>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=28ab567b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4804f070">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8016,7 +8016,7 @@ active in the 180 days before it.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=597adef4">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=939d33da">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8152,7 +8152,7 @@ active in the 180 days before it.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d5d16c8e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7ef8532e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8165,7 +8165,7 @@ values; the permutation importances show whether the verdict rests on them or on
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d3aa557e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5d49972f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8176,7 +8176,7 @@ their behaviour in the 6 months <strong>before</strong> the snapshot. Split by p
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5d887af6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ff1f14ea">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8232,7 +8232,7 @@ their behaviour in the 6 months <strong>before</strong> the snapshot. Split by p
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8c9cd1b0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7a4a320e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8245,7 +8245,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c6454715">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=26a556ec">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8255,7 +8255,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=790d716a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a81663eb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8310,7 +8310,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9523c0ff">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=382bb1fc">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8322,7 +8322,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4a7e8119">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d4822867">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8332,7 +8332,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=36547a5a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b025a00d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8340,15 +8340,19 @@ reason.</p>
 <div class="jp-InputPrompt jp-InputArea-prompt">In [6]:</div>
 <div class="jp-CodeMirrorEditor jp-Editor jp-InputArea-editor" data-type="inline">
 <div class="cm-editor cm-s-jupyter">
-<div class="highlight hl-ipython3"><pre><span></span><span class="n">cx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="s2">"""</span>
+<div class="highlight hl-ipython3"><pre><span></span><span class="n">CONTACT_DAY</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">(</span>
+    <span class="s2">"MX"</span><span class="p">,</span> <span class="n">process</span><span class="o">=</span><span class="s2">"call_center_interactions"</span>
+<span class="p">)</span>  <span class="c1"># contacts' delivery day: ts − 8 h</span>
+<span class="n">cx</span> <span class="o">=</span> <span class="n">pl</span><span class="o">.</span><span class="n">q</span><span class="p">(</span><span class="sa">f</span><span class="s2">"""</span>
 <span class="s2">    select j.interaction_ts_utc, j.interaction_type, j.channel, j.contact_reason, j.duration_seconds,</span>
 <span class="s2">           j.wait_time_seconds, j.was_resolved, j.was_escalated, j.requires_followup, j.sentiment_score,</span>
 <span class="s2">           j.prior_contacts_30d, j.agent_experience_level, j.agent_type, j.accent_matched,</span>
 <span class="s2">           k.iso_weekday, k.is_holiday, j.complaint_within_14d</span>
-<span class="s2">    from </span><span class="si">{mart_cx_journey}</span><span class="s2"> j</span>
+<span class="s2">    from </span><span class="se">{{</span><span class="s2">mart_cx_journey</span><span class="se">}}</span><span class="s2"> j</span>
 <span class="s2">    left join main.customer_local cl on cl.customer_id = j.customer_id</span>
 <span class="s2">    left join main.calendar_local k</span>
-<span class="s2">      on k.country_code = cl.country_code and k.local_date = cast(j.interaction_ts_utc + to_hours(cl.utc_offset) as date)"""</span><span class="p">)</span>
+<span class="s2">      on k.country_code = cl.country_code</span>
+<span class="s2">     and k.local_date = cast(j.interaction_ts_utc + to_hours(</span><span class="si">{</span><span class="n">CONTACT_DAY</span><span class="si">}</span><span class="s2">) as date)"""</span><span class="p">)</span>
 <span class="n">XF</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">"interaction_type"</span><span class="p">,</span>
     <span class="s2">"channel"</span><span class="p">,</span>
@@ -8385,7 +8389,7 @@ reason.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a0e7c308">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9bee3f6d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8395,7 +8399,7 @@ reason.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=09f4b61e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b03a2b83">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8463,7 +8467,7 @@ reason.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_9ad0cb7f_259e_4812_9b94_6c75579e56ef">
+<table hidden="hidden" id="itables_bfb04aba_8dd2_4710_9ec1_a841f3f851a6">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8525,7 +8529,7 @@ reason.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_9ad0cb7f_259e_4812_9b94_6c75579e56ef_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_bfb04aba_8dd2_4710_9ec1_a841f3f851a6_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>country</th>
 <th style="border:1px solid #ddd;padding:8px">dataset</th>
 <th style="border:1px solid #ddd;padding:8px">name</th>
@@ -8546,26 +8550,26 @@ reason.</p>
 <th style="border:1px solid #ddd;padding:8px">split_at</th>
 <th style="border:1px solid #ddd;padding:8px">dropped_empty_features</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">fraud (honest)</td><td style="border:1px solid #ddd;padding:8px">1379421</td><td style="border:1px solid #ddd;padding:8px">459808</td><td style="border:1px solid #ddd;padding:8px">426</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.4895</td><td style="border:1px solid #ddd;padding:8px">0.4623</td><td style="border:1px solid #ddd;padding:8px">0.5167</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0008</td><td style="border:1px solid #ddd;padding:8px">0.0011</td><td style="border:1px solid #ddd;padding:8px">1.0000</td><td style="border:1px solid #ddd;padding:8px">implied_speed_kmh</td><td style="border:1px solid #ddd;padding:8px">0.5763</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2024-06-05 03:09:36</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">fraud with fraud_score (leak)</td><td style="border:1px solid #ddd;padding:8px">1379421</td><td style="border:1px solid #ddd;padding:8px">459808</td><td style="border:1px solid #ddd;padding:8px">426</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.8288</td><td style="border:1px solid #ddd;padding:8px">0.8047</td><td style="border:1px solid #ddd;padding:8px">0.8529</td><td style="border:1px solid #ddd;padding:8px">0.5422</td><td style="border:1px solid #ddd;padding:8px">0.4976</td><td style="border:1px solid #ddd;padding:8px">0.5853</td><td style="border:1px solid #ddd;padding:8px">585.2304</td><td style="border:1px solid #ddd;padding:8px">fraud_score</td><td style="border:1px solid #ddd;padding:8px">0.8602</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2024-06-05 03:09:36</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">fraud (honest)</td><td style="border:1px solid #ddd;padding:8px">1379421</td><td style="border:1px solid #ddd;padding:8px">459808</td><td style="border:1px solid #ddd;padding:8px">426</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.4825</td><td style="border:1px solid #ddd;padding:8px">0.4554</td><td style="border:1px solid #ddd;padding:8px">0.5096</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0008</td><td style="border:1px solid #ddd;padding:8px">0.0010</td><td style="border:1px solid #ddd;padding:8px">0.9462</td><td style="border:1px solid #ddd;padding:8px">implied_speed_kmh</td><td style="border:1px solid #ddd;padding:8px">0.5763</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2024-06-05 03:09:36</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">fraud with fraud_score (leak)</td><td style="border:1px solid #ddd;padding:8px">1379421</td><td style="border:1px solid #ddd;padding:8px">459808</td><td style="border:1px solid #ddd;padding:8px">426</td><td style="border:1px solid #ddd;padding:8px">0.0009</td><td style="border:1px solid #ddd;padding:8px">0.8347</td><td style="border:1px solid #ddd;padding:8px">0.8109</td><td style="border:1px solid #ddd;padding:8px">0.8585</td><td style="border:1px solid #ddd;padding:8px">0.5430</td><td style="border:1px solid #ddd;padding:8px">0.4978</td><td style="border:1px solid #ddd;padding:8px">0.5871</td><td style="border:1px solid #ddd;padding:8px">586.0559</td><td style="border:1px solid #ddd;padding:8px">fraud_score</td><td style="border:1px solid #ddd;padding:8px">0.8602</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2024-06-05 03:09:36</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">complaint in next 90 days</td><td style="border:1px solid #ddd;padding:8px">825780</td><td style="border:1px solid #ddd;padding:8px">278121</td><td style="border:1px solid #ddd;padding:8px">10153</td><td style="border:1px solid #ddd;padding:8px">0.0365</td><td style="border:1px solid #ddd;padding:8px">0.4993</td><td style="border:1px solid #ddd;padding:8px">0.4936</td><td style="border:1px solid #ddd;padding:8px">0.5050</td><td style="border:1px solid #ddd;padding:8px">0.0363</td><td style="border:1px solid #ddd;padding:8px">0.0354</td><td style="border:1px solid #ddd;padding:8px">0.0373</td><td style="border:1px solid #ddd;padding:8px">0.9942</td><td style="border:1px solid #ddd;padding:8px">events_3m</td><td style="border:1px solid #ddd;padding:8px">0.5051</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2025-10-01 00:00:00</td><td style="border:1px solid #ddd;padding:8px">sentiment_3m</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">dormant in next 90 days</td><td style="border:1px solid #ddd;padding:8px">90260</td><td style="border:1px solid #ddd;padding:8px">94161</td><td style="border:1px solid #ddd;padding:8px">12133</td><td style="border:1px solid #ddd;padding:8px">0.1289</td><td style="border:1px solid #ddd;padding:8px">0.7247</td><td style="border:1px solid #ddd;padding:8px">0.7194</td><td style="border:1px solid #ddd;padding:8px">0.7300</td><td style="border:1px solid #ddd;padding:8px">0.2433</td><td style="border:1px solid #ddd;padding:8px">0.2372</td><td style="border:1px solid #ddd;padding:8px">0.2486</td><td style="border:1px solid #ddd;padding:8px">1.8882</td><td style="border:1px solid #ddd;padding:8px">tx_6m</td><td style="border:1px solid #ddd;padding:8px">0.7248</td><td style="border:1px solid #ddd;padding:8px">learnable: build and monitor a model</td><td style="border:1px solid #ddd;padding:8px">2024-04-01 00:00:00</td><td style="border:1px solid #ddd;padding:8px">sentiment_3m</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">more than 30 days past due</td><td style="border:1px solid #ddd;padding:8px">93751</td><td style="border:1px solid #ddd;padding:8px">31302</td><td style="border:1px solid #ddd;padding:8px">3164</td><td style="border:1px solid #ddd;padding:8px">0.1011</td><td style="border:1px solid #ddd;padding:8px">0.5027</td><td style="border:1px solid #ddd;padding:8px">0.4920</td><td style="border:1px solid #ddd;padding:8px">0.5133</td><td style="border:1px solid #ddd;padding:8px">0.1015</td><td style="border:1px solid #ddd;padding:8px">0.0976</td><td style="border:1px solid #ddd;padding:8px">0.1065</td><td style="border:1px solid #ddd;padding:8px">1.0040</td><td style="border:1px solid #ddd;padding:8px">tenure_days</td><td style="border:1px solid #ddd;padding:8px">0.5082</td><td style="border:1px solid #ddd;padding:8px">no evidence of signal</td><td style="border:1px solid #ddd;padding:8px">2024-06-14 00:00:00</td><td style="border:1px solid #ddd;padding:8px"></td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">campaign conversion</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">not evaluable (no rows)</td><td style="border:1px solid #ddd;padding:8px">NaT</td><td style="border:1px solid #ddd;padding:8px">send_channel, campaign_objective, promoted_product, target_segment, segment, segment_match, prior_sends_7d, prior_sends_30d, accepts_marketing_current, already_held_promoted_product, send_cost, iso_weekday, is_holiday, is_payday, days_since_payday, is_month_end</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">ALL</td><td style="border:1px solid #ddd;padding:8px">backup</td><td style="border:1px solid #ddd;padding:8px">complaint within 14 days of a contact</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">NaN</td><td style="border:1px solid #ddd;padding:8px">not evaluable (no rows)</td><td style="border:1px solid #ddd;padding:8px">NaT</td><td style="border:1px solid #ddd;padding:8px">interaction_type, channel, contact_reason, duration_seconds, wait_time_seconds, was_resolved, was_escalated, requires_followup, sentiment_score, prior_contacts_30d, agent_experience_level, agent_type, accent_matched, iso_weekday, is_holiday</td></tr>
-</tbody></table></div><script>document.getElementById("itables_9ad0cb7f_259e_4812_9b94_6c75579e56ef")?.removeAttribute("hidden");document.getElementById("itables_9ad0cb7f_259e_4812_9b94_6c75579e56ef_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_bfb04aba_8dd2_4710_9ec1_a841f3f851a6")?.removeAttribute("hidden");document.getElementById("itables_bfb04aba_8dd2_4710_9ec1_a841f3f851a6_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_9ad0cb7f_259e_4812_9b94_6c75579e56ef:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_bfb04aba_8dd2_4710_9ec1_a841f3f851a6:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [6, 7, 8, 9, 10, 11, 12, 13, 15]}],
-          "data_json": "[[\"ALL\", \"backup\", \"fraud (honest)\", 1379421, 459808, 426, [\"0.0009\", 0.0009], [\"0.4895\", 0.4895], [\"0.4623\", 0.4623], [\"0.5167\", 0.5167], [\"0.0009\", 0.0009], [\"0.0008\", 0.0008], [\"0.0011\", 0.0011], [\"1.0000\", 1.0], \"implied_speed_kmh\", [\"0.5763\", 0.5763], \"no evidence of signal\", \"2024-06-05 03:09:36\", \"\"], [\"ALL\", \"backup\", \"fraud with fraud_score (leak)\", 1379421, 459808, 426, [\"0.0009\", 0.0009], [\"0.8288\", 0.8288], [\"0.8047\", 0.8047], [\"0.8529\", 0.8529], [\"0.5422\", 0.5422], [\"0.4976\", 0.4976], [\"0.5853\", 0.5853], [\"585.2304\", 585.2304], \"fraud_score\", [\"0.8602\", 0.8602], \"learnable: build and monitor a model\", \"2024-06-05 03:09:36\", \"\"], [\"ALL\", \"backup\", \"complaint in next 90 days\", 825780, 278121, 10153, [\"0.0365\", 0.0365], [\"0.4993\", 0.4993], [\"0.4936\", 0.4936], [\"0.5050\", 0.505], [\"0.0363\", 0.0363], [\"0.0354\", 0.0354], [\"0.0373\", 0.0373], [\"0.9942\", 0.9942], \"events_3m\", [\"0.5051\", 0.5051], \"no evidence of signal\", \"2025-10-01 00:00:00\", \"sentiment_3m\"], [\"ALL\", \"backup\", \"dormant in next 90 days\", 90260, 94161, 12133, [\"0.1289\", 0.1289], [\"0.7247\", 0.7247], [\"0.7194\", 0.7194], [\"0.7300\", 0.73], [\"0.2433\", 0.2433], [\"0.2372\", 0.2372], [\"0.2486\", 0.2486], [\"1.8882\", 1.8882], \"tx_6m\", [\"0.7248\", 0.7248], \"learnable: build and monitor a model\", \"2024-04-01 00:00:00\", \"sentiment_3m\"], [\"ALL\", \"backup\", \"more than 30 days past due\", 93751, 31302, 3164, [\"0.1011\", 0.1011], [\"0.5027\", 0.5027], [\"0.4920\", 0.492], [\"0.5133\", 0.5133], [\"0.1015\", 0.1015], [\"0.0976\", 0.0976], [\"0.1065\", 0.1065], [\"1.0040\", 1.004], \"tenure_days\", [\"0.5082\", 0.5082], \"no evidence of signal\", \"2024-06-14 00:00:00\", \"\"], [\"ALL\", \"backup\", \"campaign conversion\", 0, 0, 0, [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], \"NaN\", [\"NaN\", \"___NaN___\"], \"not evaluable (no rows)\", \"NaT\", \"send_channel, campaign_objective, promoted_product, target_segment, segment, segment_match, prior_sends_7d, prior_sends_30d, accepts_marketing_current, already_held_promoted_product, send_cost, iso_weekday, is_holiday, is_payday, days_since_payday, is_month_end\"], [\"ALL\", \"backup\", \"complaint within 14 days of a contact\", 0, 0, 0, [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], \"NaN\", [\"NaN\", \"___NaN___\"], \"not evaluable (no rows)\", \"NaT\", \"interaction_type, channel, contact_reason, duration_seconds, wait_time_seconds, was_resolved, was_escalated, requires_followup, sentiment_score, prior_contacts_30d, agent_experience_level, agent_type, accent_matched, iso_weekday, is_holiday\"]]",
+          "data_json": "[[\"ALL\", \"backup\", \"fraud (honest)\", 1379421, 459808, 426, [\"0.0009\", 0.0009], [\"0.4825\", 0.4825], [\"0.4554\", 0.4554], [\"0.5096\", 0.5096], [\"0.0009\", 0.0009], [\"0.0008\", 0.0008], [\"0.0010\", 0.001], [\"0.9462\", 0.9462], \"implied_speed_kmh\", [\"0.5763\", 0.5763], \"no evidence of signal\", \"2024-06-05 03:09:36\", \"\"], [\"ALL\", \"backup\", \"fraud with fraud_score (leak)\", 1379421, 459808, 426, [\"0.0009\", 0.0009], [\"0.8347\", 0.8347], [\"0.8109\", 0.8109], [\"0.8585\", 0.8585], [\"0.5430\", 0.543], [\"0.4978\", 0.4978], [\"0.5871\", 0.5871], [\"586.0559\", 586.0559], \"fraud_score\", [\"0.8602\", 0.8602], \"learnable: build and monitor a model\", \"2024-06-05 03:09:36\", \"\"], [\"ALL\", \"backup\", \"complaint in next 90 days\", 825780, 278121, 10153, [\"0.0365\", 0.0365], [\"0.4993\", 0.4993], [\"0.4936\", 0.4936], [\"0.5050\", 0.505], [\"0.0363\", 0.0363], [\"0.0354\", 0.0354], [\"0.0373\", 0.0373], [\"0.9942\", 0.9942], \"events_3m\", [\"0.5051\", 0.5051], \"no evidence of signal\", \"2025-10-01 00:00:00\", \"sentiment_3m\"], [\"ALL\", \"backup\", \"dormant in next 90 days\", 90260, 94161, 12133, [\"0.1289\", 0.1289], [\"0.7247\", 0.7247], [\"0.7194\", 0.7194], [\"0.7300\", 0.73], [\"0.2433\", 0.2433], [\"0.2372\", 0.2372], [\"0.2486\", 0.2486], [\"1.8882\", 1.8882], \"tx_6m\", [\"0.7248\", 0.7248], \"learnable: build and monitor a model\", \"2024-04-01 00:00:00\", \"sentiment_3m\"], [\"ALL\", \"backup\", \"more than 30 days past due\", 93751, 31302, 3164, [\"0.1011\", 0.1011], [\"0.5027\", 0.5027], [\"0.4920\", 0.492], [\"0.5133\", 0.5133], [\"0.1015\", 0.1015], [\"0.0976\", 0.0976], [\"0.1065\", 0.1065], [\"1.0040\", 1.004], \"tenure_days\", [\"0.5082\", 0.5082], \"no evidence of signal\", \"2024-06-14 00:00:00\", \"\"], [\"ALL\", \"backup\", \"campaign conversion\", 0, 0, 0, [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], \"NaN\", [\"NaN\", \"___NaN___\"], \"not evaluable (no rows)\", \"NaT\", \"send_channel, campaign_objective, promoted_product, target_segment, segment, segment_match, prior_sends_7d, prior_sends_30d, accepts_marketing_current, already_held_promoted_product, send_cost, iso_weekday, is_holiday, is_payday, days_since_payday, is_month_end\"], [\"ALL\", \"backup\", \"complaint within 14 days of a contact\", 0, 0, 0, [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], [\"NaN\", \"___NaN___\"], \"NaN\", [\"NaN\", \"___NaN___\"], \"not evaluable (no rows)\", \"NaT\", \"interaction_type, channel, contact_reason, duration_seconds, wait_time_seconds, was_resolved, was_escalated, requires_followup, sentiment_score, prior_contacts_30d, agent_experience_level, agent_type, accent_matched, iso_weekday, is_holiday\"]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
@@ -8593,9 +8597,9 @@ reason.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:380px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="483028f6-c0f4-4ce5-983c-9eb27d32d438" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("483028f6-c0f4-4ce5-983c-9eb27d32d438")) {                    Plotly.newPlot(                        "483028f6-c0f4-4ce5-983c-9eb27d32d438",                        [{"error_x":{"array":{"dtype":"f8","bdata":"ACsHPC3hmz\u002fAKo1WTamYP4DooSHja3c\u002fgIgAhdLjdT\u002fApPMzKcKFPw=="},"arrayminus":{"dtype":"f8","bdata":"ACsHPC3hmz\u002fAKo1WTamYP0DooSHja3c\u002fgIgAhdLjdT\u002fApPMzKcKFPw=="},"symmetric":false,"type":"data"},"marker":{"size":10},"mode":"markers","x":{"dtype":"f8","bdata":"1EyfNNZT3z9KWs1+tIXqP5C5cRBi9N8\u002fx4GXjrQw5z\u002fmJ9t7uRXgPw=="},"y":["fraud (honest)","fraud with fraud_score (leak)","complaint in next 90 days","dormant in next 90 days","more than 30 days past due"],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0.5,"x1":0.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"xaxis":{"range":[0.3,1.0]},"title":{"text":"The whole bank: out-of-time test AUC per candidate target (95 % CI)"},"height":380,"yaxis":{"title":{}}},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="7ff23653-bbaa-4172-83cf-7d13f2cc164c" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("7ff23653-bbaa-4172-83cf-7d13f2cc164c")) {                    Plotly.newPlot(                        "7ff23653-bbaa-4172-83cf-7d13f2cc164c",                        [{"error_x":{"array":{"dtype":"f8","bdata":"0GzU9Ou7mz8AKg1rbF2YP4DooSHja3c\u002fgIgAhdLjdT\u002fApPMzKcKFPw=="},"arrayminus":{"dtype":"f8","bdata":"4GzU9Ou7mz8AKg1rbF2YP0DooSHja3c\u002fgIgAhdLjdT\u002fApPMzKcKFPw=="},"symmetric":false,"type":"data"},"marker":{"size":10},"mode":"markers","x":{"dtype":"f8","bdata":"1wvLcRPh3j8i9c61KbbqP5C5cRBi9N8\u002fx4GXjrQw5z\u002fmJ9t7uRXgPw=="},"y":["fraud (honest)","fraud with fraud_score (leak)","complaint in next 90 days","dormant in next 90 days","more than 30 days past due"],"type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0.5,"x1":0.5,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"xaxis":{"range":[0.3,1.0]},"title":{"text":"The whole bank: out-of-time test AUC per candidate target (95 % CI)"},"height":380,"yaxis":{"title":{}}},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('483028f6-c0f4-4ce5-983c-9eb27d32d438');
+var gd = document.getElementById('7ff23653-bbaa-4172-83cf-7d13f2cc164c');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8623,7 +8627,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d305fc8e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=08728e4b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8641,7 +8645,7 @@ champion–challenger rollout. A moderate one gets more data before a model.</li
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=668bdb6c">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=dad3484e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8686,7 +8690,7 @@ champion–challenger rollout. A moderate one gets more data before a model.</li
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 151s
+<pre>notebook time 96s
 </pre>
 </div>
 </div>
