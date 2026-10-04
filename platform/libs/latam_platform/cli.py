@@ -115,7 +115,10 @@ def cmd_lake_init(_args) -> list[str]:
     ]
     for d in dirs:
         d.mkdir(parents=True, exist_ok=True)
-    return [str(d) for d in dirs]
+    from latam_platform import dq_corrections
+
+    dq_corrections.ensure_log()  # the correction log readers need, even before any correction
+    return [str(d) for d in dirs] + [str(dq_corrections.root())]
 
 
 def main() -> None:
