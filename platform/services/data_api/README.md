@@ -37,6 +37,8 @@ detail and no connection string.
 | `/health` | `ok`, `service`. Does not open a database connection. |
 | `/serving/publications` | Rows from `serving.publication_log`: `table`, `rows`, `digest`, `run_id`, `published_at`. |
 | `/serving/tables` | Each base table in `serving`, `online_features`, and `decisions`, with its row count. |
+| `/knowledge/documents` | From `kb.active_chunk`: `doc_id`, `version`, `title`, `classification`, `chunk_count`. |
+| `/knowledge/active-set` | `active_set_hash` (sha256 of the sorted chunk ids, same digest as `copilot.kb.active_set_hash`) and `chunk_count`. |
 
 ## Tests
 

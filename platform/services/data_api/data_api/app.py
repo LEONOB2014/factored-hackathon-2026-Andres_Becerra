@@ -41,6 +41,14 @@ def create_app(store: Any = None) -> FastAPI:
     def tables() -> dict:
         return {"tables": _call(app.state.store.tables)}
 
+    @app.get("/knowledge/documents")
+    def documents() -> dict:
+        return {"documents": _call(app.state.store.documents)}
+
+    @app.get("/knowledge/active-set")
+    def active_set() -> dict:
+        return _call(app.state.store.active_set)
+
     return app
 
 
