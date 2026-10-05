@@ -1,0 +1,61 @@
+grain,target,kind,train_rows,test_rows,test_positives,base_rate,metric,value,ci_low,ci_high,baseline,p_value,best_single_feature,best_single_value,verdict,note,source,significant (FDR 5 %),p_adjusted,actionable
+customer × month,dormant next month (active now),classification,300249.0,119802.0,46423.0,0.3874977045458339,AUC,0.6776110680158896,0.6744345834742416,0.6807875525575375,0.5,0.0,tx_6m,0.6575261515544699,"weak signal: rules, not models",,customer_month,True,0.0,True
+customer × month,contacts the bank next month,classification,635460.0,211820.0,25406.0,0.1199414597299594,AUC,0.5018233589215866,0.4980359698286672,0.5056107480145059,0.5,0.172686834332448,sends_3m,0.5030394039072966,no evidence of signal,,customer_month,False,0.3837485207387733,False
+customer × month,complains next month,classification,635460.0,211820.0,2588.0,0.0122179208762156,AUC,0.5030579920439735,0.4918454037405784,0.5142705803473686,0.5,0.2964812939816457,sessions_3m,0.5073710829220552,no evidence of signal,,customer_month,False,0.5559024262155856,False
+customer × month,adopts digital next month (no session in 3 months),classification,272437.0,106046.0,25165.0,0.23730267996907,AUC,0.4984119121239145,0.4943301420961801,0.5024936821516489,0.5,0.7771412917736391,age_years,0.5029680630139272,no evidence of signal,,customer_month,False,1.0,False
+customer × month,converts next month (when sent a campaign),classification,176873.0,59190.0,386.0,0.0065213718533536,AUC,0.481837705869644,0.4533150087977798,0.5103604029415082,0.5,0.8939958372839405,tenure_days,0.554166660792523,no evidence of signal,,customer_month,False,1.0,False
+customer × month,contacts next month (count),count,635460.0,211820.0,,,deviance explained %,-0.005155567194448,,,,0.0107209807502157,negative binomial,,no gain over the run rate,,customer_month,False,0.06178583127257346,False
+customer (lifetime),time to first 90-day lapse,survival,94377.0,40138.0,27697.0,0.6900443470028402,concordance,0.7049886991626537,0.7020698682254802,0.7079835609866459,0.5,0.0,tx_first3,,learnable: rank customers by lapse risk,,customer,True,0.0,True
+market × day (AR),n_tx,forecast,,,,,MASE,0.6677487995867685,,,0.8897921309822805,0.0129296010046259,calendar regression,,forecastable: beats seasonal naive,,day,False,0.06464800502312949,False
+market × day (AR),outflow_usd,forecast,,,,,MASE,0.7186317978448677,,,0.967410180931593,0.015136205264833,boosting,,forecastable: beats seasonal naive,,day,False,0.06552437742345986,False
+market × day (AR),contacts,forecast,,,,,MASE,0.6941620957252652,,,0.9493023541019796,0.0032832847778669,calendar regression,,forecastable: beats seasonal naive,,day,True,0.02462463583400175,True
+market × day (AR),complaints_opened,forecast,,,,,MASE,0.7511992886630917,,,0.7940743684148439,0.3275908939810391,calendar regression,,no gain over seasonal naive,,day,False,0.5956198072382528,False
+market × day (AR),digital_errors,forecast,,,,,MASE,0.957551914907686,,,1.0888279883381924,0.1115856177576038,calendar regression,,no gain over seasonal naive,,day,False,0.367358719041144,False
+market × day (AR),sessions,forecast,,,,,MASE,0.9396187130269096,,,1.0470421667083656,0.1707290043422073,calendar regression,,no gain over seasonal naive,,day,False,0.3837485207387733,False
+market × day (CO),n_tx,forecast,,,,,MASE,0.7693255738225471,,,1.0254385226852218,0.0040845474737871,calendar regression,,forecastable: beats seasonal naive,,day,True,0.027230316491914,True
+market × day (CO),outflow_usd,forecast,,,,,MASE,0.7420275999640549,,,1.0121275119432205,0.0026676872999425,calendar regression,,forecastable: beats seasonal naive,,day,True,0.022865891142364283,True
+market × day (CO),contacts,forecast,,,,,MASE,0.845717714288334,,,0.9585554086212076,0.1704653765329806,calendar regression,,no gain over seasonal naive,,day,False,0.3837485207387733,False
+market × day (CO),complaints_opened,forecast,,,,,MASE,0.6523189611232129,,,0.8679248948508484,0.0152890213988073,calendar regression,,forecastable: beats seasonal naive,,day,False,0.06552437742345986,False
+market × day (CO),digital_errors,forecast,,,,,MASE,0.9006378304112242,,,1.0469694124623217,0.0636822711281309,boosting,,no gain over seasonal naive,,day,False,0.23880851673049086,False
+market × day (CO),sessions,forecast,,,,,MASE,0.889531407581191,,,0.979817710211748,0.191364235655026,SARIMAX,,no gain over seasonal naive,,day,False,0.3959260048035021,False
+market × day (MX),n_tx,forecast,,,,,MASE,0.7645427932933532,,,0.9913105818285431,0.0113274023999718,calendar regression,,forecastable: beats seasonal naive,,day,False,0.06178583127257346,False
+market × day (MX),outflow_usd,forecast,,,,,MASE,0.8005794432885089,,,0.9654834461786354,0.0392906078558977,calendar regression,,no gain over seasonal naive,,day,False,0.1571624314235908,False
+market × day (MX),contacts,forecast,,,,,MASE,0.8306100335923983,,,0.9739585907002026,0.1163302610296956,calendar regression,,no gain over seasonal naive,,day,False,0.367358719041144,False
+market × day (MX),complaints_opened,forecast,,,,,MASE,0.7597382946800738,,,0.8799107142857144,0.1398898451336025,calendar regression,,no gain over seasonal naive,,day,False,0.3837485207387733,False
+market × day (MX),digital_errors,forecast,,,,,MASE,0.9051121877880453,,,1.0019338959944653,0.1659553611918849,calendar regression,,no gain over seasonal naive,,day,False,0.3837485207387733,False
+market × day (MX),sessions,forecast,,,,,MASE,0.8829963070367344,,,0.9885255618980784,0.1487029366433656,SARIMAX,,no gain over seasonal naive,,day,False,0.3837485207387733,False
+branch × day,cash withdrawn (USD),forecast,,,,,MASE,0.7740502223576387,,,1.0180014176996708,1.9550824099452172e-195,boosting,,forecastable: beats seasonal naive,median MASE over 350 branches,branch,True,2.9326236149178257e-194,True
+complaint case,SLA breached (at assignment),classification,32033.0,10678.0,2144.0,0.2007866641693201,AUC,0.5068638691502646,0.4931589024956294,0.5205688358048998,0.5,0.163141492612197,subcategory,0.5080472372029052,no evidence of signal,,contact,False,0.3837485207387733,False
+complaint case,time to resolution,survival,,,,,concordance (in-sample),0.5086750240088004,,,0.5,1.0,,,no evidence of signal,,contact,False,1.0,False
+product × month,product dormant next 3 months (used now),classification,163793.0,57566.0,19560.0,0.3397839002188792,AUC,0.5022438517941468,0.4972625315224473,0.5072251720658462,0.5,0.188648305788757,product_family,0.5052078319191233,no evidence of signal,,product,False,0.3959260048035021,False
+product × month,credit product more than 30 days past due (payment history),classification,92412.0,30819.0,3048.0,0.0989000292027645,AUC,0.5015395055606167,0.4907342940894703,0.512344717031763,0.5,0.3900238029983284,outflow_6m,0.5109827624712083,no evidence of signal,,product,False,0.6882772994088148,False
+product × month,"… adding current utilisation (same-moment, partly caused by delinquency)",classification,92412.0,30819.0,3048.0,0.0989000292027645,AUC,0.5004681201268227,0.4896690344308703,0.5112672058227752,0.5,0.4661456705962116,outflow_6m,0.5109827624712083,no evidence of signal,,product,False,0.7360194798887552,False
+category × month,spend mix shift (AR),test,,,,,PSI,0.0001286275164981,,,0.1,0.0775882224349914,,,stable mix,,marketing,False,0.2738407850646756,False
+category × month,spend mix shift (CO),test,,,,,PSI,0.0005159044796809,,,0.1,0.6785270511275088,,,stable mix,,marketing,False,0.9467819318058263,False
+category × month,spend mix shift (MX),test,,,,,PSI,0.0001800041260954,,,0.1,0.4243309652780526,,,stable mix,,marketing,False,0.7053761157211712,False
+category × month,decline rate differs by category,test,,,,,chi2,7.125116512558298,,,,0.2115003040690185,,,same rate in every category,,marketing,False,0.423000608138037,False
+campaign × day,campaigns differ in conversion,test,,,,,chi2,3254.430555460024,,,,0.0,,,campaigns differ,,marketing,True,0.0,True
+campaign × day,campaign conversion from launch attributes,model,154.0,,,,out-of-fold Spearman,0.8653177865595041,,,0.0,9.46130424707491e-48,campaign_type,,learnable: rank campaigns before launch,,marketing,True,9.46130424707491e-47,True
+campaign × day,contact fatigue (prior sends lower conversion),test,,,,,logit slope per prior send,0.027943691063426,,,,0.7835485154713754,,,no fatigue effect,,marketing,False,1.0,False
+customer × month,early warning: digital error → contact,association,,,,,relative risk,1.003,0.992,1.015,1.0,0.600312011990564,,,no material association,,lifts,False,0.866346699480419,False
+customer × month,early warning: unresolved contact → complaint,association,,,,,relative risk,1.035,0.988,1.083,1.0,0.1457075966426087,,,no material association,,lifts,False,0.3837485207387733,False
+customer × month,early warning: complaint → dormant,association,,,,,relative risk,1.006,0.992,1.02,1.0,0.4088459203304937,,,no material association,,lifts,False,0.7008787205665606,False
+customer × month,early warning: declined for funds → dormant,association,,,,,relative risk,0.908,0.899,0.917,1.0,1.8161005012000516e-87,,,no material association,,lifts,True,2.179320601440062e-86,False
+customer × month,early warning: 3+ campaign sends → dormant,association,,,,,relative risk,0.996,0.973,1.019,1.0,0.7357856137002643,,,no material association,,lifts,False,1.0,False
+customer × month,early warning: conversion → more activity,association,,,,,relative risk,0.975,0.884,1.074,1.0,0.6064426896362932,,,no material association,,lifts,False,0.866346699480419,False
+customer × month,early warning: escalated contact → dormant,association,,,,,relative risk,1.005,0.991,1.019,1.0,0.528215455546186,,,no material association,,lifts,False,0.8126391623787477,False
+market × day (AR),Granger: digital_errors → contacts,association,,,,,best lag (days),1.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (AR),Granger: contacts → complaints_opened,association,,,,,best lag (days),2.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (AR),Granger: n_declined → contacts,association,,,,,best lag (days),7.0,,,,0.5418618396287935,,,no lead,,granger,False,0.8127927594431903,False
+market × day (AR),Granger: sends → n_tx,association,,,,,best lag (days),3.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (AR),Granger: escalations → complaints_opened,association,,,,,best lag (days),2.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (CO),Granger: digital_errors → contacts,association,,,,,best lag (days),1.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (CO),Granger: contacts → complaints_opened,association,,,,,best lag (days),3.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (CO),Granger: n_declined → contacts,association,,,,,best lag (days),1.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (CO),Granger: sends → n_tx,association,,,,,best lag (days),5.0,,,,0.43498193802805557,,,no lead,,granger,False,0.7053761157211712,False
+market × day (CO),Granger: escalations → complaints_opened,association,,,,,best lag (days),1.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (MX),Granger: digital_errors → contacts,association,,,,,best lag (days),1.0,,,,0.8864840236477051,,,no lead,,granger,False,1.0,False
+market × day (MX),Granger: contacts → complaints_opened,association,,,,,best lag (days),1.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (MX),Granger: n_declined → contacts,association,,,,,best lag (days),2.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (MX),Granger: sends → n_tx,association,,,,,best lag (days),2.0,,,,1.0,,,no lead,,granger,False,1.0,False
+market × day (MX),Granger: escalations → complaints_opened,association,,,,,best lag (days),2.0,,,,0.23859995569330408,,,no lead,,granger,False,0.4618063658580079,False

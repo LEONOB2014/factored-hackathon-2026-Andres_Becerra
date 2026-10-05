@@ -1,0 +1,4 @@
+scenario,test,statistic,p_value,effect,n,reading
+07 session and send,send-to-open delay is uniform over the window (KS),0.0009587388652549933,0.777465000711808,0.0009587388652549933,472552,uniform delay
+07 session and send,opens happen at a preferred hour of day,24.10885574497621,0.39780123659481154,0.007142717871879587,472552,flat
+07 session and send,open within 24 h depends on the send hour,23.160155498107923,0.4514516849330348,0.004349298190579581,1224343,flat

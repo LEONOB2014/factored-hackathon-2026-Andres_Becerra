@@ -166,13 +166,14 @@ show(lrn.pivot_table(index="name", columns="country", values="ap_lift").round(2)
 # ## 7 · Synthesis
 # ### What is common: the generator draws one bank and relabels it three times
 # * **Behaviour is identical.** 0.79–0.80 transactions per customer-month, a median transaction of 466–467 USD and a
-#   median income of 2,280–2,304 USD in every country; weekends 31–39 % below weekdays; **no** holiday, payday,
-#   month-end, long-weekend or bonus-month effect significant at 1 % anywhere; no abnormal day, no change point and a
-#   largest monthly PSI below 0.005 in three years. The countries differ in labels (currency, calendar, regulator),
-#   not in behaviour. Pooled over the whole bank (three times the days, `country_all`), the three days after a payday
-#   come out 1.6 % *quieter* (p = 0.005): an effect too small for any single country to resolve, in the opposite
-#   direction to a real payday, and absent from the backup (`dataset_compare`). Treat it as unconfirmed. Only one small national pattern survives: Argentine Mondays are about 7 % quieter than its other
-#   weekdays (2–3 % elsewhere).
+#   median income of 2,280–2,304 USD in every country; weekends 39 % below weekdays in every country, measured on the
+#   delivery day (`process_date`, the timestamp −6 h in every market; ADR-014); **no** holiday, payday, month-end,
+#   long-weekend or bonus-month effect significant at 1 % anywhere; no abnormal day, no change point and a largest
+#   monthly PSI below 0.005 in three years. The countries differ in labels (currency, calendar, regulator), not in
+#   behaviour. Pooled over the whole bank (`country_all`), the three days after a payday come out 1.3 % quieter
+#   (p = 0.03, not significant at 1 %), and the backup shows no such dip (`dataset_compare`). Measured on each
+#   country's legal time instead, Colombia's and Argentina's weekends looked weaker and Argentine Mondays looked about
+#   7 % quieter: both were artefacts of the wrong clock (`granularity_time/01`), and no national pattern remains.
 # * **The learnability map is identical.** In all three countries, out of time:
 #   * **dormancy in the next 90 days is learnable** (AUC 0.72–0.73, AP about 1.9× the base rate), but the
 #     transaction count of the previous six months **alone** reaches 0.72–0.73: the "model" is the customer's own

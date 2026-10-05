@@ -15,3 +15,4 @@
 | [ADR-011](ADR-011.md) | Country-keyed configuration, one code base |
 | [ADR-012](ADR-012.md) | Evidence-gated model portfolio |
 | [ADR-013](ADR-013.md) | Data completeness and dataset identity controls |
+| [ADR-014](ADR-014.md) | Timestamps carry an explicit clock |

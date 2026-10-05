@@ -1,0 +1,12 @@
+KPI,definition,grain,owner,target,kind
+delivery-day conformance,share of rows whose timestamp + declared offset = process_date,process × day,data platform,≥ 99.5 %,deterministic
+clock drift,best shift of the hour × weekday scan per process and month,process × month,data platform,equal to the declared offset,deterministic
+teller transactions outside schedule,teller transactions in hours the branch is closed / teller transactions,branch × day,branch operations,≈ 0 % (today 59 %),deterministic
+shift adherence,contacts inside the agent's rostered hours / contacts,agent × day,workforce management,≥ 95 % (today 33 %),"deterministic, needs rosters"
+occupancy,handle time / logged-in time per interval,agent × hour,workforce management,75–85 %,needs agent state logs
+required vs rostered agents,Erlang C agents for the interval's arrivals minus rostered agents,queue × hour,workforce management,≥ 0 in every interval,"deterministic, needs rosters"
+hourly volume alert rate,channel-hours outside Poisson (small) or negative-binomial (large) limits,market × channel × hour,operations,≈ 0.1 %,deterministic
+time to first response (business hours),Kaplan–Meier median of business hours to first response,country × case type × week,"complaints, compliance",within the regulatory deadline,deterministic
+regulatory breach rate,"cases past their country's business-day deadline, recomputed from the clock",country × case type × month,compliance,0 %,deterministic
+send-to-open delay,"median hours from send to open, tracked channels",campaign × channel,marketing technology,monitor,deterministic
+model readiness,share of hour models with a green gate,series × quarter,data office,rises as audit items land,this series

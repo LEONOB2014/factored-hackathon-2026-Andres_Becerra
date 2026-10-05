@@ -21,6 +21,9 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/backup_{all,mx,co,ar}/` | Backup-as-main series: the same template on `data_backup_20260831` treated as the production source | yes |
 | `notebooks/country_compare/` | The three country series side by side | yes |
 | `notebooks/dataset_compare/` | Main against the backup run as main, per scope | yes |
+| `notebooks/granularity/` | Granularity experiment: the star re-grained (customer, day, branch, agent, product, campaign, case) and judged grain by grain | yes |
+| `notebooks/granularity_time/` | Granularity series II: the clock each process runs on, the hour grain, sub-day sequences, and the campaign decision cell with an allocation replay | yes |
+| `notebooks/granularity_hour/` | Granularity series III: every fact table at the hour, the hour star and its dimensions, every candidate model executed and gated, and the data-collection audit | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -134,15 +137,15 @@ Personal data and free text are masked in every displayed table (`Pipeline.safe`
 The platform rebuilt once per country, on a lossless country subset of the lake (`src/latam_eda/country.py`:
 customers by country, everything they own by `customer_id`, anonymous digital events by IP country, reference data
 shared), with every decision taken on that country's data: contract baselines re-estimated on a 180-day reference
-window, local time and the country's calendar (bank holidays, paydays, month end, bonus months), per-currency
-statistics, country SLOs, anomaly and change-point detection, and an out-of-time learnability test of seven candidate
-targets.
+window, the business day (the delivery-day clock, ADR-014) and the country's calendar (bank holidays, paydays, month
+end, bonus months), per-currency statistics, country SLOs, anomaly and change-point detection, and an out-of-time
+learnability test of seven candidate targets.
 
 The series are **generated** from one template so their method cannot drift apart: edit
 `notebooks/country_template/`, never the generated folders (a test checks they match). The template has two
 dimensions, eight series:
 
-* **scope**: `ALL` (the whole bank, no cut; local time and calendar per customer's country, country fixed effects in
+* **scope**: `ALL` (the whole bank, no cut; calendar per customer's country, country fixed effects in
   the calendar regression) or one country (`MX`, `CO`, `AR`);
 * **dataset**: `main` (folders `country_*`) or `backup` (folders `backup_*`): `data_backup_20260831` run **as if it
   were main**. `country.build_backup_lake` lays the backup's lossless bronze out as a main lake in
@@ -160,7 +163,7 @@ notebooks read only those tables.
 | 01 | Country scope: how the lake is cut, currencies, what is shared |
 | 02 | Bronze → typed: the country's contract findings and emptiness |
 | 03 | Global versus country contract; reference-window baselines; noise-aware drift; PSI stability |
-| 04 | Local time and the country calendar; what the calendar explains (regression with CIs) |
+| 04 | The business day and the country calendar; what the calendar explains (regression with CIs) |
 | 05 | Currency, conversion, imputation, incomes, the monthly grid |
 | 06 | Snapshots and the gold core |
 | 07 | Service marts; the country's regulatory clock for disputes |
@@ -186,6 +189,95 @@ done
 Each scope needs `uv sync` in `platform/` and builds its lake and lakehouse in `data/tmp/<dataset>/<scope>/` (main:
 about 5.5 GB for the whole bank, 3.9 GB for Mexico, 2.5 GB for Colombia, 1.8 GB for Argentina; the backup is smaller);
 run one scope at a time and delete its folder when done. `LATAM_SCOPE_DIR` moves the scratch elsewhere.
+
+### Granularity experiment (`notebooks/granularity/`)
+
+The platform re-grained to the units a bank decides on, and judged grain by grain. An aggregate star of 17 models
+(`src/latam_eda/granularity_sql/*.sql`, dbt-style SQL with `{ref}` placeholders, built by
+`latam_eda.granularity.Star` on top of the gold layer of the whole-bank scratch lakehouse) declares its grain,
+additive reconciliation and dense-grid contracts in each file's header; `Star.check()` tests all three.
+
+| # | Grain | Question |
+|---|---|---|
+| 01 | all | bus matrix, the aggregate star, its 43 checks, zero inflation and overdispersion per grain |
+| 02 | customer × month | activity Markov chain, cohorts, cross-process early warnings, five next-month targets, a contact count model |
+| 03 | customer (lifetime) | value concentration, RFM, landmark survival to the first 90-day lapse (Kaplan–Meier, Cox), value proxy |
+| 04 | market × day, channel × day | rolling-origin forecasts (seasonal naive, calendar regression, SARIMAX, boosting), Granger tests, control charts |
+| 05 | branch × day | cash demand, branch forecasts, hierarchy (bottom-up vs top-down), newsvendor cash policy |
+| 06 | agent × day, complaint case | Erlang C staffing, reliability of agent KPIs, accent fairness, censored case survival, SLA-breach classifier |
+| 07 | product × month | portfolio activity, vintage curves, why roll rates are impossible, product dormancy, delinquency from payments |
+| 08 | category × month, campaign × day | spend mix, campaign funnel and ROI with intervals, campaign heterogeneity, time to convert, fatigue |
+| 09 | synthesis | ecological fallacy, information by grain, every test under Benjamini–Hochberg, KPI catalogue, opportunities, downstream impact, promotion decision |
+
+```bash
+for nb in notebooks/granularity/0[1-9]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/granularity"; done
+```
+
+The series uses the whole-bank scratch lakehouse (`data/tmp/main/all`, about 6 GB with the aggregates); delete it
+when done.
+
+### Granularity series II (`notebooks/granularity_time/`)
+
+Re-graining in time (the hour, the sub-day sequence) and to the unit marketing allocates budget on (the campaign
+decision cell). The hour and cell aggregates live in `src/latam_eda/granularity_time_sql/` with the same header
+contracts as the first series (`granularity.open_star(pl, granularity.SQL_DIR_TIME)`).
+
+| # | Grain | Question |
+|---|---|---|
+| 01 | event timestamp | which clock each process was generated on: hourly profiles, a shift scan of the hour × weekday χ², the match with `process_date`, the reconciliation of the calendar effects on the legal and the delivery clock |
+| 02 | market × hour | does the hour add information beyond the day (dispersion index), hourly forecasts, Erlang C on a flat and a peaked profile, Poisson and negative-binomial hourly monitors |
+| 03 | event sequence | symmetric before/after windows between processes (1–72 h), burstiness against per-customer Poisson, velocity and the fraud flag |
+| 04 | channel × product × objective × segment × market × month | what a conversion measures (open tracking), cell heterogeneity per funnel stage, empirical-Bayes cell rates scored out of time, expected value per send |
+| 05 | synthesis | allocation policies replayed on the held-out year with bootstrap intervals, the holdout that would measure uplift, every test under Benjamini–Hochberg, KPIs, downstream impact |
+
+**The clock.** Every process belongs to a daily delivery batch. Its business day is `process_date`, which is the
+timestamp shifted −6 h (transactions, digital events, sends) or −8 h (contacts, complaints). The shift is the same in
+every market, so it is not legal local time. `latam_eda.country.PROCESS_DAY_OFFSET` holds it, and
+`country.utc_offset(code, clock=...)` picks the business or the legal clock (ADR-014).
+
+```bash
+for nb in notebooks/granularity_time/0[1-5]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/granularity_time"; done
+```
+
+01 and 03 read the bronze lake directly (in-memory DuckDB). 02 and 04 build on the whole-bank scratch lakehouse.
+05 reads the tables the other four write.
+
+### Granularity series III (`notebooks/granularity_hour/`)
+
+The bank at the hour. Every fact table is re-grained to the hour of its own delivery clock (or below it: sessions,
+send responses, case milestones). The star gains the dimensions the hour needs: `dim_time_of_day`,
+`dim_process_clock`, `dim_branch_schedule`, `dim_agent_shift` and `dim_session_outcome`. Every candidate model is
+**trained whatever the signal**. The models live in `src/latam_eda/granularity_hour_sql/`, and they are built together
+with series II's `dim_hour` (`granularity.open_star(pl, [SQL_DIR_TIME, SQL_DIR_HOUR])`).
+
+Each scenario's models are in `src/latam_eda/hour_models.py`. They are scored out of time against a transparent
+benchmark and judged by one readiness gate (`granularity.readiness_verdict`):
+- **green:** significant and material;
+- **amber:** significant but not material;
+- **red:** no evidence, with a root cause.
+
+| # | Grain | Question |
+|---|---|---|
+| 01 | all | bus matrix at the hour, build and checks, sparsity of each entity × hour grain, the dimension redesign |
+| 02 | customer × daypart | preferred-hour test per customer, daypart profile against multinomial noise, hourly recency; dormancy and next-daypart models |
+| 03 | market × channel × hour | intraday profile and decline rate per channel, hourly monitors per channel; hourly volume forecasts |
+| 04 | branch × hour | teller activity against the branch schedule, ATMs at the hour; outside-hours classifier and branch-hour cash forecaster |
+| 05 | agent × hour, queue × hour | shift adherence, the agent's working day, occupancy and Erlang C; handle-time and arrival models |
+| 06 | complaint case (hour milestones) | Kaplan–Meier milestones, business hours and regulatory deadlines, SLA-flag consistency; Cox and SLA-breach models |
+| 07 | session, send response | event-transition independence, errors against length, send-to-open delays; purchase and send-time models |
+| 08 | all models | the readiness scorecard and the data-collection audit (owner, requirement, acceptance test) |
+| 09 | synthesis | every test under Benjamini–Hochberg, KPIs, promotion, downstream impact |
+
+```bash
+for nb in notebooks/granularity_hour/0[1-9]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/granularity_hour"; done
+uv run scripts/readiness_check.py --dataset main --scope ALL   # re-judge every hour model on a lake
+```
+
+The re-run command writes to `data/derived/readiness/` and reproduces `reports/tables/granularity_hour_readiness.csv`
+on the same data. Chapter 13 of the strategy turns the scorecard into the data-collection audit.
 
 ## Reproduce
 

@@ -1,0 +1,4 @@
+grain,target,kind,train_rows,test_rows,test_positives,base_rate,metric,value,ci_low,ci_high,baseline,p_value,best_single_feature,best_single_value,verdict,note
+product × month,product dormant next 3 months (used now),classification,163793,57566,19560,0.3397839002188792,AUC,0.5022438517941468,0.49726253152244737,0.5072251720658462,0.5,0.18864830578875702,product_family,0.5052078319191233,no evidence of signal,
+product × month,credit product more than 30 days past due (payment history),classification,92412,30819,3048,0.09890002920276453,AUC,0.5015395055606167,0.4907342940894703,0.512344717031763,0.5,0.3900238029983284,outflow_6m,0.5109827624712083,no evidence of signal,
+product × month,"… adding current utilisation (same-moment, partly caused by delinquency)",classification,92412,30819,3048,0.09890002920276453,AUC,0.5004681201268227,0.4896690344308703,0.5112672058227752,0.5,0.4661456705962116,outflow_6m,0.5109827624712083,no evidence of signal,

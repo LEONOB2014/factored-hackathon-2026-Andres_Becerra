@@ -1,0 +1,45 @@
+model,check,detail,expected,observed,ok,abs_difference
+dim_time_of_day,grain_unique,hour_of_day,24,24,True,
+dim_agent_shift,grain_unique,"work_shift, hour_of_day",96,96,True,
+dim_branch_schedule,grain_unique,"branch_id, iso_weekday, hour_of_day",58800,58800,True,
+dim_branch_schedule,dense_complete,branch_id x hour_of_day,8400,8400,True,
+dim_hour,grain_unique,hour_start,25586,25586,True,
+dim_process_clock,grain_unique,process,6,6,True,
+dim_session_outcome,grain_unique,"has_error, has_purchase, has_form",8,8,True,
+fct_agent_hour,grain_unique,"agent_id, hour_start",658218,658218,True,
+fct_agent_hour,reconciles,contacts = count(*) filter (where agent_id is not null) per total,1,1,True,0.0
+fct_agent_hour,reconciles,"handle_seconds = sum(coalesce(duration_seconds, 0)) filter (where agent_id is not null) per total",1,1,True,0.0
+fct_branch_hour,grain_unique,"branch_id, hour_start",1245739,1245739,True,
+fct_branch_hour,reconciles,"n_tx = count(*) filter (where channel in ('Branch', 'ATM') and branch_id is not null) per total",1,1,True,0.0
+fct_branch_hour,reconciles,atm_cash_out_usd = sum(amount_usd) filter (where channel = 'ATM' and branch_id is not null and is_cash and direction = -1 and transaction_status = 'Approved') per total,1,1,True,4.0978193283081055e-07
+fct_campaign_cell,grain_unique,"send_channel, promoted_product, campaign_objective, segment, country_code, month_start",6524,6524,True,
+fct_campaign_cell,reconciles,sends = count(*) per month_start,35,35,True,0.0
+fct_campaign_cell,reconciles,conversions = count(*) filter (where had_conversion) per total,1,1,True,0.0
+fct_campaign_cell,reconciles,opened = count(*) filter (where was_opened) per total,1,1,True,0.0
+fct_campaign_cell,reconciles,"send_cost = sum(coalesce(send_cost, 0)) per total",1,1,True,1.4741090126335621e-08
+fct_case_clock,grain_unique,complaint_id,65191,65191,True,
+fct_case_clock,reconciles,n_cases = count(*) per total,1,1,True,0.0
+fct_channel_hour,grain_unique,"country_code, channel, hour_start",460548,460548,True,
+fct_channel_hour,reconciles,n_tx = count(*) per total,1,1,True,0.0
+fct_channel_hour,reconciles,"amount_usd = sum(coalesce(amount_usd, 0)) per total",1,1,True,0.0001010894775390625
+fct_channel_hour,dense_complete,country_code x channel x hour_start,460548,460548,True,
+fct_contact_queue_hour,grain_unique,"country_code, channel, hour_start",460548,460548,True,
+fct_contact_queue_hour,reconciles,arrivals = count(*) per total,1,1,True,0.0
+fct_contact_queue_hour,reconciles,"handle_seconds = sum(coalesce(duration_seconds, 0)) per total",1,1,True,0.0
+fct_contact_queue_hour,dense_complete,country_code x channel x hour_start,460548,460548,True,
+fct_country_hour,grain_unique,"country_code, hour_start",76758,76758,True,
+fct_country_hour,reconciles,n_tx = count(*) per total,1,1,True,0.0
+fct_country_hour,reconciles,contacts = count(*) per total,1,1,True,0.0
+fct_country_hour,reconciles,complaints_opened = count(*) per total,1,1,True,0.0
+fct_country_hour,reconciles,sends = count(*) per total,1,1,True,0.0
+fct_country_hour,dense_complete,country_code x hour_start,76758,76758,True,
+fct_session,grain_unique,session_id,1786403,1786403,True,
+fct_session,reconciles,n_events = count(*) per total,1,1,True,0.0
+fct_session,reconciles,n_errors = count(*) filter (where event_type = 'Error') per total,1,1,True,0.0
+fct_customer_daypart,grain_unique,"customer_id, daypart",600000,600000,True,
+fct_customer_daypart,reconciles,n_tx = count(*) per total,1,1,True,0.0
+fct_customer_daypart,reconciles,n_contacts = count(*) per total,1,1,True,0.0
+fct_customer_daypart,dense_complete,customer_id x daypart,600000,600000,True,
+fct_send_response,grain_unique,send_id,1697343,1697343,True,
+fct_send_response,reconciles,n_sends = count(*) per total,1,1,True,0.0
+fct_send_response,reconciles,opened = count(*) filter (where was_opened) per total,1,1,True,0.0

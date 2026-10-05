@@ -1,0 +1,12 @@
+scenario,test,statistic,p_value,effect,n,reading
+04 branch,"teller outside hours (Monday to Friday), all branches: observed vs schedule-blind",0.6717779105846139,2.343554214534152e-171,-0.036706536006571255,122149,expected 70.8 % if hours were ignored; observed 67.2 %
+04 branch,"teller outside hours (Monday to Friday), Corporate: observed vs schedule-blind",0.670020964360587,3.0684885512484663e-63,-0.03632036065005284,45315,expected 70.6 % if hours were ignored; observed 67.0 %
+04 branch,"teller outside hours (Monday to Friday), Express: observed vs schedule-blind",0.6736948898348073,2.129620682271018e-59,-0.035064316853977484,45341,expected 70.9 % if hours were ignored; observed 67.4 %
+04 branch,"teller outside hours (Monday to Friday), Main: observed vs schedule-blind",0.6688905197144572,5.1599216030498784e-26,-0.03963184112793838,14989,expected 70.9 % if hours were ignored; observed 66.9 %
+04 branch,"teller outside hours (Monday to Friday), Premium: observed vs schedule-blind",0.6739578284052351,1.0782923951511243e-28,-0.039621707868799594,16504,expected 71.4 % if hours were ignored; observed 67.4 %
+04 branch,"teller outside hours (every day), all branches: observed vs schedule-blind",0.5931935586865222,0.35011421063611026,0.0013153334588631438,122149,expected 59.2 % if hours were ignored; observed 59.3 %
+04 branch,"teller outside hours (every day), Corporate: observed vs schedule-blind",0.5901136489021296,0.5961986675091977,0.001235793887233827,45315,expected 58.9 % if hours were ignored; observed 59.0 %
+04 branch,"teller outside hours (every day), Express: observed vs schedule-blind",0.5959947949979048,0.10629389219403046,0.0037319056336061474,45341,expected 59.2 % if hours were ignored; observed 59.6 %
+04 branch,"teller outside hours (every day), Main: observed vs schedule-blind",0.5902328374141037,0.6717283733050599,-0.0016984677652499558,14989,expected 59.2 % if hours were ignored; observed 59.0 %
+04 branch,"teller outside hours (every day), Premium: observed vs schedule-blind",0.5966432380029084,0.5356450981467915,-0.002368112780740006,16504,expected 59.9 % if hours were ignored; observed 59.7 %
+04 branch,ATM transactions: flat hours,26.739592270561374,0.26720985902288974,0.004672110100693701,1224979,flat

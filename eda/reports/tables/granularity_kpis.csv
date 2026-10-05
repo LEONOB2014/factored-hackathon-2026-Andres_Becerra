@@ -1,0 +1,19 @@
+grain,KPI,definition,owner,cadence,current value,alert rule
+customer × month,active customer rate,share of customers with a transaction in the month,retention,monthly,0.50468,control chart on the monthly rate
+customer × month,dormant-to-active return rate,"P(active next month | dormant this month), Markov chain",retention,monthly,0.386288070222104,drop of 2 points
+customer × month,digital adoption,share of customers with a digital session in the month,digital,monthly,0.2347,trend test quarterly
+customer × month,contacts per 100 customers,100 × Σ contacts / customers,service,monthly,12.546666666666667,control chart
+customer × month,"complaints per 10,000 transactions","10,000 × Σ complaints / Σ transactions",compliance,monthly,147.2820415520349,regulatory threshold per market
+customer (lifetime),top-decile share of spend,spend of the top 10 % of customers / total spend,retail head,quarterly,0.28158654189499943,none (structural)
+market × day,decline rate,Σ declined / Σ transactions,operations,daily,0.04875212861406625,"p-chart, 3σ"
+market × day,escalation rate,Σ escalations / Σ contacts,contact centre,daily,0.09961981703694903,"p-chart, 3σ"
+market × day,average wait (s),Σ wait seconds / Σ contacts,contact centre,daily,83.56374004989901,service-level target (80/20)
+branch × day,cash service level,share of branch-days without a stock-out (notebook 05 policy),treasury,daily,0.9767346938775511,below target service level
+branch × day,cash per withdrawal (USD),Σ withdrawals USD / Σ withdrawals,treasury,daily,259.411720905647,control chart
+agent × day,first-contact resolution,Σ resolved / Σ contacts,contact centre,weekly,0.771890222169419,team level only (agent level unreliable)
+complaint case,median days to resolution (Kaplan–Meier),"survival median, open cases censored",compliance,weekly,inf,per market regulatory clock
+complaint case,SLA breach rate,Σ breached / Σ cases closed in period,compliance,weekly,0.1986315153954518,regulatory threshold
+product × month,active product rate,share of open products used in the month,product,monthly,0.2639539318129815,per family trend
+campaign × day,conversion per send,Σ conversions / Σ sends,marketing,per campaign,0.005596393893279084,only with a holdout
+campaign × day,return on campaign spend,(Σ conversion value − Σ cost) / Σ cost,marketing,per campaign,384.9384659621552,interval must exclude 0
+customer × month,sends without current consent,share of sends to customers without consent (marts),compliance,daily,0.5006200868062614,target 0 %

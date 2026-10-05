@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7aef2493">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=659cf2be">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7805,13 +7805,20 @@ a.anchor-link {
 <h1 id="04-%C2%B7-Staging,-local-time-and-the-country-calendar-(All-countries)">04 · Staging, local time and the country calendar (All countries)<a class="anchor-link" href="#04-%C2%B7-Staging,-local-time-and-the-country-calendar-(All-countries)">¶</a></h1><p><strong>Country series · All countries</strong> · <em>generated from <code>notebooks/country_template</code>: edit the template</em></p>
 <p>Staging names the source timestamps <code>*_ts_utc</code> (pipeline series, notebook 04). For behaviour, what matters is the
 <strong>customer's</strong> local day: when salaries arrive, which days banks close, when the weekend starts. This notebook
-converts every transaction to All countries's local time and enriches it with the country's calendar, then
+places every transaction on its day (the source's business clock) and enriches it with the country's calendar, then
 measures what the calendar explains.</p>
 <p><strong>Decisions.</strong></p>
 <ul>
-<li><strong>Fixed UTC offset</strong> (printed in the next cell): Mexico abolished daylight saving in 2022
-(outside border cities), Colombia never had it, Argentina dropped it in 2009, so a fixed offset is exact for the
-whole 2023–2026 window and avoids a time-zone library's ambiguity.</li>
+<li><strong>The delivery day, not each country's legal time.</strong> The source states no timezone, and the data decides it. Every
+event belongs to a daily delivery batch (<code>process_date</code>), and the generator drew its weekly rhythm on that day:
+hour of day is independent of weekday only once each timestamp is shifted back to the start of its batch window
+(−6 hours for transactions, digital events and sends, −8 hours for contacts and complaints), where
+<code>cast(ts + offset as date) = process_date</code> for every row (<code>notebooks/granularity_time/01</code>). The same day boundary
+applies to every market (<code>country.PROCESS_DAY_OFFSET</code>, <code>enrich_transactions(clock="business")</code>). An earlier
+version used each country's legal offset (Colombia UTC−5, Argentina UTC−3), which cut the weekends 1 and 3 hours
+off their true boundary: Argentina's weekend looked weaker and its Mondays quieter, both artefacts. On real data
+whose timestamps are true UTC, <code>clock="local"</code> applies the legal offsets (fixed offsets are exact for 2023–2026: no
+DST in Mexico since 2022 outside border cities, none in Colombia, none in Argentina since 2009).</li>
 <li><strong>The customer's country, not the transaction's</strong>: a cross-border purchase still happens in the customer's day
 (and its own local time stays in silver as <code>transaction_ts_local</code>).</li>
 <li><strong>Calendar variables</strong> (<code>country.calendar</code>): weekday, weekend, statutory <strong>and bank</strong> holidays (Mexico's banks also
@@ -7823,7 +7830,7 @@ prima).</li>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=792afd96">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cfe72e04">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7860,7 +7867,9 @@ prima).</li>
 <span class="n">pl</span><span class="o">.</span><span class="n">ensure</span><span class="p">(</span><span class="n">pl</span><span class="o">.</span><span class="n">key</span><span class="p">(</span><span class="s2">"int_transactions_enriched"</span><span class="p">))</span>
 <span class="k">for</span> <span class="n">code</span> <span class="ow">in</span> <span class="n">country</span><span class="o">.</span><span class="n">scope_codes</span><span class="p">(</span><span class="n">COUNTRY</span><span class="p">):</span>
     <span class="n">c</span> <span class="o">=</span> <span class="n">country</span><span class="o">.</span><span class="n">COUNTRIES</span><span class="p">[</span><span class="n">code</span><span class="p">]</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: UTC</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">timezone</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: delivery day = timestamp </span><span class="si">{</span><span class="n">country</span><span class="o">.</span><span class="n">utc_offset</span><span class="p">(</span><span class="n">code</span><span class="p">)</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2"> h (legal local time UTC</span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">utc_offset</span><span class="si">:</span><span class="s2">+d</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">c</span><span class="o">.</span><span class="n">timezone</span><span class="si">}</span><span class="s2">)"</span>
+    <span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">country</span><span class="o">.</span><span class="n">enrich_transactions</span><span class="p">(</span><span class="n">pl</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -7885,19 +7894,13 @@ prima).</li>
   view      stg_digital_events_holdout                           433,442 rows     0.0s
   view      stg_marketing_campaigns                                  200 rows     0.0s
   view      stg_products                                         400,000 rows     0.0s
-  view      stg_satisfaction_surveys                             206,660 rows     0.1s
+  view      stg_satisfaction_surveys                             206,660 rows     0.2s
   view      stg_service_agents                                     1,200 rows     0.0s
-  view      stg_transactions                                   4,294,318 rows     0.1s
+  view      stg_transactions                                   4,294,318 rows     0.2s
   view      stg_transactions_holdout                             130,690 rows     0.0s
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>Mexico: UTC-6 (America/Mexico_City)
-Colombia: UTC-5 (America/Bogota)
-Argentina: UTC-3 (America/Argentina/Buenos_Aires)
+Mexico: delivery day = timestamp -6 h (legal local time UTC-6, America/Mexico_City)
+Colombia: delivery day = timestamp -6 h (legal local time UTC-5, America/Bogota)
+Argentina: delivery day = timestamp -6 h (legal local time UTC-3, America/Argentina/Buenos_Aires)
 </pre>
 </div>
 </div>
@@ -7912,7 +7915,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8c1a1784">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8619324e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7922,7 +7925,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4e3753f2">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=88d221a2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7959,7 +7962,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_0412090a_2cd1_4859_85c0_fcf2700c754c">
+<table hidden="hidden" id="itables_ce81acb3_0b57_4a14_accb_d4988e8e1fd5">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8021,7 +8024,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </tr>
 </tbody>
 </table>
-<div id="itables_0412090a_2cd1_4859_85c0_fcf2700c754c_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_ce81acb3_0b57_4a14_accb_d4988e8e1fd5_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">country_code</th>
 <th style="border:1px solid #ddd;padding:8px">local_date</th>
@@ -8183,12 +8186,12 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <tr><td style="border:1px solid #ddd;padding:8px">3429</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-06-20</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don Manuel Belgrano</td><td style="border:1px solid #ddd;padding:8px">6</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">3448</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-07-09</td><td style="border:1px solid #ddd;padding:8px">Día de la Independencia</td><td style="border:1px solid #ddd;padding:8px">4</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">3449</td><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">2026-07-10</td><td style="border:1px solid #ddd;padding:8px">Feriado con fines turísticos</td><td style="border:1px solid #ddd;padding:8px">5</td></tr>
-</tbody></table></div><script>document.getElementById("itables_0412090a_2cd1_4859_85c0_fcf2700c754c")?.removeAttribute("hidden");document.getElementById("itables_0412090a_2cd1_4859_85c0_fcf2700c754c_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_ce81acb3_0b57_4a14_accb_d4988e8e1fd5")?.removeAttribute("hidden");document.getElementById("itables_ce81acb3_0b57_4a14_accb_d4988e8e1fd5_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_0412090a_2cd1_4859_85c0_fcf2700c754c:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_ce81acb3_0b57_4a14_accb_d4988e8e1fd5:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8211,7 +8214,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_de2c483a_b06e_45c7_8b5b_ddb9260756e8">
+<table hidden="hidden" id="itables_39521e29_833c_4da4_be8b_f54f4273c1f1">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8273,7 +8276,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </tr>
 </tbody>
 </table>
-<div id="itables_de2c483a_b06e_45c7_8b5b_ddb9260756e8_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_39521e29_833c_4da4_be8b_f54f4273c1f1_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">days</th>
 <th style="border:1px solid #ddd;padding:8px">holidays</th>
@@ -8292,12 +8295,12 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <tr><td style="border:1px solid #ddd;padding:8px">AR</td><td style="border:1px solid #ddd;padding:8px">1157</td><td style="border:1px solid #ddd;padding:8px">63</td><td style="border:1px solid #ddd;padding:8px">52</td><td style="border:1px solid #ddd;padding:8px">44</td><td style="border:1px solid #ddd;padding:8px">38</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">CO</td><td style="border:1px solid #ddd;padding:8px">1157</td><td style="border:1px solid #ddd;padding:8px">58</td><td style="border:1px solid #ddd;padding:8px">55</td><td style="border:1px solid #ddd;padding:8px">46</td><td style="border:1px solid #ddd;padding:8px">76</td></tr>
 <tr><td style="border:1px solid #ddd;padding:8px">MX</td><td style="border:1px solid #ddd;padding:8px">1157</td><td style="border:1px solid #ddd;padding:8px">34</td><td style="border:1px solid #ddd;padding:8px">31</td><td style="border:1px solid #ddd;padding:8px">20</td><td style="border:1px solid #ddd;padding:8px">76</td></tr>
-</tbody></table></div><script>document.getElementById("itables_de2c483a_b06e_45c7_8b5b_ddb9260756e8")?.removeAttribute("hidden");document.getElementById("itables_de2c483a_b06e_45c7_8b5b_ddb9260756e8_fallback")?.setAttribute("hidden", "hidden");</script>
+</tbody></table></div><script>document.getElementById("itables_39521e29_833c_4da4_be8b_f54f4273c1f1")?.removeAttribute("hidden");document.getElementById("itables_39521e29_833c_4da4_be8b_f54f4273c1f1_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_de2c483a_b06e_45c7_8b5b_ddb9260756e8:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_39521e29_833c_4da4_be8b_f54f4273c1f1:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
@@ -8319,7 +8322,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3688bdbf">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=94b65f8a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8329,7 +8332,7 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b96d407b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b8252aa7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8380,9 +8383,9 @@ Argentina: UTC-3 (America/Argentina/Buenos_Aires)
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:300px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="1a6342ef-9cda-4a37-99f0-be4dea6ae5b9" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("1a6342ef-9cda-4a37-99f0-be4dea6ae5b9")) {                    Plotly.newPlot(                        "1a6342ef-9cda-4a37-99f0-be4dea6ae5b9",                        [{"hovertemplate":"local_hour=%{x}\u003cbr\u003etransactions=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":{"dtype":"i1","bdata":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX"},"xaxis":"x","y":{"dtype":"i4","bdata":"HroCAKe4AgBdtwIADrwCAPi6AgAcuQIA97oCAL27AgBZvAIAfboCAAe6AgBjvAIAK7wCAFe7AgASugIARLoCAJS6AgByvAIAfLsCAOG6AgB4vQIAubsCAAu7AgD\u002fugIA"},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"local_hour"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"transactions"}},"legend":{"tracegroupgap":0},"title":{"text":"The whole bank: transactions by local hour"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="900e3235-9e69-4688-ad14-63c24c92890e" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("900e3235-9e69-4688-ad14-63c24c92890e")) {                    Plotly.newPlot(                        "900e3235-9e69-4688-ad14-63c24c92890e",                        [{"hovertemplate":"local_hour=%{x}\u003cbr\u003etransactions=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","pattern":{"shape":""}},"name":"","orientation":"v","showlegend":false,"textposition":"auto","x":{"dtype":"i1","bdata":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYX"},"xaxis":"x","y":{"dtype":"i4","bdata":"rrkCALq6AgCiuAIAVLwCAAW6AgA6ugIAb7oCAE28AgDHuwIAHrsCAAC7AgChuwIARb4CAHK3AgCOuwIAS7kCAAm+AgBjugIAhLoCAEq8AgC9uwIA0bsCAHC4AgAHuwIA"},"yaxis":"y","type":"bar"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"local_hour"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{"text":"transactions"}},"legend":{"tracegroupgap":0},"title":{"text":"The whole bank: transactions by local hour"},"barmode":"relative","height":300},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('1a6342ef-9cda-4a37-99f0-be4dea6ae5b9');
+var gd = document.getElementById('900e3235-9e69-4688-ad14-63c24c92890e');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8416,7 +8419,7 @@ if (outputEl) {{
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3bb910a2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c35d2950">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8432,7 +8435,7 @@ country, so a Mexican holiday is compared with Mexican working days.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=88242c5b">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=6332d74a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8491,7 +8494,7 @@ country, so a Mexican holiday is compared with Mexican working days.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_ff6c0806_ae86_434e_b11a_6085c5944111">
+<table hidden="hidden" id="itables_f3d303ae_7947_42a4_bfce_ea5d1cd64173">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8553,7 +8556,7 @@ country, so a Mexican holiday is compared with Mexican working days.</p>
 </tr>
 </tbody>
 </table>
-<div id="itables_ff6c0806_ae86_434e_b11a_6085c5944111_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_f3d303ae_7947_42a4_bfce_ea5d1cd64173_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup></th>
 <th style="border:1px solid #ddd;padding:8px">coef</th>
 <th style="border:1px solid #ddd;padding:8px">ci_low</th>
@@ -8561,33 +8564,33 @@ country, so a Mexican holiday is compared with Mexican working days.</p>
 <th style="border:1px solid #ddd;padding:8px">p_value</th>
 <th style="border:1px solid #ddd;padding:8px">effect %</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.2]</td><td style="border:1px solid #ddd;padding:8px">0.0370</td><td style="border:1px solid #ddd;padding:8px">0.0211</td><td style="border:1px solid #ddd;padding:8px">0.0528</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">3.8</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.3]</td><td style="border:1px solid #ddd;padding:8px">0.0401</td><td style="border:1px solid #ddd;padding:8px">0.0244</td><td style="border:1px solid #ddd;padding:8px">0.0558</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">4.1</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.4]</td><td style="border:1px solid #ddd;padding:8px">0.0429</td><td style="border:1px solid #ddd;padding:8px">0.0267</td><td style="border:1px solid #ddd;padding:8px">0.0590</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">4.4</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.5]</td><td style="border:1px solid #ddd;padding:8px">0.0386</td><td style="border:1px solid #ddd;padding:8px">0.0225</td><td style="border:1px solid #ddd;padding:8px">0.0547</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">3.9</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.6]</td><td style="border:1px solid #ddd;padding:8px">-0.4350</td><td style="border:1px solid #ddd;padding:8px">-0.4515</td><td style="border:1px solid #ddd;padding:8px">-0.4184</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">-35.3</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.7]</td><td style="border:1px solid #ddd;padding:8px">-0.4718</td><td style="border:1px solid #ddd;padding:8px">-0.4883</td><td style="border:1px solid #ddd;padding:8px">-0.4553</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">-37.6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(country_code)[T.CO]</td><td style="border:1px solid #ddd;padding:8px">0.4100</td><td style="border:1px solid #ddd;padding:8px">0.4001</td><td style="border:1px solid #ddd;padding:8px">0.4199</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">50.7</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">C(country_code)[T.MX]</td><td style="border:1px solid #ddd;padding:8px">0.9195</td><td style="border:1px solid #ddd;padding:8px">0.9093</td><td style="border:1px solid #ddd;padding:8px">0.9296</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">150.8</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_holiday</td><td style="border:1px solid #ddd;padding:8px">-0.0051</td><td style="border:1px solid #ddd;padding:8px">-0.0256</td><td style="border:1px solid #ddd;padding:8px">0.0154</td><td style="border:1px solid #ddd;padding:8px">0.6238</td><td style="border:1px solid #ddd;padding:8px">-0.5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_long_weekend</td><td style="border:1px solid #ddd;padding:8px">-0.0086</td><td style="border:1px solid #ddd;padding:8px">-0.0324</td><td style="border:1px solid #ddd;padding:8px">0.0153</td><td style="border:1px solid #ddd;padding:8px">0.4812</td><td style="border:1px solid #ddd;padding:8px">-0.9</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">payday_window</td><td style="border:1px solid #ddd;padding:8px">-0.0159</td><td style="border:1px solid #ddd;padding:8px">-0.0271</td><td style="border:1px solid #ddd;padding:8px">-0.0048</td><td style="border:1px solid #ddd;padding:8px">0.0051</td><td style="border:1px solid #ddd;padding:8px">-1.6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_month_end</td><td style="border:1px solid #ddd;padding:8px">-0.0055</td><td style="border:1px solid #ddd;padding:8px">-0.0192</td><td style="border:1px solid #ddd;padding:8px">0.0081</td><td style="border:1px solid #ddd;padding:8px">0.4247</td><td style="border:1px solid #ddd;padding:8px">-0.6</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">is_bonus_month</td><td style="border:1px solid #ddd;padding:8px">-0.0046</td><td style="border:1px solid #ddd;padding:8px">-0.0167</td><td style="border:1px solid #ddd;padding:8px">0.0075</td><td style="border:1px solid #ddd;padding:8px">0.4548</td><td style="border:1px solid #ddd;padding:8px">-0.5</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">t</td><td style="border:1px solid #ddd;padding:8px">0.0016</td><td style="border:1px solid #ddd;padding:8px">-0.0034</td><td style="border:1px solid #ddd;padding:8px">0.0066</td><td style="border:1px solid #ddd;padding:8px">0.5246</td><td style="border:1px solid #ddd;padding:8px">0.2</td></tr>
-</tbody></table></div><script>document.getElementById("itables_ff6c0806_ae86_434e_b11a_6085c5944111")?.removeAttribute("hidden");document.getElementById("itables_ff6c0806_ae86_434e_b11a_6085c5944111_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.2]</td><td style="border:1px solid #ddd;padding:8px">0.0155</td><td style="border:1px solid #ddd;padding:8px">-0.0009</td><td style="border:1px solid #ddd;padding:8px">0.0318</td><td style="border:1px solid #ddd;padding:8px">0.0644</td><td style="border:1px solid #ddd;padding:8px">1.6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.3]</td><td style="border:1px solid #ddd;padding:8px">0.0183</td><td style="border:1px solid #ddd;padding:8px">0.0020</td><td style="border:1px solid #ddd;padding:8px">0.0345</td><td style="border:1px solid #ddd;padding:8px">0.0279</td><td style="border:1px solid #ddd;padding:8px">1.8</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.4]</td><td style="border:1px solid #ddd;padding:8px">0.0200</td><td style="border:1px solid #ddd;padding:8px">0.0033</td><td style="border:1px solid #ddd;padding:8px">0.0367</td><td style="border:1px solid #ddd;padding:8px">0.0191</td><td style="border:1px solid #ddd;padding:8px">2.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.5]</td><td style="border:1px solid #ddd;padding:8px">0.0162</td><td style="border:1px solid #ddd;padding:8px">-0.0005</td><td style="border:1px solid #ddd;padding:8px">0.0329</td><td style="border:1px solid #ddd;padding:8px">0.0577</td><td style="border:1px solid #ddd;padding:8px">1.6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.6]</td><td style="border:1px solid #ddd;padding:8px">-0.4930</td><td style="border:1px solid #ddd;padding:8px">-0.5102</td><td style="border:1px solid #ddd;padding:8px">-0.4759</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">-38.9</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(iso_weekday)[T.7]</td><td style="border:1px solid #ddd;padding:8px">-0.4936</td><td style="border:1px solid #ddd;padding:8px">-0.5106</td><td style="border:1px solid #ddd;padding:8px">-0.4765</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">-39.0</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(country_code)[T.CO]</td><td style="border:1px solid #ddd;padding:8px">0.4131</td><td style="border:1px solid #ddd;padding:8px">0.4024</td><td style="border:1px solid #ddd;padding:8px">0.4237</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">51.1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">C(country_code)[T.MX]</td><td style="border:1px solid #ddd;padding:8px">0.9246</td><td style="border:1px solid #ddd;padding:8px">0.9140</td><td style="border:1px solid #ddd;padding:8px">0.9352</td><td style="border:1px solid #ddd;padding:8px">0.0000</td><td style="border:1px solid #ddd;padding:8px">152.1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">is_holiday</td><td style="border:1px solid #ddd;padding:8px">-0.0032</td><td style="border:1px solid #ddd;padding:8px">-0.0249</td><td style="border:1px solid #ddd;padding:8px">0.0186</td><td style="border:1px solid #ddd;padding:8px">0.7740</td><td style="border:1px solid #ddd;padding:8px">-0.3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">is_long_weekend</td><td style="border:1px solid #ddd;padding:8px">-0.0113</td><td style="border:1px solid #ddd;padding:8px">-0.0367</td><td style="border:1px solid #ddd;padding:8px">0.0141</td><td style="border:1px solid #ddd;padding:8px">0.3843</td><td style="border:1px solid #ddd;padding:8px">-1.1</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">payday_window</td><td style="border:1px solid #ddd;padding:8px">-0.0134</td><td style="border:1px solid #ddd;padding:8px">-0.0251</td><td style="border:1px solid #ddd;padding:8px">-0.0016</td><td style="border:1px solid #ddd;padding:8px">0.0255</td><td style="border:1px solid #ddd;padding:8px">-1.3</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">is_month_end</td><td style="border:1px solid #ddd;padding:8px">-0.0060</td><td style="border:1px solid #ddd;padding:8px">-0.0203</td><td style="border:1px solid #ddd;padding:8px">0.0082</td><td style="border:1px solid #ddd;padding:8px">0.4064</td><td style="border:1px solid #ddd;padding:8px">-0.6</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">is_bonus_month</td><td style="border:1px solid #ddd;padding:8px">-0.0049</td><td style="border:1px solid #ddd;padding:8px">-0.0176</td><td style="border:1px solid #ddd;padding:8px">0.0078</td><td style="border:1px solid #ddd;padding:8px">0.4498</td><td style="border:1px solid #ddd;padding:8px">-0.5</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">t</td><td style="border:1px solid #ddd;padding:8px">0.0017</td><td style="border:1px solid #ddd;padding:8px">-0.0036</td><td style="border:1px solid #ddd;padding:8px">0.0069</td><td style="border:1px solid #ddd;padding:8px">0.5329</td><td style="border:1px solid #ddd;padding:8px">0.2</td></tr>
+</tbody></table></div><script>document.getElementById("itables_f3d303ae_7947_42a4_bfce_ea5d1cd64173")?.removeAttribute("hidden");document.getElementById("itables_f3d303ae_7947_42a4_bfce_ea5d1cd64173_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_ff6c0806_ae86_434e_b11a_6085c5944111:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_f3d303ae_7947_42a4_bfce_ea5d1cd64173:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [1, 2, 3, 4, 5]}],
-          "data_json": "[[\"C(iso_weekday)[T.2]\", [\"0.0370\", 0.037], [\"0.0211\", 0.0211], [\"0.0528\", 0.0528], [\"0.0000\", 0.0], [\"3.8\", 3.8]], [\"C(iso_weekday)[T.3]\", [\"0.0401\", 0.0401], [\"0.0244\", 0.0244], [\"0.0558\", 0.0558], [\"0.0000\", 0.0], [\"4.1\", 4.1]], [\"C(iso_weekday)[T.4]\", [\"0.0429\", 0.0429], [\"0.0267\", 0.0267], [\"0.0590\", 0.059], [\"0.0000\", 0.0], [\"4.4\", 4.4]], [\"C(iso_weekday)[T.5]\", [\"0.0386\", 0.0386], [\"0.0225\", 0.0225], [\"0.0547\", 0.0547], [\"0.0000\", 0.0], [\"3.9\", 3.9]], [\"C(iso_weekday)[T.6]\", [\"-0.4350\", -0.435], [\"-0.4515\", -0.4515], [\"-0.4184\", -0.4184], [\"0.0000\", 0.0], [\"-35.3\", -35.3]], [\"C(iso_weekday)[T.7]\", [\"-0.4718\", -0.4718], [\"-0.4883\", -0.4883], [\"-0.4553\", -0.4553], [\"0.0000\", 0.0], [\"-37.6\", -37.6]], [\"C(country_code)[T.CO]\", [\"0.4100\", 0.41], [\"0.4001\", 0.4001], [\"0.4199\", 0.4199], [\"0.0000\", 0.0], [\"50.7\", 50.7]], [\"C(country_code)[T.MX]\", [\"0.9195\", 0.9195], [\"0.9093\", 0.9093], [\"0.9296\", 0.9296], [\"0.0000\", 0.0], [\"150.8\", 150.8]], [\"is_holiday\", [\"-0.0051\", -0.0051], [\"-0.0256\", -0.0256], [\"0.0154\", 0.0154], [\"0.6238\", 0.6238], [\"-0.5\", -0.5]], [\"is_long_weekend\", [\"-0.0086\", -0.0086], [\"-0.0324\", -0.0324], [\"0.0153\", 0.0153], [\"0.4812\", 0.4812], [\"-0.9\", -0.9]], [\"payday_window\", [\"-0.0159\", -0.0159], [\"-0.0271\", -0.0271], [\"-0.0048\", -0.0048], [\"0.0051\", 0.0051], [\"-1.6\", -1.6]], [\"is_month_end\", [\"-0.0055\", -0.0055], [\"-0.0192\", -0.0192], [\"0.0081\", 0.0081], [\"0.4247\", 0.4247], [\"-0.6\", -0.6]], [\"is_bonus_month\", [\"-0.0046\", -0.0046], [\"-0.0167\", -0.0167], [\"0.0075\", 0.0075], [\"0.4548\", 0.4548], [\"-0.5\", -0.5]], [\"t\", [\"0.0016\", 0.0016], [\"-0.0034\", -0.0034], [\"0.0066\", 0.0066], [\"0.5246\", 0.5246], [\"0.2\", 0.2]]]",
+          "data_json": "[[\"C(iso_weekday)[T.2]\", [\"0.0155\", 0.0155], [\"-0.0009\", -0.0009], [\"0.0318\", 0.0318], [\"0.0644\", 0.0644], [\"1.6\", 1.6]], [\"C(iso_weekday)[T.3]\", [\"0.0183\", 0.0183], [\"0.0020\", 0.002], [\"0.0345\", 0.0345], [\"0.0279\", 0.0279], [\"1.8\", 1.8]], [\"C(iso_weekday)[T.4]\", [\"0.0200\", 0.02], [\"0.0033\", 0.0033], [\"0.0367\", 0.0367], [\"0.0191\", 0.0191], [\"2.0\", 2.0]], [\"C(iso_weekday)[T.5]\", [\"0.0162\", 0.0162], [\"-0.0005\", -0.0005], [\"0.0329\", 0.0329], [\"0.0577\", 0.0577], [\"1.6\", 1.6]], [\"C(iso_weekday)[T.6]\", [\"-0.4930\", -0.493], [\"-0.5102\", -0.5102], [\"-0.4759\", -0.4759], [\"0.0000\", 0.0], [\"-38.9\", -38.9]], [\"C(iso_weekday)[T.7]\", [\"-0.4936\", -0.4936], [\"-0.5106\", -0.5106], [\"-0.4765\", -0.4765], [\"0.0000\", 0.0], [\"-39.0\", -39.0]], [\"C(country_code)[T.CO]\", [\"0.4131\", 0.4131], [\"0.4024\", 0.4024], [\"0.4237\", 0.4237], [\"0.0000\", 0.0], [\"51.1\", 51.1]], [\"C(country_code)[T.MX]\", [\"0.9246\", 0.9246], [\"0.9140\", 0.914], [\"0.9352\", 0.9352], [\"0.0000\", 0.0], [\"152.1\", 152.1]], [\"is_holiday\", [\"-0.0032\", -0.0032], [\"-0.0249\", -0.0249], [\"0.0186\", 0.0186], [\"0.7740\", 0.774], [\"-0.3\", -0.3]], [\"is_long_weekend\", [\"-0.0113\", -0.0113], [\"-0.0367\", -0.0367], [\"0.0141\", 0.0141], [\"0.3843\", 0.3843], [\"-1.1\", -1.1]], [\"payday_window\", [\"-0.0134\", -0.0134], [\"-0.0251\", -0.0251], [\"-0.0016\", -0.0016], [\"0.0255\", 0.0255], [\"-1.3\", -1.3]], [\"is_month_end\", [\"-0.0060\", -0.006], [\"-0.0203\", -0.0203], [\"0.0082\", 0.0082], [\"0.4064\", 0.4064], [\"-0.6\", -0.6]], [\"is_bonus_month\", [\"-0.0049\", -0.0049], [\"-0.0176\", -0.0176], [\"0.0078\", 0.0078], [\"0.4498\", 0.4498], [\"-0.5\", -0.5]], [\"t\", [\"0.0017\", 0.0017], [\"-0.0036\", -0.0036], [\"0.0069\", 0.0069], [\"0.5329\", 0.5329], [\"0.2\", 0.2]]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": "paging", "bottomStart": "info", "topEnd": "search", "topStart": "pageLength"},
           "order": [],
@@ -8604,13 +8607,13 @@ country, so a Mexican holiday is compared with Mexican working days.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>R² = 0.934 on 3105 (country, day) rows, 2023-07-01 to 2026-04-30
+<pre>R² = 0.930 on 3105 (country, day) rows, 2023-07-01 to 2026-04-30
 </pre>
 </div>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=bb4620b0">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=e8a8941f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8673,9 +8676,9 @@ country, so a Mexican holiday is compared with Mexican working days.</p>
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <div style="height:420px; width:100%;"> <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script><script>if (window.MathJax && window.MathJax.Hub && window.MathJax.Hub.Config) {window.MathJax.Hub.Config({SVG: {font: "STIX-Web"}});}</script> <script>window.PlotlyConfig = {MathJaxConfig: 'local'};</script>
-<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="d08acace-7007-4263-bd2f-68751718b799" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("d08acace-7007-4263-bd2f-68751718b799")) {                    Plotly.newPlot(                        "d08acace-7007-4263-bd2f-68751718b799",                        [{"error_x":{"array":{"dtype":"f8","bdata":"mAEeYiL2+T\u002f0PZkE8Cj6P2DjJ7ao0Po\u002f7jjDsj+k+z+AmutWMLrxPwBnoMmxY\u002fA\u002fIACS\u002f9WZ9z+ArMDfs2YEQLrgBUF8YwBAueHI+0qBA0Ce+PD52\u002fjxP9bU9dIqj\u002fY\u002fpCANINb+8z8DUxtxkcvdPw=="},"arrayminus":{"dtype":"f8","bdata":"dB4oL9me+j\u002fUThCInx76P2TiZIPfDPs\u002ffr9zlAoN+j\u002fA\u002fSy+AoTwP8BL9Xhue\u002fA\u002fQAXksc329z+ALRWL8UAEQLmgyoBKPQBAAIefbpBMAkCmklGNvS7xP7RHuqDzwPQ\u002faLAwf+x28j8yl1BxGTThPw=="}},"hovertemplate":"effect %=%{x}\u003cbr\u003eterm=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"","orientation":"h","showlegend":false,"x":{"dtype":"f8","bdata":"ZmZmZmZmDkBmZmZmZmYQQJqZmZmZmRFAMzMzMzMzD0BmZmZmZqZBwM3MzMzMzELAmpmZmZlZSUCamZmZmdliQAAAAAAAAOC\u002fzczMzMzM7L+amZmZmZn5vzMzMzMzM+O\u002fAAAAAAAA4L+amZmZmZnJPw=="},"xaxis":"x","y":["C(iso_weekday)[T.2]","C(iso_weekday)[T.3]","C(iso_weekday)[T.4]","C(iso_weekday)[T.5]","C(iso_weekday)[T.6]","C(iso_weekday)[T.7]","C(country_code)[T.CO]","C(country_code)[T.MX]","is_holiday","is_long_weekend","payday_window","is_month_end","is_bonus_month","t"],"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"effect %"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"tracegroupgap":0},"title":{"text":"The whole bank: calendar effects on daily volume (95 % CI)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":0,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"height":420},                        {"responsive": true}                    ).then(function(){
+<script charset="utf-8" crossorigin="anonymous" integrity="sha256-O24V1F27f8pb0glCkelh3cVHLNiHAJ5gCaVtq2aNch8=" src="https://cdn.plot.ly/plotly-4.1.1.min.js"></script> <div class="plotly-graph-div" id="a461fee2-2eec-4ce2-8e3b-c11c7742f787" style="height:100%; width:100%;"></div> <script>                window.PLOTLYENV=window.PLOTLYENV || {};                                if (document.getElementById("a461fee2-2eec-4ce2-8e3b-c11c7742f787")) {                    Plotly.newPlot(                        "a461fee2-2eec-4ce2-8e3b-c11c7742f787",                        [{"error_x":{"array":{"dtype":"f8","bdata":"\u002frBT5y8s+j93iXwDxGX7P6BhZOaTu\u002fs\u002fhpN\u002ftoDn+z+guz8pmYnwPyAzc5SggvE\u002fIPb\u002fcKp1+j\u002fAEXyq0WYFQNYPryVqZAFAl7fXxdEwBEDzd8xZjC\u002fyPxL\u002fJoCx0vY\u002flCGIVyiB9D+TNK5m0XvfPw=="},"arrayminus":{"dtype":"f8","bdata":"XOZfVvUT+z8JpOF5Y6D5P4RNzPkVxvo\u002fNCOtVHNy+j9AJFB\u002f7fPwP4C\u002fnRSPmO8\u002foCK9sMvT+D+Aw\u002fE7CFcFQPsZ2FwHTgFAmRa+WKsIBEANfWsohNzyP8iW+pmwl\u002fY\u002f2Pfkca3Y8z8m9AcSUcvhPw=="}},"hovertemplate":"effect %=%{x}\u003cbr\u003eterm=%{y}\u003cextra\u003e\u003c\u002fextra\u003e","legendgroup":"","marker":{"color":"#2a78d6","symbol":"circle"},"mode":"markers","name":"","orientation":"h","showlegend":false,"x":{"dtype":"f8","bdata":"mpmZmZmZ+T\u002fNzMzMzMz8PwAAAAAAAABAmpmZmZmZ+T8zMzMzM3NDwAAAAAAAgEPAzczMzMyMSUAzMzMzMwNjQDMzMzMzM9O\u002fmpmZmZmZ8b\u002fNzMzMzMz0vzMzMzMzM+O\u002fAAAAAAAA4L+amZmZmZnJPw=="},"xaxis":"x","y":["C(iso_weekday)[T.2]","C(iso_weekday)[T.3]","C(iso_weekday)[T.4]","C(iso_weekday)[T.5]","C(iso_weekday)[T.6]","C(iso_weekday)[T.7]","C(country_code)[T.CO]","C(country_code)[T.MX]","is_holiday","is_long_weekend","payday_window","is_month_end","is_bonus_month","t"],"yaxis":"y","type":"scatter"}],                        {"template":{"layout":{"colorway":["#2a78d6","#eb6834","#1baf7a","#eda100","#e87ba4","#008300","#4a3aa7","#e34948"],"font":{"color":"#0b0b0b","family":"Inter, -apple-system, Segoe UI, sans-serif","size":13},"hoverlabel":{"bgcolor":"white","font":{"color":"#0b0b0b"}},"legend":{"font":{"color":"#52514e"},"orientation":"h","x":0,"y":1.08},"margin":{"b":50,"l":60,"r":24,"t":70},"paper_bgcolor":"#fcfcfb","plot_bgcolor":"#fcfcfb","title":{"font":{"size":16},"x":0,"xanchor":"left"},"xaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false},"yaxis":{"automargin":true,"gridcolor":"#e6e5e1","linecolor":"#e6e5e1","tickfont":{"color":"#52514e"},"zeroline":false}}},"xaxis":{"anchor":"y","domain":[0.0,1.0],"title":{"text":"effect %"}},"yaxis":{"anchor":"x","domain":[0.0,1.0],"title":{}},"legend":{"tracegroupgap":0},"title":{"text":"The whole bank: calendar effects on daily volume (95 % CI)"},"shapes":[{"line":{"dash":"dot"},"type":"line","x0":0,"x1":0,"xref":"x","y0":0,"y1":1,"yref":"y domain"}],"height":420},                        {"responsive": true}                    ).then(function(){
 
-var gd = document.getElementById('d08acace-7007-4263-bd2f-68751718b799');
+var gd = document.getElementById('a461fee2-2eec-4ce2-8e3b-c11c7742f787');
 var x = new MutationObserver(function (mutations, observer) {{
         var display = window.getComputedStyle(gd).display;
         if (!display || display === 'none') {{
@@ -8705,20 +8708,20 @@ if (outputEl) {{
 <div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-OutputArea-output" data-mime-type="text/markdown" tabindex="0">
 <p><strong>What the calendar explains in the whole bank</strong> (R² 0.93):</p>
 <ul>
-<li>Saturday versus Monday: <strong>-35.3 %</strong> (significant)</li>
-<li>Sunday versus Monday: <strong>-37.6 %</strong> (significant)</li>
-<li>a holiday: <strong>-0.5 %</strong> (not significant, p = 0.62)</li>
-<li>the three days after a payday: <strong>-1.6 %</strong> (significant)</li>
-<li>month end: <strong>-0.6 %</strong> (not significant, p = 0.42)</li>
+<li>Saturday versus Monday: <strong>-38.9 %</strong> (significant)</li>
+<li>Sunday versus Monday: <strong>-39.0 %</strong> (significant)</li>
+<li>a holiday: <strong>-0.3 %</strong> (not significant, p = 0.77)</li>
+<li>the three days after a payday: <strong>-1.3 %</strong> (not significant, p = 0.03)</li>
+<li>month end: <strong>-0.6 %</strong> (not significant, p = 0.41)</li>
 <li>bonus month: <strong>-0.5 %</strong> (not significant, p = 0.45)</li>
-<li>trend per year: <strong>+0.2 %</strong> (not significant, p = 0.52)</li>
+<li>trend per year: <strong>+0.2 %</strong> (not significant, p = 0.53)</li>
 </ul>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=f338801b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ca1159ad">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8733,7 +8736,7 @@ every model use them.</p>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9551e109">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=daa1aac5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8745,7 +8748,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4ae4db97">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f1bc6fd9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8774,7 +8777,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output" data-mime-type="text/html" tabindex="0">
 <!--| quarto-html-table-processing: none -->
-<table hidden="hidden" id="itables_5b629208_fc87_45d6_a7b4_05a8692eacc3">
+<table hidden="hidden" id="itables_3f11220f_9b72_4362_a466_c8e58929358d">
 <tbody>
 <tr>
 <td style="vertical-align:middle; text-align:left"><a href="https://itables.org/"><svg class="main-svg" style="font-family: 'Droid Sans', sans-serif;" viewbox="0 0 500 400" width="64" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -8836,7 +8839,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </tr>
 </tbody>
 </table>
-<div id="itables_5b629208_fc87_45d6_a7b4_05a8692eacc3_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
+<div id="itables_3f11220f_9b72_4362_a466_c8e58929358d_fallback"><table style="border-collapse:collapse"><thead> <tr style="text-align: right;">
 <th style="border:1px solid #ddd;padding:8px"><sup><noscript><span title="JavaScript not allowed. Please trust this notebook to get interactive tables.">🔒</span></noscript><a href="https://itables.org/fallbacks/static_preview.html" title="ITables v2.9.1 static preview">ⓘ</a></sup>transaction_id</th>
 <th style="border:1px solid #ddd;padding:8px">transaction_ts_utc</th>
 <th style="border:1px solid #ddd;padding:8px">ts_customer_local</th>
@@ -8849,27 +8852,27 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 <th style="border:1px solid #ddd;padding:8px">days_since_payday</th>
 <th style="border:1px solid #ddd;padding:8px">is_month_end</th>
 </tr></thead><tbody>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-H50P23T109X1E3SFO55I</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 05:00:24</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 00:00:24</td><td style="border:1px solid #ddd;padding:8px">2024-07-01</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">San Pedro y San Pablo (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-9XC59XN1WLQ5IBU0EV1Q</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 05:02:41</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 00:02:41</td><td style="border:1px solid #ddd;padding:8px">2024-07-01</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">San Pedro y San Pablo (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-DE40NR4G0RY15FSOSB2Q</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 05:04:40</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 00:04:40</td><td style="border:1px solid #ddd;padding:8px">2024-07-01</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">San Pedro y San Pablo (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-KZOG3FKJ0M5AZ6VA8VJJ</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 05:41:13</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 00:41:13</td><td style="border:1px solid #ddd;padding:8px">2024-07-01</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">San Pedro y San Pablo (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-ENAME6RJGYVUBH9SEUX9</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 05:25:22</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 00:25:22</td><td style="border:1px solid #ddd;padding:8px">2024-07-01</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">San Pedro y San Pablo (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-SXTQ3BNNJSU42TF4QOX2</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 05:56:44</td><td style="border:1px solid #ddd;padding:8px">2024-07-01 00:56:44</td><td style="border:1px solid #ddd;padding:8px">2024-07-01</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">San Pedro y San Pablo (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-WYLR6S37Q4GKBVTWN7U9</td><td style="border:1px solid #ddd;padding:8px">2023-08-21 05:01:41</td><td style="border:1px solid #ddd;padding:8px">2023-08-21 00:01:41</td><td style="border:1px solid #ddd;padding:8px">2023-08-21</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">6.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-<tr><td style="border:1px solid #ddd;padding:8px">TRX-HJ3SH504DEATHAB3YU8N</td><td style="border:1px solid #ddd;padding:8px">2023-08-21 03:17:45</td><td style="border:1px solid #ddd;padding:8px">2023-08-21 00:17:45</td><td style="border:1px solid #ddd;padding:8px">2023-08-21</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">Paso a la Inmortalidad del General Don José de San Martín</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">20.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
-</tbody></table></div><script>document.getElementById("itables_5b629208_fc87_45d6_a7b4_05a8692eacc3")?.removeAttribute("hidden");document.getElementById("itables_5b629208_fc87_45d6_a7b4_05a8692eacc3_fallback")?.setAttribute("hidden", "hidden");</script>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-J0GDGC70CDDBT593XEVX</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 07:48:31</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 01:48:31</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-JQE50BE4ZM9VHJBLHXT0</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 22:17:39</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 16:17:39</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">16</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-C6P4NCJ8RG33DUCHXNUC</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 18:01:47</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 12:01:47</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">12</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-CT1FIY5PYVWYH09CLEAC</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 06:25:45</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 00:25:45</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">0</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-HNMU3GHGC4OBSBYGUJXH</td><td style="border:1px solid #ddd;padding:8px">2025-08-19 03:07:37</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 21:07:37</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">21</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-XNGGZ7DN4VOKHGE5ZDRG</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 08:36:27</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 02:36:27</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">2</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-5TNPQC0MRSC7H1115GK3</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 14:54:29</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 08:54:29</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">8</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+<tr><td style="border:1px solid #ddd;padding:8px">TRX-RK04E7XP3U4A1UFPI936</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 12:55:32</td><td style="border:1px solid #ddd;padding:8px">2025-08-18 06:55:32</td><td style="border:1px solid #ddd;padding:8px">2025-08-18</td><td style="border:1px solid #ddd;padding:8px">6</td><td style="border:1px solid #ddd;padding:8px">1</td><td style="border:1px solid #ddd;padding:8px">True</td><td style="border:1px solid #ddd;padding:8px">La Asunción (observado)</td><td style="border:1px solid #ddd;padding:8px">False</td><td style="border:1px solid #ddd;padding:8px">3.0</td><td style="border:1px solid #ddd;padding:8px">False</td></tr>
+</tbody></table></div><script>document.getElementById("itables_3f11220f_9b72_4362_a466_c8e58929358d")?.removeAttribute("hidden");document.getElementById("itables_3f11220f_9b72_4362_a466_c8e58929358d_fallback")?.setAttribute("hidden", "hidden");</script>
 <link href="https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.css" rel="stylesheet"/>
 <script type="module">
     import { ITable, jQuery as $ } from 'https://www.unpkg.com/dt_for_itables@2.5.8/dt_bundle.js';
 
-    document.querySelectorAll("#itables_5b629208_fc87_45d6_a7b4_05a8692eacc3:not(.dataTable)").forEach(table => {
+    document.querySelectorAll("#itables_3f11220f_9b72_4362_a466_c8e58929358d:not(.dataTable)").forEach(table => {
         if (!(table instanceof HTMLTableElement))
             return;
 
         let dt_args = {
           "classes": ["display", "nowrap", "compact"],
           "columnDefs": [{"render": "function (data, type, row, meta) { return type === 'sort' || type === 'type' ? data[1] : data[0]; }", "targets": [9]}],
-          "data_json": "[[\"TRX-H50P23T109X1E3SFO55I\", \"2024-07-01 05:00:24\", \"2024-07-01 00:00:24\", \"2024-07-01\", 0, 1, true, \"San Pedro y San Pablo (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-9XC59XN1WLQ5IBU0EV1Q\", \"2024-07-01 05:02:41\", \"2024-07-01 00:02:41\", \"2024-07-01\", 0, 1, true, \"San Pedro y San Pablo (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-DE40NR4G0RY15FSOSB2Q\", \"2024-07-01 05:04:40\", \"2024-07-01 00:04:40\", \"2024-07-01\", 0, 1, true, \"San Pedro y San Pablo (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-KZOG3FKJ0M5AZ6VA8VJJ\", \"2024-07-01 05:41:13\", \"2024-07-01 00:41:13\", \"2024-07-01\", 0, 1, true, \"San Pedro y San Pablo (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-ENAME6RJGYVUBH9SEUX9\", \"2024-07-01 05:25:22\", \"2024-07-01 00:25:22\", \"2024-07-01\", 0, 1, true, \"San Pedro y San Pablo (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-SXTQ3BNNJSU42TF4QOX2\", \"2024-07-01 05:56:44\", \"2024-07-01 00:56:44\", \"2024-07-01\", 0, 1, true, \"San Pedro y San Pablo (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-WYLR6S37Q4GKBVTWN7U9\", \"2023-08-21 05:01:41\", \"2023-08-21 00:01:41\", \"2023-08-21\", 0, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"6.0\", 6.0], false], [\"TRX-HJ3SH504DEATHAB3YU8N\", \"2023-08-21 03:17:45\", \"2023-08-21 00:17:45\", \"2023-08-21\", 0, 1, true, \"Paso a la Inmortalidad del General Don Jos\\u00e9 de San Mart\\u00edn\", false, [\"20.0\", 20.0], false]]",
+          "data_json": "[[\"TRX-J0GDGC70CDDBT593XEVX\", \"2025-08-18 07:48:31\", \"2025-08-18 01:48:31\", \"2025-08-18\", 1, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-JQE50BE4ZM9VHJBLHXT0\", \"2025-08-18 22:17:39\", \"2025-08-18 16:17:39\", \"2025-08-18\", 16, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-C6P4NCJ8RG33DUCHXNUC\", \"2025-08-18 18:01:47\", \"2025-08-18 12:01:47\", \"2025-08-18\", 12, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-CT1FIY5PYVWYH09CLEAC\", \"2025-08-18 06:25:45\", \"2025-08-18 00:25:45\", \"2025-08-18\", 0, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-HNMU3GHGC4OBSBYGUJXH\", \"2025-08-19 03:07:37\", \"2025-08-18 21:07:37\", \"2025-08-18\", 21, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-XNGGZ7DN4VOKHGE5ZDRG\", \"2025-08-18 08:36:27\", \"2025-08-18 02:36:27\", \"2025-08-18\", 2, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-5TNPQC0MRSC7H1115GK3\", \"2025-08-18 14:54:29\", \"2025-08-18 08:54:29\", \"2025-08-18\", 8, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false], [\"TRX-RK04E7XP3U4A1UFPI936\", \"2025-08-18 12:55:32\", \"2025-08-18 06:55:32\", \"2025-08-18\", 6, 1, true, \"La Asunci\\u00f3n (observado)\", false, [\"3.0\", 3.0], false]]",
           "keys_to_be_evaluated": [["columnDefs", 0, "render"]],
           "layout": {"bottomEnd": null, "bottomStart": null, "topEnd": null, "topStart": null},
           "order": [],
@@ -8886,7 +8889,7 @@ local columns to <code>int_transactions_enriched</code>, so every mart and featu
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e5c580a9">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7f75e373">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8898,7 +8901,7 @@ actually contains before any model is asked to learn them.</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c36648f8">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=5dd0b0af">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8920,7 +8923,7 @@ actually contains before any model is asked to learn them.</p>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>notebook time 20s
+<pre>notebook time 11s
 </pre>
 </div>
 </div>

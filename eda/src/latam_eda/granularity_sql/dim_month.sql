@@ -1,0 +1,22 @@
+-- The month grain, a shrunken roll-up of the day calendar: days, business days per market, and whether the month is
+-- fully covered by the data (2023-06 and 2026-05 are partial: the source starts on the 17th and stops on the 17th).
+-- grain: month_start
+with bounds as (
+    select cast(min(transaction_ts_utc) as date) as first_day, cast(max(transaction_ts_utc) as date) as last_day
+    from {int_transactions_enriched}
+)
+select
+    d.month_start,
+    year(d.month_start)                                                    as year,
+    quarter(d.month_start)                                                 as quarter,
+    month(d.month_start)                                                   as month_of_year,
+    count(distinct d.local_date)                                           as n_days,
+    count(*) filter (where d.country_code = 'MX' and d.is_business_day)    as business_days_mx,
+    count(*) filter (where d.country_code = 'CO' and d.is_business_day)    as business_days_co,
+    count(*) filter (where d.country_code = 'AR' and d.is_business_day)    as business_days_ar,
+    d.month_start < date_trunc('month', any_value(b.first_day) + interval 1 month)
+      and day(any_value(b.first_day)) > 1
+      or d.month_start = date_trunc('month', any_value(b.last_day))        as is_partial
+from {dim_country_day} d cross join bounds b
+where d.month_start between date_trunc('month', b.first_day) and date_trunc('month', b.last_day)
+group by d.month_start

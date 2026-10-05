@@ -1,0 +1,16 @@
+market,cause,effect,best lag (days),p_value,significant (FDR 5 %),p_adjusted
+AR,digital_errors,contacts,1,0.6427670894274866,False,1.0
+AR,contacts,complaints_opened,2,0.27752001985723684,False,1.0
+AR,n_declined,contacts,7,0.07740883423268483,False,1.0
+AR,sends,n_tx,3,0.6262805777368632,False,1.0
+AR,escalations,complaints_opened,2,0.4386662627291693,False,1.0
+CO,digital_errors,contacts,1,0.2395790148816166,False,1.0
+CO,contacts,complaints_opened,3,0.17763691660186837,False,1.0
+CO,n_declined,contacts,1,0.25334706490713543,False,1.0
+CO,sends,n_tx,5,0.062140276861150825,False,1.0
+CO,escalations,complaints_opened,1,0.6125036453013354,False,1.0
+MX,digital_errors,contacts,1,0.126640574806815,False,1.0
+MX,contacts,complaints_opened,1,0.6113859891634231,False,1.0
+MX,n_declined,contacts,2,0.3427102015394406,False,1.0
+MX,sends,n_tx,2,0.3406801050944896,False,1.0
+MX,escalations,complaints_opened,2,0.034085707956186304,False,1.0

@@ -1,0 +1,4 @@
+state,dormant,light,active,stationary,observed_share,sojourn_months
+dormant,0.6192,0.34,0.0408,0.5033,0.5035,2.63
+light,0.4071,0.4949,0.098,0.4206,0.4204,1.98
+active,0.2679,0.5431,0.189,0.0761,0.0761,1.23

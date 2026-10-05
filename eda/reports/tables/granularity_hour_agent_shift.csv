@@ -1,0 +1,5 @@
+scenario,test,statistic,p_value,effect,n,reading
+05 agent and queue,Afternoon agents: contacts inside their shift vs the shift's share of the day,0.3348210367405691,0.1319437124016375,0.0014877034072358075,227868,shift label unrelated to the work
+05 agent and queue,Morning agents: contacts inside their shift vs the shift's share of the day,0.3338988831848036,0.5671612290972083,0.0005655498514702817,228686,shift label unrelated to the work
+05 agent and queue,Night agents: contacts inside their shift vs the shift's share of the day,0.3336284254154762,0.845298875595504,0.0002950920821429004,99404,shift label unrelated to the work
+05 agent and queue,active agents follow the Erlang requirement across hours of the week (Spearman),0.7824959479155736,5.511730210024857e-36,0.7824959479155736,168,mechanical: an agent is active only when given a contact

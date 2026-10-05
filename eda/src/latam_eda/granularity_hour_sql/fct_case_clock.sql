@@ -1,0 +1,25 @@
+-- Accumulating snapshot, one row per complaint case, with its milestones placed on the complaint delivery clock
+-- (−8 h): elapsed hours to assignment, first response and resolution, the hour and weekday the case arrived, and the
+-- right-censoring fields survival methods need. Business hours (the regulators' clock) are computed from these
+-- timestamps with granularity.business_hours_between and the country calendar.
+-- grain: complaint_id
+-- reconcile: n_cases = count(*) from {fct_complaint}
+with end_ as (select max(created_ts_utc) as data_end from {fct_complaint})
+select c.complaint_id, c.customer_id, p.country_code, c.case_type, c.category, c.priority, c.reception_channel,
+       c.created_ts_utc - interval 8 hour as created_clock,
+       c.assigned_ts_utc - interval 8 hour as assigned_clock,
+       c.first_response_ts_utc - interval 8 hour as first_response_clock,
+       c.resolved_ts_utc - interval 8 hour as resolved_clock,
+       hour(c.created_ts_utc - interval 8 hour) as created_hour_of_day,
+       isodow(c.created_ts_utc - interval 8 hour) as created_weekday,
+       date_diff('minute', c.created_ts_utc, c.assigned_ts_utc) / 60.0 as hours_to_assign,
+       date_diff('minute', c.created_ts_utc, c.first_response_ts_utc) / 60.0 as hours_to_first_response,
+       date_diff('minute', c.created_ts_utc, c.resolved_ts_utc) / 60.0 as hours_to_resolve,
+       c.first_response_ts_utc is not null as responded_event,
+       c.resolved_ts_utc is not null as resolved_event,
+       date_diff('minute', c.created_ts_utc, coalesce(c.first_response_ts_utc, e.data_end)) / 60.0 as hours_observed_response,
+       date_diff('minute', c.created_ts_utc, coalesce(c.resolved_ts_utc, e.data_end)) / 60.0 as hours_observed_resolve,
+       c.sla_breached, c.resolution_days,
+       1 as n_cases
+from {fct_complaint} c cross join end_ e
+join {int_customer_profile} p using (customer_id)

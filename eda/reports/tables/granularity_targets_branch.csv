@@ -1,0 +1,2 @@
+grain,target,kind,train_rows,test_rows,test_positives,base_rate,metric,value,ci_low,ci_high,baseline,p_value,best_single_feature,best_single_value,verdict,note
+branch × day,cash withdrawn (USD),forecast,,,,,MASE,0.7740502223576387,,,1.0180014176996708,1.955082409945217e-195,boosting,,forecastable: beats seasonal naive,median MASE over 350 branches

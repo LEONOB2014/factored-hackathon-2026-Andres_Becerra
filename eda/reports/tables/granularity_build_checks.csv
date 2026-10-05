@@ -1,0 +1,44 @@
+model,check,detail,expected,observed,ok,abs_difference
+dim_case_type,grain_unique,case_type_key,160,160,True,
+dim_channel,grain_unique,"process, channel",27,27,True,
+dim_country_day,grain_unique,"country_code, local_date",3378,3378,True,
+dim_customer_band,grain_unique,band_key,96,96,True,
+dim_data_day,grain_unique,"country_code, local_date",3204,3204,True,
+dim_merchant_category,grain_unique,category,7,7,True,
+dim_month,grain_unique,month_start,36,36,True,
+fct_agent_day,grain_unique,"agent_id, work_date",522117,522117,True,
+fct_agent_day,reconciles,contacts = count(agent_id) per total,1,1,True,0.0
+fct_agent_day,reconciles,surveys = count(agent_id) per total,1,1,True,0.0
+fct_branch_day,grain_unique,"branch_id, local_date",373800,373800,True,
+fct_branch_day,reconciles,n_tx = count(branch_id) per total,1,1,True,0.0
+fct_branch_day,dense_complete,branch_id x local_date,373800,373800,True,
+fct_campaign_day,grain_unique,"campaign_id, send_date",8818,8818,True,
+fct_campaign_day,reconciles,sends = count(*) per send_date,1053,1053,True,0.0
+fct_campaign_day,reconciles,conversions = count(*) filter (where had_conversion) per total,1,1,True,0.0
+fct_case,grain_unique,complaint_id,65191,65191,True,
+fct_case,reconciles,n_cases = count(*) per total,1,1,True,0.0
+fct_category_month,grain_unique,"category, country_code, month_start",756,756,True,
+fct_category_month,reconciles,n_tx = count(*) per month_start,36,36,True,0.0
+fct_country_day,grain_unique,"country_code, local_date",3204,3204,True,
+fct_country_day,reconciles,n_tx = count(*) per total,1,1,True,0.0
+fct_country_day,reconciles,contacts = count(*) per total,1,1,True,0.0
+fct_country_day,reconciles,complaints_opened = count(*) per total,1,1,True,0.0
+fct_country_day,reconciles,sends = count(*) per total,1,1,True,0.0
+fct_country_day,dense_complete,country_code x local_date,3204,3204,True,
+fct_channel_day,grain_unique,"country_code, channel, local_date",19224,19224,True,
+fct_channel_day,reconciles,n_tx = count(*) per total,1,1,True,0.0
+fct_channel_day,dense_complete,country_code x channel x local_date,19224,19224,True,
+fct_customer_month,grain_unique,"customer_id, month_start",5400000,5400000,True,
+fct_customer_month,reconciles,n_tx = count(*) per month_start,36,36,True,0.0
+fct_customer_month,reconciles,outflow_usd = sum(outflow_usd) per month_start,36,36,True,8.806586265563965e-06
+fct_customer_month,reconciles,contacts = count(*) per month_start,36,36,True,0.0
+fct_customer_month,reconciles,sessions = count(customer_id) per month_start,36,36,True,0.0
+fct_customer_month,reconciles,complaints_opened = count(*) per month_start,36,36,True,0.0
+fct_customer_month,reconciles,sends = count(*) per month_start,36,36,True,0.0
+fct_customer_month,reconciles,surveys = count(*) per month_start,36,36,True,0.0
+fct_customer_month,dense_complete,customer_id x month_start,5400000,5400000,True,
+fct_customer_snapshot,grain_unique,customer_id,150000,150000,True,
+fct_customer_snapshot,reconciles,lifetime_tx = count(*) per total,1,1,True,0.0
+fct_customer_snapshot,reconciles,lifetime_contacts = count(*) per total,1,1,True,0.0
+fct_product_month,grain_unique,"product_id, month_start",12373870,12373870,True,
+fct_product_month,reconciles,n_tx = count(product_id) per month_start,36,36,True,0.0

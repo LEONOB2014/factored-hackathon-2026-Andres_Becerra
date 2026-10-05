@@ -310,15 +310,19 @@ run("campaign conversion", camp, "outcome_converted", "send_ts_utc", MF)
 # ## 5 · Complaint within 14 days of a contact (escalation)
 
 # %%
-cx = pl.q("""
+CONTACT_DAY = country.utc_offset(
+    "MX", process="call_center_interactions"
+)  # contacts' delivery day: ts − 8 h
+cx = pl.q(f"""
     select j.interaction_ts_utc, j.interaction_type, j.channel, j.contact_reason, j.duration_seconds,
            j.wait_time_seconds, j.was_resolved, j.was_escalated, j.requires_followup, j.sentiment_score,
            j.prior_contacts_30d, j.agent_experience_level, j.agent_type, j.accent_matched,
            k.iso_weekday, k.is_holiday, j.complaint_within_14d
-    from {mart_cx_journey} j
+    from {{mart_cx_journey}} j
     left join main.customer_local cl on cl.customer_id = j.customer_id
     left join main.calendar_local k
-      on k.country_code = cl.country_code and k.local_date = cast(j.interaction_ts_utc + to_hours(cl.utc_offset) as date)""")
+      on k.country_code = cl.country_code
+     and k.local_date = cast(j.interaction_ts_utc + to_hours({CONTACT_DAY}) as date)""")
 XF = [
     "interaction_type",
     "channel",

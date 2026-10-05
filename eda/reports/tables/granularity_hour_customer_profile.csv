@@ -1,0 +1,3 @@
+scenario,test,statistic,p_value,effect,n,reading
+02 customer,customers with a preferred hour (share rejecting flat at 1 %),0.010506578233717128,0.10209573085598087,0.0005065782337171278,64531,no more than chance
+02 customer,daypart concentration vs flat-hours simulation (KS),0.004194235023959547,0.37016448105604327,0.00011137951394102341,95369,profiles are multinomial noise
