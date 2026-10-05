@@ -1,0 +1,35 @@
+[project]
+name = "latam-copilot"
+version = "0.1.0"
+description = "Card-service copilot (ES/PT) over the LATAM Bank card serving mart, with policy, verified actions and handoff"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "anthropic>=0.69",
+    "duckdb>=1.5.6",
+    "fastapi>=0.115",
+    "pyyaml>=6.0",
+    "scikit-learn>=1.9.1",
+    "uvicorn>=0.32",
+]
+
+[project.optional-dependencies]
+tune = ["mlflow>=3.0", "optuna>=4.0"]
+# retrieval over the governed knowledge base: the embedder for the bundled index, plus the dev-stack stores
+rag = ["numpy>=2.0", "sentence-transformers>=3.0"]
+stores = ["neo4j>=5.20", "psycopg[binary]>=3.2"]
+deploy = ["modal>=1.0"]
+
+[dependency-groups]
+dev = ["httpx>=0.28", "pytest>=8.3.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/copilot"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --tb=short"
