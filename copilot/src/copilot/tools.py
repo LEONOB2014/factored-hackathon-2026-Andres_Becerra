@@ -87,22 +87,37 @@ class ToolError(Exception):
 
 
 class Tools:
-    def __init__(self, snapshot: Path, store: Path, key: bytes, confirm_ttl_s: int = 300):
+    def __init__(
+        self,
+        snapshot: Path,
+        store: Path,
+        key: bytes,
+        confirm_ttl_s: int = 300,
+        sandbox: bool = False,
+    ):
         self.snapshot_path, self.key, self.confirm_ttl_s = snapshot, key, confirm_ttl_s
+        # sandbox (the public demo): a confirmed action changes the card only for the session that made it, so every
+        # visitor starts from the snapshot; otherwise actions are global, as in production
+        self.sandbox = sandbox
         self._db = duckdb.connect(str(snapshot), read_only=True)
         self._lock = threading.Lock()
         store.parent.mkdir(parents=True, exist_ok=True)
         self._store = sqlite3.connect(str(store), check_same_thread=False, isolation_level=None)
         self._store.executescript("""
-            create table if not exists card_overrides(
-                product_id text primary key, status text not null, action_id text not null, updated_at text not null);
-            create table if not exists reissue_requests(
-                product_id text primary key, action_id text not null, created_at text not null);
+            create table if not exists card_state(
+                scope text not null, product_id text not null, status text not null, action_id text not null,
+                updated_at text not null, primary key (scope, product_id));
+            create table if not exists reissue_request(
+                scope text not null, product_id text not null, action_id text not null, created_at text not null,
+                primary key (scope, product_id));
             create table if not exists actions(
                 action_id text primary key, nonce text unique not null, action text not null, customer_id text not null,
                 product_id text not null, created_at text not null);
         """)
         self.fail_next: str | None = None  # fault injection for the evaluation ("read" | "write")
+
+    def _scope(self, session: Session) -> str:
+        return session.session_id if self.sandbox else "global"
 
     # --- reads ---------------------------------------------------------------------------------------------------
     def known_customer(self, customer_id: str) -> bool:
@@ -127,12 +142,14 @@ class Tools:
         for r in rows:
             d = dict(zip(COLUMNS, r, strict=True))
             ov = self._store.execute(
-                "select status from card_overrides where product_id = ?", [d["product_id"]]
+                "select status from card_state where scope = ? and product_id = ?",
+                [self._scope(session), d["product_id"]],
             ).fetchone()
             status = ov[0] if ov else d["product_status"]
             reissued = bool(
                 self._store.execute(
-                    "select 1 from reissue_requests where product_id = ?", [d["product_id"]]
+                    "select 1 from reissue_request where scope = ? and product_id = ?",
+                    [self._scope(session), d["product_id"]],
                 ).fetchone()
             )
             out.append(
@@ -210,13 +227,13 @@ class Tools:
             )
             if p["act"] == "reissue":
                 self._store.execute(
-                    "insert or replace into reissue_requests values (?, ?, ?)",
-                    [p["pid"], action_id, now],
+                    "insert or replace into reissue_request values (?, ?, ?, ?)",
+                    [self._scope(session), p["pid"], action_id, now],
                 )
             else:
                 self._store.execute(
-                    "insert or replace into card_overrides values (?, ?, ?, ?)",
-                    [p["pid"], ACTIONS[p["act"]], action_id, now],
+                    "insert or replace into card_state values (?, ?, ?, ?, ?)",
+                    [self._scope(session), p["pid"], ACTIONS[p["act"]], action_id, now],
                 )
             self._store.execute("commit")
         except (

@@ -50,6 +50,8 @@ class Settings:
     # test identity fixtures: demo customers sign in with these one-time codes (test mode only)
     otp_fixture: str = os.environ.get("COPILOT_TEST_OTP", "246810")
     stepup_fixture: str = os.environ.get("COPILOT_TEST_STEPUP", "135790")
+    # public demo: confirmed actions apply only within the session that made them (see Tools)
+    sandbox: bool = _flag("COPILOT_SANDBOX", True)
     use_llm: bool = _flag("COPILOT_USE_LLM", True)
     rephrase: bool = _flag("COPILOT_REPHRASE", True)
     llm_model: str = os.environ.get("COPILOT_LLM_MODEL", "claude-haiku-4-5")
