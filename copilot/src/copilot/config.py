@@ -50,6 +50,24 @@ class Settings:
     # test identity fixtures: demo customers sign in with these one-time codes (test mode only)
     otp_fixture: str = os.environ.get("COPILOT_TEST_OTP", "246810")
     stepup_fixture: str = os.environ.get("COPILOT_TEST_STEPUP", "135790")
+    # test staff code for the agent desk (test mode, shown in the console like the customer codes)
+    staff_fixture: str = os.environ.get("COPILOT_TEST_STAFF", "112233")
+    cors_origins: tuple[str, ...] = tuple(
+        o.strip()
+        for o in os.environ.get(
+            "COPILOT_CORS_ORIGINS",
+            "http://localhost:3000,http://localhost:5173,http://localhost:8080",
+        ).split(",")
+        if o.strip()
+    )
+    # control-plane aggregates served read-only (committed reports; no customer rows)
+    readiness_csv: Path = Path(
+        os.environ.get(
+            "COPILOT_READINESS",
+            REPO / "eda" / "reports" / "tables" / "granularity_hour_readiness.csv",
+        )
+    )
+    eval_dir: Path = Path(os.environ.get("COPILOT_EVAL_DIR", PROJECT / "eval" / "reports"))
     # public demo: confirmed actions apply only within the session that made them (see Tools)
     sandbox: bool = _flag("COPILOT_SANDBOX", True)
     use_llm: bool = _flag("COPILOT_USE_LLM", True)
