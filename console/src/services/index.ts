@@ -8,7 +8,7 @@ import knowledge from "@/mocks/knowledge.json";
 import specs from "@/mocks/specs.json";
 import { api, type RegionId } from "./api";
 import type {
-  AtlasCell, Correction, DemoInfo, DeskCase, KChunk, KDoc, Kpi, Persona, PipelineCell, PolicyRow,
+  AtlasCell, Correction, DemoInfo, DeskCase, KChunk, KDoc, Persona, PipelineCell, PolicyRow,
   QAgent, QIssue, Queue, Spec, UnsafeCase, Veto, Status, Verdict,
 } from "./types";
 
@@ -77,9 +77,8 @@ export const deskService = {
     toDeskCase(await api<ApiCase>(region, `/api/handoffs/${id}/status`, { body: { status, actor, note }, staffCode })),
 };
 
-// ---- supervisor ----
+// ---- supervisor (KPIs: real, see evaluation.ts; unsafe cases and policy: demo data) ----
 export const supervisorService = {
-  kpis: () => delay(supervisor.kpis as Kpi[]),
   unsafe: () => delay(supervisor.unsafe as UnsafeCase[]),
   policy: () => delay({ version: "policy v1.7.2", rows: supervisor.policy as PolicyRow[], vetoes: supervisor.vetoes as Veto[] }),
 };

@@ -1,9 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { supervisorService } from "@/services";
-import type { UnsafeCase } from "@/services/types";
-import { AutonomyBadge, IntervalBar, Mono, OutcomeBadge, PageHeader } from "@/components/beta/badges";
+import { useState, type ReactNode } from "react";
+import { evaluationService, supervisorService } from "@/services";
+import { headlineRun, intervalPoints } from "@/services/evaluation";
+import { RATE_METRICS, type EvalBlock, type Rate, type RateMetric, type UnsafeCase } from "@/services/types";
+import { AutonomyBadge, IntervalBar, Mono, OutcomeBadge, PageHeader, StatusBadge } from "@/components/beta/badges";
+import { IntervalChart } from "@/components/beta/plots";
 import { TracePanel } from "@/components/beta/TracePanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,7 +16,7 @@ export const Route = createFileRoute("/supervisor")({
   head: () => ({
     meta: [
       { title: "Supervisor — BETA AID" },
-      { name: "description", content: "Copilot KPIs with 95% intervals, unsafe case drill-down and the versioned autonomy policy." },
+      { name: "description", content: "Copilot challenge-set KPIs with Wilson 95% intervals, keyword vs learned, unsafe case drill-down and the versioned autonomy policy." },
       { property: "og:title", content: "Supervisor — BETA AID" },
       { property: "og:description", content: "Copilot KPIs with 95% intervals and the versioned autonomy policy." },
     ],
@@ -22,48 +24,145 @@ export const Route = createFileRoute("/supervisor")({
   component: SupervisorPage,
 });
 
+const METRIC_KEY: Record<RateMetric, string> = {
+  correct: "kpi.correct",
+  safe_automated_resolution_in_scope: "kpi.safe",
+  safe_automated_resolution_attempted: "kpi.safe_attempted",
+  containment: "kpi.containment",
+  missed_transfers: "kpi.missed",
+  unnecessary_transfers: "kpi.unnecessary",
+  unsafe_cases: "kpi.unsafe",
+};
+const LOWER_BETTER: RateMetric[] = ["missed_transfers", "unnecessary_transfers", "unsafe_cases"];
+
+const pct = (x: number) => `${(x * 100).toFixed(1).replace(".", ",")} %`;
+const ci = (r: Rate) => `[${pct(r.ci95[0])}, ${pct(r.ci95[1])}]`;
+
 function SupervisorPage() {
   const { t } = useI18n();
   const tx = useTx();
-  const { data: kpis } = useQuery({ queryKey: ["kpis"], queryFn: supervisorService.kpis });
+  const ev = useQuery({ queryKey: ["control", "evaluation"], queryFn: () => evaluationService.get() });
   const { data: unsafe } = useQuery({ queryKey: ["unsafe"], queryFn: supervisorService.unsafe });
   const { data: policy } = useQuery({ queryKey: ["policy"], queryFn: supervisorService.policy });
-  const [lang, setLang] = useState("all");
+  const [lang, setLang] = useState<"all" | "es" | "pt">("all");
   const [region, setRegion] = useState("all");
-  const [date, setDate] = useState("7d");
   const [drill, setDrill] = useState<UnsafeCase | null>(null);
   const rows = (unsafe ?? []).filter((u) => (lang === "all" || u.lang === lang) && (region === "all" || u.region === region));
 
-  const filters = (
-    <div className="flex flex-wrap gap-2">
-      <F label="Idioma" value={lang} onChange={setLang} opts={[["all", "ES + PT"], ["es", "ES"], ["pt", "PT"]]} />
-      <F label="Región" value={region} onChange={setRegion} opts={[["all", "MX · CO · AR"], ["MX", "MX"], ["CO", "CO"], ["AR", "AR"]]} />
-      <F label="Fecha" value={date} onChange={setDate} opts={[["24h", "24 h"], ["7d", "7 d"], ["30d", "30 d"]]} />
-    </div>
-  );
+  const head = ev.data ? headlineRun(ev.data) : undefined;
+  const reruns = ev.data?.runs.filter((r) => r !== head) ?? [];
+  const learned = head?.variants.learned;
+  const block: EvalBlock | undefined = learned?.[lang];
+  const points = ev.data ? intervalPoints(ev.data, lang) : [];
+  const categories = Object.keys(learned?.by_category ?? {}).sort();
 
   return (
     <div className="mx-auto max-w-6xl">
-      <PageHeader eyebrow={tx("Atención al cliente", "Atendimento", "Customer service")} title="Supervisor" actions={filters} />
+      <PageHeader eyebrow={tx("Atención al cliente", "Atendimento", "Customer service")} title="Supervisor"
+        actions={<F label={tx("Idioma", "Idioma", "Language")} value={lang} onChange={(v) => setLang(v as typeof lang)} opts={[["all", "ES + PT"], ["es", "ES"], ["pt", "PT"]]} />}>
+        {tx("KPIs del challenge set congelado, servidos por el copiloto (/api/control/evaluation). Intervalos de Wilson al 95 %.", "KPIs do challenge set congelado, servidos pelo copiloto (/api/control/evaluation). Intervalos de Wilson a 95 %.", "KPIs from the frozen challenge set, served by the copilot (/api/control/evaluation). Wilson 95% intervals.")}
+      </PageHeader>
       <Tabs defaultValue="kpis">
         <TabsList><TabsTrigger value="kpis">KPIs</TabsTrigger><TabsTrigger value="policy">{tx("Política", "Política", "Policy")}</TabsTrigger></TabsList>
         <TabsContent value="kpis" className="mt-4 space-y-6">
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-            {kpis?.map((k) => {
-              const scale = k.id === "p50" || k.id === "p95" ? 30 : k.id === "cost" ? 0.005 : ["missed", "unnecessary", "unsafe"].includes(k.id) ? 0.25 : 1;
-              const min = scale === 1 ? 0.5 : 0;
-              return (
-                <div key={k.id} className="panel p-4">
-                  <div className="text-xs text-muted-foreground">{t(k.label)}</div>
-                  <div className="mt-1 flex items-baseline gap-2"><span className="font-mono text-2xl font-semibold">{k.display}</span><span className="text-[11px] text-muted-foreground">{k.better === "higher" ? "↑" : "↓"} {tx("mejor", "melhor", "better")}</span></div>
-                  <IntervalBar className="mt-3" value={k.value} lo={k.lo} hi={k.hi} min={min} max={scale} />
-                  <div className="mt-1 font-mono text-[10px] text-muted-foreground">IC 95 % [{k.lo}, {k.hi}]</div>
-                </div>
-              );
-            })}
-          </div>
+          {ev.isLoading && <p className="text-sm text-muted-foreground">{tx("Cargando la evaluación…", "Carregando a avaliação…", "Loading the evaluation…")}</p>}
+          {ev.isError && <div className="panel p-4 text-sm text-blocked">{tx("No se pudo leer /api/control/evaluation", "Não foi possível ler /api/control/evaluation", "Could not read /api/control/evaluation")}: <Mono>{ev.error instanceof Error ? ev.error.message : String(ev.error)}</Mono></div>}
+          {ev.data && !head && <p className="text-sm text-muted-foreground">{tx("Este despliegue no incluye reportes de evaluación.", "Esta implantação não inclui relatórios de avaliação.", "This deployment bundles no evaluation reports.")}</p>}
+
+          {head && (
+            <div className="panel flex flex-wrap items-center gap-2 p-3 text-xs">
+              <StatusBadge status="ok" mono>headline</StatusBadge>
+              <span><b>{head.label}</b> · {head.n_cases} {tx("casos", "casos", "cases")} · manifest {head.manifest_ok ? "ok" : "✗"} · {tx("variante", "variante", "variant")} <Mono>learned</Mono></span>
+              {reruns.map((r) => (
+                <span key={r.label} className="flex items-center gap-2 text-muted-foreground">
+                  <StatusBadge status="info" mono>{tx("re-ejecución etiquetada", "reexecução rotulada", "labelled re-run")}</StatusBadge>
+                  <b>{r.label}</b> · {tx("solo para comparar; no reemplaza el titular", "só para comparar; não substitui o resultado principal", "for comparison only; it does not replace the headline")}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {block && (
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {(["correct", "safe_automated_resolution_in_scope", "containment", "missed_transfers", "unnecessary_transfers", "unsafe_cases"] as const).map((m) => {
+                const r = block[m];
+                const low = LOWER_BETTER.includes(m);
+                return (
+                  <Tile key={m} label={t(METRIC_KEY[m])} value={pct(r.rate)} better={low ? "lower" : "higher"}>
+                    <IntervalBar className="mt-3" value={r.rate} lo={r.ci95[0]} hi={r.ci95[1]} min={low ? 0 : 0.5} max={low ? 0.25 : 1} />
+                    <div className="mt-1 font-mono text-[10px] text-muted-foreground">{r.k}/{r.n} · IC 95 % {ci(r)}</div>
+                  </Tile>
+                );
+              })}
+              <Tile label={t("kpi.p50")} value={`${block.latency_ms_p50} ms`} better="lower" />
+              <Tile label={t("kpi.p95")} value={`${block.latency_ms_p95} ms`} better="lower" />
+              <Tile label={t("kpi.cost")} value={`US$ ${block.cost_usd_per_resolution.toFixed(4)}`} better="lower">
+                <div className="mt-1 font-mono text-[10px] text-muted-foreground">US$ {block.cost_usd_per_case.toFixed(4)} / {tx("caso", "caso", "case")}</div>
+              </Tile>
+            </div>
+          )}
+
+          {points.length > 0 && (
+            <div className="panel p-4">
+              <div className="text-sm font-semibold">keyword vs learned · {tx("titular vs re-ejecución", "principal vs reexecução", "headline vs re-run")}</div>
+              <div className="mb-3 text-[11px] text-muted-foreground">{tx("Punto = tasa; barra = IC de Wilson 95 %. Opaco = primera ejecución (titular); tenue = re-ejecución etiquetada.", "Ponto = taxa; barra = IC de Wilson 95 %. Opaco = primeira execução (principal); tênue = reexecução rotulada.", "Dot = rate; bar = Wilson 95% CI. Solid = first scored run (headline); faded = labelled re-run.")}</div>
+              <div className="grid gap-x-6 gap-y-4 lg:grid-cols-2">
+                {RATE_METRICS.map((m) => (
+                  <div key={m}>
+                    <div className="text-xs font-medium">{t(METRIC_KEY[m])} <span className="text-muted-foreground">{LOWER_BETTER.includes(m) ? "↓" : "↑"}</span></div>
+                    <IntervalChart label={t(METRIC_KEY[m])} points={points.filter((p) => p.metric === m)} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {learned && (
+            <div className="grid gap-4 xl:grid-cols-[2fr_3fr]">
+              <div className="panel overflow-x-auto">
+                <div className="border-b px-4 py-2.5 text-sm font-semibold">{tx("Por idioma", "Por idioma", "By language")} <Mono className="ml-2 text-muted-foreground">{head?.label} · learned</Mono></div>
+                <table className="w-full text-sm">
+                  <thead className="text-left text-xs text-muted-foreground"><tr className="border-b"><th className="px-4 py-2 font-medium">KPI</th><th className="px-2 font-medium">ES</th><th className="px-2 font-medium">PT</th></tr></thead>
+                  <tbody>
+                    {RATE_METRICS.map((m) => (
+                      <tr key={m} className="border-b last:border-0">
+                        <td className="px-4 py-2 text-xs">{t(METRIC_KEY[m])}</td>
+                        <td className="px-2"><RateCell r={learned.es[m]} /></td>
+                        <td className="px-2"><RateCell r={learned.pt[m]} /></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="panel overflow-x-auto">
+                <div className="border-b px-4 py-2.5 text-sm font-semibold">{tx("Decisión correcta por categoría", "Decisão correta por categoria", "Correct decision by category")}</div>
+                <table className="w-full text-sm">
+                  <thead className="text-left text-xs text-muted-foreground"><tr className="border-b">
+                    <th className="px-4 py-2 font-medium">{tx("categoría", "categoria", "category")}</th>
+                    <th className="px-2 font-medium">keyword</th>
+                    <th className="px-2 font-medium">learned</th>
+                    {reruns.map((r) => <th key={r.label} className="px-2 font-medium">learned · {r.label}</th>)}
+                  </tr></thead>
+                  <tbody>
+                    {categories.map((c) => (
+                      <tr key={c} className="border-b last:border-0">
+                        <td className="px-4 py-2"><Mono>{c}</Mono></td>
+                        <td className="px-2"><RateCell r={head?.variants.keyword?.by_category[c]} /></td>
+                        <td className="px-2"><RateCell r={learned.by_category[c]} /></td>
+                        {reruns.map((r) => <td key={r.label} className="px-2"><RateCell r={r.variants.learned?.by_category[c]} /></td>)}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
           <div className="panel overflow-x-auto">
-            <div className="border-b px-4 py-2.5 text-sm font-semibold">{tx("Casos recientes inseguros o fallidos", "Casos recentes inseguros ou com falha", "Recent unsafe or failed cases")}</div>
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b px-4 py-2.5">
+              <div className="text-sm font-semibold">{tx("Casos recientes inseguros o fallidos", "Casos recentes inseguros ou com falha", "Recent unsafe or failed cases")} <StatusBadge status="info" className="ml-2">{tx("datos de demostración", "dados de demonstração", "demo data")}</StatusBadge></div>
+              <F label={tx("Región", "Região", "Region")} value={region} onChange={setRegion} opts={[["all", "MX · CO · AR"], ["MX", "MX"], ["CO", "CO"], ["AR", "AR"]]} />
+            </div>
             <table className="w-full text-sm">
               <thead className="text-left text-xs text-muted-foreground"><tr className="border-b"><th className="px-4 py-2 font-medium">turn</th><th className="px-2 font-medium">{tx("cuándo", "quando", "when")}</th><th className="px-2 font-medium">lang · region</th><th className="px-2 font-medium">outcome</th><th className="px-2 font-medium">intent</th><th className="px-2 font-medium">{tx("problema", "problema", "issue")}</th></tr></thead>
               <tbody>
@@ -102,6 +201,22 @@ function SupervisorPage() {
       </Sheet>
     </div>
   );
+}
+
+function Tile({ label, value, better, children }: { label: string; value: string; better: "higher" | "lower"; children?: ReactNode }) {
+  const tx = useTx();
+  return (
+    <div className="panel p-4">
+      <div className="text-xs text-muted-foreground">{label}</div>
+      <div className="mt-1 flex items-baseline gap-2"><span className="font-mono text-2xl font-semibold">{value}</span><span className="text-[11px] text-muted-foreground">{better === "higher" ? "↑" : "↓"} {tx("mejor", "melhor", "better")}</span></div>
+      {children}
+    </div>
+  );
+}
+
+function RateCell({ r }: { r: Rate | undefined }) {
+  if (!r) return <span className="text-xs text-muted-foreground">—</span>;
+  return <span className="whitespace-nowrap"><Mono>{pct(r.rate)}</Mono> <Mono className="text-[10px] text-muted-foreground">{r.k}/{r.n} {ci(r)}</Mono></span>;
 }
 
 function F({ label, value, onChange, opts }: { label: string; value: string; onChange: (v: string) => void; opts: [string, string][] }) {

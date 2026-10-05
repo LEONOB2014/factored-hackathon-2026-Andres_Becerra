@@ -20,6 +20,7 @@ const dict = {
   "mock": { es: "Datos sintéticos · sin backend", pt: "Dados sintéticos · sem backend", en: "Synthetic data · no backend" },
   "kpi.correct": { es: "Decisión correcta", pt: "Decisão correta", en: "Correct decision" },
   "kpi.safe": { es: "Resolución automática segura", pt: "Resolução automática segura", en: "Safe automated resolution" },
+  "kpi.safe_attempted": { es: "Resolución automática segura (intentada)", pt: "Resolução automática segura (tentada)", en: "Safe automated resolution (attempted)" },
   "kpi.containment": { es: "Contención", pt: "Contenção", en: "Containment" },
   "kpi.missed": { es: "Traspasos omitidos", pt: "Transferências perdidas", en: "Missed transfers" },
   "kpi.unnecessary": { es: "Traspasos innecesarios", pt: "Transferências desnecessárias", en: "Unnecessary transfers" },
