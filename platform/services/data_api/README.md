@@ -29,8 +29,14 @@ Do not print or commit the file.
 
 ## Endpoints
 
-`GET /health` returns `{"ok": true, "service": "beta-aid-data-api"}` and
-does not open a database connection.
+All routes are `GET`. A database failure is HTTP 503 with a generic
+detail and no connection string.
+
+| Path | Body |
+| --- | --- |
+| `/health` | `ok`, `service`. Does not open a database connection. |
+| `/serving/publications` | Rows from `serving.publication_log`: `table`, `rows`, `digest`, `run_id`, `published_at`. |
+| `/serving/tables` | Each base table in `serving`, `online_features`, and `decisions`, with its row count. |
 
 ## Tests
 
