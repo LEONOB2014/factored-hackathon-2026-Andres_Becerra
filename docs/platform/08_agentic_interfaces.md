@@ -1,8 +1,19 @@
-# 08 · Agentic module (pending): the interfaces it will use
+# 08 · Agentic module: the interfaces it uses
 
 [← 07 ML and graph learning](07_ml_and_graph_learning.md) · [index](README.md) · next: [09 data and model risk methodology →](09_data_and_model_risk_methodology.md)
 
-The agentic module is not built yet. The platform already provides everything it consumes, behind
+> **Status (2026-10-05).** The first agentic module is built: the BETA AID card copilot,
+> [`copilot/`](../../copilot/README.md). It uses part of this design today:
+> - `kb.active_chunk` through `app_reader` for retrieval;
+> - Neo4j over active document versions only, for GraphRAG;
+> - the card serving contract (`serving.serving_card_support`), read from a DuckDB snapshot so the deployed app needs
+>   no database;
+> - MLflow for intent-model tuning, with optional turn tracing.
+>
+> It writes its own SHA-256 hash-chained audit log rather than `genai_audit.AuditedLLM`. It does not yet call the
+> fraud scorer or sit behind Kong. These are the next integration steps, and the diagram below remains the target.
+
+This chapter was written before the module existed. The platform already provides everything it consumes, behind
 least-privilege interfaces, and the audit trail it must write to.
 
 ```mermaid

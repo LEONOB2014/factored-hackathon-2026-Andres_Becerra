@@ -10,11 +10,13 @@ imports it. Procedures too long for this file live in [`docs/development/`](docs
 
 | Path | What it is | Environment |
 |---|---|---|
-| `backend/` | FastAPI app (scaffold) | root `pyproject.toml`, Python 3.11+ |
-| `agents/` | LangGraph orchestrator (scaffold) | root |
+| `copilot/` | BETA AID card-service copilot (ES/PT): policy, verified actions, handoff, RAG, evaluation, Modal deploy | own uv project, Python 3.12 |
+| `platform/` | Data platform: dbt lakehouse, Airflow DAGs, `latam_platform` libraries, policies, Docker stack, Terraform | own uv project (`platform/pyproject.toml`) |
+| `knowledge/` | Governed knowledge-base documents (front matter: status, version, effective window) | — |
+| `backend/`, `agents/` | FastAPI app and LangGraph orchestrator (original scaffolds; the copilot is the served app) | root `pyproject.toml`, Python 3.11+ |
+| `data_engineering/` | Legacy dbt scaffold, superseded by `platform/dbt` (still run by the CI dbt job) | root |
 | `eda/` | Exploratory data analysis: notebooks, scripts, reports, tests | own uv project, Python 3.12 |
-| `copilot/` | Card-service copilot (ES/PT): policy, verified actions, handoff, RAG, evaluation, Modal deploy | own uv project, Python 3.12 |
-| `docs/` | Hackathon brief, dataset docs + ERD, specs, research, development guides | — |
+| `docs/` | Hackathon brief, dataset docs + ERD, platform chapters + ADRs, strategy, original specs, research, development guides | — |
 | `ml/`, `monitoring/`, `infrastructure/`, `scripts/` | ML packages, Prometheus, Dockerfiles, DB init | root |
 | `data/` | Datasets and generated artefacts, **never in git** | shared, see Data |
 
