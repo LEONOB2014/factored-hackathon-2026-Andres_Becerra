@@ -1,6 +1,6 @@
 # ==============================================================================
 # Factored AI & Data Hackathon 2026 - Makefile
-# AI-First Banking Customer Service System
+# BETA AID: Banking Evolutionary Transformation and AI Deployment
 # ==============================================================================
 
 .PHONY: help setup up down clean test lint format check db-init db-migrate \

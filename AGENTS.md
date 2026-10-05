@@ -1,7 +1,8 @@
 # AGENTS.md
 
-Instructions for coding agents (and humans) working on this repository: an AI-first banking
-customer-service system and its compliance-grade data platform for the Factored AI & Data
+Instructions for coding agents (and humans) working on this repository: **BETA AID** (Banking
+Evolutionary Transformation and AI Deployment), an AI customer-service copilot and the
+compliance-grade data platform beneath it, built for LATAM Bank in the Factored AI & Data
 Hackathon 2026. This file is the canonical source of repository standards; `CLAUDE.md`
 imports it. Procedures too long for this file live in [`docs/development/`](docs/development/).
 

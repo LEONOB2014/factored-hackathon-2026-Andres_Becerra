@@ -1,4 +1,4 @@
-# LATAM Bank Grain Atlas
+# BETA AID · Grain Atlas
 
 The exploratory phase read at four grains: **event** (the source as delivered), **country** (the platform rebuilt
 per market, and with the backup as the source), **daily** (day, month and campaign cell) and **hourly** (each

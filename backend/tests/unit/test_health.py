@@ -40,5 +40,5 @@ def test_openapi_schema_builds() -> None:
     """Catches malformed route signatures across every router, not just health."""
     schema = app.openapi()
 
-    assert schema["info"]["title"] == "AI-First Banking Customer Service"
+    assert schema["info"]["title"] == "BETA AID Backend"
     assert "/health" in schema["paths"]
