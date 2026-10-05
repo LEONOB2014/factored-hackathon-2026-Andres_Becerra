@@ -19,6 +19,7 @@ can support, and the copilot that serves its customers.
 
 | Area | Path | Status |
 |---|---|---|
+| BETA AID Console | [`console/`](console/) | 🚧 Web app: chat simulator and agent desk wired to the real copilot per region (four eyes enforced by the API); control-plane screens being wired ([README](console/README.md)) |
 | Card-service copilot | [`copilot/`](copilot/) | ✅ Built and evaluated: policy, verified actions, handoff, RAG and GraphRAG, held-out evaluation, Modal deployment ([README](copilot/README.md)) |
 | Data platform | [`platform/`](platform/) | ✅ Built and run end to end: lossless bronze, dbt silver, gold, aggregates and serving, Airflow 3 with country scopes, audit ledger, knowledge base, streaming fraud features ([docs](docs/platform/README.md)) |
 | Governed knowledge base | [`knowledge/`](knowledge/) | ✅ Approved, versioned documents indexed in pgvector and Neo4j |

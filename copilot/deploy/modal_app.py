@@ -26,6 +26,7 @@ HERE = Path(__file__).resolve().parent
 PROJECT = HERE.parent
 REPO = PROJECT.parent
 ATLAS = REPO / "eda" / "reports" / "dashboards" / "grain_atlas" / "grain_atlas.html"
+READINESS = REPO / "eda" / "reports" / "tables" / "granularity_hour_readiness.csv"
 EMBEDDING_MODEL = "intfloat/multilingual-e5-small"
 
 
@@ -58,12 +59,19 @@ image = (
             "COPILOT_AUDIT": "/var/copilot/audit.jsonl",
             "COPILOT_ATLAS": "/app/atlas.html",
             "COPILOT_KNOWLEDGE": "/app/knowledge",
+            "COPILOT_READINESS": "/app/readiness.csv",
+            "COPILOT_EVAL_DIR": "/app/eval_reports",
+            "COPILOT_CORS_ORIGINS": os.environ.get(
+                "COPILOT_CORS_ORIGINS", "http://localhost:3000,http://localhost:5173"
+            ),
         }
     )
     .add_local_dir(PROJECT / "src", "/app/copilot/src", ignore=["**/__pycache__"])
     .add_local_dir(PROJECT / "corpus", "/app/copilot/corpus")
     .add_local_dir(REPO / "knowledge", "/app/knowledge")
     .add_local_file(ATLAS, "/app/atlas.html")
+    .add_local_file(READINESS, "/app/readiness.csv")
+    .add_local_dir(PROJECT / "eval" / "reports", "/app/eval_reports")
 )
 
 app = modal.App("beta-aid-copilot", image=image)

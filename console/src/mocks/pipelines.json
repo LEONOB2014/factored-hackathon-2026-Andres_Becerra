@@ -1,0 +1,23 @@
+{
+  "scopes": ["ALL", "MX", "CO", "AR"],
+  "layers": ["landing", "bronze", "silver", "gold", "aggregates", "features", "knowledge/graph", "privacy/serving", "audit"],
+  "overrides": {
+    "MX|silver": { "status": "blocked", "quality_gate": "red" },
+    "ALL|silver": { "status": "review", "quality_gate": "amber" },
+    "AR|gold": { "status": "review", "quality_gate": "amber" },
+    "CO|features": { "status": "review", "governance_gate": "amber" },
+    "ALL|audit": { "status": "review", "quality_gate": "amber" },
+    "AR|landing": { "status": "info" }
+  },
+  "residency": [
+    { "scope": "MX", "region": "Querétaro", "gcp": "northamerica-south1", "basis": "Residencia local (LFPDPPP)" },
+    { "scope": "CO", "region": "São Paulo", "gcp": "southamerica-east1", "basis": "Transferencia internacional con cláusulas contractuales (Ley 1581)" },
+    { "scope": "AR", "region": "São Paulo", "gcp": "southamerica-east1", "basis": "Brasil con nivel adecuado declarado (Ley 25.326, Disp. AAIP)" }
+  ],
+  "lineage": {
+    "Fraude transaccional": ["landing.card_auth", "bronze.card_tx", "silver.card_tx", "silver.devices", "features.tx_velocity", "gold.fraud_labels"],
+    "Propensión a contracargo": ["bronze.card_tx", "silver.disputes", "silver.merchants", "features.dispute_history"],
+    "Riesgo de impago 30d": ["bronze.ledger", "silver.balances", "gold.delinquency", "features.customer"],
+    "Demanda de efectivo ATM": ["landing.atm_logs", "silver.atm", "gold.calendar", "aggregates.atm_hourly"]
+  }
+}
