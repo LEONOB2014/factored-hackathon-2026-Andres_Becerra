@@ -1,0 +1,62 @@
+# Card-service policy: what the copilot may do on its own, what needs the customer's confirmation, what goes to a
+# person. The language model recommends an intent; this policy agrees or vetoes; tools perform; a human decides A3.
+#   A0  answer from verified facts
+#   A2  act after explicit confirmation (and a step-up second factor where marked)
+#   A3  hand off to a human queue with a packet
+version: "2026-10-05.1"
+
+intents:
+  smalltalk:      {autonomy: A0}
+  out_of_scope:   {autonomy: A0, escalate_after: 2, queue: general}
+  policy_question: {autonomy: A0, uses_kb: true, queue: general}   # cited answers from public documents only
+  card_status:    {autonomy: A0, needs_card: true}
+  balance_limit:  {autonomy: A0, needs_card: true}
+  decline_reason: {autonomy: A0, needs_card: true}
+  expiry_renewal: {autonomy: A0, needs_card: true}
+  block_card:     {autonomy: A2, needs_card: true, action: block}
+  reissue_card:   {autonomy: A2, needs_card: true, action: reissue}
+  unblock_card:   {autonomy: A2, needs_card: true, action: unblock, step_up: true}
+  limit_increase: {autonomy: A3, queue: credit_limits}
+  fraud_report:   {autonomy: A3, queue: fraud, priority: high}
+  dispute:        {autonomy: A3, queue: disputes}
+  complaint:      {autonomy: A3, queue: complaints}
+  human_agent:    {autonomy: A3, queue: general}
+
+# Card-level vetoes, checked in order once the card is known. The first that matches decides.
+vetoes:
+  - id: V01_fraud_flag
+    when: card_fraud_flag            # the card's next best action is a fraud review
+    except_intents: [block_card]     # blocking is protective and stays self-service
+    then: {handoff: fraud, priority: high}
+  - id: V02_unblock_after_fraud
+    when: confirmed_fraud            # a confirmed fraud in the last 365 days
+    intents: [unblock_card]
+    then: {handoff: fraud, priority: high}
+  - id: V03_closed_card
+    when: card_closed
+    intents: [block_card, unblock_card, reissue_card]
+    then: {handoff: general}
+  - id: V04_suspended_card
+    when: card_suspended
+    intents: [unblock_card, reissue_card]
+    then: {handoff: general}
+  - id: V05_already_blocked
+    when: card_blocked
+    intents: [block_card]
+    then: {answer: already_blocked}
+  - id: V06_not_blocked
+    when: card_not_blocked
+    intents: [unblock_card]
+    then: {answer: already_active}
+  - id: V07_unblock_expired
+    when: card_expired               # an expired card is replaced, not unblocked
+    intents: [unblock_card]
+    then: {answer: expired}
+  - id: V08_reissue_pending
+    when: reissue_requested
+    intents: [reissue_card]
+    then: {answer: already_reissued}
+  - id: V09_risk_declines
+    when: risk_declines              # three or more do-not-honor declines in 30 days
+    intents: [decline_reason, unblock_card]
+    then: {handoff: risk}

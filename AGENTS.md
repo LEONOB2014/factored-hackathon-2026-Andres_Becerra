@@ -1,7 +1,8 @@
 # AGENTS.md
 
-Instructions for coding agents (and humans) working on this repository: an AI-first banking
-customer-service system and its compliance-grade data platform for the Factored AI & Data
+Instructions for coding agents (and humans) working on this repository: **BETA AID** (Banking
+Evolutionary Transformation and AI Deployment), an AI customer-service copilot and the
+compliance-grade data platform beneath it, built for LATAM Bank in the Factored AI & Data
 Hackathon 2026. This file is the canonical source of repository standards; `CLAUDE.md`
 imports it. Procedures too long for this file live in [`docs/development/`](docs/development/).
 
@@ -9,10 +10,13 @@ imports it. Procedures too long for this file live in [`docs/development/`](docs
 
 | Path | What it is | Environment |
 |---|---|---|
-| `backend/` | FastAPI app (scaffold) | root `pyproject.toml`, Python 3.11+ |
-| `agents/` | LangGraph orchestrator (scaffold) | root |
+| `copilot/` | BETA AID card-service copilot (ES/PT): policy, verified actions, handoff, RAG, evaluation, Modal deploy | own uv project, Python 3.12 |
+| `platform/` | Data platform: dbt lakehouse, Airflow DAGs, `latam_platform` libraries, policies, Docker stack, Terraform | own uv project (`platform/pyproject.toml`) |
+| `knowledge/` | Governed knowledge-base documents (front matter: status, version, effective window) | — |
+| `backend/`, `agents/` | FastAPI app and LangGraph orchestrator (original scaffolds; the copilot is the served app) | root `pyproject.toml`, Python 3.11+ |
+| `data_engineering/` | Legacy dbt scaffold, superseded by `platform/dbt` (still run by the CI dbt job) | root |
 | `eda/` | Exploratory data analysis: notebooks, scripts, reports, tests | own uv project, Python 3.12 |
-| `docs/` | Hackathon brief, dataset docs + ERD, specs, research, development guides | — |
+| `docs/` | Hackathon brief, dataset docs + ERD, platform chapters + ADRs, strategy, original specs, research, development guides | — |
 | `ml/`, `monitoring/`, `infrastructure/`, `scripts/` | ML packages, Prometheus, Dockerfiles, DB init | root |
 | `data/` | Datasets and generated artefacts, **never in git** | shared, see Data |
 
@@ -22,6 +26,8 @@ imports it. Procedures too long for this file live in [`docs/development/`](docs
 make setup                       # root env (.[dev]) + pre-commit and commit-msg hooks
 make test                        # backend unit tests
 make eda-setup && make eda-test  # EDA env and the tests that need no dataset (what CI runs)
+make copilot-setup && make copilot-test   # copilot env and its tests (what CI runs)
+make stack-copilot               # only pgvector, Neo4j and MLflow (see Makefile for other stages)
 make eda-test-data               # EDA tests against the real dataset
 uvx pre-commit run --all-files   # the full quality gate, identical to CI
 ```

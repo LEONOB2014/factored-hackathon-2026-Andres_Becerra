@@ -1,0 +1,48 @@
+# Held-out intent phrasings. Written separately from corpus/train.yaml and frozen before any tuning (see
+# eval/MANIFEST.sha256). No sentence here is a variant of a training phrasing: wording, register and errors differ.
+intents:
+  smalltalk:
+    es: ["hola qué más", "mil gracias, muy amable", "ya está, chao", "buen día señorita", "listo"]
+    pt: ["e aí, tudo certo?", "valeu demais", "falou, tchau tchau", "bom diaaa", "beleza então"]
+  out_of_scope:
+    es: ["me interesa un leasing para carro", "a cómo está el euro", "quiero cambiar el correo registrado", "recomiéndame una película", "cuándo abren las oficinas el sábado", "puedo sacar un crédito para estudiar"]
+    pt: ["tenho interesse em consórcio de carro", "qual a cotação do euro", "quero trocar o e-mail cadastrado", "me indica um filme", "as agências abrem no sábado?", "posso pegar um crédito estudantil"]
+  policy_question:
+    es: ["me pueden explicar qué hacen con mis datos", "quiero ejercer mi derecho a que borren mi info", "la IA del banco decide mis solicitudes?", "en qué servidores queda mi información"]
+    pt: ["me expliquem o que fazem com meus dados", "quero exercer meu direito de apagar meus dados", "a IA do banco decide meus pedidos?", "em que servidores fica minha informação"]
+  card_status:
+    es: ["la tarjeta me sirve todavía?", "sigue vigente el plástico de débito", "como figura mi tarjeta en el sistema", "esta habilitada mi tarjeta o no"]
+    pt: ["o cartão ainda serve?", "o cartão de débito continua valendo", "como aparece meu cartão no sistema", "meu cartão tá habilitado ou não"]
+  balance_limit:
+    es: ["cuanto llevo gastado en la de credito", "qué cupo libre me queda", "a cuánto asciende mi deuda en la tarjeta", "dime cuanto tengo disponible pa compras", "estado de cuenta de la tarjeta, cuánto debo"]
+    pt: ["quanto já gastei no de crédito", "quanto de limite livre me sobra", "de quanto é minha dívida no cartão", "me fala quanto tenho disponível pra compras", "quanto estou devendo no cartão"]
+  decline_reason:
+    es: ["fui a pagar al súper y me salió declinada", "por qué no me pasa la tarjeta en amazon", "me están rebotando los pagos", "ayer no pude pagar el taxi con la tarjeta, qué pasó", "rechazo de compra en el exterior"]
+    pt: ["fui pagar no mercado e deu negado", "por que o cartão não passa na amazon", "meus pagamentos estão sendo barrados", "ontem não consegui pagar o táxi com o cartão, o que houve", "compra recusada no exterior"]
+  expiry_renewal:
+    es: ["hasta qué mes me dura la tarjeta", "ya se me pasó la fecha de la tarjeta?", "cuándo caduca mi plástico", "la tarjeta está próxima a expirar?"]
+    pt: ["até que mês meu cartão dura", "já passou a validade do cartão?", "quando caduca meu cartão", "o cartão está perto de expirar?"]
+  block_card:
+    es: ["se me cayó la tarjeta en el bus, bloquéenla ya", "me hurtaron la billetera", "congela la de débito porfa", "extravié mi tarjeta", "urgente bloquear tarjeta"]
+    pt: ["deixei cair o cartão no ônibus, bloqueiem já", "furtaram minha carteira", "congela o de débito por favor", "extraviei meu cartão", "urgente bloquear cartão"]
+  reissue_card:
+    es: ["la banda magnética se dañó, necesito otra", "mándenme un plástico de reemplazo", "quiero reexpedir la tarjeta porque se partió", "me pueden emitir otra tarjeta"]
+    pt: ["a tarja magnética estragou, preciso de outro", "mandem um cartão de reposição", "quero reemitir o cartão porque partiu", "podem emitir outro cartão pra mim"]
+  unblock_card:
+    es: ["apareció la tarjeta, ya la pueden desbloquear", "quiero que me quiten el bloqueo de la de crédito", "reactívenme la tarjeta porfa", "necesito habilitar la tarjeta que bloqueé"]
+    pt: ["o cartão apareceu, já podem desbloquear", "quero que tirem o bloqueio do de crédito", "reativem meu cartão por favor", "preciso habilitar o cartão que bloqueei"]
+  limit_increase:
+    es: ["me pueden dar más cupo para diciembre", "quisiera un incremento del límite", "el cupo es muy bajito, súbanmelo", "ampliar el tope de la tarjeta"]
+    pt: ["podem me dar mais limite pro natal", "gostaria de um aumento do limite", "o limite é muito baixo, aumentem", "ampliar o teto do cartão"]
+  fraud_report:
+    es: ["me aparece un cobro de netflix que nunca contraté y no reconozco", "creo que me clonaron el plástico", "hay movimientos que no son míos", "alguien hizo compras en otro país con mi tarjeta"]
+    pt: ["aparece uma cobrança que nunca fiz e não reconheço", "acho que clonaram o cartão", "tem movimentações que não são minhas", "alguém fez compras em outro país com meu cartão"]
+  dispute:
+    es: ["el hotel me cobró doble", "devolví el producto y no me han reembolsado", "quiero impugnar un cobro de una aerolínea", "me facturaron una suscripción ya cancelada"]
+    pt: ["o hotel me cobrou em dobro", "devolvi o produto e não me reembolsaram", "quero contestar uma cobrança da companhia aérea", "me cobraram uma assinatura já cancelada"]
+  complaint:
+    es: ["estoy harto de este banco", "quiero dejar constancia de mi inconformidad", "pésima atención, quiero reclamar", "llevo semanas esperando respuesta"]
+    pt: ["estou cansado deste banco", "quero registrar minha insatisfação", "atendimento péssimo, quero reclamar", "faz semanas que espero resposta"]
+  human_agent:
+    es: ["me puede atender un humano", "comuníqueme con un funcionario", "prefiero hablar con una persona real", "agente humano"]
+    pt: ["pode me atender um humano", "me coloca com um funcionário", "prefiro falar com uma pessoa real", "atendente humano"]

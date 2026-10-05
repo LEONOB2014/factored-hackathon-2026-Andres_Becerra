@@ -1,6 +1,7 @@
-# LATAM Bank data platform
+# BETA AID data platform
 
-The data-engineering platform behind the strategy in [`docs/strategy`](../strategy/README.md): a lakehouse with
+The data-engineering platform of BETA AID (Banking Evolutionary Transformation and AI Deployment), built for
+LATAM Bank's dataset, behind the strategy in [`docs/strategy`](../strategy/README.md): a lakehouse with
 medallion zones and a Kimball core, orchestrated by Airflow 3 + Cosmos, with Postgres/pgvector and Neo4j for
 serving and GraphRAG, MLflow for ML/DL/GenAI tracking, Redpanda + Flink for real-time fraud, an immutable audit
 stack, PII guardrails, differential privacy, residency-aware deployment and regulatory triggers. Runs fully on a
@@ -16,9 +17,9 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [05 Privacy and compliance](05_privacy_and_compliance.md) | policies as code, PII choke points, residency, differential privacy scope, regulatory triggers |
 | [06 Knowledge and GraphRAG](06_knowledge_and_graphrag.md) | document lifecycle, sync/prune/reconcile, Neo4j model |
 | [07 ML and graph learning](07_ml_and_graph_learning.md) | fraud ensemble + detector CI + HITL, TGN, federated GNN, MLflow records |
-| [08 Agentic interfaces](08_agentic_interfaces.md) | what the pending agent module will consume and must log |
+| [08 Agentic interfaces](08_agentic_interfaces.md) | what the agent module consumes and must log; the card copilot ([`copilot/`](../../copilot/README.md)) is its first implementation |
 | [09 Data and model risk methodology](09_data_and_model_risk_methodology.md) | raw schema forensics without metadata, lossless bronze, cell-level findings, audited correction, drift MRM, keys, segmentation, text |
-| [ADRs](adr/README.md) | thirteen architecture decisions |
+| [ADRs](adr/README.md) | twenty-one architecture decisions, ADR-015 to ADR-021 recording the exploratory phase, the country scopes, the multi-grain star, the readiness gates, the control plane and the regional deployment |
 | [Runbook](runbook.md) | start, run, demo and verify |
 | [Generated dbt lineage](generated/dbt_lineage.md) | zone- and model-level lineage from the manifest |
 | [Phase 3 evidence](evidence/phase3/README.md) | parity, real-data findings and circuit-breaker control behind 09 §C, with the scripts that reproduce them |

@@ -1,5 +1,16 @@
 # Factored Datathon 2026: Machine Learning Specification
 
+> **Status (2026-10-05): design-time specification.** Written at the start of the hackathon and kept unchanged as
+> the record of intent; the project is now **BETA AID** (Banking Evolutionary Transformation and AI Deployment).
+> What was built:
+> - The intent model is a character n-gram logistic regression tuned with Optuna and tracked in MLflow, evaluated
+>   on held-out phrasings against a keyword baseline ([`copilot/eval/reports`](../../copilot/eval/reports/)).
+> - The fraud ensemble and graph models live in `platform/libs/latam_platform/ml`. The fraud model is registered in
+>   MLflow and waits for model-risk approval. The dataset's `fraud_score` is a leaked label, and the behavioural
+>   signal alone is weak.
+> - Which models the data can support at all is decided by the readiness gates
+>   ([ADR-018](../platform/adr/ADR-018.md)).
+
 ## 1. Overview
 This specification governs all machine learning and predictive modeling for the Factored Datathon 2026 project. The project provides an AI-first banking customer service system for LATAM (Mexico, Colombia, Argentina).
 

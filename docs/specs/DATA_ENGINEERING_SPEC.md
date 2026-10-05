@@ -1,5 +1,14 @@
 # Factored Datathon 2026: Data Engineering Specification
 
+> **Status (2026-10-05): design-time specification.** Written at the start of the hackathon and kept unchanged as
+> the record of intent; the project is now **BETA AID** (Banking Evolutionary Transformation and AI Deployment).
+> What was built is [`platform/`](../platform/README.md):
+> - a DuckDB lakehouse with lossless bronze and object-locked manifests;
+> - dbt-duckdb silver, gold, multi-grain aggregates and serving, with BigQuery targets ([ADR-006](../platform/adr/ADR-006.md));
+> - Airflow 3 with Cosmos, one DAG per country scope ([ADR-020](../platform/adr/ADR-020.md));
+> - Flink streaming features in parity with dbt ([ADR-005](../platform/adr/ADR-005.md));
+> - dbt contracts and governance gates in place of Great Expectations.
+
 ## 1. Overview
 This specification governs the entire data engineering pipeline for the Factored AI & Data Hackathon 2026 project. The pipeline supports an AI-first banking customer service system for LATAM (Mexico, Colombia, Argentina).
 

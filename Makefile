@@ -1,11 +1,13 @@
 # ==============================================================================
 # Factored AI & Data Hackathon 2026 - Makefile
-# AI-First Banking Customer Service System
+# BETA AID: Banking Evolutionary Transformation and AI Deployment
 # ==============================================================================
 
 .PHONY: help setup up down clean test lint format check db-init db-migrate \
         dbt-run dbt-test ml-train ml-serve evals docker-build deploy \
-        eda-setup eda-test eda-test-data eda-test-notebooks
+        eda-setup eda-test eda-test-data eda-test-notebooks \
+        stack-env stack-copilot stack-data stack-dev stack-stream stack-obs stack-ps stack-down \
+        copilot-setup copilot-test copilot-snapshot copilot-kb copilot-tune copilot-eval copilot-dev copilot-deploy copilot-deploy-gcp
 
 # Default target
 help: ## Show this help
@@ -153,6 +155,70 @@ eda-test-data: ## Run the EDA tests against the real dataset
 
 eda-test-notebooks: ## Execute every EDA notebook and check its tables reproduce (long)
 	cd eda && uv run pytest -m notebooks
+
+# ==============================================================================
+# Platform stack by stage (platform/docker/compose.yml profiles)
+# ==============================================================================
+# Start only what a stage needs; naming services starts their dependencies too. The compose project
+# is fixed (latam-platform) and its bind mounts are relative to the checkout: run these from the
+# checkout that hosts the stack (see docs/development/git-workflow.md), or every container is
+# recreated against this one. Deployment uses none of them: the copilot ships to Modal.
+STACK = docker compose -f platform/docker/compose.yml
+
+stack-env: ## Generate the stack's random secrets into platform/docker/.env (once)
+	cd platform/docker && python3 bootstrap_env.py
+
+stack-copilot: ## Copilot development: pgvector, Neo4j and MLflow only
+	$(STACK) --profile core --profile graph --profile ml up -d pg-core neo4j mlflow
+
+stack-data: ## Data pipelines: Postgres x2, MinIO (WORM), Airflow 3
+	$(STACK) --profile core up -d
+
+stack-dev: ## Full development stack: pipelines + graph + MLflow
+	$(STACK) --profile core --profile graph --profile ml up -d
+
+stack-stream: ## Add streaming: Redpanda, Flink, fraud scorer, Kong
+	$(STACK) --profile stream up -d
+
+stack-obs: ## Add observability: Marquez, Prometheus, Grafana
+	$(STACK) --profile obs up -d
+
+stack-ps: ## Show the stack's containers
+	$(STACK) --profile core --profile graph --profile ml --profile stream --profile obs ps
+
+stack-down: ## Stop the stack (volumes kept)
+	$(STACK) --profile core --profile graph --profile ml --profile stream --profile obs down
+
+# ==============================================================================
+# Card copilot (copilot/, its own uv project)
+# ==============================================================================
+copilot-setup: ## Install the copilot (with tuning, retrieval and store extras)
+	cd copilot && uv sync --extra tune --extra rag --extra stores
+
+copilot-test: ## Run the copilot tests (synthetic snapshot, as CI does)
+	cd copilot && uv run pytest -q
+
+copilot-snapshot: ## Export the demo snapshot from the local lakehouse to data/copilot/
+	cd copilot && uv run python scripts/export_snapshot.py
+
+copilot-kb: ## Build the bundled knowledge-base index and verify it against pgvector and Neo4j
+	cd copilot && uv run python scripts/build_kb_index.py --verify
+
+copilot-tune: ## Tune the intent model with Optuna, tracked in MLflow (needs stack-copilot)
+	cd copilot && MLFLOW_TRACKING_URI=http://127.0.0.1:5001 uv run python scripts/tune_intent.py --trials 40
+
+copilot-eval: ## Score the frozen challenge set and the retrievers (adds Claude when a key is set)
+	cd copilot && uv run python eval/run.py && uv run python eval/kb_retrieval.py --stack
+
+copilot-dev: ## Run the copilot locally on http://127.0.0.1:8000
+	cd copilot && uv run uvicorn copilot.app:app --reload
+
+copilot-deploy: ## Deploy the copilot to Modal (needs modal setup and the copilot-data volume)
+	cd copilot && COPILOT_MODAL_SECRET=$${COPILOT_MODAL_SECRET:-} modal deploy deploy/modal_app.py
+
+copilot-deploy-gcp: ## Deploy the copilot to Cloud Run per residency region (MX Querétaro; CO and AR São Paulo)
+	copilot/deploy/cloudrun/deploy.sh mx northamerica-south1 MX
+	copilot/deploy/cloudrun/deploy.sh sa southamerica-east1 CO AR
 
 # ==============================================================================
 # Backend

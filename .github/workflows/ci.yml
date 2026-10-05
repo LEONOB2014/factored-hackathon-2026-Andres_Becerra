@@ -307,3 +307,28 @@ jobs:
           tags: factored-banking-api:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+  # ============================================================================
+  # Card copilot (own uv project; synthetic snapshot, no dataset, no model key)
+  # ============================================================================
+  test-copilot:
+    name: "Copilot Tests"
+    runs-on: ubuntu-latest
+    needs: quality
+    defaults:
+      run:
+        working-directory: copilot
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: copilot/uv.lock
+
+      - name: Install copilot environment
+        run: uv sync --locked
+
+      - name: Run copilot tests
+        run: uv run pytest -q

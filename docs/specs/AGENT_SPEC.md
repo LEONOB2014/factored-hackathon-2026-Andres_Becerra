@@ -1,5 +1,15 @@
 # Factored AI & Data Hackathon 2026: Multi-Agent System Specification
 
+> **Status (2026-10-05): design-time specification.** Written at the start of the hackathon and kept unchanged as
+> the record of intent; the project is now **BETA AID** (Banking Evolutionary Transformation and AI Deployment).
+> What was built is [`copilot/`](../../copilot/README.md): a deterministic pipeline, not a multi-agent graph.
+> - Gateway, identity, intent, policy, tools, reply.
+> - A versioned policy engine holds the decision rights (RAPID).
+> - Claude Haiku 4.5 has two bounded roles: low-confidence intent and grounded rephrasing or cited answers.
+> - Retrieval over the governed knowledge base: pgvector, Neo4j GraphRAG and a bundled index.
+> - A frozen 120-case ES/PT challenge set with a keyword baseline.
+> - Interfaces: [platform chapter 08](../platform/08_agentic_interfaces.md).
+
 This document specifies the multi-agent AI architecture for the LATAM banking customer service system.
 
 ## 1. Agent Architecture Overview

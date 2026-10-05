@@ -1,0 +1,43 @@
+<header class="top" id="top">
+  <button class="brand" type="button" data-route="mission" aria-label="Mission control">
+    <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><rect x="1" y="1" width="28" height="28" rx="7" fill="none" stroke="#8fa6ff" stroke-width="1.5"/><g fill="#8fa6ff"><rect x="6" y="7" width="3" height="16" rx="1"/><rect x="11" y="7" width="3" height="7" rx="1"/><rect x="11" y="16" width="3" height="7" rx="1"/><rect x="16" y="7" width="1.6" height="4" rx=".5"/><rect x="18.6" y="7" width="1.6" height="4" rx=".5"/><rect x="16" y="12.5" width="1.6" height="4" rx=".5"/><rect x="18.6" y="12.5" width="1.6" height="4" rx=".5"/><rect x="16" y="18" width="1.6" height="5" rx=".5"/><rect x="18.6" y="18" width="1.6" height="5" rx=".5"/><rect x="22" y="7" width=".9" height="16" rx=".3"/><rect x="23.6" y="7" width=".9" height="16" rx=".3"/></g></svg>
+    <span class="bt"><b>BETA AID · Grain Atlas</b><small>four grains · one bank</small></span>
+  </button>
+  <nav class="grains" id="grainTabs" role="tablist" aria-label="Granularity"></nav>
+  <div class="tools">
+    <button class="tb" type="button" id="navBtn" aria-expanded="false" aria-controls="rail"><span aria-hidden="true">☰</span><span class="lbl">Views</span></button>
+    <button class="tb" type="button" id="palBtn" aria-label="Search the atlas"><span aria-hidden="true">⌕</span><span class="lbl">Search</span><kbd>⌘K</kbd></button>
+    <button class="tb" type="button" id="expBtn" aria-pressed="false" title="Open every note (e)"><span aria-hidden="true">≡</span><span class="lbl">Open notes</span></button>
+    <button class="tb" type="button" id="themeBtn" title="Switch theme (t)"><span aria-hidden="true">◐</span><span class="lbl" id="themeLbl">Theme</span></button>
+    <button class="tb" type="button" id="helpBtn" title="Keyboard shortcuts (?)"><span aria-hidden="true">?</span></button>
+  </div>
+</header>
+<div class="scrim" id="scrim"></div>
+<div class="shell">
+  <aside class="rail" id="rail" aria-label="Stages"></aside>
+  <main id="main"></main>
+</div>
+<div class="pal" id="pal" hidden role="dialog" aria-modal="true" aria-label="Search the atlas">
+  <div class="palbox">
+    <label class="sr" for="palIn">Search pages, sections, terms, decisions and notebooks</label>
+    <input id="palIn" type="search" placeholder="Search pages, sections, terms, decisions, notebooks…" autocomplete="off">
+    <div class="palres" id="palRes" role="listbox"></div>
+    <div class="palfoot"><span><kbd>↑</kbd> <kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
+  </div>
+</div>
+<div class="pal" id="help" hidden role="dialog" aria-modal="true" aria-label="Keyboard shortcuts">
+  <div class="palbox help">
+    <dl>
+      <dt><kbd>⌘K</kbd> <kbd>/</kbd></dt><dd>search everything</dd>
+      <dt><kbd>0</kbd></dt><dd>mission control</dd>
+      <dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>switch grain (event, country, daily, hourly), keeping the view</dd>
+      <dt><kbd>[</kbd> <kbd>]</kbd></dt><dd>previous and next view</dd>
+      <dt><kbd>,</kbd> <kbd>.</kbd></dt><dd>the same view in the previous or next grain</dd>
+      <dt><kbd>e</kbd></dt><dd>open or fold every note</dd>
+      <dt><kbd>t</kbd></dt><dd>switch theme</dd>
+      <dt><kbd>b</kbd> <kbd>g</kbd> <kbd>n</kbd></dt><dd>decision board, glossary, notebook index</dd>
+    </dl>
+    <div class="palfoot"><span>Every view has its own link.</span><span><kbd>esc</kbd> close</span></div>
+  </div>
+</div>
+<div class="tip" id="tip" hidden></div>

@@ -3,9 +3,9 @@ requires = ["setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "factored-hackathon-2026"
-version = "0.3.0"
-description = "AI-First Banking Customer Service System - Factored Datathon 2026"
+name = "beta-aid"
+version = "0.4.0"
+description = "BETA AID: Banking Evolutionary Transformation and AI Deployment - Factored AI & Data Hackathon 2026"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -111,7 +111,7 @@ include = ["agents*", "backend*", "data_engineering*", "ml*"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["backend", "agents", "ml", "data_engineering", "eda/src", "eda/scripts", "eda/tests", "platform/libs", "platform/airflow/include"]
+src = ["backend", "agents", "ml", "data_engineering", "eda/src", "eda/scripts", "eda/tests", "platform/libs", "platform/airflow/include", "copilot/src", "copilot/tests", "copilot/scripts", "copilot/eval"]
 
 [tool.ruff.lint]
 select = [
@@ -147,6 +147,11 @@ ignore = [
     "A004", "B007", "B018", "B023", "B905",
 ]
 
+# Card copilot: bilingual templates and SQL over the snapshot run long; scripts print reports; typing-only
+# imports are kept at runtime for readability.
+"copilot/**" = ["E501", "S608", "T201", "TC001", "TC003", "N818"]
+"copilot/tests/**" = ["S101", "S105", "S106"]
+
 # --- data platform (managed) ---
 # Platform code: long SQL in f-strings, CLI prints, typing-only imports kept at runtime.
 "platform/**" = ["B905", "E501", "S608", "T201", "TC001", "TC002", "TC003"]
@@ -168,7 +173,7 @@ ignore = [
 # --- end data platform ---
 
 [tool.ruff.lint.isort]
-known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda", "latam_platform", "latam_dags"]
+known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda", "latam_platform", "latam_dags", "copilot"]
 
 [tool.mypy]
 python_version = "3.11"
@@ -190,7 +195,7 @@ markers = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.3.0"
+version = "0.4.0"
 version_files = ["pyproject.toml:^version"]
 tag_format = "v$version"
 update_changelog_on_bump = true

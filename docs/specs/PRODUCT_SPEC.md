@@ -1,5 +1,15 @@
 # Product Specification: AI-First Banking Customer Service System
 
+> **Status (2026-10-05): design-time specification.** Written at the start of the hackathon and kept unchanged as
+> the record of intent; the project is now **BETA AID** (Banking Evolutionary Transformation and AI Deployment).
+> What was built:
+> - [`copilot/`](../../copilot/README.md): card support in Spanish and Portuguese. Status, balance and limit,
+>   declines, expiry; block, reissue and step-up unblock after confirmation.
+> - Cited answers to policy questions.
+> - Transaction disputes, fraud, limit changes and complaints are handed to a person with a packet, by policy.
+> - Mexico, Colombia and Argentina are in the data. Brazil and Portuguese text are not, so Portuguese is supported
+>   and evaluated on team-written phrasings.
+
 ## 1. Product Vision
 The Factored AI & Data Hackathon 2026 project aims to build an AI-first banking customer service system for the LATAM market (Mexico, Colombia, Argentina, Brazil). The system acts as the primary interface for customer support, specifically focused on **Transaction Disputes & Card Support**. It is designed to autonomously handle complex customer queries, resolve standard issues, and intelligently escalate to human agents with full context when necessary, all while handling regional variations of Spanish and Portuguese.
 
