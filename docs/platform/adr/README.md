@@ -16,3 +16,9 @@
 | [ADR-012](ADR-012.md) | Evidence-gated model portfolio |
 | [ADR-013](ADR-013.md) | Data completeness and dataset identity controls |
 | [ADR-014](ADR-014.md) | Timestamps carry an explicit clock |
+| [ADR-015](ADR-015.md) | The exploratory record and what it decided |
+| [ADR-016](ADR-016.md) | Segment by country at bronze, before silver |
+| [ADR-017](ADR-017.md) | A multi-grain star on top of gold |
+| [ADR-018](ADR-018.md) | Model readiness gates and the data-collection audit |
+| [ADR-019](ADR-019.md) | The readiness control plane is the product |
+| [ADR-020](ADR-020.md) | Lateral pipeline expansion: scope × grain |

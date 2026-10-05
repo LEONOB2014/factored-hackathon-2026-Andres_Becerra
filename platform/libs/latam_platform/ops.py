@@ -71,11 +71,12 @@ def worm_put_json(bucket: str, key: str, doc: dict) -> str:
     return f"s3://{bucket}/{key}"
 
 
-def lakehouse(read_only: bool = True):
+def lakehouse(read_only: bool = True, path: str | os.PathLike | None = None):
+    """The dbt lakehouse: the bank's (default) or a country scope's file (ADR-020)."""
     import duckdb
 
     os.chdir(config.REPO_ROOT / "platform" / "dbt")  # staging views resolve ../../data/lake
-    con = duckdb.connect(str(config.LAKEHOUSE_DB), read_only=read_only)
+    con = duckdb.connect(str(path or config.LAKEHOUSE_DB), read_only=read_only)
     con.sql(f"SET memory_limit = '{os.environ.get('LATAM_DUCKDB_MEMORY', '2GB')}'")
     return con
 
