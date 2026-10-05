@@ -6,6 +6,56 @@ All notable changes to this project are documented here. The format follows
 Entries are generated from Conventional Commits by commitizen; see
 [docs/development/releasing.md](docs/development/releasing.md).
 
+## v0.3.0 (2026-10-05)
+
+### Highlights
+
+- **The exploratory and evaluation phase is closed.** The platform built for v0.2.0 was used as an instrument: every
+  data mart was re-grained to the units a bank decides on, and its predictive power was judged in search of a
+  solvable problem.
+- **Granularity series I** (`eda/notebooks/granularity`). An aggregate star of 17 models at customer, day, branch,
+  agent, product, campaign and case grain, checked by 43 contracts. Dormancy turns out to be an exposure law
+  (c·r^k in products held), not behaviour. Campaigns are the only grain with a decision attached.
+- **Granularity series II** (`granularity_time`).
+  - **The clock.** The source runs on delivery-day clocks: −6 h for transactions, digital events and sends; −8 h for
+    contacts and complaints ([ADR-014](docs/platform/adr/ADR-014.md)). The earlier "Argentine Monday" was an artefact
+    of legal local time.
+  - **Campaigns.** Voice and WhatsApp cannot attribute conversions. A channel-mix policy converts +22 % at the same
+    number of contacts in an out-of-time replay.
+- **Granularity series III** (`granularity_hour`): every fact table at the hour, with the dimensions the hour needs.
+  - Eleven candidate models were trained whatever the signal: 0 green, 2 amber, 9 red under one readiness gate.
+  - Three data defects only the hour can see: teller hours, agent shifts, and the SLA flag.
+  - [Strategy chapter 13](docs/strategy/13_data_readiness_audit.md) turns the red gates into an audit of the data
+    collection process. `eda/scripts/readiness_check.py` re-judges every model when new data arrives.
+- **Next.** v0.4.0 starts spec-driven development, with the P0 platform work of strategy chapter 12 (§12.7–§12.8).
+  Training moves to GPU compute ([docs/development/modal.md](docs/development/modal.md)).
+
+### Upgrade notes
+
+- No breaking change. The hour star is built with `granularity.open_star(pl, [SQL_DIR_TIME, SQL_DIR_HOUR])`.
+- The day-grain aggregates now group by `process_date`, the delivery day. Calendar effects of the country series
+  changed accordingly (weekends about −39 % in every market).
+- CI: the Codecov upload no longer fails the unit-test job (`continue-on-error`); the tests still decide it.
+
+### Docs and CI
+
+- **docs**: ADR-014 *Timestamps carry an explicit clock*; strategy chapter 13 *Data readiness audit*; strategy chapter
+  12 E13–E16; the Modal remote compute plan.
+- **ci**: keep a Codecov outage from failing the unit tests job.
+
+### Feat
+
+- **eda**: add granularity series III, the bank at the hour
+- **eda**: add the hour-grain star, readiness gates and the data audit
+- **eda**: add granularity series II, the clock and the campaign cell
+- **eda**: measure the delivery-day clock and add the hour and cell star
+- **eda**: judge every grain of the re-grained star for value
+- **eda**: add an aggregate star re-grained to the bank's decision units
+
+### Fix
+
+- **eda**: re-run the scoped and granularity series on the business clock
+
 ## v0.2.0 (2026-10-04)
 
 ### Highlights
