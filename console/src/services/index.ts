@@ -8,8 +8,8 @@ import specs from "@/mocks/specs.json";
 import { api, type RegionId } from "./api";
 import { readinessService } from "./readiness";
 import type {
-  Correction, DemoInfo, DeskCase, KChunk, KDoc, Persona, PipelineCell, PolicyRow,
-  QAgent, QIssue, Queue, Spec, UnsafeCase, Veto, Status, Verdict,
+  Correction, DemoInfo, DeskCase, KChunk, KDoc, Persona, PipelineCell,
+  QAgent, QIssue, Queue, Spec, UnsafeCase, Status, Verdict,
 } from "./types";
 
 const delay = <T,>(v: T, ms = 120) => new Promise<T>((r) => setTimeout(() => r(structuredClone(v)), ms));
@@ -77,15 +77,15 @@ export const deskService = {
     toDeskCase(await api<ApiCase>(region, `/api/handoffs/${id}/status`, { body: { status, actor, note }, staffCode })),
 };
 
-// ---- supervisor (KPIs: real, see evaluation.ts; unsafe cases and policy: demo data) ----
+// ---- supervisor (KPIs and policy: real, see evaluation.ts and policy.ts; unsafe cases: demo data) ----
 export const supervisorService = {
   unsafe: () => delay(supervisor.unsafe as UnsafeCase[]),
-  policy: () => delay({ version: "policy v1.7.2", rows: supervisor.policy as PolicyRow[], vetoes: supervisor.vetoes as Veto[] }),
 };
 
 // ---- readiness atlas and evaluation (real: the copilot's read-only control plane) ----
 export { readinessService } from "./readiness";
 export { evaluationService } from "./evaluation";
+export { policyService } from "./policy";
 
 // ---- quality ----
 export const qualityService = {

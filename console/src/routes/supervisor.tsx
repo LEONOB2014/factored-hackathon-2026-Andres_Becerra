@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
-import { evaluationService, supervisorService } from "@/services";
+import { evaluationService, policyService, supervisorService } from "@/services";
 import { headlineRun, intervalPoints } from "@/services/evaluation";
 import { RATE_METRICS, type EvalBlock, type Rate, type RateMetric, type UnsafeCase } from "@/services/types";
 import { AutonomyBadge, IntervalBar, Mono, OutcomeBadge, PageHeader, StatusBadge } from "@/components/beta/badges";
@@ -43,7 +43,8 @@ function SupervisorPage() {
   const tx = useTx();
   const ev = useQuery({ queryKey: ["control", "evaluation"], queryFn: () => evaluationService.get() });
   const { data: unsafe } = useQuery({ queryKey: ["unsafe"], queryFn: supervisorService.unsafe });
-  const { data: policy } = useQuery({ queryKey: ["policy"], queryFn: supervisorService.policy });
+  const pol = useQuery({ queryKey: ["control", "policy"], queryFn: () => policyService.get() });
+  const policy = pol.data;
   const [lang, setLang] = useState<"all" | "es" | "pt">("all");
   const [region, setRegion] = useState("all");
   const [drill, setDrill] = useState<UnsafeCase | null>(null);
@@ -177,11 +178,12 @@ function SupervisorPage() {
           </div>
         </TabsContent>
         <TabsContent value="policy" className="mt-4 grid gap-4 lg:grid-cols-[3fr_2fr]">
+          {pol.isError && <div className="panel p-4 text-sm text-blocked lg:col-span-2">{tx("No se pudo leer /api/policy", "Não foi possível ler /api/policy", "Could not read /api/policy")}: <Mono>{pol.error instanceof Error ? pol.error.message : String(pol.error)}</Mono></div>}
           <div className="panel overflow-x-auto">
             <div className="border-b px-4 py-2.5 text-sm font-semibold">intent → autonomy → queue <Mono className="ml-2 text-muted-foreground">{policy?.version}</Mono></div>
             <table className="w-full text-sm"><tbody>
               {policy?.rows.map((r) => (
-                <tr key={r.intent} className="border-b last:border-0"><td className="px-4 py-2"><Mono>{r.intent}</Mono></td><td className="px-2"><AutonomyBadge level={r.autonomy} /></td><td className="px-2"><Mono>{r.queue}</Mono></td><td className="px-2 text-xs text-muted-foreground"><Mono>{r.rule}</Mono></td></tr>
+                <tr key={r.intent} className="border-b last:border-0"><td className="px-4 py-2"><Mono>{r.intent}</Mono></td><td className="px-2"><AutonomyBadge level={r.autonomy} /></td><td className="px-2"><Mono>{r.queue}</Mono></td><td className="px-2 text-xs text-muted-foreground"><Mono>{r.rule}</Mono>{r.details && <div className="text-[11px]">{r.details}</div>}</td></tr>
               ))}
             </tbody></table>
           </div>

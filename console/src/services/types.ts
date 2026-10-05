@@ -129,6 +129,7 @@ export interface PolicyRow {
   autonomy: "A0" | "A2" | "A3";
   queue: Queue | "—";
   rule: string;
+  details?: string;
 }
 export interface Veto {
   id: string;
