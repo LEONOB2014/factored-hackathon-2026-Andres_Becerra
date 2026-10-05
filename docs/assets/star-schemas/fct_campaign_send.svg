@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-543 -472 1076 831" width="1076" height="831" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+<rect x="-543" y="-472" width="1076" height="831" rx="14" fill="#FFFFFF"/>
+<text x="-513" y="-442" font-size="15" font-weight="700" fill="#111827">Star schema · fct_campaign_send</text>
+<line x1="0.0" y1="-169.5" x2="0.0" y2="-239.5" stroke="#94A3B8" stroke-width="1.3"/>
+<line x1="148.1" y1="57.4" x2="333.2" y2="129.1" stroke="#94A3B8" stroke-width="1.3"/>
+<line x1="-148.1" y1="57.4" x2="-323.4" y2="125.3" stroke="#94A3B8" stroke-width="1.3"/>
+<rect x="-148.1" y="-169.5" width="296.2" height="339.0" rx="8" fill="#FFFBEB" stroke="#D97706" stroke-width="1.2"/>
+<path d="M-148.1,-129.5 v-32 a8,8 0 0 1 8,-8 h280.2 a8,8 0 0 1 8,8 v32z" fill="#FDE68A" stroke="#D97706" stroke-width="1.2"/>
+<text x="-136.1" y="-151.5" font-size="13" font-weight="700" fill="#111827">fct_campaign_send</text>
+<text x="-136.1" y="-136.5" font-size="10.5" fill="#374151">one row per campaign send · 1,697,343 rows</text>
+<text x="-136.1" y="-114.5" font-size="9.5" font-weight="700" fill="#D97706">PK</text>
+<text x="-108.1" y="-114.5" font-size="12" font-weight="700" fill="#1F2937">send_id</text>
+<text x="-136.1" y="-97.5" font-size="9.5" font-weight="700" fill="#475569">FK</text>
+<text x="-108.1" y="-97.5" font-size="12" font-weight="400" fill="#1F2937">campaign_id</text>
+<text x="-136.1" y="-80.5" font-size="9.5" font-weight="700" fill="#475569">FK</text>
+<text x="-108.1" y="-80.5" font-size="12" font-weight="400" fill="#1F2937">customer_id</text>
+<text x="-136.1" y="-63.5" font-size="9.5" font-weight="700" fill="#475569">FK</text>
+<text x="-108.1" y="-63.5" font-size="12" font-weight="400" fill="#1F2937">date_key</text>
+<text x="-136.1" y="-46.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="-46.5" font-size="12" font-weight="400" fill="#1F2937">send_ts_utc</text>
+<text x="-136.1" y="-29.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="-29.5" font-size="12" font-weight="400" fill="#1F2937">process_date</text>
+<text x="-136.1" y="-12.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="-12.5" font-size="12" font-weight="400" fill="#1F2937">send_channel</text>
+<text x="-136.1" y="4.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="4.5" font-size="12" font-weight="400" fill="#1F2937">template_used</text>
+<text x="-136.1" y="21.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="21.5" font-size="12" font-weight="400" fill="#1F2937">send_status</text>
+<text x="-136.1" y="38.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="38.5" font-size="12" font-weight="400" fill="#1F2937">was_delivered</text>
+<text x="-136.1" y="55.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="55.5" font-size="12" font-weight="400" fill="#1F2937">was_opened</text>
+<text x="-136.1" y="72.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="72.5" font-size="12" font-weight="400" fill="#1F2937">open_ts_utc</text>
+<text x="-136.1" y="89.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="89.5" font-size="12" font-weight="400" fill="#1F2937">was_clicked</text>
+<text x="-136.1" y="106.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="106.5" font-size="12" font-weight="400" fill="#1F2937">click_ts_utc</text>
+<text x="-136.1" y="123.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="123.5" font-size="12" font-weight="400" fill="#1F2937">click_count</text>
+<text x="-136.1" y="140.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="140.5" font-size="12" font-weight="400" fill="#1F2937">had_conversion</text>
+<text x="-136.1" y="157.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-108.1" y="157.5" font-size="12" font-weight="400" fill="#1F2937">+5 more columns</text>
+<rect x="-85.0" y="-408.5" width="170.0" height="169.0" rx="8" fill="#F9FAFB" stroke="#6B7280" stroke-width="1.2"/>
+<path d="M-85.0,-368.5 v-32 a8,8 0 0 1 8,-8 h154.0 a8,8 0 0 1 8,8 v32z" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="-73.0" y="-390.5" font-size="13" font-weight="700" fill="#111827">dim_customer</text>
+<text x="-73.0" y="-375.5" font-size="10.5" fill="#374151">150,000 rows</text>
+<text x="-73.0" y="-353.5" font-size="9.5" font-weight="700" fill="#6B7280">PK</text>
+<text x="-45.0" y="-353.5" font-size="12" font-weight="700" fill="#1F2937">customer_sk</text>
+<text x="-73.0" y="-336.5" font-size="9.5" font-weight="700" fill="#6B7280">BK</text>
+<text x="-45.0" y="-336.5" font-size="12" font-weight="400" fill="#1F2937">customer_id</text>
+<text x="-73.0" y="-319.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-319.5" font-size="12" font-weight="400" fill="#1F2937">version_no</text>
+<text x="-73.0" y="-302.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-302.5" font-size="12" font-weight="400" fill="#1F2937">document_token</text>
+<text x="-73.0" y="-285.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-285.5" font-size="12" font-weight="400" fill="#1F2937">home_currency</text>
+<text x="-73.0" y="-268.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-268.5" font-size="12" font-weight="400" fill="#1F2937">city</text>
+<text x="-73.0" y="-251.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-251.5" font-size="12" font-weight="400" fill="#1F2937">+13 more</text>
+<rect x="333.2" y="86.0" width="170.0" height="152.0" rx="8" fill="#F9FAFB" stroke="#6B7280" stroke-width="1.2"/>
+<path d="M333.2,126.0 v-32 a8,8 0 0 1 8,-8 h154.0 a8,8 0 0 1 8,8 v32z" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="345.2" y="104.0" font-size="13" font-weight="700" fill="#111827">dim_date</text>
+<text x="345.2" y="119.0" font-size="10.5" fill="#374151">2,557 rows</text>
+<text x="345.2" y="141.0" font-size="9.5" font-weight="700" fill="#6B7280">PK</text>
+<text x="373.2" y="141.0" font-size="12" font-weight="700" fill="#1F2937">date_key</text>
+<text x="345.2" y="158.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="373.2" y="158.0" font-size="12" font-weight="400" fill="#1F2937">year</text>
+<text x="345.2" y="175.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="373.2" y="175.0" font-size="12" font-weight="400" fill="#1F2937">quarter</text>
+<text x="345.2" y="192.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="373.2" y="192.0" font-size="12" font-weight="400" fill="#1F2937">month</text>
+<text x="345.2" y="209.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="373.2" y="209.0" font-size="12" font-weight="400" fill="#1F2937">year_month</text>
+<text x="345.2" y="226.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="373.2" y="226.0" font-size="12" font-weight="400" fill="#1F2937">+3 more</text>
+<rect x="-513.0" y="86.0" width="189.6" height="152.0" rx="8" fill="#F0F9FF" stroke="#0284C7" stroke-width="1.2"/>
+<path d="M-513.0,126.0 v-32 a8,8 0 0 1 8,-8 h173.6 a8,8 0 0 1 8,8 v32z" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.2"/>
+<text x="-501.0" y="104.0" font-size="13" font-weight="700" fill="#111827">dim_campaign</text>
+<text x="-501.0" y="119.0" font-size="10.5" fill="#374151">200 rows</text>
+<text x="-501.0" y="141.0" font-size="9.5" font-weight="700" fill="#0284C7">PK</text>
+<text x="-473.0" y="141.0" font-size="12" font-weight="700" fill="#1F2937">campaign_id</text>
+<text x="-501.0" y="158.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.0" y="158.0" font-size="12" font-weight="400" fill="#1F2937">campaign_name</text>
+<text x="-501.0" y="175.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.0" y="175.0" font-size="12" font-weight="400" fill="#1F2937">campaign_type</text>
+<text x="-501.0" y="192.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.0" y="192.0" font-size="12" font-weight="400" fill="#1F2937">campaign_objective</text>
+<text x="-501.0" y="209.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.0" y="209.0" font-size="12" font-weight="400" fill="#1F2937">promoted_product</text>
+<text x="-501.0" y="226.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.0" y="226.0" font-size="12" font-weight="400" fill="#1F2937">+7 more</text>
+<text x="0.0" y="-179.5" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">N</text>
+<text x="0.0" y="-221.5" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="0.0" y="-200.5" font-size="10.5" text-anchor="middle" fill="#94A3B8" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">customer_id</text>
+<text x="161.1" y="66.4" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">N</text>
+<text x="320.1" y="128.0" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="240.6" y="97.2" font-size="10.5" text-anchor="middle" fill="#94A3B8" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">date_key</text>
+<text x="-161.1" y="66.4" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">N</text>
+<text x="-310.3" y="124.2" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="-235.7" y="95.3" font-size="10.5" text-anchor="middle" fill="#94A3B8" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">campaign_id</text>
+<rect x="-513.0" y="254.0" width="22" height="13" rx="3" fill="#FDE68A" stroke="#D97706" stroke-width="1.2"/>
+<text x="-483.0" y="265.0" font-size="11" fill="#374151">Fact</text>
+<rect x="-513.0" y="274.0" width="22" height="13" rx="3" fill="#BAE6FD" stroke="#0284C7" stroke-width="1.2"/>
+<text x="-483.0" y="285.0" font-size="11" fill="#374151">Dimension</text>
+<rect x="-513.0" y="294.0" width="22" height="13" rx="3" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="-483.0" y="305.0" font-size="11" fill="#374151">Conformed dimension (shared by 2+ facts)</text>
+<line x1="-513.0" y1="321.0" x2="-491.0" y2="321.0" stroke="#94A3B8"/>
+<text x="-483.0" y="325.0" font-size="11" fill="#374151">N · 1: many rows to one; label = join key(s)</text>
+</svg>

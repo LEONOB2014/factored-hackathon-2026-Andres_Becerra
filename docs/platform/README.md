@@ -12,6 +12,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [00 Plan](00_plan.md) | the approved implementation plan: decisions, phases, verification and risks |
 | [01 Architecture](01_architecture.md) | naming (medallion + Kimball), zones, system context, orchestration, local vs cloud vs hybrid, storage compartments and networks |
 | [02 Data flows](02_data_flows.md) | batch flow and gates, streaming sequence and latency budget, asset graph, lineage producers |
+| [Data model](data_model.md) | the gold star schemas: bus matrix, fact constellation, one star per fact and per mart |
 | [03 Data split](03_data_split.md) | historical vs stream holdout, ML splits with embargo, warm-up week |
 | [04 Audit and lineage](04_audit_and_lineage.md) | hash chains, WORM anchors, tamper tests, GenAI audit layers, crypto-shredding |
 | [05 Privacy and compliance](05_privacy_and_compliance.md) | policies as code, PII choke points, residency, differential privacy scope, regulatory triggers |
