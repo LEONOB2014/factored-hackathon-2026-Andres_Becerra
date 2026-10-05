@@ -1,0 +1,36 @@
+# Retrieval questions over the governed knowledge base (ES/PT; the documents are in English).
+# expect: the doc_id that answers it, or null when no ACTIVE document should (retired, expired or absent topics).
+# split: dev questions choose the relevance threshold; test questions only score. Written before any retrieval
+# tuning. Governance negatives: the retired reissue standard and the expired PL 2338 note must never be returned.
+questions:
+  # public documents: answerable to customers
+  - {id: k01, split: dev,  lang: pt, expect: reg-br-pix-med2, q: "caí num golpe do Pix, como faço para recuperar o dinheiro?"}
+  - {id: k02, split: test, lang: pt, expect: reg-br-pix-med2, q: "o que é o MED 2.0 do Pix?"}
+  - {id: k03, split: test, lang: pt, expect: reg-br-pix-med2, q: "desde quando vale a nova devolução especial do Pix?"}
+  - {id: k04, split: test, lang: es, expect: reg-br-pix-med2, q: "cómo funciona la devolución de un Pix por fraude en Brasil"}
+  - {id: k05, split: dev,  lang: es, expect: reg-mx-lfpdppp-2025, q: "¿qué ley protege mis datos personales en México?"}
+  - {id: k06, split: test, lang: es, expect: reg-mx-lfpdppp-2025, q: "¿quién supervisa ahora la protección de datos en México?"}
+  - {id: k07, split: test, lang: es, expect: reg-mx-lfpdppp-2025, q: "cuándo entró en vigor la nueva ley de datos personales"}
+  - {id: k08, split: test, lang: pt, expect: reg-mx-lfpdppp-2025, q: "qual é a lei mexicana de proteção de dados pessoais?"}
+  # internal documents: retrieved for the human agent, never quoted to the customer
+  - {id: k09, split: dev,  lang: es, expect: pol-card-dispute, q: "¿qué necesito para disputar un cargo de mi tarjeta?"}
+  - {id: k10, split: test, lang: pt, expect: pol-card-dispute, q: "como contesto uma compra no cartão que não reconheço?"}
+  - {id: k11, split: test, lang: es, expect: pol-card-dispute, q: "qué pasa con mi reclamo de una compra desconocida"}
+  - {id: k12, split: dev,  lang: es, expect: std-pii-handling, q: "quiero que borren mis datos personales"}
+  - {id: k13, split: test, lang: pt, expect: std-pii-handling, q: "quero pedir a exclusão dos meus dados"}
+  - {id: k14, split: test, lang: es, expect: std-data-retention, q: "¿cuánto tiempo guardan mi información?"}
+  - {id: k15, split: test, lang: pt, expect: std-data-retention, q: "por quanto tempo vocês guardam meus registros?"}
+  - {id: k16, split: dev,  lang: es, expect: pol-marketing-consent, q: "no quiero recibir más publicidad del banco"}
+  - {id: k17, split: test, lang: pt, expect: pol-marketing-consent, q: "não autorizei vocês a me mandarem propaganda"}
+  - {id: k18, split: test, lang: es, expect: pol-genai-use, q: "¿una inteligencia artificial decide si me aprueban el crédito?"}
+  - {id: k19, split: test, lang: pt, expect: pol-genai-use, q: "é um robô que decide o meu limite?"}
+  - {id: k20, split: test, lang: es, expect: std-data-residency, q: "¿en qué país se guardan mis datos?"}
+  - {id: k21, split: test, lang: pt, expect: std-data-residency, q: "meus dados ficam armazenados no Brasil?"}
+  # no active document answers these (the reissue SLA is retired; the PL 2338 note expired; the rest are absent)
+  - {id: k22, split: dev,  lang: es, expect: null, q: "¿cuántos días hábiles tarda en llegar la tarjeta repuesta?"}
+  - {id: k23, split: test, lang: pt, expect: null, q: "em quantos dias úteis chega o cartão de segunda via?"}
+  - {id: k24, split: test, lang: pt, expect: null, q: "em que pé está o projeto de lei de inteligência artificial PL 2338?"}
+  - {id: k25, split: dev,  lang: es, expect: null, q: "¿cuál es la tasa de interés de mi tarjeta de crédito?"}
+  - {id: k26, split: test, lang: pt, expect: null, q: "qual a anuidade do cartão?"}
+  - {id: k27, split: test, lang: es, expect: null, q: "¿tienen programa de puntos o millas?"}
+  - {id: k28, split: test, lang: pt, expect: null, q: "posso parcelar a fatura?"}

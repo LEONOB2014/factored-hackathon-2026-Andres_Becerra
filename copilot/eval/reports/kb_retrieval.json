@@ -1,0 +1,3158 @@
+{
+ "bundled": {
+  "threshold": 0.7929,
+  "n_test": 21,
+  "hit@1": 0.75,
+  "hit@3": 0.938,
+  "mrr": 0.833,
+  "answerable_kept": 0.938,
+  "unanswerable_rejected": 0.0,
+  "governance_violations": 0,
+  "graph_expanded_hits": 0,
+  "latency_ms_p50": 10.9,
+  "latency_ms_p95": 150.7,
+  "rows": [
+   {
+    "id": "k01",
+    "split": "dev",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "caí num golpe do Pix, como faço para recuperar o dinheiro?",
+    "docs": [
+     "reg-br-pix-med2",
+     "pol-card-dispute",
+     "pol-genai-use"
+    ],
+    "top_score": 0.8126834916158759,
+    "rank": 1,
+    "ms": 105.7287500007078,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k02",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "o que é o MED 2.0 do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.9239361212535495,
+    "rank": 1,
+    "ms": 160.03412500140257,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k03",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "desde quando vale a nova devolução especial do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8366164865372501,
+    "rank": 1,
+    "ms": 11.237166996579617,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k04",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-br-pix-med2",
+    "q": "cómo funciona la devolución de un Pix por fraude en Brasil",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8343019435217587,
+    "rank": 1,
+    "ms": 10.561792005319148,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k05",
+    "split": "dev",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿qué ley protege mis datos personales en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8535444156937113,
+    "rank": 1,
+    "ms": 9.862667007837445,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k06",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿quién supervisa ahora la protección de datos en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8419255212854169,
+    "rank": 1,
+    "ms": 11.870999995153397,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k07",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "cuándo entró en vigor la nueva ley de datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8580701554341312,
+    "rank": 1,
+    "ms": 10.643290996085852,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k08",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "qual é a lei mexicana de proteção de dados pessoais?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.859264324902957,
+    "rank": 1,
+    "ms": 10.459042008733377,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k09",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "¿qué necesito para disputar un cargo de mi tarjeta?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8085879301925386,
+    "rank": 1,
+    "ms": 10.711667011491954,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k10",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-card-dispute",
+    "q": "como contesto uma compra no cartão que não reconheço?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-marketing-consent",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8259668019932772,
+    "rank": 1,
+    "ms": 10.72566700167954,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k11",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "qué pasa con mi reclamo de una compra desconocida",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8043614925033362,
+    "rank": 1,
+    "ms": 10.361374996136874,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k12",
+    "split": "dev",
+    "lang": "es",
+    "expect": "std-pii-handling",
+    "q": "quiero que borren mis datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling"
+    ],
+    "top_score": 0.8284551539139102,
+    "rank": 3,
+    "ms": 151.0952500102576,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k13",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-pii-handling",
+    "q": "quero pedir a exclusão dos meus dados",
+    "docs": [
+     "std-data-retention",
+     "std-pii-handling",
+     "std-data-residency"
+    ],
+    "top_score": 0.8363873082153619,
+    "rank": 2,
+    "ms": 146.32829200127162,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k14",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-retention",
+    "q": "¿cuánto tiempo guardan mi información?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling",
+     "std-pii-handling"
+    ],
+    "top_score": 0.815831650780089,
+    "rank": null,
+    "ms": 150.74983399244957,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k15",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-retention",
+    "q": "por quanto tempo vocês guardam meus registros?",
+    "docs": [
+     "std-pii-handling",
+     "std-pii-handling",
+     "std-data-retention"
+    ],
+    "top_score": 0.824669953634979,
+    "rank": 3,
+    "ms": 11.469290999229997,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k16",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-marketing-consent",
+    "q": "no quiero recibir más publicidad del banco",
+    "docs": [
+     "pol-marketing-consent",
+     "reg-mx-lfpdppp-2025",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.7865284107731627,
+    "rank": 1,
+    "ms": 9.501833992544562,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k17",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-marketing-consent",
+    "q": "não autorizei vocês a me mandarem propaganda",
+    "docs": [
+     "pol-marketing-consent",
+     "pol-genai-use",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.8222706926317036,
+    "rank": 1,
+    "ms": 9.250583010725677,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k18",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-genai-use",
+    "q": "¿una inteligencia artificial decide si me aprueban el crédito?",
+    "docs": [
+     "pol-genai-use",
+     "pol-genai-use",
+     "pol-genai-use"
+    ],
+    "top_score": 0.8188617831575191,
+    "rank": 1,
+    "ms": 9.678625006927177,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k19",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-genai-use",
+    "q": "é um robô que decide o meu limite?",
+    "docs": [
+     "pol-genai-use",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.784702507963781,
+    "rank": 1,
+    "ms": 11.650458007352427,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k20",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-residency",
+    "q": "¿en qué país se guardan mis datos?",
+    "docs": [
+     "std-data-residency",
+     "reg-mx-lfpdppp-2025",
+     "std-data-residency"
+    ],
+    "top_score": 0.8228676675467794,
+    "rank": 1,
+    "ms": 10.934207995887846,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k21",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-residency",
+    "q": "meus dados ficam armazenados no Brasil?",
+    "docs": [
+     "std-data-retention",
+     "std-data-residency",
+     "std-data-residency"
+    ],
+    "top_score": 0.830695514136877,
+    "rank": 2,
+    "ms": 9.796416008612141,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k22",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuántos días hábiles tarda en llegar la tarjeta repuesta?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "pol-card-dispute",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.7794749254352353,
+    "rank": null,
+    "ms": 10.750792018370703,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k23",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em quantos dias úteis chega o cartão de segunda via?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8062081572788169,
+    "rank": null,
+    "ms": 11.022499995306134,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k24",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em que pé está o projeto de lei de inteligência artificial PL 2338?",
+    "docs": [
+     "pol-genai-use",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.804280649414194,
+    "rank": null,
+    "ms": 11.014333984348923,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k25",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuál es la tasa de interés de mi tarjeta de crédito?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.7992491650265401,
+    "rank": null,
+    "ms": 10.582540999166667,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k26",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "qual a anuidade do cartão?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8235023502316943,
+    "rank": null,
+    "ms": 9.28191700950265,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k27",
+    "split": "test",
+    "lang": "es",
+    "expect": null,
+    "q": "¿tienen programa de puntos o millas?",
+    "docs": [
+     "pol-model-risk",
+     "pol-model-risk",
+     "pol-model-risk"
+    ],
+    "top_score": 0.7972078907647976,
+    "rank": null,
+    "ms": 9.824042004765943,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k28",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "posso parcelar a fatura?",
+    "docs": [
+     "pol-card-dispute",
+     "std-data-retention",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.7973025670131327,
+    "rank": null,
+    "ms": 148.1424999947194,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   }
+  ]
+ },
+ "pgvector": {
+  "threshold": 0.7929,
+  "n_test": 21,
+  "hit@1": 0.75,
+  "hit@3": 0.938,
+  "mrr": 0.833,
+  "answerable_kept": 0.938,
+  "unanswerable_rejected": 0.0,
+  "governance_violations": 0,
+  "graph_expanded_hits": 0,
+  "latency_ms_p50": 14.8,
+  "latency_ms_p95": 17.0,
+  "rows": [
+   {
+    "id": "k01",
+    "split": "dev",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "caí num golpe do Pix, como faço para recuperar o dinheiro?",
+    "docs": [
+     "reg-br-pix-med2",
+     "pol-card-dispute",
+     "pol-genai-use"
+    ],
+    "top_score": 0.8126835934708375,
+    "rank": 1,
+    "ms": 17.283958004554734,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k02",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "o que é o MED 2.0 do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.9239361882209778,
+    "rank": 1,
+    "ms": 16.48012499208562,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k03",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "desde quando vale a nova devolução especial do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8366164553345065,
+    "rank": 1,
+    "ms": 16.68245901237242,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k04",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-br-pix-med2",
+    "q": "cómo funciona la devolución de un Pix por fraude en Brasil",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8343018988190964,
+    "rank": 1,
+    "ms": 14.807125000515953,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k05",
+    "split": "dev",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿qué ley protege mis datos personales en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8535447120666565,
+    "rank": 1,
+    "ms": 14.595957996789366,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k06",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿quién supervisa ahora la protección de datos en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8419255269147706,
+    "rank": 1,
+    "ms": 13.849625014699996,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k07",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "cuándo entró en vigor la nueva ley de datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8580701178103471,
+    "rank": 1,
+    "ms": 14.171124988934025,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k08",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "qual é a lei mexicana de proteção de dados pessoais?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8592644254381059,
+    "rank": 1,
+    "ms": 16.854792018420994,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k09",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "¿qué necesito para disputar un cargo de mi tarjeta?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8085881002475116,
+    "rank": 1,
+    "ms": 18.490209011361003,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k10",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-card-dispute",
+    "q": "como contesto uma compra no cartão que não reconheço?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-marketing-consent",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8259664125204044,
+    "rank": 1,
+    "ms": 19.568541989428923,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k11",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "qué pasa con mi reclamo de una compra desconocida",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.8043613071010995,
+    "rank": 1,
+    "ms": 17.036000004736707,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k12",
+    "split": "dev",
+    "lang": "es",
+    "expect": "std-pii-handling",
+    "q": "quiero que borren mis datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling"
+    ],
+    "top_score": 0.8284549014839486,
+    "rank": 3,
+    "ms": 13.90887500019744,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k13",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-pii-handling",
+    "q": "quero pedir a exclusão dos meus dados",
+    "docs": [
+     "std-data-retention",
+     "std-pii-handling",
+     "std-data-residency"
+    ],
+    "top_score": 0.8363872322190495,
+    "rank": 2,
+    "ms": 15.82708299974911,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k14",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-retention",
+    "q": "¿cuánto tiempo guardan mi información?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling",
+     "std-pii-handling"
+    ],
+    "top_score": 0.8158312988784149,
+    "rank": null,
+    "ms": 14.57524998113513,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k15",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-retention",
+    "q": "por quanto tempo vocês guardam meus registros?",
+    "docs": [
+     "std-pii-handling",
+     "std-pii-handling",
+     "std-data-retention"
+    ],
+    "top_score": 0.8246703074365305,
+    "rank": 3,
+    "ms": 15.493000013520941,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k16",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-marketing-consent",
+    "q": "no quiero recibir más publicidad del banco",
+    "docs": [
+     "pol-marketing-consent",
+     "reg-mx-lfpdppp-2025",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.7865283783854209,
+    "rank": 1,
+    "ms": 14.805667015025392,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k17",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-marketing-consent",
+    "q": "não autorizei vocês a me mandarem propaganda",
+    "docs": [
+     "pol-marketing-consent",
+     "pol-genai-use",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.8222711079899185,
+    "rank": 1,
+    "ms": 15.924083010759205,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k18",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-genai-use",
+    "q": "¿una inteligencia artificial decide si me aprueban el crédito?",
+    "docs": [
+     "pol-genai-use",
+     "pol-genai-use",
+     "pol-genai-use"
+    ],
+    "top_score": 0.8188616065475053,
+    "rank": 1,
+    "ms": 14.330083009554073,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k19",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-genai-use",
+    "q": "é um robô que decide o meu limite?",
+    "docs": [
+     "pol-genai-use",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.7847024074019562,
+    "rank": 1,
+    "ms": 13.833167002303526,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k20",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-residency",
+    "q": "¿en qué país se guardan mis datos?",
+    "docs": [
+     "std-data-residency",
+     "reg-mx-lfpdppp-2025",
+     "std-data-residency"
+    ],
+    "top_score": 0.8228677265981696,
+    "rank": 1,
+    "ms": 12.782499979948625,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k21",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-residency",
+    "q": "meus dados ficam armazenados no Brasil?",
+    "docs": [
+     "std-data-retention",
+     "std-data-residency",
+     "std-data-residency"
+    ],
+    "top_score": 0.8306955832373565,
+    "rank": 2,
+    "ms": 12.689791998127475,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k22",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuántos días hábiles tarda en llegar la tarjeta repuesta?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "pol-card-dispute",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.7794749969087627,
+    "rank": null,
+    "ms": 14.218875003280118,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k23",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em quantos dias úteis chega o cartão de segunda via?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8062080500659959,
+    "rank": null,
+    "ms": 16.208540997467935,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k24",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em que pé está o projeto de lei de inteligência artificial PL 2338?",
+    "docs": [
+     "pol-genai-use",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.8042805286000422,
+    "rank": null,
+    "ms": 16.615333006484434,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k25",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuál es la tasa de interés de mi tarjeta de crédito?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.7992489099726438,
+    "rank": null,
+    "ms": 14.08237501163967,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k26",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "qual a anuidade do cartão?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.823502242579052,
+    "rank": null,
+    "ms": 13.183500006562099,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k27",
+    "split": "test",
+    "lang": "es",
+    "expect": null,
+    "q": "¿tienen programa de puntos o millas?",
+    "docs": [
+     "pol-model-risk",
+     "pol-model-risk",
+     "pol-model-risk"
+    ],
+    "top_score": 0.7972081424469877,
+    "rank": null,
+    "ms": 13.39933299459517,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k28",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "posso parcelar a fatura?",
+    "docs": [
+     "pol-card-dispute",
+     "std-data-retention",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.7973028425421229,
+    "rank": null,
+    "ms": 12.426291999872774,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   }
+  ]
+ },
+ "graph": {
+  "threshold": 0.9028,
+  "n_test": 21,
+  "hit@1": 0.688,
+  "hit@3": 0.938,
+  "mrr": 0.802,
+  "answerable_kept": 0.875,
+  "unanswerable_rejected": 0.6,
+  "governance_violations": 0,
+  "graph_expanded_hits": 9,
+  "latency_ms_p50": 24.3,
+  "latency_ms_p95": 38.7,
+  "rows": [
+   {
+    "id": "k01",
+    "split": "dev",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "caí num golpe do Pix, como faço para recuperar o dinheiro?",
+    "docs": [
+     "reg-br-pix-med2",
+     "pol-card-dispute",
+     "pol-genai-use"
+    ],
+    "top_score": 0.9064157009124756,
+    "rank": 1,
+    "ms": 91.75329198478721,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k02",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "o que é o MED 2.0 do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.9622306823730469,
+    "rank": 1,
+    "ms": 32.0581249834504,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:MED 2.0",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "vector",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "graph:Regulation:MED 2.0",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k03",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "desde quando vale a nova devolução especial do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.9185407161712646,
+    "rank": 1,
+    "ms": 26.168041018536314,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:MED 2.0",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "vector",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "graph:Regulation:MED 2.0",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k04",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-br-pix-med2",
+    "q": "cómo funciona la devolución de un Pix por fraude en Brasil",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.9179528951644897,
+    "rank": 1,
+    "ms": 34.32162501849234,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:MED 2.0",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "vector",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "graph:Regulation:MED 2.0",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k05",
+    "split": "dev",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿qué ley protege mis datos personales en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.9275103807449341,
+    "rank": 1,
+    "ms": 29.115832992829382,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "vector",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k06",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿quién supervisa ahora la protección de datos en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.9207713603973389,
+    "rank": 1,
+    "ms": 41.075624991208315,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "vector",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k07",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "cuándo entró en vigor la nueva ley de datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.9298814535140991,
+    "rank": 1,
+    "ms": 31.680750020314008,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "vector",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k08",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "qual é a lei mexicana de proteção de dados pessoais?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.9297854900360107,
+    "rank": 1,
+    "ms": 26.25416699447669,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "vector",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "graph:Regulation:LFPDPPP",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k09",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "¿qué necesito para disputar un cargo de mi tarjeta?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.9053407907485962,
+    "rank": 1,
+    "ms": 24.914916983107105,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k10",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-card-dispute",
+    "q": "como contesto uma compra no cartão que não reconheço?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-marketing-consent",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.9139978885650635,
+    "rank": 1,
+    "ms": 38.70249999454245,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k11",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "qué pasa con mi reclamo de una compra desconocida",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.9022952318191528,
+    "rank": 1,
+    "ms": 22.05412500188686,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k12",
+    "split": "dev",
+    "lang": "es",
+    "expect": "std-pii-handling",
+    "q": "quiero que borren mis datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling"
+    ],
+    "top_score": 0.9145609140396118,
+    "rank": 3,
+    "ms": 22.454041987657547,
+    "via": [
+     [
+      "vector",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k13",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-pii-handling",
+    "q": "quero pedir a exclusão dos meus dados",
+    "docs": [
+     "std-data-retention",
+     "std-pii-handling",
+     "std-data-residency"
+    ],
+    "top_score": 0.9182391166687012,
+    "rank": 2,
+    "ms": 22.353666019625962,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k14",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-retention",
+    "q": "¿cuánto tiempo guardan mi información?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling",
+     "std-pii-handling"
+    ],
+    "top_score": 0.907942533493042,
+    "rank": null,
+    "ms": 25.417958007892594,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k15",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-retention",
+    "q": "por quanto tempo vocês guardam meus registros?",
+    "docs": [
+     "std-pii-handling",
+     "std-pii-handling",
+     "std-data-retention"
+    ],
+    "top_score": 0.9124518632888794,
+    "rank": 3,
+    "ms": 19.854624988511205,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k16",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-marketing-consent",
+    "q": "no quiero recibir más publicidad del banco",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "pol-marketing-consent",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.8935472965240479,
+    "rank": 2,
+    "ms": 19.742750009754673,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k17",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-marketing-consent",
+    "q": "não autorizei vocês a me mandarem propaganda",
+    "docs": [
+     "pol-genai-use",
+     "pol-marketing-consent",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.9120087623596191,
+    "rank": 2,
+    "ms": 21.893583005294204,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k18",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-genai-use",
+    "q": "¿una inteligencia artificial decide si me aprueban el crédito?",
+    "docs": [
+     "pol-genai-use",
+     "pol-genai-use",
+     "pol-genai-use"
+    ],
+    "top_score": 0.9096400737762451,
+    "rank": 1,
+    "ms": 24.302792007802054,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k19",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-genai-use",
+    "q": "é um robô que decide o meu limite?",
+    "docs": [
+     "pol-genai-use",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8923342227935791,
+    "rank": 1,
+    "ms": 28.211875003762543,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k20",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-residency",
+    "q": "¿en qué país se guardan mis datos?",
+    "docs": [
+     "std-data-residency",
+     "reg-mx-lfpdppp-2025",
+     "std-data-residency"
+    ],
+    "top_score": 0.9113620519638062,
+    "rank": 1,
+    "ms": 26.430249999975786,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k21",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-residency",
+    "q": "meus dados ficam armazenados no Brasil?",
+    "docs": [
+     "std-data-retention",
+     "std-data-residency",
+     "std-data-residency"
+    ],
+    "top_score": 0.9151532649993896,
+    "rank": 2,
+    "ms": 21.456125017721206,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k22",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuántos días hábiles tarda en llegar la tarjeta repuesta?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "pol-card-dispute",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.8902691602706909,
+    "rank": null,
+    "ms": 25.534415995934978,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k23",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em quantos dias úteis chega o cartão de segunda via?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.9038857221603394,
+    "rank": null,
+    "ms": 24.23450001515448,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector",
+      "graph:Regulation:MED 2.0"
+     ],
+     [
+      "graph:Regulation:MED 2.0",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k24",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em que pé está o projeto de lei de inteligência artificial PL 2338?",
+    "docs": [
+     "pol-genai-use",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.9024112224578857,
+    "rank": null,
+    "ms": 23.152500012656674,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector",
+      "graph:Regulation:LFPDPPP"
+     ],
+     [
+      "graph:Regulation:LFPDPPP",
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k25",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuál es la tasa de interés de mi tarjeta de crédito?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.9002265930175781,
+    "rank": null,
+    "ms": 22.112917009508237,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k26",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "qual a anuidade do cartão?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.9128028154373169,
+    "rank": null,
+    "ms": 20.486583991441876,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k27",
+    "split": "test",
+    "lang": "es",
+    "expect": null,
+    "q": "¿tienen programa de puntos o millas?",
+    "docs": [
+     "pol-model-risk",
+     "pol-model-risk",
+     "pol-model-risk"
+    ],
+    "top_score": 0.8991007804870605,
+    "rank": null,
+    "ms": 23.095125012332574,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   },
+   {
+    "id": "k28",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "posso parcelar a fatura?",
+    "docs": [
+     "pol-card-dispute",
+     "std-data-retention",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.8995426893234253,
+    "rank": null,
+    "ms": 22.18641698709689,
+    "via": [
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ],
+     [
+      "vector"
+     ]
+    ]
+   }
+  ]
+ },
+ "hybrid(pgvector+graph)": {
+  "threshold": 0.0327,
+  "n_test": 21,
+  "hit@1": 0.75,
+  "hit@3": 0.938,
+  "mrr": 0.833,
+  "answerable_kept": 0.938,
+  "unanswerable_rejected": 0.0,
+  "governance_violations": 0,
+  "graph_expanded_hits": 21,
+  "latency_ms_p50": 38.2,
+  "latency_ms_p95": 43.2,
+  "rows": [
+   {
+    "id": "k01",
+    "split": "dev",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "caí num golpe do Pix, como faço para recuperar o dinheiro?",
+    "docs": [
+     "reg-br-pix-med2",
+     "pol-card-dispute",
+     "pol-genai-use"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 37.12554098456167,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k02",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "o que é o MED 2.0 do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 40.1311669847928,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k03",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-br-pix-med2",
+    "q": "desde quando vale a nova devolução especial do Pix?",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 36.64304199628532,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k04",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-br-pix-med2",
+    "q": "cómo funciona la devolución de un Pix por fraude en Brasil",
+    "docs": [
+     "reg-br-pix-med2",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 36.03020802256651,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k05",
+    "split": "dev",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿qué ley protege mis datos personales en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 36.20091697666794,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k06",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "¿quién supervisa ahora la protección de datos en México?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 37.34470799099654,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k07",
+    "split": "test",
+    "lang": "es",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "cuándo entró en vigor la nueva ley de datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 34.92312500020489,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k08",
+    "split": "test",
+    "lang": "pt",
+    "expect": "reg-mx-lfpdppp-2025",
+    "q": "qual é a lei mexicana de proteção de dados pessoais?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 36.5674159838818,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k09",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "¿qué necesito para disputar un cargo de mi tarjeta?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 35.42408300563693,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k10",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-card-dispute",
+    "q": "como contesto uma compra no cartão que não reconheço?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-marketing-consent",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 40.02204199787229,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k11",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-card-dispute",
+    "q": "qué pasa con mi reclamo de una compra desconocida",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 38.200040988158435,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k12",
+    "split": "dev",
+    "lang": "es",
+    "expect": "std-pii-handling",
+    "q": "quiero que borren mis datos personales",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 3,
+    "ms": 40.942666004411876,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k13",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-pii-handling",
+    "q": "quero pedir a exclusão dos meus dados",
+    "docs": [
+     "std-data-retention",
+     "std-pii-handling",
+     "std-data-residency"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 2,
+    "ms": 35.62395801418461,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k14",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-retention",
+    "q": "¿cuánto tiempo guardan mi información?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "std-pii-handling",
+     "std-pii-handling"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 34.2282920028083,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k15",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-retention",
+    "q": "por quanto tempo vocês guardam meus registros?",
+    "docs": [
+     "std-pii-handling",
+     "std-pii-handling",
+     "std-data-retention"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 3,
+    "ms": 37.89116701227613,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k16",
+    "split": "dev",
+    "lang": "es",
+    "expect": "pol-marketing-consent",
+    "q": "no quiero recibir más publicidad del banco",
+    "docs": [
+     "pol-marketing-consent",
+     "reg-mx-lfpdppp-2025",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.03252247488101534,
+    "rank": 1,
+    "ms": 32.10983399185352,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k17",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-marketing-consent",
+    "q": "não autorizei vocês a me mandarem propaganda",
+    "docs": [
+     "pol-marketing-consent",
+     "pol-genai-use",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.03252247488101534,
+    "rank": 1,
+    "ms": 37.159083993174136,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k18",
+    "split": "test",
+    "lang": "es",
+    "expect": "pol-genai-use",
+    "q": "¿una inteligencia artificial decide si me aprueban el crédito?",
+    "docs": [
+     "pol-genai-use",
+     "pol-genai-use",
+     "pol-genai-use"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 42.56862500915304,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k19",
+    "split": "test",
+    "lang": "pt",
+    "expect": "pol-genai-use",
+    "q": "é um robô que decide o meu limite?",
+    "docs": [
+     "pol-genai-use",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 42.124583007534966,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0"
+     ]
+    ]
+   },
+   {
+    "id": "k20",
+    "split": "test",
+    "lang": "es",
+    "expect": "std-data-residency",
+    "q": "¿en qué país se guardan mis datos?",
+    "docs": [
+     "std-data-residency",
+     "reg-mx-lfpdppp-2025",
+     "std-data-residency"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 1,
+    "ms": 43.07158399024047,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k21",
+    "split": "test",
+    "lang": "pt",
+    "expect": "std-data-residency",
+    "q": "meus dados ficam armazenados no Brasil?",
+    "docs": [
+     "std-data-retention",
+     "std-data-residency",
+     "std-data-residency"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": 2,
+    "ms": 38.537582993740216,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k22",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuántos días hábiles tarda en llegar la tarjeta repuesta?",
+    "docs": [
+     "reg-mx-lfpdppp-2025",
+     "pol-card-dispute",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 41.742166999028996,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k23",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em quantos dias úteis chega o cartão de segunda via?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-br-pix-med2"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 43.24637501849793,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:MED 2.0"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:MED 2.0",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k24",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "em que pé está o projeto de lei de inteligência artificial PL 2338?",
+    "docs": [
+     "pol-genai-use",
+     "reg-mx-lfpdppp-2025",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 45.981540984939784,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector",
+      "graph:graph:Regulation:LFPDPPP"
+     ],
+     [
+      "pgvector:vector",
+      "graph:graph:Regulation:LFPDPPP",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k25",
+    "split": "dev",
+    "lang": "es",
+    "expect": null,
+    "q": "¿cuál es la tasa de interés de mi tarjeta de crédito?",
+    "docs": [
+     "pol-card-dispute",
+     "reg-br-pix-med2",
+     "reg-mx-lfpdppp-2025"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 50.77333399094641,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k26",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "qual a anuidade do cartão?",
+    "docs": [
+     "pol-card-dispute",
+     "pol-card-dispute",
+     "pol-card-dispute"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 37.2368750104215,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k27",
+    "split": "test",
+    "lang": "es",
+    "expect": null,
+    "q": "¿tienen programa de puntos o millas?",
+    "docs": [
+     "pol-model-risk",
+     "pol-model-risk",
+     "pol-model-risk"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 40.668917004950345,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   },
+   {
+    "id": "k28",
+    "split": "test",
+    "lang": "pt",
+    "expect": null,
+    "q": "posso parcelar a fatura?",
+    "docs": [
+     "pol-card-dispute",
+     "std-data-retention",
+     "pol-marketing-consent"
+    ],
+    "top_score": 0.03278688524590164,
+    "rank": null,
+    "ms": 40.79754199483432,
+    "via": [
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ],
+     [
+      "pgvector:vector",
+      "graph:vector"
+     ]
+    ]
+   }
+  ]
+ }
+}

@@ -19,7 +19,7 @@ from copilot.config import Settings
 from copilot.gateway import fold, screen
 from copilot.identity import AuthError, Identity, Session
 from copilot.intent import IntentModel, Prediction
-from copilot.llm import LLM, PROMPT_VERSION, CircuitOpen, Usage, grounded
+from copilot.llm import LLM, PROMPT_VERSION, CircuitOpen, Usage, grounded, grounded_answer
 from copilot.policy import Decision, Policy
 from copilot.tools import Card, ToolError, Tools
 
@@ -113,6 +113,8 @@ class Engine:
         llm: LLM | None = None,
         policy=None,
         audit=None,
+        kb=None,
+        kb_threshold: float = 0.0,
     ):
         self.s = settings
         self.tools = tools
@@ -126,6 +128,10 @@ class Engine:
         )  # fmt: skip
         self.convs: dict[str, Conversation] = {}
         self.threshold = settings.intent_threshold or getattr(self.intent, "threshold", 0.55)
+        self.kb, self.kb_threshold = (
+            kb,
+            kb_threshold,
+        )  # a retriever over the governed knowledge base, optional
 
     # --- session ---------------------------------------------------------------------------------------------------
     def login(self, customer_id: str, otp: str) -> str:
@@ -228,6 +234,9 @@ class Engine:
                 sess, conv, Reply(tpl.render("smalltalk", lang), "answered", lang), tr, scr.text
             )
 
+        if pred.intent == "policy_question":
+            return self._kb_answer(sess, conv, pred, tr, scr.text)
+
         card = None
         if self.policy.needs_card(pred.intent):
             try:
@@ -260,6 +269,92 @@ class Engine:
             sp.set_outputs(asdict(d) | {"policy_version": self.policy.version})
         tr.note(policy_rule=d.rule, autonomy=d.autonomy, policy_version=self.policy.version)
         return self._act(sess, conv, d, pred, card, tr, scr.text)
+
+    def _retrieve(self, text: str, tr: Trace):
+        with tr.stage("kb.retrieve", "RETRIEVER") as sp:
+            sp.set_inputs({"question": text})
+            r = self.kb.search(text, 4)
+            sp.set_outputs(r.to_dict())
+        return r
+
+    def _kb_answer(self, sess, conv, pred, tr, text) -> Reply:
+        """A0 general question: a cited answer from public documents only; internal ones go to a person."""
+        lang = conv.lang
+        tr.note(
+            policy_rule="P40_policy_question", autonomy="A0", policy_version=self.policy.version
+        )
+        if self.kb is None:
+            return self._finish(
+                sess, conv, Reply(tpl.render("out_of_scope", lang), "clarify", lang), tr, text
+            )
+        try:
+            r = self._retrieve(text, tr)
+        except Exception as e:  # a retrieval failure never produces an answer
+            tr.note(kb_error=type(e).__name__)
+            return self._handoff(
+                sess,
+                conv,
+                "general",
+                "normal",
+                "T03_kb_failure",
+                pred,
+                None,
+                tr,
+                text,
+                reason="tool_failure",
+                outcome="tool_failure",
+            )
+        tr.note(
+            retrieval=[
+                {"cite": c.cite, "score": round(c.score, 3), "classification": c.classification}
+                for c in r.chunks
+            ]
+        )
+        top = r.chunks[0] if r.chunks else None
+        if top is None or top.score < self.kb_threshold:
+            conv.misses += 1
+            tr.note(policy_rule="K00_no_document")
+            return self._finish(
+                sess, conv, Reply(tpl.render("out_of_scope", lang), "clarify", lang), tr, text
+            )
+        if top.classification != "public":  # only a person may explain internal procedures
+            return self._handoff(
+                sess,
+                conv,
+                "general",
+                "normal",
+                "K02_internal_document",
+                pred,
+                None,
+                tr,
+                text,
+                retrieval=r,
+            )
+        passages = [
+            {"cite": c.cite, "title": c.title, "content": c.content}
+            for c in r.public()
+            if c.score >= self.kb_threshold
+        ][:3]
+        if not (self.llm is not None and self.s.llm_available):
+            conv.misses = 0
+            tr.note(policy_rule="K04_document_pointer")
+            body = tpl.render("kb_pointer", lang, title=top.title, cite=top.cite)
+            return self._finish(sess, conv, Reply(body, "answered", lang), tr, text)
+        answer = None
+        try:
+            with tr.stage("kb.answer", "LLM"):
+                answer, usage = self.llm.answer(text, passages, lang)
+            tr.usage.add(usage)
+        except Exception as e:  # noqa: BLE001 - any failure: no generated answer
+            tr.note(llm_error=type(e).__name__)
+        if answer and grounded_answer(answer, passages):
+            conv.misses = 0
+            tr.note(policy_rule="K01_cited_answer", grounding="pass")
+            return self._finish(sess, conv, Reply(answer, "answered", lang), tr, text)
+        tr.note(grounding="no_answer_or_ungrounded")
+        return self._handoff(
+            sess, conv, "general", "normal", "K03_unanswered", pred, None, tr, text, retrieval=r
+        )
 
     def _classify(self, text: str, tr: Trace) -> Prediction:
         with tr.stage("intent.model", "PARSER") as sp:
@@ -569,8 +664,14 @@ class Engine:
         text,
         reason=None,
         outcome="handoff",
+        retrieval=None,
     ) -> Reply:
         lang = conv.lang
+        if retrieval is None and self.kb is not None and not text.startswith("["):
+            try:  # agent assist: the governed procedures that match the request
+                retrieval = self._retrieve(text, tr)
+            except Exception as e:  # noqa: BLE001 - the packet is still useful without them
+                tr.note(kb_error=type(e).__name__)
         packet = {
             "handoff_id": "HO-" + secrets.token_hex(5).upper(),
             "created_at": datetime.now(UTC).isoformat(),
@@ -590,6 +691,18 @@ class Engine:
             "actions_taken": conv.actions,
             "open_questions": OPEN_QUESTIONS[lang].get(queue, OPEN_QUESTIONS[lang]["general"]),
             "transcript": conv.transcript[-12:],
+            "procedures": [
+                {
+                    "cite": c.cite,
+                    "title": c.title,
+                    "heading": c.heading,
+                    "classification": c.classification,
+                    "score": round(c.score, 3),
+                    "text": c.content,
+                }
+                for c in (retrieval.chunks if retrieval else [])
+                if c.score >= self.kb_threshold
+            ][:3],
         }
         conv.handoff = packet
         why = tpl.HANDOFF_REASON[lang].get(reason or queue, tpl.HANDOFF_REASON[lang]["general"])

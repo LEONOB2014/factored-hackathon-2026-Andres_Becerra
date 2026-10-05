@@ -7,6 +7,9 @@ intents:
   out_of_scope:
     es: ["me interesa un leasing para carro", "a cómo está el euro", "quiero cambiar el correo registrado", "recomiéndame una película", "cuándo abren las oficinas el sábado", "puedo sacar un crédito para estudiar"]
     pt: ["tenho interesse em consórcio de carro", "qual a cotação do euro", "quero trocar o e-mail cadastrado", "me indica um filme", "as agências abrem no sábado?", "posso pegar um crédito estudantil"]
+  policy_question:
+    es: ["me pueden explicar qué hacen con mis datos", "quiero ejercer mi derecho a que borren mi info", "la IA del banco decide mis solicitudes?", "en qué servidores queda mi información"]
+    pt: ["me expliquem o que fazem com meus dados", "quero exercer meu direito de apagar meus dados", "a IA do banco decide meus pedidos?", "em que servidores fica minha informação"]
   card_status:
     es: ["la tarjeta me sirve todavía?", "sigue vigente el plástico de débito", "como figura mi tarjeta en el sistema", "esta habilitada mi tarjeta o no"]
     pt: ["o cartão ainda serve?", "o cartão de débito continua valendo", "como aparece meu cartão no sistema", "meu cartão tá habilitado ou não"]

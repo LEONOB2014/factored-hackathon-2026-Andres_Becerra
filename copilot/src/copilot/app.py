@@ -37,7 +37,26 @@ def engine() -> Engine:
     tracing.setup()
     tools = Tools(s.snapshot, s.store, s.secret, s.confirm_ttl_s)
     llm = LLM(s.llm_model, s.llm_timeout_s) if s.llm_available else None
-    return Engine(s, tools, llm=llm)
+    kb, kb_threshold = _knowledge()
+    return Engine(s, tools, llm=llm, kb=kb, kb_threshold=kb_threshold)
+
+
+def _knowledge():
+    """The bundled knowledge-base retriever, when its index is built and the embedder is installed."""
+    import json
+    import logging
+
+    from copilot.config import PROJECT
+    from copilot.kb import INDEX, BundledRetriever
+
+    try:
+        kb = BundledRetriever(INDEX)
+        kb.search("warm up", 1)  # loads the embedding model now, not on a customer's first question
+    except Exception as e:  # noqa: BLE001 - the copilot runs without it (policy questions go out of scope)
+        logging.getLogger(__name__).warning("knowledge base unavailable: %s", e)
+        return None, 0.0
+    thr = PROJECT / "corpus" / "kb_threshold.json"
+    return kb, json.loads(thr.read_text())["threshold"] if thr.is_file() else 0.0
 
 
 class LoginIn(BaseModel):
@@ -96,6 +115,13 @@ def health() -> dict:
         "llm_model": e.s.llm_model if e.llm else None,
         "breaker": e.llm.breaker.state if e.llm else None,
         "intent_params": e.intent.params,
+        "knowledge_base": {
+            "active_set_hash": e.kb.active_set_hash,
+            "chunks": len(e.kb.chunks),
+            "threshold": e.kb_threshold,
+        }
+        if e.kb
+        else None,
     }
 
 

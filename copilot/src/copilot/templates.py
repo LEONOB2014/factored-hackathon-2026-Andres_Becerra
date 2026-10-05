@@ -189,6 +189,12 @@ T: dict[str, dict[str, str]] = {
         "es": "El segundo código no es correcto; no hice cambios.",
         "pt": "O segundo código não está correto; não fiz alterações.",
     },
+    "kb_pointer": {
+        "es": "Eso está descrito en nuestro documento público «{title}» ({cite}). Si quieres que alguien te lo "
+        "explique en detalle, puedo pasarte con un asesor.",
+        "pt": "Isso está descrito no nosso documento público «{title}» ({cite}). Se quiser que alguém explique em "
+        "detalhe, posso passar para um atendente.",
+    },
     "handoff": {
         "es": "{reason} Te paso con {queue}; ya le comparto el resumen para que no tengas que repetir nada.",
         "pt": "{reason} Vou passar para {queue}; já envio o resumo para você não precisar repetir nada.",

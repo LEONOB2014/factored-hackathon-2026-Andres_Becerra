@@ -123,3 +123,73 @@ def test_http_api(engine, monkeypatch):
         headers={"authorization": f"Bearer {tok}"},
     )
     assert r.json()["outcome"] == "answered" and r.json()["lang"] == "pt"
+
+
+class FakeKB:
+    """Stands in for the embedding retriever: returns fixed chunks, so tests need no model download."""
+
+    def __init__(self, chunks):
+        self.chunks = chunks
+
+    def search(self, question, k=4):
+        from copilot.kb import Retrieval
+
+        return Retrieval("fake", self.chunks[:k], 0.1)
+
+
+def _chunk(doc, classification, score):
+    from copilot.kb import Chunk
+
+    return Chunk(
+        f"id-{doc}",
+        doc,
+        "1.0",
+        f"Title {doc}",
+        "Heading",
+        f"{doc} text 2026",
+        classification,
+        "ALL",
+        score,
+        ["vector"],
+    )
+
+
+def test_policy_question_public_document_without_model(engine):
+    engine.kb, engine.kb_threshold = FakeKB([_chunk("reg-br-pix-med2", "public", 0.9)]), 0.8
+    r = engine.message(login(engine, "C-SINGLE"), "como funciona a devolução por fraude no pix")
+    assert r.outcome == "answered" and "reg-br-pix-med2 v1.0" in r.text
+    assert r.trace["policy_rule"] == "K04_document_pointer"
+
+
+def test_policy_question_internal_document_goes_to_a_person(engine):
+    engine.kb, engine.kb_threshold = FakeKB([_chunk("std-pii-handling", "internal", 0.9)]), 0.8
+    r = engine.message(login(engine, "C-SINGLE"), "pueden eliminar mi información del banco")
+    assert r.outcome == "handoff" and r.handoff["procedures"][0]["cite"] == "std-pii-handling v1.0"
+    assert "std-pii-handling" not in r.text  # internal documents are never quoted to the customer
+
+
+def test_policy_question_below_threshold_is_not_answered(engine):
+    engine.kb, engine.kb_threshold = FakeKB([_chunk("reg-br-pix-med2", "public", 0.5)]), 0.8
+    r = engine.message(login(engine, "C-SINGLE"), "cómo protegen mis datos personales")
+    assert r.outcome == "clarify"
+
+
+def test_handoff_packet_carries_procedures(engine):
+    engine.kb, engine.kb_threshold = FakeKB([_chunk("pol-card-dispute", "internal", 0.9)]), 0.8
+    r = engine.message(login(engine, "C-SINGLE"), "me cobraron dos veces la misma compra")
+    assert r.outcome == "handoff" and r.handoff["queue"] == "disputes"
+    assert r.handoff["procedures"][0]["cite"] == "pol-card-dispute v1.0"
+
+
+def test_grounded_answer_rules():
+    from copilot.llm import grounded_answer
+
+    p = [
+        {"cite": "reg-br-pix-med2 v1.0", "title": "MED", "content": "mandatory on 2 February 2026"}
+    ]
+    assert grounded_answer("É obrigatório desde 2 de fevereiro de 2026 [reg-br-pix-med2 v1.0].", p)
+    assert not grounded_answer("É obrigatório desde 2026.", p)  # no citation
+    assert not grounded_answer(
+        "Prazo de 30 dias [reg-br-pix-med2 v1.0].", p
+    )  # number not in the source
+    assert not grounded_answer("Veja [pol-genai-use v1.0].", p)  # cites a passage it was not given

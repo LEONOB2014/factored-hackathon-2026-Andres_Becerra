@@ -8,6 +8,7 @@ version: "2026-10-05.1"
 intents:
   smalltalk:      {autonomy: A0}
   out_of_scope:   {autonomy: A0, escalate_after: 2, queue: general}
+  policy_question: {autonomy: A0, uses_kb: true, queue: general}   # cited answers from public documents only
   card_status:    {autonomy: A0, needs_card: true}
   balance_limit:  {autonomy: A0, needs_card: true}
   decline_reason: {autonomy: A0, needs_card: true}

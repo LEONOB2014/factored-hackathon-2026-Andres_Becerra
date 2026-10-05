@@ -15,6 +15,9 @@ dependencies = [
 
 [project.optional-dependencies]
 tune = ["mlflow>=3.0", "optuna>=4.0"]
+# retrieval over the governed knowledge base: the embedder for the bundled index, plus the dev-stack stores
+rag = ["numpy>=2.0", "sentence-transformers>=3.0"]
+stores = ["neo4j>=5.20", "psycopg[binary]>=3.2"]
 deploy = ["modal>=1.0"]
 
 [dependency-groups]

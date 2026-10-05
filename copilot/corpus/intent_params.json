@@ -1,15 +1,15 @@
 {
  "params": {
-  "C": 97.8723189521979,
-  "ngram_min": 2,
-  "ngram_max": 4,
-  "sublinear_tf": true,
-  "class_weight": null,
-  "threshold": 0.77
+  "C": 39.691840828658236,
+  "ngram_min": 1,
+  "ngram_max": 5,
+  "sublinear_tf": false,
+  "class_weight": "balanced",
+  "threshold": 0.73
  },
- "cv_macro_f1": 0.7595,
- "oof_coverage_at_threshold": 0.6441,
+ "cv_macro_f1": 0.7399,
+ "oof_coverage_at_threshold": 0.5291,
  "target_precision": 0.9,
- "mlflow_run_id": "b5ac75aee5ce452785540f9baea4c205",
- "tuned_at": "2026-10-05T15:39:37+00:00"
+ "mlflow_run_id": "7d620b491128481db18b4b22f99cbcd5",
+ "tuned_at": "2026-10-05T16:40:49+00:00"
 }

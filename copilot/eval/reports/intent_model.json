@@ -1,32 +1,32 @@
 {
  "tuning": {
   "params": {
-   "C": 97.8723189521979,
-   "ngram_min": 2,
-   "ngram_max": 4,
-   "sublinear_tf": true,
-   "class_weight": null,
-   "threshold": 0.77
+   "C": 39.691840828658236,
+   "ngram_min": 1,
+   "ngram_max": 5,
+   "sublinear_tf": false,
+   "class_weight": "balanced",
+   "threshold": 0.73
   },
-  "cv_macro_f1": 0.7595,
-  "oof_coverage_at_threshold": 0.6441,
+  "cv_macro_f1": 0.7399,
+  "oof_coverage_at_threshold": 0.5291,
   "target_precision": 0.9,
-  "mlflow_run_id": "b5ac75aee5ce452785540f9baea4c205",
-  "tuned_at": "2026-10-05T15:39:37+00:00"
+  "mlflow_run_id": "7d620b491128481db18b4b22f99cbcd5",
+  "tuned_at": "2026-10-05T16:40:49+00:00"
  },
  "held_out": [
   {
    "model": "learned_char_ngram_lr",
-   "n": 124,
-   "accuracy": 0.8065,
-   "macro_f1": 0.8081,
+   "n": 132,
+   "accuracy": 0.8182,
+   "macro_f1": 0.8196,
    "macro_f1_by_language": {
-    "es": 0.7582,
-    "pt": 0.8551
+    "es": 0.7893,
+    "pt": 0.8492
    },
-   "ece": 0.0735,
-   "latency_ms_p50": 0.275,
-   "latency_ms_p95": 0.383,
+   "ece": 0.0806,
+   "latency_ms_p50": 0.287,
+   "latency_ms_p95": 0.451,
    "errors": [
     {
      "text": "ya está, chao",
@@ -47,16 +47,34 @@
      "got": "human_agent"
     },
     {
+     "text": "cuándo abren las oficinas el sábado",
+     "lang": "es",
+     "expected": "out_of_scope",
+     "got": "expiry_renewal"
+    },
+    {
      "text": "puedo sacar un crédito para estudiar",
      "lang": "es",
      "expected": "out_of_scope",
      "got": "card_status"
     },
     {
+     "text": "qual a cotação do euro",
+     "lang": "pt",
+     "expected": "out_of_scope",
+     "got": "balance_limit"
+    },
+    {
      "text": "quero trocar o e-mail cadastrado",
      "lang": "pt",
      "expected": "out_of_scope",
      "got": "reissue_card"
+    },
+    {
+     "text": "me indica um filme",
+     "lang": "pt",
+     "expected": "out_of_scope",
+     "got": "human_agent"
     },
     {
      "text": "posso pegar um crédito estudantil",
@@ -69,12 +87,6 @@
      "lang": "es",
      "expected": "card_status",
      "got": "reissue_card"
-    },
-    {
-     "text": "como figura mi tarjeta en el sistema",
-     "lang": "es",
-     "expected": "card_status",
-     "got": "out_of_scope"
     },
     {
      "text": "o cartão ainda serve?",
@@ -93,6 +105,12 @@
      "lang": "es",
      "expected": "balance_limit",
      "got": "limit_increase"
+    },
+    {
+     "text": "me están rebotando los pagos",
+     "lang": "es",
+     "expected": "decline_reason",
+     "got": "fraud_report"
     },
     {
      "text": "hasta qué mes me dura la tarjeta",
@@ -119,34 +137,16 @@
      "got": "reissue_card"
     },
     {
-     "text": "necesito habilitar la tarjeta que bloqueé",
-     "lang": "es",
-     "expected": "unblock_card",
-     "got": "block_card"
-    },
-    {
-     "text": "preciso habilitar o cartão que bloqueei",
-     "lang": "pt",
-     "expected": "unblock_card",
-     "got": "block_card"
-    },
-    {
      "text": "me aparece un cobro de netflix que nunca contraté y no reconozco",
      "lang": "es",
      "expected": "fraud_report",
      "got": "dispute"
     },
     {
-     "text": "estoy harto de este banco",
-     "lang": "es",
-     "expected": "complaint",
-     "got": "out_of_scope"
-    },
-    {
      "text": "quiero dejar constancia de mi inconformidad",
      "lang": "es",
      "expected": "complaint",
-     "got": "out_of_scope"
+     "got": "policy_question"
     },
     {
      "text": "llevo semanas esperando respuesta",
@@ -173,21 +173,21 @@
      "got": "out_of_scope"
     }
    ],
-   "coverage_at_threshold": 0.629,
-   "accuracy_when_confident": 0.9487
+   "coverage_at_threshold": 0.6136,
+   "accuracy_when_confident": 0.963
   },
   {
    "model": "keyword_baseline",
-   "n": 124,
-   "accuracy": 0.6129,
-   "macro_f1": 0.6517,
+   "n": 132,
+   "accuracy": 0.5758,
+   "macro_f1": 0.6055,
    "macro_f1_by_language": {
-    "es": 0.6309,
-    "pt": 0.6685
+    "es": 0.5862,
+    "pt": 0.621
    },
    "ece": null,
-   "latency_ms_p50": 0.083,
-   "latency_ms_p95": 0.099,
+   "latency_ms_p50": 0.086,
+   "latency_ms_p95": 0.102,
    "errors": [
     {
      "text": "buen día señorita",
@@ -211,6 +211,54 @@
      "text": "beleza então",
      "lang": "pt",
      "expected": "smalltalk",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me pueden explicar qué hacen con mis datos",
+     "lang": "es",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quiero ejercer mi derecho a que borren mi info",
+     "lang": "es",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "la IA del banco decide mis solicitudes?",
+     "lang": "es",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "en qué servidores queda mi información",
+     "lang": "es",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me expliquem o que fazem com meus dados",
+     "lang": "pt",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quero exercer meu direito de apagar meus dados",
+     "lang": "pt",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "a IA do banco decide meus pedidos?",
+     "lang": "pt",
+     "expected": "policy_question",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "em que servidores fica minha informação",
+     "lang": "pt",
+     "expected": "policy_question",
      "got": "out_of_scope"
     },
     {
