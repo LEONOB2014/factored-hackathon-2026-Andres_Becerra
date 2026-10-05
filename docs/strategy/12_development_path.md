@@ -1,6 +1,6 @@
 # 12 · From evidence to build plan
 
-[← 11 plan evaluation](11_plan_evaluation.md) · [index](README.md) · next: [sources →](appendix_sources.md)
+[← 11 plan evaluation](11_plan_evaluation.md) · [index](README.md) · next: [data readiness audit →](13_data_readiness_audit.md)
 
 Chapters 01–11 were written before the platform existed. Since then the platform was built (`platform/`, release
 v0.2.0) and judged by these analysis series:
@@ -43,6 +43,7 @@ Decisions taken here are recorded as [ADR-011](../platform/adr/ADR-011.md) (coun
 | E13 | every process runs on its delivery day: timestamp −6 h (transactions, digital, sends) or −8 h (contacts, complaints) equals `process_date` for 100 % of rows, in every market; legal local time is wrong for this source, and R15/R16 test the wrong window (their ~8 % violations are 2 of 24 hours) | `granularity_time/01`, `granularity_time_clock.csv` | declare the clock ([ADR-014](../platform/adr/ADR-014.md)); fix `enrich_transactions`, R15 and R16 |
 | E14 | the hour carries no information beyond the day (dispersion index 0.98–1.01), no sub-day sequence or burst exists (0 of 35 lead tests), and hourly monitors need negative-binomial limits (Poisson over-alerts 5×) | `granularity_time/02`, `/03` | no hourly fact table; hourly monitors in the streaming layer only |
 | E15 | Voice and WhatsApp record no opens, so they cannot attribute a conversion (22 % of contacts unmeasured); the conversion value is a flat ~2,550 USD whatever the product (not a margin); within a channel no cell differs; reallocating a fixed number of sends by channel converts +22 % (95 % interval +18 to +26 %) in an out-of-time replay | `granularity_time/04`, `/05`, `granularity_time_allocation.csv` | instrument before cutting; allocate under a contact budget; confirm with a randomised holdout |
+| E16 | at the hour, no rate, attribute, customer habit, channel rhythm, event order or send-time effect exists (52 tests, 1 material and mechanical); 11 hour-grain models trained: 0 green, 2 amber, 9 red; teller activity ignores branch opening hours (59 % outside, as schedule-blind activity gives); agent shifts are unrelated to the hours worked; the SLA flag does not follow the regulatory clock (κ ≈ 0); the gold session date uses the UTC day | `granularity_hour/01`–`/09`, `granularity_hour_readiness.csv` | the data collection audit ([13](13_data_readiness_audit.md)); deterministic hour products ship, models wait for their gates |
 
 All six platform defects (E1–E6) passed 107 green data tests. Each is plausible but wrong data: a key that is NULL
 instead of a missing row, a token that is valid but shared, a rule that returns nothing instead of failing. **Test
@@ -179,6 +180,11 @@ The LLM explains; it never computes an amount or takes a decision.
 - a periodic orphan-relation check;
 - `fct_campaign_cell` promoted to gold with `open_tracked` and an `attribution_method` per send, and a monthly
   empirical-Bayes table of cell rates (E15);
+- the hour-grain dimensions (`dim_process_clock`, `dim_time_of_day`, `dim_branch_schedule`) and `fct_case_clock` with business
+  hours and a deadline seed per country and case type (E16);
+- an integrity rule "teller transaction outside the declared schedule" (severity B) and, once rosters exist, shift
+  adherence (E16);
+- `fct_digital_session` dated by the delivery day, not the UTC day (E16);
 - hourly counts per market and process in the streaming layer, with negative-binomial limits and a day-parity test
   (E14).
 
@@ -190,7 +196,9 @@ The LLM explains; it never computes an amount or takes a decision.
 - explicit time zones and delivery windows per timestamp (E13);
 - an attribution method for Voice and WhatsApp (tracked links or codes), and the product margin per conversion (E15);
 - confirmed fraud labels with dates;
-- a randomised holdout per campaign.
+- a randomised holdout per campaign;
+- rostered shifts and agent state logs from workforce management, telephony queue events, branch opening days and
+  hours, ATM terminal events, and clickstream order with page and product (E16, chapter 13).
 
 ## 12.8 Exit criteria for v0.3.0
 

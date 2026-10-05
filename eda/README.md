@@ -23,6 +23,7 @@ duckdb) stay out of the app and CI installs.
 | `notebooks/dataset_compare/` | Main against the backup run as main, per scope | yes |
 | `notebooks/granularity/` | Granularity experiment: the star re-grained (customer, day, branch, agent, product, campaign, case) and judged grain by grain | yes |
 | `notebooks/granularity_time/` | Granularity series II: the clock each process runs on, the hour grain, sub-day sequences, and the campaign decision cell with an allocation replay | yes |
+| `notebooks/granularity_hour/` | Granularity series III: every fact table at the hour, the hour star and its dimensions, every candidate model executed and gated, and the data-collection audit | yes |
 | `reports/contracts/` | Inferred, versioned schema contract per table (from the raw text) | yes |
 | `scripts/` | Download, CSV → Parquet, backup build, notebook builder, dashboard export | yes |
 | `tests/` | pytest suite (see Tests below) | yes |
@@ -242,6 +243,41 @@ for nb in notebooks/granularity_time/0[1-5]_*.py; do
 
 01 and 03 read the bronze lake directly (in-memory DuckDB). 02 and 04 build on the whole-bank scratch lakehouse.
 05 reads the tables the other four write.
+
+### Granularity series III (`notebooks/granularity_hour/`)
+
+The bank at the hour. Every fact table is re-grained to the hour of its own delivery clock (or below it: sessions,
+send responses, case milestones). The star gains the dimensions the hour needs: `dim_time_of_day`,
+`dim_process_clock`, `dim_branch_schedule`, `dim_agent_shift` and `dim_session_outcome`. Every candidate model is
+**trained whatever the signal**. The models live in `src/latam_eda/granularity_hour_sql/`, and they are built together
+with series II's `dim_hour` (`granularity.open_star(pl, [SQL_DIR_TIME, SQL_DIR_HOUR])`).
+
+Each scenario's models are in `src/latam_eda/hour_models.py`. They are scored out of time against a transparent
+benchmark and judged by one readiness gate (`granularity.readiness_verdict`):
+- **green:** significant and material;
+- **amber:** significant but not material;
+- **red:** no evidence, with a root cause.
+
+| # | Grain | Question |
+|---|---|---|
+| 01 | all | bus matrix at the hour, build and checks, sparsity of each entity × hour grain, the dimension redesign |
+| 02 | customer × daypart | preferred-hour test per customer, daypart profile against multinomial noise, hourly recency; dormancy and next-daypart models |
+| 03 | market × channel × hour | intraday profile and decline rate per channel, hourly monitors per channel; hourly volume forecasts |
+| 04 | branch × hour | teller activity against the branch schedule, ATMs at the hour; outside-hours classifier and branch-hour cash forecaster |
+| 05 | agent × hour, queue × hour | shift adherence, the agent's working day, occupancy and Erlang C; handle-time and arrival models |
+| 06 | complaint case (hour milestones) | Kaplan–Meier milestones, business hours and regulatory deadlines, SLA-flag consistency; Cox and SLA-breach models |
+| 07 | session, send response | event-transition independence, errors against length, send-to-open delays; purchase and send-time models |
+| 08 | all models | the readiness scorecard and the data-collection audit (owner, requirement, acceptance test) |
+| 09 | synthesis | every test under Benjamini–Hochberg, KPIs, promotion, downstream impact |
+
+```bash
+for nb in notebooks/granularity_hour/0[1-9]_*.py; do
+  uv run scripts/build_notebook.py "$nb" --execute --html-dir "$PWD/reports/notebooks/granularity_hour"; done
+uv run scripts/readiness_check.py --dataset main --scope ALL   # re-judge every hour model on a lake
+```
+
+The re-run command writes to `data/derived/readiness/` and reproduces `reports/tables/granularity_hour_readiness.csv`
+on the same data. Chapter 13 of the strategy turns the scorecard into the data-collection audit.
 
 ## Reproduce
 

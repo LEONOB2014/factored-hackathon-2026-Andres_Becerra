@@ -1,0 +1,18 @@
+-- Coverage dimension: for every branch, ISO weekday and hour of the business day, the share of the hour the branch is
+-- open, from the branch's own opening_time and closing_time read on the declared business clock. The source gives one
+-- opening window and no opening days; Monday to Friday is assumed (stated, not collected: a "missing field" for the
+-- audit), and open_fraction_any_day ignores the weekday so both readings can be tested.
+-- grain: branch_id, iso_weekday, hour_of_day
+-- dense: branch_id from {stg_branches} x hour_of_day from {dim_time_of_day}
+with b as (
+    select branch_id,
+           extract(epoch from try_cast(opening_time as time)) / 3600.0 as open_h,
+           extract(epoch from try_cast(closing_time as time)) / 3600.0 as close_h
+    from {stg_branches}),
+grid as (select b.*, d.iso_weekday, t.hour_of_day
+         from b cross join (select unnest(range(1, 8)) as iso_weekday) d cross join {dim_time_of_day} t)
+select branch_id, iso_weekday, hour_of_day,
+       greatest(0, least(hour_of_day + 1, close_h) - greatest(hour_of_day, open_h)) as open_fraction_any_day,
+       case when iso_weekday <= 5
+            then greatest(0, least(hour_of_day + 1, close_h) - greatest(hour_of_day, open_h)) else 0 end as open_fraction
+from grid

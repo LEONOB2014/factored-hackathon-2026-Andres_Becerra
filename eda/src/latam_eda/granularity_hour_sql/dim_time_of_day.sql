@@ -1,0 +1,8 @@
+-- Role-playing dimension of the 24 hours of a business-clock day (0 = the first hour of the delivery day): the
+-- daypart and whether the hour falls in a standard business window (09:00 to 18:00). Every intraday fact joins it on
+-- the hour of its own process clock (country.PROCESS_DAY_OFFSET), so "morning" means the same thing for every process.
+-- grain: hour_of_day
+select h as hour_of_day,
+       case when h < 6 then 'night' when h < 12 then 'morning' when h < 18 then 'afternoon' else 'evening' end as daypart,
+       h >= 9 and h < 18 as is_business_hour
+from range(24) r(h)

@@ -1,0 +1,7 @@
+scenario,test,statistic,p_value,effect,n,reading
+06 case clock,AR: SLA flag agrees with the regulatory clock (κ),-0.00233595137534226,0.0,-0.00233595137534226,12831,the flag does not follow the clock
+06 case clock,CO: SLA flag agrees with the regulatory clock (κ),-0.0009939700253611683,0.0,-0.0009939700253611683,19444,the flag does not follow the clock
+06 case clock,MX: SLA flag agrees with the regulatory clock (κ),0.0023626401416241283,0.0,0.0023626401416241283,31366,the flag does not follow the clock
+06 case clock,elapsed hours to first response by created hour of day (Kruskal–Wallis),29.170829055124866,0.17471269015085844,0.000734670554957056,39707,no effect
+06 case clock,elapsed hours to first response by created weekday (Kruskal–Wallis),3.861196963393089,0.6954536937596087,9.72446724271669e-05,39707,no effect
+06 case clock,time to first response by priority (log-rank),3.694234430233258,0.29643044263839735,,65191,priority does not speed the answer

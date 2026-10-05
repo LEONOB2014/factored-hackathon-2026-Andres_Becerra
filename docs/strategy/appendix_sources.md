@@ -1,6 +1,6 @@
 # Appendix · Sources and glossary
 
-[← 12 from evidence to build plan](12_development_path.md) · [index](README.md)
+[← 13 data readiness audit](13_data_readiness_audit.md) · [index](README.md)
 
 ## Internal evidence
 - Notebooks 01–11: `eda/notebooks/`, HTML in `eda/reports/notebooks/`.
