@@ -1,15 +1,15 @@
 // Domain services. Each function mirrors a future real API call; swap the
 // mock import for fetch() without changing callers.
 import supervisor from "@/mocks/supervisor.json";
-import atlas from "@/mocks/atlas.json";
 import quality from "@/mocks/quality.json";
 import pipelines from "@/mocks/pipelines.json";
 import knowledge from "@/mocks/knowledge.json";
 import specs from "@/mocks/specs.json";
 import { api, type RegionId } from "./api";
+import { readinessService } from "./readiness";
 import type {
-  AtlasCell, Correction, DemoInfo, DeskCase, KChunk, KDoc, Kpi, Persona, PipelineCell, PolicyRow,
-  QAgent, QIssue, Queue, Spec, UnsafeCase, Veto, Status, Verdict,
+  Correction, DemoInfo, DeskCase, KChunk, KDoc, Persona, PipelineCell,
+  QAgent, QIssue, Queue, Spec, UnsafeCase, Status, Verdict,
 } from "./types";
 
 const delay = <T,>(v: T, ms = 120) => new Promise<T>((r) => setTimeout(() => r(structuredClone(v)), ms));
@@ -77,17 +77,15 @@ export const deskService = {
     toDeskCase(await api<ApiCase>(region, `/api/handoffs/${id}/status`, { body: { status, actor, note }, staffCode })),
 };
 
-// ---- supervisor ----
+// ---- supervisor (KPIs and policy: real, see evaluation.ts and policy.ts; unsafe cases: demo data) ----
 export const supervisorService = {
-  kpis: () => delay(supervisor.kpis as Kpi[]),
   unsafe: () => delay(supervisor.unsafe as UnsafeCase[]),
-  policy: () => delay({ version: "policy v1.7.2", rows: supervisor.policy as PolicyRow[], vetoes: supervisor.vetoes as Veto[] }),
 };
 
-// ---- readiness atlas ----
-export const atlasService = {
-  matrix: () => delay(atlas as { models: string[]; grains: AtlasCell["grain"][]; cells: AtlasCell[] }),
-};
+// ---- readiness atlas and evaluation (real: the copilot's read-only control plane) ----
+export { readinessService } from "./readiness";
+export { evaluationService } from "./evaluation";
+export { policyService } from "./policy";
 
 // ---- quality ----
 export const qualityService = {
@@ -163,17 +161,13 @@ export const specService = {
     ),
 };
 
-// ---- overview ----
+// ---- overview (readiness: real; copilot health, issues and release: demo data) ----
 export const overviewService = {
   summary: () =>
     delay({
       copilot: { status: "ok" as Status, uptime: "99,97 %", p95: "22,5 ms" },
       openIssues: (quality.issues as QIssue[]).filter((i) => i.stage !== "Closed").length,
-      readiness: {
-        green: (atlas.cells as AtlasCell[]).filter((c) => c.verdict === "green").length,
-        amber: (atlas.cells as AtlasCell[]).filter((c) => c.verdict === "amber").length,
-        red: (atlas.cells as AtlasCell[]).filter((c) => c.verdict === "red").length,
-      },
       release: "v0.4.0",
     }),
+  readiness: async () => (await readinessService.get()).counts,
 };
