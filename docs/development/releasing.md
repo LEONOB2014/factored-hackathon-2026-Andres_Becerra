@@ -18,7 +18,7 @@
 | `v0.1.0` | Exploratory data analysis phase |
 | `v0.2.0` | Compliance-grade data platform (lossless bronze to audit, Airflow 3 + Cosmos, streaming, four-eyes corrections, reproducible gold) and the analysis series that judged it (pipeline walkthrough, country series, backup as main) |
 | `v0.3.0` | Close of the exploratory and evaluation phase. The Airflow and dbt platform was used to judge the predictive power of every data mart at the grains a bank decides on (granularity series I–III), with these results: the business clock ([ADR-014](../platform/adr/ADR-014.md)), the campaign decision cell, the bank at the hour, readiness gates for every model, and the data-collection audit ([strategy 13](../strategy/13_data_readiness_audit.md)). It also adds the Modal compute plan |
-| `v0.4.0` | Planned: the start of spec-driven development, with the P0 platform work and exit criteria of [strategy 12](../strategy/12_development_path.md) §12.7–§12.8 |
+| `v0.4.0` | BETA AID: the card-service copilot (policy, verified actions, handoff, RAG and GraphRAG), its frozen held-out evaluation, the lateral pipelines by scope and grain (ADR-015 to ADR-020), and deployment on Modal and per residency region on Cloud Run (ADR-021) |
 
 ## Cut a release
 

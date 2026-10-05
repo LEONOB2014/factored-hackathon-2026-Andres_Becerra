@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "beta-aid"
-version = "0.3.0"
+version = "0.4.0"
 description = "BETA AID: Banking Evolutionary Transformation and AI Deployment - Factored AI & Data Hackathon 2026"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -195,7 +195,7 @@ markers = [
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.3.0"
+version = "0.4.0"
 version_files = ["pyproject.toml:^version"]
 tag_format = "v$version"
 update_changelog_on_bump = true
