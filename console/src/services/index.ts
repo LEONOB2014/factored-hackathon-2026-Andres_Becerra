@@ -88,11 +88,6 @@ export const supervisorService = {
 export { readinessService } from "./readiness";
 export { evaluationService } from "./evaluation";
 
-// ---- readiness atlas (demo data, replaced by readinessService) ----
-export const atlasService = {
-  matrix: () => delay(atlas as { models: string[]; grains: AtlasCell["grain"][]; cells: AtlasCell[] }),
-};
-
 // ---- quality ----
 export const qualityService = {
   agents: () => delay(quality.agents as QAgent[]),
