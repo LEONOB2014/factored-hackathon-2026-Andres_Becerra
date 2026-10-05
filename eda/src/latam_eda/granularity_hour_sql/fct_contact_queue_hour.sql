@@ -1,0 +1,22 @@
+-- Periodic snapshot, one row per market, contact channel and UTC hour, dense: the queue at the grain Erlang C works
+-- on (arrivals, handle time, waits, resolution, escalation). Placed on the contact delivery clock (−8 h).
+-- grain: country_code, channel, hour_start
+-- reconcile: arrivals = count(*) from {fct_interaction}
+-- reconcile: handle_seconds = sum(coalesce(duration_seconds, 0)) from {fct_interaction}
+-- dense: country_code from {int_customer_profile} x channel from {fct_interaction} x hour_start from {dim_hour}
+with c as (
+    select p.country_code, i.channel, date_trunc('hour', i.interaction_ts_utc) as hour_start, count(*) as arrivals,
+           count(*) filter (where i.interaction_type in ('Inbound Call', 'Chat')) as inbound,
+           sum(coalesce(i.duration_seconds, 0)) as handle_seconds, sum(coalesce(i.wait_time_seconds, 0)) as wait_seconds,
+           count(*) filter (where i.was_resolved) as resolved, count(*) filter (where i.was_escalated) as escalated
+    from {fct_interaction} i join {int_customer_profile} p using (customer_id) group by all),
+grid as (select m.country_code, ch.channel, h.hour_start,
+                cast(h.hour_start - interval 8 hour as date) as contact_day,
+                hour(h.hour_start - interval 8 hour) as contact_hour_of_day,
+                isodow(h.hour_start - interval 8 hour) as contact_weekday
+         from (select distinct country_code from {int_customer_profile}) m
+         cross join (select distinct channel from {fct_interaction}) ch cross join {dim_hour} h)
+select g.*, coalesce(c.arrivals, 0) as arrivals, coalesce(c.inbound, 0) as inbound,
+       coalesce(c.handle_seconds, 0) as handle_seconds, coalesce(c.wait_seconds, 0) as wait_seconds,
+       coalesce(c.resolved, 0) as resolved, coalesce(c.escalated, 0) as escalated
+from grid g left join c using (country_code, channel, hour_start)

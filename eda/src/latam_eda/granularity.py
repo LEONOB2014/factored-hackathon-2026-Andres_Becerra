@@ -36,6 +36,11 @@ SQL_DIR = Path(__file__).with_name("granularity_sql")
 SQL_DIR_TIME = Path(__file__).with_name(
     "granularity_time_sql"
 )  # the hour and campaign-cell aggregates (series II)
+SQL_DIR_HOUR = Path(
+    __file__
+).with_name(
+    "granularity_hour_sql"
+)  # the hour-grain star (series III); built together with SQL_DIR_TIME, whose dim_hour and fct_country_hour it reuses
 SCHEMA = "agg"
 REF = re.compile(r"\{(\w+)\}")
 
@@ -82,8 +87,15 @@ def parse(path: Path) -> Model:
     return m
 
 
-def load(sql_dir: Path = SQL_DIR) -> dict[str, Model]:
-    return {p.stem: parse(p) for p in sorted(sql_dir.glob("*.sql"))}
+def load(sql_dir: Path | list[Path] = SQL_DIR) -> dict[str, Model]:
+    """The models of one folder, or of several (a later folder may not redefine an earlier folder's model)."""
+    out: dict[str, Model] = {}
+    for d in sql_dir if isinstance(sql_dir, list) else [sql_dir]:
+        for p in sorted(d.glob("*.sql")):
+            if p.stem in out:
+                raise ValueError(f"model {p.stem} defined twice")
+            out[p.stem] = parse(p)
+    return out
 
 
 def order(models: dict[str, Model]) -> list[str]:
@@ -114,7 +126,7 @@ def country_calendar(start: str = "2023-06-01", end: str = "2026-06-30") -> pd.D
     )
 
 
-def open_star(pl: pipe.Pipeline, sql_dir: Path = SQL_DIR) -> Star:
+def open_star(pl: pipe.Pipeline, sql_dir: Path | list[Path] = SQL_DIR) -> Star:
     """A Star over a scratch lakehouse with its seeds registered (what every notebook of the series starts with)."""
     from latam_eda import country
 
@@ -128,7 +140,7 @@ def open_star(pl: pipe.Pipeline, sql_dir: Path = SQL_DIR) -> Star:
 class Star:
     """Builds and checks the aggregate star inside a scratch lakehouse opened by `latam_eda.country.session`."""
 
-    def __init__(self, pl: pipe.Pipeline, sql_dir: Path = SQL_DIR):
+    def __init__(self, pl: pipe.Pipeline, sql_dir: Path | list[Path] = SQL_DIR):
         self.pl = pl
         self.models = load(sql_dir)
         self.seeds: set[str] = set()
@@ -594,3 +606,171 @@ def policy_value(cells: pd.DataFrame, weights: pd.Series, total_sends: float) ->
         "net": float(value.sum() - cost.sum()),
         "roi": float((value.sum() - cost.sum()) / cost.sum()) if cost.sum() else float("nan"),
     }
+
+
+# ------------------------------------------------------------------------------------------------ the hour (series III)
+DAYPARTS = ("night", "morning", "afternoon", "evening")
+
+
+def daypart(hour: int | np.ndarray | pd.Series):
+    """Daypart of an hour of the (business-clock) day: night 0-5, morning 6-11, afternoon 12-17, evening 18-23."""
+    if np.ndim(hour) == 0:
+        return DAYPARTS[int(hour) // 6]
+    return np.asarray(DAYPARTS, dtype=object)[np.asarray(hour, dtype=int) // 6]
+
+
+def uniform_hours_test(counts: np.ndarray | pd.Series) -> dict:
+    """χ² of hourly counts against a flat profile, with Cohen's w (an effect size that does not grow with n)."""
+    c = np.asarray(counts, dtype=float)
+    chi2, p = stats.chisquare(c)
+    n = c.sum()
+    return {
+        "chi2": float(chi2),
+        "dof": len(c) - 1,
+        "p_value": float(p),
+        "cohen_w": float(np.sqrt(chi2 / n)),
+        "n": n,
+    }
+
+
+def occupancy(
+    handle_seconds: np.ndarray | pd.Series, staffed_seconds: float = 3600.0
+) -> np.ndarray:
+    """Share of staffed time spent handling contacts, capped at 1 (an agent cannot handle more than the hour)."""
+    return np.clip(np.asarray(handle_seconds, dtype=float) / staffed_seconds, 0, 1)
+
+
+def business_hours_between(
+    start: pd.Series,
+    end: pd.Series,
+    holidays: set | None = None,
+    open_hour: int = 9,
+    close_hour: int = 18,
+) -> np.ndarray:
+    """Business hours elapsed between two timestamps: Monday to Friday, open_hour to close_hour, holidays excluded.
+
+    The regulatory response clocks (business days, business hours) are measured this way. NaT in either end gives NaN.
+    """
+    hol = {pd.Timestamp(d).date() for d in (holidays or set())}
+    out = np.full(len(start), np.nan)
+    day_len = close_hour - open_hour
+    for i, (a, b) in enumerate(zip(pd.to_datetime(start), pd.to_datetime(end), strict=True)):
+        if pd.isna(a) or pd.isna(b):
+            continue
+        if b <= a:
+            out[i] = 0.0
+            continue
+        total = 0.0
+        d = a.normalize()
+        while d <= b:
+            if d.weekday() < 5 and d.date() not in hol:
+                lo = max(a, d + pd.Timedelta(hours=open_hour))
+                hi = min(b, d + pd.Timedelta(hours=close_hour))
+                if hi > lo:
+                    total += (hi - lo).total_seconds() / 3600
+            d += pd.Timedelta(days=1)
+        out[i] = min(total, day_len * ((b.normalize() - a.normalize()).days + 1))
+    return out
+
+
+# ------------------------------------------------------------------------------------------------ readiness gates
+ROOT_CAUSES = {
+    "generator independence": "the processes are drawn without links, so nothing in the features can explain the target",
+    "missing field": "the key, schedule or measure the model needs is not collected",
+    "data defect": "a collected field contradicts the activity it describes",
+    "insufficient volume": "at the current volume even a material effect could not be told apart from noise",
+}
+
+
+def readiness_verdict(
+    delta_boot: np.ndarray,
+    delta: float,
+    material: float,
+    cause_if_red: str = "generator independence",
+    fold_deltas: np.ndarray | None = None,
+) -> dict:
+    """The readiness gate of a model: its out-of-time gain over a transparent benchmark, judged on one rule.
+
+    `delta` is the gain (higher is better, e.g. AUC − benchmark AUC, or benchmark loss − model loss), `delta_boot` its
+    bootstrap distribution, `material` the smallest gain worth deploying. The minimum detectable effect at this volume
+    is 2.8 bootstrap standard errors (80 % power, two-sided 5 %).
+
+    * green: the 95 % interval excludes zero and the gain is material (and folds agree, when given);
+    * amber: significant but not material, or folds disagree in sign;
+    * red: no evidence; the cause is "insufficient volume" when even a material gain would be undetectable
+      (minimum detectable effect > material), otherwise `cause_if_red`.
+    """
+    if cause_if_red not in ROOT_CAUSES:
+        raise ValueError(f"unknown root cause {cause_if_red!r}")
+    b = np.asarray(delta_boot, dtype=float)
+    lo, hi = np.nanquantile(b, [0.025, 0.975])
+    mde = 2.8 * float(np.nanstd(b, ddof=1))
+    unstable = (
+        fold_deltas is not None
+        and len(fold_deltas) > 1
+        and (np.sign(fold_deltas) != np.sign(delta)).any()
+    )
+    if lo > 0 and delta >= material and not unstable:
+        verdict, cause = "green", ""
+    elif lo > 0:
+        verdict, cause = (
+            "amber",
+            "unstable across folds" if unstable else "significant but not material",
+        )
+    elif mde > material:
+        verdict, cause = "red", "insufficient volume"
+    else:
+        verdict, cause = "red", cause_if_red
+    return {
+        "delta": float(delta),
+        "delta_lo": float(lo),
+        "delta_hi": float(hi),
+        "material": float(material),
+        "mde": mde,
+        "verdict": verdict,
+        "root_cause": cause,
+    }
+
+
+def readiness_row(
+    scenario: str,
+    model: str,
+    metric: str,
+    value: float,
+    benchmark: str,
+    benchmark_value: float,
+    gate: dict,
+    requirement: str,
+    n_train: int,
+    n_test: int,
+) -> dict:
+    """One row of the readiness scorecard: what was trained, how it scored, the gate and what would turn it green."""
+    return {
+        "scenario": scenario,
+        "model": model,
+        "metric": metric,
+        "value": float(value),
+        "benchmark": benchmark,
+        "benchmark_value": float(benchmark_value),
+        **gate,
+        "requirement_to_green": requirement if gate["verdict"] != "green" else "",
+        "n_train": int(n_train),
+        "n_test": int(n_test),
+    }
+
+
+def paired_boot(
+    metric, y: np.ndarray, a: np.ndarray, b: np.ndarray, B: int = 300, seed: int = 0
+) -> tuple[float, np.ndarray]:
+    """metric(y, a) − metric(y, b) and its paired bootstrap distribution (rows resampled with replacement)."""
+    rng = np.random.default_rng(seed)
+    y, a, b = np.asarray(y), np.asarray(a), np.asarray(b)
+    d0 = metric(y, a) - metric(y, b)
+    out = np.empty(B)
+    for k in range(B):
+        i = rng.integers(0, len(y), len(y))
+        try:
+            out[k] = metric(y[i], a[i]) - metric(y[i], b[i])
+        except ValueError:  # a resample with one class
+            out[k] = np.nan
+    return float(d0), out

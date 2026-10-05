@@ -177,3 +177,98 @@ def test_policy_value_replays_held_out_outcomes():
     best = g.policy_value(cells, pd.Series({"good": 1, "dead": 0}), 1000)
     assert even["conversions"] == pytest.approx(10) and even["net"] == pytest.approx(500)
     assert best["conversions"] == pytest.approx(20) and best["net"] == pytest.approx(1500)
+
+
+def test_daypart_and_uniform_hours():
+    assert g.daypart(0) == "night" and g.daypart(6) == "morning" and g.daypart(23) == "evening"
+    assert list(g.daypart(np.array([5, 12, 18]))) == ["night", "afternoon", "evening"]
+    rng = np.random.default_rng(1)
+    flat = rng.multinomial(24_000, [1 / 24] * 24)
+    assert g.uniform_hours_test(flat)["p_value"] > 0.01
+    peak = flat.copy()
+    peak[9] += 600
+    t = g.uniform_hours_test(peak)
+    assert t["p_value"] < 1e-6 and t["dof"] == 23 and t["cohen_w"] > 0.05
+
+
+def test_occupancy_is_capped():
+    assert np.allclose(g.occupancy([1800, 4000, 0]), [0.5, 1.0, 0.0])
+
+
+def test_business_hours_skip_weekends_and_holidays():
+    fri = pd.Series(pd.to_datetime(["2026-01-09 17:00"]))  # a Friday
+    mon = pd.Series(pd.to_datetime(["2026-01-12 10:00"]))
+    assert g.business_hours_between(fri, mon)[0] == pytest.approx(2.0)  # Fri 17-18, Mon 9-10
+    tue = pd.Series(pd.to_datetime(["2026-01-13 10:00"]))
+    assert g.business_hours_between(fri, tue, holidays={"2026-01-12"})[0] == pytest.approx(2.0)
+    assert np.isnan(g.business_hours_between(fri, pd.Series([pd.NaT]))[0])
+    same = pd.Series(pd.to_datetime(["2026-01-09 08:00"]))
+    assert g.business_hours_between(same, fri)[0] == pytest.approx(
+        8.0
+    )  # 9 to 17 of the same Friday
+
+
+def test_load_rejects_a_model_defined_twice(tmp_path):
+    a, b = tmp_path / "a", tmp_path / "b"
+    a.mkdir()
+    b.mkdir()
+    (a / "m.sql").write_text("-- grain: k\nselect 1 as k")
+    (b / "m.sql").write_text("-- grain: k\nselect 2 as k")
+    (b / "n.sql").write_text("-- grain: k\nselect 3 as k")
+    assert set(g.load([a, tmp_path / "missing"])) == {"m"}
+    with pytest.raises(ValueError, match="defined twice"):
+        g.load([a, b])
+
+
+def _auc_case(n, effect, seed):
+    from sklearn.metrics import roc_auc_score
+
+    rng = np.random.default_rng(seed)
+    x = rng.normal(size=n)
+    y = (rng.random(n) < 1 / (1 + np.exp(-(-1 + effect * x)))).astype(int)
+    d, boot = g.paired_boot(
+        roc_auc_score, y, x, np.zeros(n) + rng.normal(0, 1e-9, n), B=200, seed=seed
+    )
+    return d, boot
+
+
+def test_readiness_gate_on_planted_cases():
+    d, boot = _auc_case(20_000, 1.5, 1)  # a real, large effect
+    assert g.readiness_verdict(boot, d, material=0.02)["verdict"] == "green"
+    d, boot = _auc_case(20_000, 0.0, 2)  # noise
+    r = g.readiness_verdict(boot, d, material=0.02)
+    assert (r["verdict"], r["root_cause"]) == ("red", "generator independence")
+    d, boot = _auc_case(80, 0.05, 3)  # a tiny effect on a small sample
+    r = g.readiness_verdict(boot, d, material=0.02, cause_if_red="missing field")
+    assert (r["verdict"], r["root_cause"]) == ("red", "insufficient volume")
+    d, boot = _auc_case(200_000, 0.06, 4)  # significant but small
+    assert g.readiness_verdict(boot, d, material=0.05)["verdict"] == "amber"
+    with pytest.raises(ValueError):
+        g.readiness_verdict(boot, d, material=0.05, cause_if_red="bad luck")
+
+
+def test_hour_star_schedule_and_shift_dimensions():
+    con = duckdb.connect()
+    con.sql("""CREATE TABLE stg_branches AS SELECT * FROM (VALUES ('B1', '09:30:00', '18:00:00'))
+               t(branch_id, opening_time, closing_time)""")
+    s = g.Star(FakePipeline(con), sql_dir=g.SQL_DIR_HOUR)
+    s.build(["dim_branch_schedule", "dim_agent_shift"], verbose=False)
+    sched = s.q("select * from {dim_branch_schedule} order by iso_weekday, hour_of_day").set_index(
+        ["iso_weekday", "hour_of_day"]
+    )
+    assert len(sched) == 7 * 24
+    assert sched.loc[(1, 9), "open_fraction"] == pytest.approx(0.5)  # opens at 09:30
+    assert sched.loc[(1, 12), "open_fraction"] == pytest.approx(1.0)
+    assert sched.loc[(1, 18), "open_fraction"] == pytest.approx(0.0)  # closes at 18:00
+    assert (
+        sched.loc[(6, 12), "open_fraction"] == 0
+        and sched.loc[(6, 12), "open_fraction_any_day"] == 1
+    )
+    shift = s.q("select work_shift, sum(in_shift::int) as hours from {dim_agent_shift} group by 1")
+    assert dict(zip(shift.work_shift, shift.hours, strict=True)) == {
+        "Morning": 8,
+        "Afternoon": 8,
+        "Night": 8,
+        "Rotating": 24,
+    }
+    assert s.check(["dim_branch_schedule", "dim_agent_shift"]).ok.all()

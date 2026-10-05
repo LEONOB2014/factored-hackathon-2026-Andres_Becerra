@@ -19,6 +19,7 @@ with **running SQL** (`platform/dbt/`, dbt-duckdb, 42 models, `dbt build` green)
 | [10 Roadmap and team](10_roadmap_and_team.md) | phases, KPIs, team, risk register |
 | [11 Plan evaluation](11_plan_evaluation.md) | draft v0, scored critique, revised v1, residual weaknesses |
 | [12 From evidence to build plan](12_development_path.md) | what the platform and analysis phase proved; marts by business purpose and readiness; the analytics, ML, DL and agent paths; ordered platform work; v0.3.0 exit criteria |
+| [13 Data readiness audit](13_data_readiness_audit.md) | every hour-grain model executed and gated; why each is not trainable; what the data collection must change, its owner and acceptance test; the re-evaluation loop |
 | [Appendix](appendix_sources.md) | sources and glossary |
 
 > **Update (v0.2.0, after the platform and analysis phase):** the platform was built and judged by three analysis
