@@ -69,6 +69,8 @@ jobs:
         run: pytest backend/tests/unit agents/evals -m "unit" -v --cov=backend --cov=agents --cov-report=xml
 
       - name: Upload coverage
+        # Reporting only: a Codecov outage must not fail the tests or block the jobs that depend on them.
+        continue-on-error: true
         uses: codecov/codecov-action@v4
         with:
           file: coverage.xml
