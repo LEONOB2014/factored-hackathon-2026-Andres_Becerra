@@ -1,0 +1,112 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-544 -472 1091 819" width="1091" height="819" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+<rect x="-544" y="-472" width="1091" height="819" rx="14" fill="#FFFFFF"/>
+<text x="-514" y="-442" font-size="15" font-weight="700" fill="#111827">Mart · mart_collections_early_warning</text>
+<line x1="0.0" y1="-169.5" x2="0.0" y2="-239.5" stroke="#94A3B8" stroke-width="1.3"/>
+<line x1="161.0" y1="61.2" x2="335.1" y2="127.3" stroke="#94A3B8" stroke-width="1.3"/>
+<line x1="-161.0" y1="61.2" x2="-338.7" y2="128.7" stroke="#94A3B8" stroke-width="1.3"/>
+<rect x="-161.0" y="-169.5" width="322.1" height="339.0" rx="8" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.2"/>
+<path d="M-161.0,-129.5 v-32 a8,8 0 0 1 8,-8 h306.1 a8,8 0 0 1 8,8 v32z" fill="#DDD6FE" stroke="#7C3AED" stroke-width="1.2"/>
+<text x="-149.0" y="-151.5" font-size="13" font-weight="700" fill="#111827">mart_collections_early_warning</text>
+<text x="-149.0" y="-136.5" font-size="10.5" fill="#374151">one row per loan or credit card · 131,972 rows</text>
+<text x="-149.0" y="-114.5" font-size="9.5" font-weight="700" fill="#7C3AED">PK</text>
+<text x="-121.0" y="-114.5" font-size="12" font-weight="700" fill="#1F2937">product_id</text>
+<text x="-149.0" y="-97.5" font-size="9.5" font-weight="700" fill="#475569">FK</text>
+<text x="-121.0" y="-97.5" font-size="12" font-weight="400" fill="#1F2937">customer_id</text>
+<text x="-149.0" y="-80.5" font-size="9.5" font-weight="700" fill="#475569">FK</text>
+<text x="-121.0" y="-80.5" font-size="12" font-weight="400" fill="#1F2937">country_code</text>
+<text x="-149.0" y="-63.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="-63.5" font-size="12" font-weight="400" fill="#1F2937">segment</text>
+<text x="-149.0" y="-46.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="-46.5" font-size="12" font-weight="400" fill="#1F2937">product_type</text>
+<text x="-149.0" y="-29.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="-29.5" font-size="12" font-weight="400" fill="#1F2937">product_status</text>
+<text x="-149.0" y="-12.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="-12.5" font-size="12" font-weight="400" fill="#1F2937">balance_usd</text>
+<text x="-149.0" y="4.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="4.5" font-size="12" font-weight="400" fill="#1F2937">credit_limit_usd</text>
+<text x="-149.0" y="21.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="21.5" font-size="12" font-weight="400" fill="#1F2937">utilization</text>
+<text x="-149.0" y="38.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="38.5" font-size="12" font-weight="400" fill="#1F2937">interest_rate</text>
+<text x="-149.0" y="55.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="55.5" font-size="12" font-weight="400" fill="#1F2937">days_past_due</text>
+<text x="-149.0" y="72.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="72.5" font-size="12" font-weight="400" fill="#1F2937">dpd_bucket</text>
+<text x="-149.0" y="89.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="89.5" font-size="12" font-weight="400" fill="#1F2937">last_payment_ts</text>
+<text x="-149.0" y="106.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="106.5" font-size="12" font-weight="400" fill="#1F2937">days_since_last_payment</text>
+<text x="-149.0" y="123.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="123.5" font-size="12" font-weight="400" fill="#1F2937">payments_usd_30d</text>
+<text x="-149.0" y="140.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="140.5" font-size="12" font-weight="400" fill="#1F2937">payments_usd_prev_monthly_avg</text>
+<text x="-149.0" y="157.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-121.0" y="157.5" font-size="12" font-weight="400" fill="#1F2937">+8 more columns</text>
+<rect x="-85.0" y="-408.5" width="170.0" height="169.0" rx="8" fill="#F9FAFB" stroke="#6B7280" stroke-width="1.2"/>
+<path d="M-85.0,-368.5 v-32 a8,8 0 0 1 8,-8 h154.0 a8,8 0 0 1 8,8 v32z" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="-73.0" y="-390.5" font-size="13" font-weight="700" fill="#111827">dim_customer</text>
+<text x="-73.0" y="-375.5" font-size="10.5" fill="#374151">150,000 rows</text>
+<text x="-73.0" y="-353.5" font-size="9.5" font-weight="700" fill="#6B7280">PK</text>
+<text x="-45.0" y="-353.5" font-size="12" font-weight="700" fill="#1F2937">customer_sk</text>
+<text x="-73.0" y="-336.5" font-size="9.5" font-weight="700" fill="#6B7280">BK</text>
+<text x="-45.0" y="-336.5" font-size="12" font-weight="400" fill="#1F2937">customer_id</text>
+<text x="-73.0" y="-319.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-319.5" font-size="12" font-weight="400" fill="#1F2937">version_no</text>
+<text x="-73.0" y="-302.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-302.5" font-size="12" font-weight="400" fill="#1F2937">document_token</text>
+<text x="-73.0" y="-285.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-285.5" font-size="12" font-weight="400" fill="#1F2937">home_currency</text>
+<text x="-73.0" y="-268.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-268.5" font-size="12" font-weight="400" fill="#1F2937">city</text>
+<text x="-73.0" y="-251.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-45.0" y="-251.5" font-size="12" font-weight="400" fill="#1F2937">+13 more</text>
+<rect x="335.1" y="77.5" width="182.4" height="169.0" rx="8" fill="#F9FAFB" stroke="#6B7280" stroke-width="1.2"/>
+<path d="M335.1,117.5 v-32 a8,8 0 0 1 8,-8 h166.4 a8,8 0 0 1 8,8 v32z" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="347.1" y="95.5" font-size="13" font-weight="700" fill="#111827">dim_product</text>
+<text x="347.1" y="110.5" font-size="10.5" fill="#374151">400,000 rows</text>
+<text x="347.1" y="132.5" font-size="9.5" font-weight="700" fill="#6B7280">PK</text>
+<text x="375.1" y="132.5" font-size="12" font-weight="700" fill="#1F2937">product_sk</text>
+<text x="347.1" y="149.5" font-size="9.5" font-weight="700" fill="#6B7280">BK</text>
+<text x="375.1" y="149.5" font-size="12" font-weight="400" fill="#1F2937">product_id</text>
+<text x="347.1" y="166.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="375.1" y="166.5" font-size="12" font-weight="400" fill="#1F2937">version_no</text>
+<text x="347.1" y="183.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="375.1" y="183.5" font-size="12" font-weight="400" fill="#1F2937">product_type</text>
+<text x="347.1" y="200.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="375.1" y="200.5" font-size="12" font-weight="400" fill="#1F2937">product_family</text>
+<text x="347.1" y="217.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="375.1" y="217.5" font-size="12" font-weight="400" fill="#1F2937">is_credit_product</text>
+<text x="347.1" y="234.5" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="375.1" y="234.5" font-size="12" font-weight="400" fill="#1F2937">+13 more</text>
+<rect x="-513.9" y="86.0" width="175.2" height="152.0" rx="8" fill="#F9FAFB" stroke="#6B7280" stroke-width="1.2"/>
+<path d="M-513.9,126.0 v-32 a8,8 0 0 1 8,-8 h159.2 a8,8 0 0 1 8,8 v32z" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="-501.9" y="104.0" font-size="13" font-weight="700" fill="#111827">dim_country</text>
+<text x="-501.9" y="119.0" font-size="10.5" fill="#374151">6 rows</text>
+<text x="-501.9" y="141.0" font-size="9.5" font-weight="700" fill="#6B7280">PK</text>
+<text x="-473.9" y="141.0" font-size="12" font-weight="700" fill="#1F2937">country_code</text>
+<text x="-501.9" y="158.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.9" y="158.0" font-size="12" font-weight="400" fill="#1F2937">country_name</text>
+<text x="-501.9" y="175.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.9" y="175.0" font-size="12" font-weight="400" fill="#1F2937">home_currency</text>
+<text x="-501.9" y="192.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.9" y="192.0" font-size="12" font-weight="400" fill="#1F2937">utc_offset_hours</text>
+<text x="-501.9" y="209.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.9" y="209.0" font-size="12" font-weight="400" fill="#1F2937">is_bank_market</text>
+<text x="-501.9" y="226.0" font-size="9.5" font-weight="700" fill="#6B7280"></text>
+<text x="-473.9" y="226.0" font-size="12" font-weight="400" fill="#1F2937">+1 more</text>
+<text x="0.0" y="-179.5" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">N</text>
+<text x="0.0" y="-221.5" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="0.0" y="-200.5" font-size="10.5" text-anchor="middle" fill="#94A3B8" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">customer_id</text>
+<text x="174.1" y="70.2" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="322.0" y="126.4" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="248.1" y="98.3" font-size="10.5" text-anchor="middle" fill="#94A3B8" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">product_id</text>
+<text x="-174.1" y="70.2" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">N</text>
+<text x="-325.6" y="127.7" font-size="11" font-weight="700" text-anchor="middle" fill="#475569" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">1</text>
+<text x="-249.9" y="99.0" font-size="10.5" text-anchor="middle" fill="#94A3B8" stroke="#FFFFFF" stroke-width="4" paint-order="stroke" stroke-linejoin="round">country_code</text>
+<rect x="-513.9" y="262.5" width="22" height="13" rx="3" fill="#DDD6FE" stroke="#7C3AED" stroke-width="1.2"/>
+<text x="-483.9" y="273.5" font-size="11" fill="#374151">Use-case mart</text>
+<rect x="-513.9" y="282.5" width="22" height="13" rx="3" fill="#E5E7EB" stroke="#6B7280" stroke-width="1.2"/>
+<text x="-483.9" y="293.5" font-size="11" fill="#374151">Conformed dimension (shared by 2+ facts)</text>
+<line x1="-513.9" y1="309.5" x2="-491.9" y2="309.5" stroke="#94A3B8"/>
+<text x="-483.9" y="313.5" font-size="11" fill="#374151">N · 1: many rows to one; label = join key(s)</text>
+</svg>

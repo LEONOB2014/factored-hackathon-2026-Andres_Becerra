@@ -152,6 +152,9 @@ ignore = [
 "copilot/**" = ["E501", "S608", "T201", "TC001", "TC003", "N818"]
 "copilot/tests/**" = ["S101", "S105", "S106"]
 
+# Diagram generators: SVG markup runs long; the scripts report what they wrote.
+"scripts/diagrams/**" = ["E501", "T201"]
+
 # --- data platform (managed) ---
 # Platform code: long SQL in f-strings, CLI prints, typing-only imports kept at runtime.
 "platform/**" = ["B905", "E501", "S608", "T201", "TC001", "TC002", "TC003"]
