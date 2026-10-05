@@ -27,6 +27,8 @@ function Overview() {
   const { t } = useI18n();
   const tx = useTx();
   const { data } = useQuery({ queryKey: ["overview"], queryFn: overviewService.summary });
+  // Its own query, so the other tiles never wait on the control plane.
+  const { data: readiness } = useQuery({ queryKey: ["control", "readiness", "counts"], queryFn: overviewService.readiness });
   return (
     <div className="mx-auto max-w-6xl">
       <PageHeader eyebrow="BETA AID · Banking Evolutionary Transformation and AI Deployment" title={tx("Consola de operaciones", "Console de operações", "Operations console")}>
@@ -46,9 +48,9 @@ function Overview() {
         </Tile>
         <Tile icon={Grid3x3} label={tx("Preparación de modelos", "Prontidão de modelos", "Readiness")} to="/atlas">
           <div className="flex flex-wrap gap-1.5">
-            <StatusBadge status="ok" mono>{data?.readiness.green ?? 0} green</StatusBadge>
-            <StatusBadge status="review" mono>{data?.readiness.amber ?? 0} amber</StatusBadge>
-            <StatusBadge status="blocked" mono>{data?.readiness.red ?? 0} red</StatusBadge>
+            <StatusBadge status="ok" mono>{readiness?.green ?? "–"} green</StatusBadge>
+            <StatusBadge status="review" mono>{readiness?.amber ?? "–"} amber</StatusBadge>
+            <StatusBadge status="blocked" mono>{readiness?.red ?? "–"} red</StatusBadge>
           </div>
           <div className="mt-2 text-xs text-muted-foreground">{tx("«0 green» es el estado honesto.", "«0 green» é o estado honesto.", "“0 green” is the honest state.")}</div>
         </Tile>

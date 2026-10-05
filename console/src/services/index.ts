@@ -1,14 +1,14 @@
 // Domain services. Each function mirrors a future real API call; swap the
 // mock import for fetch() without changing callers.
 import supervisor from "@/mocks/supervisor.json";
-import atlas from "@/mocks/atlas.json";
 import quality from "@/mocks/quality.json";
 import pipelines from "@/mocks/pipelines.json";
 import knowledge from "@/mocks/knowledge.json";
 import specs from "@/mocks/specs.json";
 import { api, type RegionId } from "./api";
+import { readinessService } from "./readiness";
 import type {
-  AtlasCell, Correction, DemoInfo, DeskCase, KChunk, KDoc, Persona, PipelineCell, PolicyRow,
+  Correction, DemoInfo, DeskCase, KChunk, KDoc, Persona, PipelineCell, PolicyRow,
   QAgent, QIssue, Queue, Spec, UnsafeCase, Veto, Status, Verdict,
 } from "./types";
 
@@ -161,17 +161,13 @@ export const specService = {
     ),
 };
 
-// ---- overview ----
+// ---- overview (readiness: real; copilot health, issues and release: demo data) ----
 export const overviewService = {
   summary: () =>
     delay({
       copilot: { status: "ok" as Status, uptime: "99,97 %", p95: "22,5 ms" },
       openIssues: (quality.issues as QIssue[]).filter((i) => i.stage !== "Closed").length,
-      readiness: {
-        green: (atlas.cells as AtlasCell[]).filter((c) => c.verdict === "green").length,
-        amber: (atlas.cells as AtlasCell[]).filter((c) => c.verdict === "amber").length,
-        red: (atlas.cells as AtlasCell[]).filter((c) => c.verdict === "red").length,
-      },
       release: "v0.4.0",
     }),
+  readiness: async () => (await readinessService.get()).counts,
 };
