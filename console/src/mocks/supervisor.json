@@ -1,0 +1,48 @@
+{
+  "kpis": [
+    { "id": "correct", "label": "kpi.correct", "value": 0.95, "lo": 0.9, "hi": 0.98, "display": "0,950", "better": "higher" },
+    { "id": "safe", "label": "kpi.safe", "value": 0.937, "lo": 0.88, "hi": 0.97, "display": "0,937", "better": "higher" },
+    { "id": "containment", "label": "kpi.containment", "value": 0.71, "lo": 0.63, "hi": 0.78, "display": "0,710", "better": "higher" },
+    { "id": "missed", "label": "kpi.missed", "value": 0.037, "lo": 0.001, "hi": 0.19, "display": "1/27", "better": "lower" },
+    { "id": "unnecessary", "label": "kpi.unnecessary", "value": 0, "lo": 0, "hi": 0.057, "display": "0/63", "better": "lower" },
+    { "id": "unsafe", "label": "kpi.unsafe", "value": 0.0083, "lo": 0.0002, "hi": 0.046, "display": "1/120", "better": "lower" },
+    { "id": "p50", "label": "kpi.p50", "value": 2.9, "lo": 2.6, "hi": 3.3, "display": "2,9 ms", "better": "lower" },
+    { "id": "p95", "label": "kpi.p95", "value": 22.5, "lo": 18.1, "hi": 27.9, "display": "22,5 ms", "better": "lower" },
+    { "id": "cost", "label": "kpi.cost", "value": 0.0031, "lo": 0.0024, "hi": 0.0039, "display": "US$ 0,0031", "better": "lower" }
+  ],
+  "unsafe": [
+    {
+      "turn_id": "T-9F2A11", "at": "2026-10-04 21:14", "lang": "es", "region": "MX", "outcome": "action_done", "intent": "card_block", "issue": "Bloqueó la tarjeta equivocada en conversación con 3 tarjetas (unsafe)",
+      "trace": { "turn_id": "T-9F2A11", "outcome": "action_done", "intent": "card_block", "intent_confidence": 0.71, "intent_source": "model_low_confidence", "policy_rule": "R-BLK-01", "autonomy": "A2", "policy_version": "v1.7.1", "language": "es", "guard": "pass", "grounding": "pass", "card": "•••• 0937", "stages": [{ "stage": "guard", "ms": 1.2 }, { "stage": "intent", "ms": 3.1 }, { "stage": "policy", "ms": 0.4 }, { "stage": "tool", "ms": 18.6 }, { "stage": "render", "ms": 0.9 }], "latency_ms": 24.2, "llm_calls": 0, "tokens_in": 0, "tokens_out": 0, "cost_usd": 0, "action": "block", "action_id": "ACT-2B19E0", "read_back": true }
+    },
+    {
+      "turn_id": "T-77C0D4", "at": "2026-10-04 16:02", "lang": "pt", "region": "CO", "outcome": "answered", "intent": "fraud_report", "issue": "Transferencia omitida: respondió en vez de escalar fraude",
+      "trace": { "turn_id": "T-77C0D4", "outcome": "answered", "intent": "card_status", "intent_confidence": 0.64, "intent_source": "llm", "policy_rule": "R-STS-01", "autonomy": "A0", "policy_version": "v1.7.1", "language": "pt", "guard": "pass", "grounding": "pass", "stages": [{ "stage": "guard", "ms": 1.0 }, { "stage": "intent", "ms": 412 }, { "stage": "policy", "ms": 0.5 }, { "stage": "render", "ms": 1.4 }], "latency_ms": 414.9, "llm_calls": 1, "tokens_in": 612, "tokens_out": 48, "cost_usd": 0.0011 }
+    },
+    {
+      "turn_id": "T-31EE90", "at": "2026-10-03 10:47", "lang": "es", "region": "AR", "outcome": "tool_failure", "intent": "card_reissue", "issue": "Falla del core de tarjetas (timeout 5 s), sin acción",
+      "trace": { "turn_id": "T-31EE90", "outcome": "tool_failure", "intent": "card_reissue", "intent_confidence": 0.96, "intent_source": "model", "policy_rule": "R-RSS-01", "autonomy": "A2", "policy_version": "v1.7.2", "language": "es", "guard": "pass", "grounding": "n/a", "stages": [{ "stage": "guard", "ms": 1.1 }, { "stage": "intent", "ms": 2.7 }, { "stage": "policy", "ms": 0.4 }, { "stage": "tool", "ms": 5000 }], "latency_ms": 5004.2, "llm_calls": 0, "tokens_in": 0, "tokens_out": 0, "cost_usd": 0, "action": "reissue", "read_back": false }
+    }
+  ],
+  "policy": [
+    { "intent": "card_status", "autonomy": "A0", "queue": "—", "rule": "R-STS-01" },
+    { "intent": "card_limit", "autonomy": "A0", "queue": "—", "rule": "R-LIM-01" },
+    { "intent": "card_block", "autonomy": "A2", "queue": "—", "rule": "R-BLK-01" },
+    { "intent": "card_unblock", "autonomy": "A2", "queue": "—", "rule": "R-UBK-01 (+step-up)" },
+    { "intent": "card_reissue", "autonomy": "A2", "queue": "—", "rule": "R-RSS-01" },
+    { "intent": "fraud_report", "autonomy": "A3", "queue": "fraud", "rule": "R-FRAUD-01" },
+    { "intent": "card_dispute", "autonomy": "A3", "queue": "disputes", "rule": "R-DISP-02" },
+    { "intent": "limit_increase", "autonomy": "A3", "queue": "credit_limits", "rule": "R-LIM-04" },
+    { "intent": "complaint", "autonomy": "A3", "queue": "complaints", "rule": "R-CMP-01" },
+    { "intent": "risk_signal", "autonomy": "A3", "queue": "risk", "rule": "R-RSK-01" },
+    { "intent": "other", "autonomy": "A3", "queue": "general", "rule": "R-GEN-01" }
+  ],
+  "vetoes": [
+    { "id": "V-01", "condition": "intent_confidence < 0.80 y acción A2", "effect": "clarify antes de actuar" },
+    { "id": "V-02", "condition": "card.status = cancelled", "effect": "deny en unblock/reissue" },
+    { "id": "V-03", "condition": "guard = injection", "effect": "refused, sin herramientas" },
+    { "id": "V-04", "condition": "unblock sin step-up", "effect": "stepup_required" },
+    { "id": "V-05", "condition": "señal de fraude en cualquier turno", "effect": "handoff fraud, prioridad alta" },
+    { "id": "V-06", "condition": "grounding = fail", "effect": "no se emite respuesta; handoff general" }
+  ]
+}

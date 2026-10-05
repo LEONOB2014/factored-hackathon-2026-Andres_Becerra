@@ -1,0 +1,28 @@
+{
+  "agents": [
+    { "id": "profiler", "name": "Profiler", "role": "agent.profiler", "status": "ok", "status_label": "running", "last_run": "18:40", "findings": 3 },
+    { "id": "auditor", "name": "Auditor", "role": "agent.auditor", "status": "review", "status_label": "findings", "last_run": "18:35", "findings": 2 },
+    { "id": "writer", "name": "Requirement writer", "role": "agent.writer", "status": "ok", "status_label": "idle", "last_run": "17:58", "findings": 4 },
+    { "id": "reviewer", "name": "Reviewer", "role": "agent.reviewer", "status": "info", "status_label": "awaiting human", "last_run": "—", "findings": 1 }
+  ],
+  "issues": [
+    { "id": "Q-104", "title": "Saldos duplicados", "stage": "Owner assigned", "table": "silver.balances", "rule": "unique(account_id, as_of)", "severity": "A", "rows": 18422, "sla": "48 h", "owner": "core-data@latam", "gate": "Riesgo de impago 30d · cell" },
+    { "id": "Q-111", "title": "merchant_category vacío", "stage": "Requirement drafted", "table": "bronze.card_tx", "rule": "not_null(merchant_category) ≥ 98 %", "severity": "A", "rows": 412900, "sla": "5 d", "owner": "—", "gate": "Propensión a contracargo · day" },
+    { "id": "Q-097", "title": "Feriados AR mal codificados", "stage": "Fixed at source", "table": "gold.calendar", "rule": "holiday ∈ calendario oficial", "severity": "B", "rows": 14, "sla": "5 d", "owner": "ref-data@latam", "gate": "Demanda de efectivo ATM · day" },
+    { "id": "Q-120", "title": "Hash chain roto en audit.turns", "stage": "Detected", "table": "audit.turns", "rule": "hash(n) = H(hash(n-1) ‖ row)", "severity": "A", "rows": 1, "sla": "4 h", "owner": "—", "gate": "—" },
+    { "id": "Q-088", "title": "ATMs sin celda H3", "stage": "Acceptance test defined", "table": "silver.atm", "rule": "h3_res8 not null", "severity": "B", "rows": 211, "sla": "10 d", "owner": "geo@latam", "gate": "Demanda de efectivo ATM · cell" },
+    { "id": "Q-076", "title": "Monedas con coma decimal", "stage": "Verified", "table": "bronze.card_tx_ar", "rule": "amount numeric", "severity": "C", "rows": 902, "sla": "10 d", "owner": "ingest@latam", "gate": "—" },
+    { "id": "Q-061", "title": "Zonas horarias CO", "stage": "Closed", "table": "silver.events", "rule": "ts tz-aware", "severity": "C", "rows": 3310, "sla": "10 d", "owner": "ingest@latam", "gate": "—" },
+    { "id": "Q-118", "title": "Sexo inferido por nombre", "stage": "Triaged", "table": "features.customer", "rule": "no protected attr inference", "severity": "A", "rows": 77012, "sla": "24 h", "owner": "—", "gate": "—" }
+  ],
+  "corrections": [
+    { "id": "COR-0031", "table": "silver.balances", "reason": "Eliminar duplicado por re-ingesta 2026-09-30 (Q-104)", "proposer": "m.quintero", "approver": null, "status": "proposed",
+      "rows": [
+        { "key": "ACC-MX-00018 · 2026-09-30", "field": "balance", "before": "MXN 12.450,00 (×2)", "after": "MXN 12.450,00 (×1)" },
+        { "key": "ACC-MX-00211 · 2026-09-30", "field": "balance", "before": "MXN 3.001,75 (×2)", "after": "MXN 3.001,75 (×1)" },
+        { "key": "ACC-CO-07730 · 2026-09-30", "field": "balance", "before": "COP 1.204.000,00 (×2)", "after": "COP 1.204.000,00 (×1)" }
+      ] },
+    { "id": "COR-0029", "table": "gold.calendar", "reason": "Feriado 2026-10-12 AR (Q-097)", "proposer": "s.ibarra", "approver": "j.paz", "status": "applied", "hash": "sha256:5e0c…a9f1", "applied_at": "2026-10-04 11:20",
+      "rows": [ { "key": "AR · 2026-10-12", "field": "is_holiday", "before": "false", "after": "true" } ] }
+  ]
+}

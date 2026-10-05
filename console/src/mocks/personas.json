@@ -1,0 +1,70 @@
+[
+  {
+    "customer_id": "CLI-58Q5LCLTZ8Q8",
+    "name": "Mariana Ortega (sintética)",
+    "scenario": "Varias tarjetas",
+    "lang": "es",
+    "country": "MX",
+    "hint": "Prueba: «quiero bloquear mi tarjeta»",
+    "cards": [
+      { "product_id": "CRD-MX-7731", "suffix": "4821", "brand": "Visa Oro", "status": "active", "limit": 85000, "used": 23410.5, "currency": "MXN", "expiry": "09/28" },
+      { "product_id": "CRD-MX-7732", "suffix": "0937", "brand": "Mastercard Clásica", "status": "active", "limit": 30000, "used": 2890, "currency": "MXN", "expiry": "02/27" },
+      { "product_id": "CRD-MX-7733", "suffix": "5516", "brand": "Débito Nómina", "status": "active", "limit": 0, "used": 0, "currency": "MXN", "expiry": "11/29" }
+    ]
+  },
+  {
+    "customer_id": "CLI-3KD9P2WQ7ZRA",
+    "name": "Julián Restrepo (sintético)",
+    "scenario": "Tarjeta bloqueada",
+    "lang": "es",
+    "country": "CO",
+    "hint": "Prueba: «desbloquear mi tarjeta» (requiere segundo factor)",
+    "cards": [
+      { "product_id": "CRD-CO-2210", "suffix": "6604", "brand": "Visa Platinum", "status": "blocked", "limit": 12000000, "used": 3450000, "currency": "COP", "expiry": "06/28" }
+    ]
+  },
+  {
+    "customer_id": "CLI-9TXB41MMQ0HE",
+    "name": "Rafael Souza (sintético)",
+    "scenario": "Alerta de fraude",
+    "lang": "pt",
+    "country": "AR",
+    "hint": "Teste: «não reconheço uma compra no meu cartão»",
+    "cards": [
+      { "product_id": "CRD-AR-9001", "suffix": "3378", "brand": "Mastercard Black", "status": "active", "limit": 4500000, "used": 1987320.4, "currency": "ARS", "expiry": "12/27" }
+    ]
+  },
+  {
+    "customer_id": "CLI-7HQ2ZPL3VC5N",
+    "name": "Lucía Fernández (sintética)",
+    "scenario": "Tarjeta vencida",
+    "lang": "es",
+    "country": "AR",
+    "hint": "Prueba: «mi tarjeta venció, quiero reponerla»",
+    "cards": [
+      { "product_id": "CRD-AR-4412", "suffix": "1290", "brand": "Visa Clásica", "status": "expired", "limit": 2200000, "used": 0, "currency": "ARS", "expiry": "08/26" }
+    ]
+  },
+  {
+    "customer_id": "CLI-2MW8RT6YKD1S",
+    "name": "Ana Paula Lima (sintética)",
+    "scenario": "Cupo casi agotado",
+    "lang": "pt",
+    "country": "CO",
+    "hint": "Teste: «qual é o meu limite?» e depois «quero aumentar o limite»",
+    "cards": [
+      { "product_id": "CRD-CO-5520", "suffix": "8845", "brand": "Mastercard Gold", "status": "active", "limit": 8000000, "used": 7712400, "currency": "COP", "expiry": "03/29" }
+    ]
+  },
+  {
+    "customer_id": "CLI-5PZ0NB9EXA4G",
+    "name": "Diego Salazar (sintético)",
+    "scenario": "Tarjeta cancelada",
+    "lang": "es",
+    "country": "MX",
+    "hint": "Prueba: «desbloquear tarjeta» (será denegado)",
+    "cards": [
+      { "product_id": "CRD-MX-1188", "suffix": "7402", "brand": "Visa Clásica", "status": "cancelled", "limit": 25000, "used": 0, "currency": "MXN", "expiry": "05/27" }
+    ]
+  }
+]

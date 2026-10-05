@@ -1,0 +1,21 @@
+{
+  "active_set_hash": "sha256:9c41e2…7b0d",
+  "stores": ["pgvector", "Neo4j", "bundled index"],
+  "docs": [
+    { "id": "pol-card-dispute", "title": "Disputas de tarjeta", "status": "approved", "version": "v2.0", "effective": "2026-08-01 → —", "classification": "internal", "owner": "Operaciones Tarjetas", "approver": "Cumplimiento" },
+    { "id": "pol-card-dispute", "title": "Disputas de tarjeta", "status": "superseded", "version": "v1.3", "effective": "2025-11-01 → 2026-07-31", "classification": "internal", "owner": "Operaciones Tarjetas", "approver": "Cumplimiento" },
+    { "id": "pol-card-fraud", "title": "Fraude con tarjeta", "status": "approved", "version": "v3.1", "effective": "2026-06-15 → —", "classification": "internal", "owner": "Prevención de Fraude", "approver": "Riesgo" },
+    { "id": "faq-card-block", "title": "¿Cómo bloquear mi tarjeta?", "status": "approved", "version": "v1.2", "effective": "2026-01-10 → —", "classification": "public", "owner": "Experiencia Cliente", "approver": "Legal" },
+    { "id": "faq-cartao-pt", "title": "Cartões — perguntas frequentes (PT)", "status": "approved", "version": "v1.0", "effective": "2026-05-01 → —", "classification": "public", "owner": "Experiência Cliente", "approver": "Legal" },
+    { "id": "pol-credit-limit", "title": "Aumentos de cupo", "status": "draft", "version": "v1.5", "effective": "—", "classification": "internal", "owner": "Riesgo de Crédito", "approver": "—" },
+    { "id": "pol-reissue", "title": "Reposición de plásticos", "status": "retired", "version": "v0.9", "effective": "2024-01-01 → 2025-12-31", "classification": "internal", "owner": "Operaciones Tarjetas", "approver": "Cumplimiento" }
+  ],
+  "chunks": [
+    { "cite": "pol-card-dispute v2.0 · Mandatory intake data", "text": "Registrar monto, fecha, comercio, canal y si la tarjeta está en posesión del cliente.", "classification": "internal", "keywords": ["disputa", "cargo", "duplicado", "cobro", "contestar", "dispute"], "found_by": "vector" },
+    { "cite": "pol-card-dispute v2.0 · Provisional credit", "text": "Cargos duplicados menores a MXN 5.000,00 reciben abono provisional en 48 h.", "classification": "internal", "keywords": ["duplicado", "abono", "disputa", "cobro"], "found_by": "graph:entity" },
+    { "cite": "pol-card-fraud v3.1 · Bloqueo preventivo", "text": "El bloqueo preventivo se ejecuta antes del traspaso a fraude.", "classification": "internal", "keywords": ["fraude", "reconozco", "robo", "fraud", "reconheço"], "found_by": "vector" },
+    { "cite": "faq-card-block v1.2 · Bloqueo desde el chat", "text": "Puedes bloquear tu tarjeta desde el chat; te pediremos confirmar cuál.", "classification": "public", "keywords": ["bloquear", "bloqueo", "block", "tarjeta"], "found_by": "vector" },
+    { "cite": "faq-cartao-pt v1.0 · Desbloqueio", "text": "Para desbloquear o cartão é necessário um segundo fator de autenticação.", "classification": "public", "keywords": ["desbloquear", "desbloqueio", "cartão", "unblock"], "found_by": "vector" },
+    { "cite": "pol-card-fraud v3.1 · Entidad: comercio", "text": "Comercios con más de 3 reportes en 24 h se marcan para revisión.", "classification": "internal", "keywords": ["comercio", "fraude", "merchant"], "found_by": "graph:entity" }
+  ]
+}

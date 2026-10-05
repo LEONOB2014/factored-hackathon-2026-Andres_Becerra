@@ -1,0 +1,137 @@
+{
+  "queues": [
+    { "id": "fraud", "count": 4, "sla": "15 min", "priority": "high" },
+    { "id": "risk", "count": 2, "sla": "2 h", "priority": "normal" },
+    { "id": "credit_limits", "count": 6, "sla": "4 h", "priority": "normal" },
+    { "id": "disputes", "count": 3, "sla": "24 h", "priority": "normal" },
+    { "id": "complaints", "count": 2, "sla": "48 h", "priority": "normal" },
+    { "id": "general", "count": 5, "sla": "8 h", "priority": "normal" }
+  ],
+  "cases": [
+    {
+      "status": "new",
+      "sla_minutes": 15,
+      "elapsed_minutes": 9,
+      "packet": {
+        "handoff_id": "HO-20261005-0412",
+        "created_at": "2026-10-05T18:52:11Z",
+        "queue": "fraud",
+        "priority": "high",
+        "language": "pt",
+        "customer_id": "CLI-9TXB41MMQ0HE",
+        "authentication": "otp",
+        "request": "Não reconheço uma compra de ARS 184.990,00 no cartão •••• 3378 em «ELECTRO*****» ontem.",
+        "intent": { "label": "fraud_report", "confidence": 0.97, "source": "model" },
+        "policy": { "rule": "R-FRAUD-01 · fraud → A3 → fraud", "version": "policy v1.7.2" },
+        "verified_facts": { "card": "•••• 3378", "status": "active", "limit": "ARS 4.500.000,00", "used": "ARS 1.987.320,40", "last_tx": "ARS 184.990,00 · 04/10 22:41", "country_mismatch": true, "travel_notice": null },
+        "actions_taken": [
+          { "action_id": "ACT-7F21C0", "action": "block (temporary, precautionary)", "product_id": "CRD-AR-9001", "read_back": true, "at": "2026-10-05T18:52:09Z" }
+        ],
+        "procedures": [
+          { "cite": "pol-card-fraud v3.1", "title": "Fraude con tarjeta", "heading": "Bloqueo preventivo y contacto", "classification": "internal", "score": 0.91, "text": "Ante reporte de transacción no reconocida, el bloqueo preventivo se ejecuta antes del traspaso. El agente confirma identidad reforzada y abre caso de contracargo." },
+          { "cite": "pol-card-dispute v2.0", "title": "Disputas de tarjeta", "heading": "Mandatory intake data", "classification": "internal", "score": 0.78, "text": "Monto, fecha, comercio, canal y si la tarjeta está en posesión del cliente." }
+        ],
+        "open_questions": ["¿La tarjeta está en posesión del cliente?", "¿Hubo otras transacciones no reconocidas?", "¿Desea reposición inmediata?"],
+        "transcript": [
+          { "role": "customer", "text": "Olá, não reconheço uma compra no meu cartão final 3378." },
+          { "role": "copilot", "text": "Entendo. Bloqueei o cartão •••• 3378 de forma preventiva (ACT-7F21C0, confirmado). Vou transferir para um especialista em fraude." }
+        ]
+      },
+      "timeline": [
+        { "at": "18:52:02", "event": "turn.received", "actor": "copilot", "hash": "a91f…03c2" },
+        { "at": "18:52:09", "event": "action.block read_back=true", "actor": "copilot", "hash": "4be0…9d17" },
+        { "at": "18:52:11", "event": "handoff.created queue=fraud", "actor": "copilot", "hash": "d7c3…5a40" }
+      ]
+    },
+    {
+      "status": "new",
+      "sla_minutes": 1440,
+      "elapsed_minutes": 210,
+      "packet": {
+        "handoff_id": "HO-20261005-0398",
+        "created_at": "2026-10-05T15:31:40Z",
+        "queue": "disputes",
+        "priority": "normal",
+        "language": "es",
+        "customer_id": "CLI-58Q5LCLTZ8Q8",
+        "authentication": "otp",
+        "request": "Me cobraron dos veces MXN 2.349,00 en «SUPER*****» con la tarjeta •••• 0937.",
+        "intent": { "label": "card_dispute", "confidence": 0.93, "source": "model" },
+        "policy": { "rule": "R-DISP-02 · dispute → A3 → disputes", "version": "policy v1.7.2" },
+        "verified_facts": { "card": "•••• 0937", "status": "active", "tx_1": "MXN 2.349,00 · 03/10 13:02", "tx_2": "MXN 2.349,00 · 03/10 13:02", "merchant_category": "5411", "card_present": true },
+        "actions_taken": [],
+        "procedures": [
+          { "cite": "pol-card-dispute v2.0", "title": "Disputas de tarjeta", "heading": "Mandatory intake data", "classification": "internal", "score": 0.94, "text": "Registrar monto, fecha, comercio, canal y si la tarjeta está en posesión del cliente. Cargos duplicados: abonar provisionalmente si el monto es menor a MXN 5.000,00." }
+        ],
+        "open_questions": ["¿El cliente tiene ticket del comercio?", "¿Aplica abono provisional?"],
+        "transcript": [
+          { "role": "customer", "text": "Me cobraron dos veces en el súper con mi tarjeta 0937." },
+          { "role": "copilot", "text": "Veo dos cargos idénticos de MXN 2.349,00 el 03/10. Según pol-card-dispute v2.0 un especialista debe abrir la disputa. Te transfiero." }
+        ]
+      },
+      "timeline": [
+        { "at": "15:31:22", "event": "turn.received", "actor": "copilot", "hash": "0c2e…b811" },
+        { "at": "15:31:40", "event": "handoff.created queue=disputes", "actor": "copilot", "hash": "77fa…21de" }
+      ]
+    },
+    {
+      "status": "accepted",
+      "sla_minutes": 240,
+      "elapsed_minutes": 95,
+      "packet": {
+        "handoff_id": "HO-20261005-0377",
+        "created_at": "2026-10-05T17:20:03Z",
+        "queue": "credit_limits",
+        "priority": "normal",
+        "language": "pt",
+        "customer_id": "CLI-2MW8RT6YKD1S",
+        "authentication": "otp+step-up",
+        "request": "Quero aumentar o limite do cartão •••• 8845.",
+        "intent": { "label": "limit_increase", "confidence": 0.89, "source": "llm" },
+        "policy": { "rule": "R-LIM-04 · limit_increase → A3 → credit_limits", "version": "policy v1.7.2" },
+        "verified_facts": { "card": "•••• 8845", "limit": "COP 8.000.000,00", "used": "COP 7.712.400,00", "utilization": "96,4 %", "on_time_12m": true },
+        "actions_taken": [],
+        "procedures": [
+          { "cite": "pol-credit-limit v1.4", "title": "Aumentos de cupo", "heading": "Criterios de elegibilidad", "classification": "internal", "score": 0.86, "text": "Aumento hasta 30 % con 12 meses de pago puntual; mayor a 30 % requiere aprobación de un segundo analista." }
+        ],
+        "open_questions": ["¿Ingresos actualizados?", "¿Monto solicitado?"],
+        "transcript": [
+          { "role": "customer", "text": "Qual é o meu limite? Quero aumentar." },
+          { "role": "copilot", "text": "Seu limite é COP 8.000.000,00 e você usou 96,4 %. Um analista vai avaliar o aumento." }
+        ]
+      },
+      "timeline": [
+        { "at": "17:20:03", "event": "handoff.created queue=credit_limits", "actor": "copilot", "hash": "e1aa…7c09" },
+        { "at": "17:41:55", "event": "case.accepted", "actor": "agent:l.moreno", "hash": "3f6d…c2b4" }
+      ]
+    },
+    {
+      "status": "new",
+      "sla_minutes": 2880,
+      "elapsed_minutes": 400,
+      "packet": {
+        "handoff_id": "HO-20261005-0355",
+        "created_at": "2026-10-05T12:01:17Z",
+        "queue": "complaints",
+        "priority": "normal",
+        "language": "es",
+        "customer_id": "CLI-5PZ0NB9EXA4G",
+        "authentication": "otp",
+        "request": "Quiero poner una queja: cancelaron mi tarjeta •••• 7402 sin avisarme.",
+        "intent": { "label": "complaint", "confidence": 0.95, "source": "model" },
+        "policy": { "rule": "R-CMP-01 · complaint → A3 → complaints", "version": "policy v1.7.2" },
+        "verified_facts": { "card": "•••• 7402", "status": "cancelled", "cancel_reason": "inactividad 18 meses" },
+        "actions_taken": [],
+        "procedures": [],
+        "open_questions": ["¿Se notificó por correo?"],
+        "transcript": [
+          { "role": "customer", "text": "Quiero poner una queja, cancelaron mi tarjeta sin avisar." },
+          { "role": "copilot", "text": "Lamento la molestia. Registro tu queja y la paso a un especialista." }
+        ]
+      },
+      "timeline": [
+        { "at": "12:01:17", "event": "handoff.created queue=complaints", "actor": "copilot", "hash": "9b02…e6f1" }
+      ]
+    }
+  ]
+}
