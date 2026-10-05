@@ -84,7 +84,11 @@ export const supervisorService = {
   policy: () => delay({ version: "policy v1.7.2", rows: supervisor.policy as PolicyRow[], vetoes: supervisor.vetoes as Veto[] }),
 };
 
-// ---- readiness atlas ----
+// ---- readiness atlas and evaluation (real: the copilot's read-only control plane) ----
+export { readinessService } from "./readiness";
+export { evaluationService } from "./evaluation";
+
+// ---- readiness atlas (demo data, replaced by readinessService) ----
 export const atlasService = {
   matrix: () => delay(atlas as { models: string[]; grains: AtlasCell["grain"][]; cells: AtlasCell[] }),
 };

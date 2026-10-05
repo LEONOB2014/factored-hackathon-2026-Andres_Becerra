@@ -237,3 +237,99 @@ export interface Spec {
   version?: string;
   closes: string[];
 }
+
+// ---- Control plane: read-only aggregates from the copilot API (/api/control/*) ----
+// One row of the readiness scorecard (eda/reports/tables/granularity_hour_readiness.csv).
+export interface ReadinessRow {
+  scenario: string;
+  model: string;
+  metric: string;
+  value: number;
+  benchmark: string;
+  benchmark_value: number;
+  delta: number;
+  delta_lo: number;
+  delta_hi: number;
+  material: number;
+  mde: number;
+  verdict: Verdict;
+  root_cause: string;
+  requirement_to_green: string;
+  n_train: number | null;
+  n_test: number | null;
+  n_test_needed: number | null;
+  best_variant: string | null;
+}
+export interface Readiness {
+  source: string;
+  counts: Record<Verdict, number>;
+  models: ReadinessRow[];
+}
+
+// A proportion with its 95 % Wilson interval, as the evaluation harness reports it.
+export interface Rate {
+  k: number;
+  n: number;
+  rate: number;
+  ci95: [number, number];
+}
+export const RATE_METRICS = [
+  "correct",
+  "safe_automated_resolution_in_scope",
+  "safe_automated_resolution_attempted",
+  "containment",
+  "missed_transfers",
+  "unnecessary_transfers",
+  "unsafe_cases",
+] as const;
+export type RateMetric = (typeof RATE_METRICS)[number];
+export type EvalBlock = Record<RateMetric, Rate> & {
+  latency_ms_p50: number;
+  latency_ms_p95: number;
+  cost_usd_per_case: number;
+  cost_usd_per_resolution: number;
+};
+export interface EvalSummary {
+  all: EvalBlock;
+  es: EvalBlock;
+  pt: EvalBlock;
+  by_category: Record<string, Rate>;
+}
+export type EvalVariant = "keyword" | "learned";
+export interface EvalRun {
+  label: string;
+  // The first scored run is the headline; later runs are labelled re-runs (e.g. "after-fix").
+  headline: boolean;
+  n_cases: number;
+  manifest_ok: boolean;
+  variants: Partial<Record<EvalVariant, EvalSummary>>;
+}
+export interface IntentHeldOut {
+  model: string;
+  n: number;
+  accuracy: number;
+  macro_f1: number;
+  macro_f1_by_language?: Record<string, number>;
+  ece?: number | null;
+  latency_ms_p50?: number;
+  latency_ms_p95?: number;
+  coverage_at_threshold?: number;
+  accuracy_when_confident?: number;
+}
+export interface Evaluation {
+  runs: EvalRun[];
+  intent_model: { tuning: Record<string, unknown>; held_out: IntentHeldOut[] } | null;
+  retrieval: Record<string, Record<string, number>>;
+}
+// One point of an interval chart: a rate and its interval for one run × variant.
+export interface IntervalPoint {
+  metric: RateMetric;
+  run: string;
+  variant: EvalVariant;
+  series: string;
+  rate: number;
+  lo: number;
+  hi: number;
+  k: number;
+  n: number;
+}
