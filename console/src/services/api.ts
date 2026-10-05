@@ -13,12 +13,12 @@ export interface Region {
 const env = import.meta.env;
 
 export const REGIONS: Region[] = [
-  { id: "mx", label: "México · Querétaro", countries: ["MX"], base: env.VITE_API_MX ?? "https://beta-aid-mx-621442591789.northamerica-south1.run.app" },
-  { id: "sa", label: "Colombia y Argentina · São Paulo", countries: ["CO", "AR"], base: env.VITE_API_SA ?? "https://beta-aid-sa-621442591789.southamerica-east1.run.app" },
-  { id: "demo", label: "Demo rápida (todas)", countries: ["MX", "CO", "AR"], base: env.VITE_API_DEMO ?? "https://aleonardobecerra--beta-aid-copilot-web.modal.run" },
+  { id: "mx", label: "México · Querétaro", countries: ["MX"], base: env["VITE_API_MX"] ?? "https://beta-aid-mx-621442591789.northamerica-south1.run.app" },
+  { id: "sa", label: "Colombia y Argentina · São Paulo", countries: ["CO", "AR"], base: env["VITE_API_SA"] ?? "https://beta-aid-sa-621442591789.southamerica-east1.run.app" },
+  { id: "demo", label: "Demo rápida (todas)", countries: ["MX", "CO", "AR"], base: env["VITE_API_DEMO"] ?? "https://aleonardobecerra--beta-aid-copilot-web.modal.run" },
 ];
 
-export const regionById = (id: RegionId): Region => REGIONS.find((r) => r.id === id) ?? REGIONS[2];
+export const regionById = (id: RegionId): Region => REGIONS.find((r) => r.id === id) ?? (REGIONS[2] as Region);
 
 export class ApiError extends Error {
   constructor(
@@ -35,13 +35,11 @@ export async function api<T>(
   opts: { method?: "GET" | "POST"; body?: unknown; token?: string | null; staffCode?: string } = {},
 ): Promise<T> {
   const headers: Record<string, string> = { "content-type": "application/json" };
-  if (opts.token) headers.authorization = `Bearer ${opts.token}`;
+  if (opts.token) headers["authorization"] = `Bearer ${opts.token}`;
   if (opts.staffCode) headers["x-staff-code"] = opts.staffCode;
-  const res = await fetch(regionById(region).base + path, {
-    method: opts.method ?? (opts.body === undefined ? "GET" : "POST"),
-    headers,
-    body: opts.body === undefined ? undefined : JSON.stringify(opts.body),
-  });
+  const init: RequestInit = { method: opts.method ?? (opts.body === undefined ? "GET" : "POST"), headers };
+  if (opts.body !== undefined) init.body = JSON.stringify(opts.body);
+  const res = await fetch(regionById(region).base + path, init);
   if (!res.ok) {
     let detail = res.statusText;
     try {

@@ -80,19 +80,26 @@ export interface Card {
   currency: "MXN" | "COP" | "ARS";
   expiry: string;
 }
+// A demo customer from a region's /api/demo: scenario label and id only (no names, as in the copilot).
 export interface Persona {
   customer_id: string;
-  name: string;
+  role: string;
   scenario: string;
-  lang: "es" | "pt";
-  country: "MX" | "CO" | "AR";
-  cards: Card[];
+  cards: number;
   hint: string;
+}
+
+export interface DemoInfo {
+  customers: { role: string; customer_id: string; cards: number; label_es: string; label_pt: string }[];
+  otp: string;
+  stepup: string;
+  staff: string;
+  deployment: { name: string; region: string | null; countries: string[] };
 }
 
 export interface DeskCase {
   packet: HandoffPacket;
-  status: "new" | "accepted" | "pending_approval" | "resolved" | "returned";
+  status: "new" | "accepted" | "approval_requested" | "approved" | "rejected" | "resolved" | "returned";
   sla_minutes: number;
   elapsed_minutes: number;
   timeline: { at: string; event: string; actor: string; hash: string }[];

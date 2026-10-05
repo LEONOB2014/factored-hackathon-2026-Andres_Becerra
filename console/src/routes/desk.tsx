@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { CheckCircle2, Clock, Link2, Square, CheckSquare, XCircle, Flame } from "lucide-react";
 import { toast } from "sonner";
-import { deskService } from "@/services";
+import { demoService, deskService } from "@/services";
+import { ApiError, REGIONS, type RegionId } from "@/services/api";
 import type { DeskCase, Queue } from "@/services/types";
 import { Mono, PageHeader, StatusBadge } from "@/components/beta/badges";
 import { Button } from "@/components/ui/button";
@@ -23,48 +24,70 @@ export const Route = createFileRoute("/desk")({
   component: DeskPage,
 });
 
-const ME = "l.moreno";
-const fakeHash = () => `${Math.random().toString(16).slice(2, 6)}…${Math.random().toString(16).slice(2, 6)}`;
-const now = () => new Date().toTimeString().slice(0, 8);
+// Test staff identities: the desk acts as one of them; approving needs a different one (four eyes, enforced by the API).
+const STAFF = ["agente.ana", "agente.bruno", "lider.carla"];
 
 function DeskPage() {
   const { t } = useI18n();
   const tx = useTx();
-  const { data: queues } = useQuery({ queryKey: ["queues"], queryFn: deskService.queues });
-  const { data: initial } = useQuery({ queryKey: ["cases"], queryFn: deskService.cases });
-  const [cases, setCases] = useState<DeskCase[]>([]);
+  const qc = useQueryClient();
+  const [region, setRegion] = useState<RegionId>("mx");
+  const [me, setMe] = useState<string>("agente.ana");
+  const { data: demo } = useQuery({ queryKey: ["demo", region], queryFn: () => demoService.info(region) });
+  const { data: cases = [], error } = useQuery({
+    queryKey: ["cases", region],
+    queryFn: () => deskService.cases(region, demo!.staff),
+    enabled: !!demo,
+    refetchInterval: 4000,
+  });
+  const queues = deskService.queues(cases);
   const [queue, setQueue] = useState<Queue | "all">("all");
   const [selId, setSelId] = useState<string | null>(null);
   const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [code, setCode] = useState("");
-  const [approver, setApprover] = useState("");
 
   useEffect(() => {
-    if (initial) { setCases(initial); setSelId(initial[0]?.packet.handoff_id ?? null); }
-  }, [initial]);
+    if (!selId && cases[0]) setSelId(cases[0].packet.handoff_id);
+  }, [cases, selId]);
 
   const visible = cases.filter((c) => queue === "all" || c.packet.queue === queue);
   const sel = cases.find((c) => c.packet.handoff_id === selId);
 
-  function update(fn: (c: DeskCase) => DeskCase) {
-    setCases((cs) => cs.map((c) => (c.packet.handoff_id === selId ? fn(c) : c)));
-  }
-  const log = (c: DeskCase, event: string, actor = `agent:${ME}`) => ({ ...c, timeline: [...c.timeline, { at: now(), event, actor, hash: fakeHash() }] });
-
-  function requestApproval() {
-    if (!approver) { toast.error(tx("Elige un aprobador", "Escolha um aprovador", "Pick an approver")); return; }
-    if (approver === ME) { toast.error(tx("Cuatro ojos: el aprobador debe ser distinto del proponente.", "Quatro olhos: o aprovador deve ser diferente do proponente.", "Four eyes: approver must differ from proposer.")); return; }
-    update((c) => log({ ...c, status: "pending_approval" }, `approval.requested approver=${approver}`));
-    toast.success(tx("Segunda aprobación solicitada", "Segunda aprovação solicitada", "Second approval requested"));
+  async function act(status: string, note = "") {
+    if (!sel || !demo) return;
+    try {
+      await deskService.setStatus(region, demo.staff, sel.packet.handoff_id, status, me, note);
+      await qc.invalidateQueries({ queryKey: ["cases", region] });
+      toast.success(`${status} · ${me}`);
+    } catch (e) {
+      const four = e instanceof ApiError && e.status === 409;
+      toast.error(four ? tx("Cuatro ojos: quien propone no puede aprobar. Cambia de identidad.", "Quatro olhos: quem propõe não pode aprovar. Troque de identidade.", "Four eyes: the proposer cannot approve. Switch identity.") : String(e));
+    }
   }
 
   return (
     <div className="mx-auto max-w-[1500px]">
       <PageHeader eyebrow={tx("Humano en el circuito", "Humano no circuito", "Human in the loop")} title={tx("Mesa de agentes", "Mesa de agentes", "Agent desk")} />
+      <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
+        <span className="eyebrow">{tx("Región", "Região", "Region")}</span>
+        {REGIONS.map((r) => (
+          <button key={r.id} aria-pressed={region === r.id} onClick={() => { setRegion(r.id); setSelId(null); }} className={cn("rounded-md border px-2 py-1", region === r.id ? "border-primary bg-accent font-medium" : "border-border")}>{r.label}</button>
+        ))}
+        <span className="eyebrow ml-4">{tx("Actuando como", "Atuando como", "Acting as")}</span>
+        <Select value={me} onValueChange={setMe}>
+          <SelectTrigger className="h-8 w-40 text-xs"><SelectValue /></SelectTrigger>
+          <SelectContent>{STAFF.map((s2) => <SelectItem key={s2} value={s2}>{s2}</SelectItem>)}</SelectContent>
+        </Select>
+        <span className="text-muted-foreground">{tx("Casos reales de esta región; se actualiza cada 4 s.", "Casos reais desta região; atualiza a cada 4 s.", "Real cases from this region; refreshes every 4 s.")}</span>
+      </div>
+      {error && <p role="alert" className="mb-2 text-xs text-blocked">{String(error)}</p>}
+      {cases.length === 0 && !error && (
+        <p className="panel mb-3 p-4 text-sm text-muted-foreground">{tx("Aún no hay casos. Genera uno desde el chat (p. ej. «¿por qué rechazaron mi tarjeta?» con «Tarjeta con alerta de fraude», o «me cobraron dos veces»).", "Ainda não há casos. Gere um pelo chat (ex.: «me cobraram duas vezes»).", "No cases yet. Create one from the chat (e.g. a fraud-flag card or a double charge).")}</p>
+      )}
       <div className="grid gap-4 xl:grid-cols-[220px_300px_minmax(0,1fr)] lg:grid-cols-[200px_minmax(0,1fr)]">
         <div className="panel h-fit p-2">
           <button onClick={() => setQueue("all")} aria-pressed={queue === "all"} className={cn("mb-1 w-full rounded-md px-2.5 py-2 text-left text-sm", queue === "all" && "bg-accent font-semibold")}>{tx("Todas", "Todas", "All")}</button>
-          {queues?.map((q) => (
+          {queues.map((q) => (
             <button key={q.id} onClick={() => setQueue(q.id)} aria-pressed={queue === q.id} className={cn("flex w-full items-center justify-between rounded-md px-2.5 py-2 text-left text-sm hover:bg-muted", queue === q.id && "bg-accent font-semibold")}>
               <span className="flex items-center gap-1.5">{q.priority === "high" && <Flame className="size-3.5 text-highlight" aria-label="high priority" />}{t(`queue.${q.id}`)}</span>
               <span className="flex items-center gap-2 text-[11px] text-muted-foreground"><Clock className="size-3" aria-hidden />{q.sla}<Mono className="rounded bg-muted px-1.5 text-foreground">{q.count}</Mono></span>
@@ -83,7 +106,7 @@ function DeskPage() {
                 <div className="mt-2 flex items-center gap-2 text-[11px]">
                   <span className="font-medium">{t(`queue.${c.packet.queue}`)}</span>
                   <StatusBadge status={pct > 0.5 ? "review" : "ok"} mono>SLA {left >= 60 ? `${Math.floor(left / 60)} h` : `${left} min`}</StatusBadge>
-                  <StatusBadge status={c.status === "resolved" ? "ok" : c.status === "pending_approval" ? "review" : "info"} mono>{c.status}</StatusBadge>
+                  <StatusBadge status={c.status === "resolved" || c.status === "approved" ? "ok" : c.status === "approval_requested" ? "review" : c.status === "rejected" ? "blocked" : "info"} mono>{c.status}</StatusBadge>
                 </div>
               </button>
             );
@@ -142,22 +165,20 @@ function DeskPage() {
                 </div>
                 <h3 className="eyebrow mb-1 mt-4">{tx("Acciones del agente", "Ações do agente", "Agent actions")}</h3>
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" disabled={sel.status !== "new"} onClick={() => update((c) => log({ ...c, status: "accepted" }, "case.accepted"))}>{tx("Aceptar", "Aceitar", "Accept")}</Button>
-                  <Button size="sm" variant="outline" onClick={() => update((c) => log({ ...c, status: "returned" }, "case.returned_to_copilot"))}>{tx("Devolver al copiloto", "Devolver ao copiloto", "Return to copilot")}</Button>
+                  <Button size="sm" disabled={!["new", "returned"].includes(sel.status)} onClick={() => act("accepted")}>{tx("Aceptar", "Aceitar", "Accept")}</Button>
+                  <Button size="sm" variant="outline" disabled={!["new", "accepted"].includes(sel.status)} onClick={() => act("returned")}>{tx("Devolver al copiloto", "Devolver ao copiloto", "Return to copilot")}</Button>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Select value={code} onValueChange={setCode}>
                     <SelectTrigger className="h-8 w-48 text-xs"><SelectValue placeholder={tx("Código de resolución", "Código de resolução", "Resolution code")} /></SelectTrigger>
                     <SelectContent>{["RES-FIXED", "RES-CHARGEBACK", "RES-NO-FRAUD", "RES-INFO-GIVEN", "RES-REJECTED"].map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
                   </Select>
-                  <Button size="sm" variant="secondary" disabled={!code || sel.status === "resolved"} onClick={() => update((c) => log({ ...c, status: "resolved" }, `case.resolved code=${code}`))}>{tx("Resolver", "Resolver", "Resolve")}</Button>
+                  <Button size="sm" variant="secondary" disabled={!code || !["accepted", "approved", "rejected"].includes(sel.status)} onClick={() => act("resolved", code)}>{tx("Resolver", "Resolver", "Resolve")}</Button>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2">
-                  <Select value={approver} onValueChange={setApprover}>
-                    <SelectTrigger className="h-8 w-48 text-xs"><SelectValue placeholder={tx("Aprobador", "Aprovador", "Approver")} /></SelectTrigger>
-                    <SelectContent>{[ME, "j.paz", "c.vargas"].map((c) => <SelectItem key={c} value={c}>{c}{c === ME ? " (tú)" : ""}</SelectItem>)}</SelectContent>
-                  </Select>
-                  <Button size="sm" variant="outline" onClick={requestApproval}>{tx("Pedir segunda aprobación", "Pedir segunda aprovação", "Request second approval")}</Button>
+                  <Button size="sm" variant="outline" disabled={sel.status !== "accepted"} onClick={() => act("approval_requested", code || "sensitive action")}>{tx("Pedir segunda aprobación", "Pedir segunda aprovação", "Request second approval")}</Button>
+                  <Button size="sm" disabled={sel.status !== "approval_requested"} onClick={() => act("approved")}>{tx("Aprobar", "Aprovar", "Approve")}</Button>
+                  <Button size="sm" variant="outline" disabled={sel.status !== "approval_requested"} onClick={() => act("rejected")}>{tx("Rechazar", "Rejeitar", "Reject")}</Button>
                 </div>
                 <h3 className="eyebrow mb-1 mt-4">Timeline</h3>
                 <ol className="space-y-1">

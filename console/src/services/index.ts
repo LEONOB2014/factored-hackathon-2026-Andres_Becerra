@@ -1,29 +1,80 @@
 // Domain services. Each function mirrors a future real API call; swap the
 // mock import for fetch() without changing callers.
-import desk from "@/mocks/desk.json";
 import supervisor from "@/mocks/supervisor.json";
 import atlas from "@/mocks/atlas.json";
 import quality from "@/mocks/quality.json";
 import pipelines from "@/mocks/pipelines.json";
 import knowledge from "@/mocks/knowledge.json";
 import specs from "@/mocks/specs.json";
-import personas from "@/mocks/personas.json";
+import { api, type RegionId } from "./api";
 import type {
-  AtlasCell, Correction, DeskCase, KChunk, KDoc, Kpi, Persona, PipelineCell, PolicyRow,
+  AtlasCell, Correction, DemoInfo, DeskCase, KChunk, KDoc, Kpi, Persona, PipelineCell, PolicyRow,
   QAgent, QIssue, Queue, Spec, UnsafeCase, Veto, Status, Verdict,
 } from "./types";
 
 const delay = <T,>(v: T, ms = 120) => new Promise<T>((r) => setTimeout(() => r(structuredClone(v)), ms));
 
-// ---- personas / chat ----
-export const personaService = {
-  list: () => delay(personas as Persona[]),
+// ---- personas / chat (real: the region's /api/demo) ----
+const HINTS: Record<string, string> = {
+  single_active: "¿cuál es el estado de mi tarjeta?",
+  multi_card: "quiero bloquear mi tarjeta",
+  blocked: "quiero desbloquear mi tarjeta",
+  reissue: "necesito una reposición de mi tarjeta",
+  renewal: "quando vence meu cartão?",
+  high_utilization: "quiero aumentar mi cupo",
+  fraud_flag: "¿por qué rechazaron mi tarjeta?",
+  closed: "meu cartão está ativo?",
 };
 
-// ---- desk ----
+export const demoService = {
+  info: (region: RegionId) => api<DemoInfo>(region, "/api/demo"),
+};
+
+export const personaService = {
+  list: async (region: RegionId, lang: "es" | "pt" | "en" = "es"): Promise<Persona[]> => {
+    const d = await demoService.info(region);
+    return d.customers.map((c) => ({
+      customer_id: c.customer_id,
+      role: c.role,
+      scenario: lang === "pt" ? c.label_pt : c.label_es,
+      cards: c.cards,
+      hint: HINTS[c.role] ?? "",
+    }));
+  },
+};
+
+// ---- desk (real: the region's handoff cases, behind the test staff code) ----
+const SLA_MIN: Record<Queue, number> = { fraud: 15, risk: 60, credit_limits: 240, disputes: 240, complaints: 480, general: 120 };
+type ApiCase = { packet: DeskCase["packet"]; status: DeskCase["status"]; proposer: string | null; timeline: { at: string; event: string; actor: string; note?: string; hash?: string }[] };
+
+const toDeskCase = (c: ApiCase): DeskCase => {
+  const elapsed = Math.max(0, Math.round((Date.now() - new Date(c.packet.created_at).getTime()) / 60000));
+  return {
+    packet: c.packet,
+    status: c.status,
+    sla_minutes: SLA_MIN[c.packet.queue],
+    elapsed_minutes: elapsed,
+    timeline: c.timeline.map((e) => ({
+      at: new Date(e.at).toTimeString().slice(0, 8),
+      event: e.note ? `${e.event} · ${e.note}` : e.event,
+      actor: e.actor,
+      hash: e.hash ? `${e.hash.slice(0, 4)}…${e.hash.slice(-4)}` : "—",
+    })),
+  };
+};
+
 export const deskService = {
-  queues: () => delay(desk.queues as { id: Queue; count: number; sla: string; priority: "high" | "normal" }[]),
-  cases: () => delay(desk.cases as DeskCase[]),
+  cases: async (region: RegionId, staffCode: string): Promise<DeskCase[]> =>
+    (await api<{ cases: ApiCase[] }>(region, "/api/handoffs", { staffCode })).cases.map(toDeskCase),
+  queues: (cases: DeskCase[]) =>
+    (Object.keys(SLA_MIN) as Queue[]).map((id) => ({
+      id,
+      count: cases.filter((c) => c.packet.queue === id && c.status !== "resolved").length,
+      sla: SLA_MIN[id] >= 60 ? `${SLA_MIN[id] / 60} h` : `${SLA_MIN[id]} min`,
+      priority: (id === "fraud" ? "high" : "normal") as "high" | "normal",
+    })),
+  setStatus: async (region: RegionId, staffCode: string, id: string, status: string, actor: string, note = "") =>
+    toDeskCase(await api<ApiCase>(region, `/api/handoffs/${id}/status`, { body: { status, actor, note }, staffCode })),
 };
 
 // ---- supervisor ----
