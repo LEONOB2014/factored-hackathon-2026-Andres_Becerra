@@ -12,6 +12,7 @@ imports it. Procedures too long for this file live in [`docs/development/`](docs
 | `backend/` | FastAPI app (scaffold) | root `pyproject.toml`, Python 3.11+ |
 | `agents/` | LangGraph orchestrator (scaffold) | root |
 | `eda/` | Exploratory data analysis: notebooks, scripts, reports, tests | own uv project, Python 3.12 |
+| `copilot/` | Card-service copilot (ES/PT): policy, verified actions, handoff, RAG, evaluation, Modal deploy | own uv project, Python 3.12 |
 | `docs/` | Hackathon brief, dataset docs + ERD, specs, research, development guides | — |
 | `ml/`, `monitoring/`, `infrastructure/`, `scripts/` | ML packages, Prometheus, Dockerfiles, DB init | root |
 | `data/` | Datasets and generated artefacts, **never in git** | shared, see Data |
@@ -22,6 +23,8 @@ imports it. Procedures too long for this file live in [`docs/development/`](docs
 make setup                       # root env (.[dev]) + pre-commit and commit-msg hooks
 make test                        # backend unit tests
 make eda-setup && make eda-test  # EDA env and the tests that need no dataset (what CI runs)
+make copilot-setup && make copilot-test   # copilot env and its tests (what CI runs)
+make stack-copilot               # only pgvector, Neo4j and MLflow (see Makefile for other stages)
 make eda-test-data               # EDA tests against the real dataset
 uvx pre-commit run --all-files   # the full quality gate, identical to CI
 ```
