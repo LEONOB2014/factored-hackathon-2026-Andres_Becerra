@@ -11,6 +11,7 @@ imports it. Procedures too long for this file live in [`docs/development/`](docs
 | Path | What it is | Environment |
 |---|---|---|
 | `copilot/` | BETA AID card-service copilot (ES/PT): policy, verified actions, handoff, RAG, evaluation, Modal deploy | own uv project, Python 3.12 |
+| `console/` | BETA AID Console web app (TanStack Start, React, bun): customer service, control plane, delivery; data only through `src/services` | own bun project (`console/package.json`) |
 | `platform/` | Data platform: dbt lakehouse, Airflow DAGs, `latam_platform` libraries, policies, Docker stack, Terraform | own uv project (`platform/pyproject.toml`) |
 | `knowledge/` | Governed knowledge-base documents (front matter: status, version, effective window) | — |
 | `backend/`, `agents/` | FastAPI app and LangGraph orchestrator (original scaffolds; the copilot is the served app) | root `pyproject.toml`, Python 3.11+ |
@@ -28,6 +29,7 @@ make test                        # backend unit tests
 make eda-setup && make eda-test  # EDA env and the tests that need no dataset (what CI runs)
 make copilot-setup && make copilot-test   # copilot env and its tests (what CI runs)
 make stack-copilot               # only pgvector, Neo4j and MLflow (see Makefile for other stages)
+cd console && bun install && bun run dev   # the console against the deployed copilots
 make eda-test-data               # EDA tests against the real dataset
 uvx pre-commit run --all-files   # the full quality gate, identical to CI
 ```
