@@ -261,7 +261,7 @@ display(
 # * **The business day is now explicit** (`country.PROCESS_DAY_OFFSET`, `enrich_transactions(clock="business")`; the
 #   granularity day facts use `process_date`), and the country, backup-as-main and granularity notebooks that depend on
 #   a day boundary were re-executed on it.
-# * **The platform has two defects of the same kind** (ADR-014; P0 items of v0.3.0 in
+# * **The platform has two defects of the same kind** (ADR-014; P0 items of v0.4.0 in
 #   `docs/strategy/12_development_path.md` §12.7):
 #   * `transaction_ts_local`, `local_hour` and `is_weekend` in `int_transactions_enriched` (macro
 #     `enrich_transactions`) use the transaction country's legal offset, so the fraud features read Colombian and

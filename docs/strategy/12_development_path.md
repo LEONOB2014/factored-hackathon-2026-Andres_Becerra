@@ -155,7 +155,7 @@ The LLM explains; it never computes an amount or takes a decision.
 
 ## 12.7 Platform work, in order
 
-**P0, before v0.3.0** (high impact, small effort):
+**P0, before v0.4.0** (high impact, small effort):
 1. `pii_hash` keeps NULL as NULL; NULL tokens excluded from graph edges; a token-uniqueness test (E1).
 2. SCD2 version 1 valid from the beginning of time; `not_null` on `customer_sk` and `product_sk` (E2).
 3. `mart_credit_eligibility` after the features task group; a CI check for forward dependencies (E3).
@@ -200,7 +200,7 @@ The LLM explains; it never computes an amount or takes a decision.
 - rostered shifts and agent state logs from workforce management, telephony queue events, branch opening days and
   hours, ATM terminal events, and clickstream order with page and product (E16, chapter 13).
 
-## 12.8 Exit criteria for v0.3.0
+## 12.8 Exit criteria for v0.4.0
 
 1. P0 items 1–9 are merged, each with the test that would have caught it, and all pass in CI.
 2. **Invariant tests green:**
