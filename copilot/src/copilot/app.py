@@ -28,7 +28,7 @@ ATLAS = Path(
     )
 )
 
-app = FastAPI(title="LATAM Bank card copilot", version="0.1.0")
+app = FastAPI(title="BETA AID card copilot", version="0.1.0")
 
 
 @lru_cache(maxsize=1)

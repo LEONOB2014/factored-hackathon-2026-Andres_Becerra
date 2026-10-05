@@ -1,54 +1,134 @@
-# 🏦 AI-First Banking Customer Service System
+# BETA AID
 
-### Factored AI & Data Hackathon 2026
+### Banking Evolutionary Transformation and AI Deployment · Factored AI & Data Hackathon 2026
 
-> An intelligent, multilingual customer service system for LATAM banking operations. Handles transaction disputes, card support, and account inquiries with AI-powered decision making, human escalation, and full observability.
+> A Spanish and Portuguese customer-service copilot for LATAM Bank's card holders, built on a governed, auditable data
+> platform. It answers from verified facts, acts only after the customer confirms, answers policy questions from an
+> approved knowledge base with citations, and knows when to stop and hand the case to a person.
 
 [![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
 
----
+**Live demo:** [aleonardobecerra--beta-aid-copilot-web.modal.run](https://aleonardobecerra--beta-aid-copilot-web.modal.run). Sign in as one of the demo customers with the test code shown on the page; the Grain Atlas is at [`/atlas`](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas).
 
-## 🎯 Problem Statement
+LATAM Bank is the hackathon's synthetic bank (Mexico, Colombia, Argentina; 13 tables). BETA AID is what we built for
+it: the data platform that makes its data trustworthy, the readiness control plane that decides which models the data
+can support, and the copilot that serves its customers.
 
-Build an AI-first banking customer service system that can **understand** complex customer interactions, **decide** on appropriate actions, **act** using secure tools, **verify** outcomes, and **escalate** to human agents when needed — serving customers across Mexico, Colombia, and Argentina in Spanish and Portuguese.
-
-**Focused Workflow**: Transaction Disputes & Card Support
-
-## 📍 Project Status
+## What is in the repository
 
 | Area | Path | Status |
 |---|---|---|
-| Exploratory data analysis | [`eda/`](eda/) | ✅ Done — 11-notebook study, reports, dashboards, 188 tests |
-| Dataset docs & ERD | [`docs/dataset/`](docs/dataset/) | ✅ Done — ERD generated from the data dictionary |
-| Backend API | `backend/` | 🧱 Scaffold — FastAPI app and routers; `/health` works, chat, analytics and model endpoints return placeholders |
-| Agent orchestrator | `agents/` | 🧱 Scaffold — LangGraph graph and state wired; every node is a TODO |
-| Data engineering | `data_engineering/` | 🧱 Scaffold — dbt project and raw sources; no models, Spark jobs or DAGs yet |
-| ML models | `ml/` | ⏳ Not started — empty packages |
-| Frontend | `frontend/` | ⏳ Not started — the folder does not exist yet |
-| Infrastructure | `infrastructure/`, `docker-compose.yml` | 🧱 Scaffold — compose stack, Dockerfiles, Terraform |
-| CI & quality gates | `.github/`, `.pre-commit-config.yaml` | ✅ Done — pre-commit, unit, EDA, integration and dbt jobs |
+| Card-service copilot | [`copilot/`](copilot/) | ✅ Built and evaluated: policy, verified actions, handoff, RAG and GraphRAG, held-out evaluation, Modal deployment ([README](copilot/README.md)) |
+| Data platform | [`platform/`](platform/) | ✅ Built and run end to end: lossless bronze, dbt silver, gold, aggregates and serving, Airflow 3 with country scopes, audit ledger, knowledge base, streaming fraud features ([docs](docs/platform/README.md)) |
+| Governed knowledge base | [`knowledge/`](knowledge/) | ✅ Approved, versioned documents indexed in pgvector and Neo4j |
+| Exploratory analysis and readiness | [`eda/`](eda/) | ✅ Closed in v0.3.0: dataset study, anomaly detection, grain series, country and pipeline replays; the Grain Atlas ([README](eda/README.md)) |
+| Architecture decisions | [`docs/platform/adr/`](docs/platform/adr/README.md) | ✅ ADR-001 to ADR-020 |
+| Strategy and research | [`docs/strategy/`](docs/strategy/README.md), [`docs/research/`](docs/research/) | 📚 Record of the analysis that shaped the plan |
+| Backend API, agent graph | `backend/`, `agents/` | 🧱 Original scaffolds; the copilot replaced them as the served application |
+| Legacy dbt scaffold | `data_engineering/` | 🧱 Superseded by `platform/dbt`; the CI "dbt Tests" job still runs this scaffold |
+| ML packages, monitoring, infrastructure | `ml/`, `monitoring/`, `infrastructure/` | 🧱 Scaffolds; platform ML lives in `platform/libs/latam_platform/ml`, GCP Terraform in `platform/infra` |
 
-The architecture, models and evaluation targets below describe the **target system**; the table above is what exists today.
+## How it fits together
 
-## 🔎 Data Exploration (`eda/`)
+```
+ S3 bucket ─▶ landing ─▶ bronze_raw (lossless, fingerprinted, WORM manifests)
+                         │  country cut per scope: ALL · MX · CO · AR          Airflow 3 + Cosmos, one DAG per scope
+                         ▼
+             dbt: silver ─▶ gold (Kimball core, marts) ─▶ aggregates (day · cell · hour grains, contract-tested)
+                         │                              ─▶ features · graph · knowledge · privacy · serving · audit
+                         ▼
+   readiness gates ─▶ Grain Atlas (control plane: which decisions the data can support)       eda/ + ADR-018/019
+                         │
+   serving.serving_card_support ──┐      knowledge/*.md ─▶ pgvector + Neo4j (approved, in-window only)
+                                  ▼                         │
+                        BETA AID card copilot  ◀────────────┘
+   gateway ─▶ identity ─▶ intent (tuned model; Claude when unsure) ─▶ policy (A0 · A2 · A3) ─▶ tools ─▶ reply
+                                          trace + hash-chained audit · handoff packet to a person
+```
 
-A CRISP-DM study of the datathon bucket, which ships two folders: the main dataset and an unexplained `data_backup_20260831/`. It answers three questions:
+Decision rights follow RAPID:
+- the model **recommends**;
+- a versioned policy **agrees** or vetoes;
+- tools **perform** on the session customer's own cards only;
+- the serving marts and the knowledge base are the **input**;
+- a person **decides** fraud, limit changes, disputes and complaints.
 
-1. **What is in the data?** Volumes, nulls, duplicates, referential integrity and distributions per table — [`eda/reports/eda_overview.md`](eda/reports/eda_overview.md).
-2. **What is the backup?** Set difference, time-shift diagnostics, record linkage and statistical equivalence (notebooks 02–06).
-3. **What looks anomalous?** Rules, robust statistics, ML, deep and supervised detectors, and their consensus (notebooks 07–10).
+Details: [copilot design](copilot/README.md), [platform architecture](docs/platform/01_architecture.md),
+[ADR-019](docs/platform/adr/ADR-019.md).
 
-Key findings ([full report](eda/reports/notebooks/11_evaluation_and_report.html), [summary](docs/dataset/backup_comparison.md)):
+## Results (held out, frozen before scoring)
 
-- **The backup is not a copy.** It is a second, independently generated realisation of the same bank: same schema and statistics for the core tables, mostly different IDs, two tables missing and `transactions` truncated to 2023-07-01 → 2024-09-25. Never join it to the main data.
-- **Shared IDs are noisy.** Of 4,025 customer IDs present in both folders, 25 % belong to a different person.
-- **Both folders carry the same defects:** products opened before the customer registered (50 %), transactions before their product existed (18.7 %), Mexican transactions labelled `USD`, ~5 % nulls injected into mandatory fields, and `fraud_score ≥ 35` ⇒ fraud in 100 % of cases (label leakage).
+The copilot's challenge set, intent phrasings and retrieval questions are pinned by
+[`copilot/eval/MANIFEST.sha256`](copilot/eval/MANIFEST.sha256). They were committed before the first scored run.
 
-Everything is reproducible: each notebook re-runs against the data and must regenerate its committed tables (`make eda-test-notebooks`). See [`eda/README.md`](eda/README.md) for the layout and how to run it.
+| Copilot, 120 ES/PT cases (deterministic path) | keyword baseline | learned model |
+|---|---|---|
+| Correct final outcome (Wilson 95 %) | 0.875 [0.80, 0.92] | **0.950** [0.90, 0.98] |
+| Safe automated resolution, in-scope cases | 0.841 | **0.937** |
+| Missed / unnecessary transfers | 4/27 · 2/63 | **1/27 · 0/63** |
+| Unsafe outcomes | 1/120 | 1/120 |
+| Latency per turn, p50 / p95 | 2.0 / 20.8 ms | 2.9 / 22.5 ms |
 
-## 📊 Dataset
+- **Intent model:** accuracy 0.818 against 0.576 for keywords, on 132 held-out phrasings and 15 intents.
+- **Retrieval:** hit@3 0.94 on 28 ES/PT questions. Zero retired, superseded or expired documents were returned.
+- **The one unsafe case** is a Portuguese prompt injection the guard missed. The policy routed it to a person; it is
+  reported, not hidden.
 
-13 tables, process dates 2023-06-17 → 2026-06-17, currencies MXN/COP/ARS/USD. Row counts are **measured** from the main folder; several differ from the documented sizes.
+Full reports: [`copilot/eval/reports/`](copilot/eval/reports/). The Claude-assisted variant is measured when an API key
+is configured.
+
+Platform evidence from the end-to-end run is in the [platform README](docs/platform/README.md#what-was-verified-on-the-running-stack-end-to-end-airflow-run-2026-10-03):
+- 13 tables reconciled losslessly;
+- every dbt layer green behind quality and governance gates;
+- Flink and dbt streaming features in parity (0 mismatches);
+- the audit chain verified.
+
+## Quick start
+
+Prerequisites: Python 3.11+, [uv](https://docs.astral.sh/uv/), Docker, Make. Data never enters git; see
+[data and secrets](docs/development/data-and-secrets.md).
+
+```bash
+make setup                         # root env + pre-commit and commit-msg hooks
+
+# the copilot
+make copilot-setup && make copilot-test
+make copilot-snapshot              # demo snapshot from the local lakehouse (data/copilot/, git-ignored)
+make copilot-dev                   # http://127.0.0.1:8000 — UI, /api, /atlas
+
+# the platform, by development stage (platform/docker/compose.yml profiles)
+make stack-env                     # once: random secrets for the stack
+make stack-copilot                 # pgvector, Neo4j, MLflow only
+make stack-dev                     # full pipeline stack: Postgres, MinIO, Airflow 3, Neo4j, MLflow
+make copilot-kb                    # bundled knowledge index, verified against pgvector and Neo4j
+make copilot-eval                  # frozen challenge set and retriever comparison
+
+# the exploratory analysis
+make eda-setup && make eda-test
+```
+
+Run the `stack-*` targets from the checkout that hosts the stack: its bind mounts are relative to that checkout. The
+full runbook is in [`docs/platform/runbook.md`](docs/platform/runbook.md). Deployment needs no Docker: the copilot
+ships to Modal (`make copilot-deploy`, see [`copilot/deploy/modal_app.py`](copilot/deploy/modal_app.py)).
+
+## What the data taught us
+
+The exploratory phase ([ADR-015](docs/platform/adr/ADR-015.md), [eda/README](eda/README.md)) turned up five things
+that shaped every later decision:
+- **The backup folder is not a copy.** It is a second, independently generated bank: never join it to the main data.
+- **Timestamps run on delivery-day clocks:** −6 h for transactions, digital events and sends; −8 h for contacts and
+  complaints ([ADR-014](docs/platform/adr/ADR-014.md)).
+- **`fraud_score ≥ 35` means fraud in every case.** It is a leaked label, not a feature, and the behavioural signal
+  alone carries almost none.
+- **Many models are not trainable from this data.** The readiness gates turn that into a data-collection audit rather
+  than a model ([ADR-018](docs/platform/adr/ADR-018.md)).
+- **Card support has the cleanest decision data:** 140,040 cards, a rule-based next action for over 65,000 of them,
+  and 499 flagged for fraud review. That is why the copilot starts there.
+
+## Dataset
+
+13 tables, process dates 2023-06-17 → 2026-06-17, currencies MXN/COP/ARS/USD. Row counts are **measured** from the
+main folder; several differ from the documented sizes.
 
 | Table | Type | Rows (measured) | Documented |
 |-------|------|----------------:|-----------:|
@@ -66,152 +146,32 @@ Everything is reproducible: each notebook re-runs against the data and must rege
 | `campaign_sends` | Fact | 1,746,801 | 2M |
 | `daily_exchange_rates` | Reference | 13,164 | 3K |
 
-- **Schema & relationships:** [ERD](docs/dataset/erd.md) (Mermaid, 260 columns, 24 foreign keys), generated from the [data dictionary](docs/dataset/LATAM_Bank_Complete_Data_Dictionary.pdf).
-- **Getting the data:** it is not in git (~10 GB raw). `eda/scripts/download_s3.py` downloads it with AWS credentials in `eda/.env`; `LATAM_EDA_DATA` points the EDA at an existing copy.
+Schema and relationships: [ERD](docs/dataset/erd.md), generated from the
+[data dictionary](docs/dataset/LATAM_Bank_Complete_Data_Dictionary.pdf).
 
-## 🏗️ Target Architecture
+## Quality and workflow
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                        FRONTEND (Next.js)                        │
-│  Chat Interface │ Analytics Dashboard │ Agent Monitor             │
-└──────────────────────────┬───────────────────────────────────────┘
-                           │ WebSocket / REST
-┌──────────────────────────┴───────────────────────────────────────┐
-│                     BACKEND (FastAPI)                             │
-│  Auth │ Chat Router │ Analytics API │ ML Model API │ Audit Log    │
-└──────────────────────────┬───────────────────────────────────────┘
-                           │
-┌──────────────────────────┴───────────────────────────────────────┐
-│              AGENT ORCHESTRATOR (LangGraph)                       │
-│                                                                   │
-│  InputGuardrails → Identity → IntentRouter → Domain Agents →     │
-│  Verification → ResponseGen → OutputGuardrails                    │
-│                                                                   │
-│  Memory: Redis (short) │ PostgreSQL (long) │ PGVector (semantic)  │
-│  Search: Hybrid RAG (Vector + BM25) │ GraphRAG (Neo4j)           │
-└──────────────────────────┬───────────────────────────────────────┘
-                           │
-┌──────────────────────────┴───────────────────────────────────────┐
-│                    ML MODEL SERVING                               │
-│  Intent Classifier │ Fraud Scorer │ Sentiment │ Dispute Predictor │
-│  (ONNX Runtime + MLflow Model Registry)                          │
-└──────────────────────────┬───────────────────────────────────────┘
-                           │
-┌──────────────────────────┴───────────────────────────────────────┐
-│                   DATA PLATFORM                                   │
-│  Ingestion: Spark ETL │ Transformation: dbt │ Orchestration: Airflow│
-│  Storage: PostgreSQL + BigQuery │ Quality: Great Expectations     │
-│  Streaming: Kafka + Spark Structured Streaming                    │
-└──────────────────────────────────────────────────────────────────┘
-```
+The rules for people and coding agents are in [`AGENTS.md`](AGENTS.md), imported by `CLAUDE.md`. Procedures are in
+[`docs/development/`](docs/development/README.md).
 
-Design specs: [product](docs/specs/PRODUCT_SPEC.md) · [data engineering](docs/specs/DATA_ENGINEERING_SPEC.md) · [ML](docs/specs/ML_SPEC.md) · [agents](docs/specs/AGENT_SPEC.md).
+- `main` is production and `develop` is integration; work branches each live in their own worktree and merge by pull
+  request.
+- Versioning is SemVer 0.x until submission, with [`CHANGELOG.md`](CHANGELOG.md).
+- Commits follow Conventional Commits, enforced by commitizen.
+- pre-commit is the single quality gate, locally and in CI.
+- CI runs on pull requests into `main` and `develop`:
+  - lint, format and type check;
+  - backend unit tests;
+  - EDA tests;
+  - platform library tests;
+  - copilot tests;
+  - integration and dbt jobs on the legacy scaffolds.
 
-## 🚀 Quick Start
+## Documentation
 
-### Prerequisites
-- Python 3.11+ and [uv](https://docs.astral.sh/uv/) (the EDA installs its own Python 3.12)
-- Docker & Docker Compose, Make
+[`docs/README.md`](docs/README.md) indexes it all: the hackathon brief, the dataset, the platform chapters and ADRs, the
+strategy, the original design specs, research and the development guides.
 
-### Application (scaffold)
+## License and author
 
-```bash
-git clone https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra.git
-cd factored-hackathon-2026-Andres_Becerra
-
-make setup        # installs .[dev], the pre-commit + commit-msg hooks, and creates .env
-make dev          # FastAPI on http://localhost:8000 (docs at /docs)
-make test         # backend unit tests
-```
-
-Fill in `.env` (copied from `.env.example`) before using LLM-backed features. The service stack is defined in `docker-compose.yml`, but `make up` includes a `frontend` service built from `./frontend`, which does not exist yet; until it does, start the data services by name:
-
-```bash
-docker compose up -d postgres redis neo4j mlflow
-make db-init
-```
-
-### Exploratory analysis
-
-```bash
-make eda-setup                                 # eda/ has its own uv environment
-export LATAM_EDA_DATA=/path/to/data            # or keep the dataset in data/ (see eda/README.md)
-make eda-test                                  # tests that need no dataset (what CI runs)
-make eda-test-data                             # findings recomputed from the real data
-make eda-test-notebooks                        # re-run all 11 notebooks (~6 min)
-```
-
-## 🧪 Quality & Workflow
-
-The repository standards for people and coding agents are in [`AGENTS.md`](AGENTS.md) (imported by `CLAUDE.md`), with step-by-step guides in [`docs/development/`](docs/development/).
-
-- **Branches.** `main` is production and `develop` is integration; neither takes direct commits (the `no-commit-to-branch` hook refuses them). Work happens on short-lived `<type>/<description>` branches from `develop`, each in its own git worktree, merged back by pull request; releases go `develop` → `main`. Merged branches are kept.
-- **Versions.** Semantic Versioning, 0.x until the hackathon submission; releases are tagged on `main` and logged in [`CHANGELOG.md`](CHANGELOG.md).
-- **Conventional Commits**, enforced by commitizen at the `commit-msg` hook (`feat(eda): …`, `fix: …`, `docs: …`).
-- **pre-commit** is the single quality gate, locally and in CI: ruff (lint + format), mypy (`backend/`, `agents/`), sqlfluff (dbt), actionlint, detect-secrets, file hygiene, plus `eda-lock` and `eda-tests` for the EDA workspace.
-- **CI** (`.github/workflows/ci.yml`) runs on pull requests into `main` or `develop` and on pushes to either:
-
-| Job | What it checks |
-|---|---|
-| Lint, Format & Type Check | `pre-commit run --all-files` |
-| Unit Tests | `backend/tests/unit`, `agents/evals` |
-| EDA Tests | the EDA suite minus dataset-dependent tests |
-| Integration Tests | `backend/tests/integration` against Postgres and Redis (none written yet) |
-| dbt Tests | `dbt seed/run/test` against Postgres |
-| Agent Evaluations | `main` only; skipped until `agents/evals/evaluator.py` exists |
-| Docker Build | `main` only; builds the API image |
-
-## 🤖 Planned ML Models
-
-| Model | Purpose | Framework | Serving |
-|-------|---------|-----------|---------|
-| Intent Classifier | Route customer requests | XLM-RoBERTa | ONNX (<10ms) |
-| Fraud Scorer | Transaction risk assessment | XGBoost + SHAP | MLflow (<50ms) |
-| Sentiment Analyzer | Customer emotion detection | Fine-tuned mBERT | ONNX (<15ms) |
-| Dispute Predictor | Predict resolution outcome | LightGBM | MLflow |
-| Churn Predictor | Identify at-risk customers | XGBoost | Batch |
-| Injection Detector | Input safety guardrail | DistilBERT | ONNX (<5ms) |
-
-The EDA's [label-leakage check](eda/reports/tables/fraud_label_leakage.csv) matters for the fraud scorer: `fraud_score` alone predicts `is_fraud` with AUC 0.82, while the behavioural features alone reach 0.51. `fraud_score` is a leaked label, not a usable feature, and the real fraud signal still has to be engineered.
-
-## 🎯 Evaluation Targets
-
-| Metric | Target | Description |
-|--------|--------|-------------|
-| Safe Resolution Rate | >70% | Correct automated resolutions |
-| Unsafe Outcome Rate | <2% | Wrong info or unauthorized actions |
-| Escalation Precision | >85% | Correct human escalations |
-| P50 Latency | <3s | Median response time |
-| P95 Latency | <8s | 95th percentile response time |
-| Injection Detection | >95% | Blocked prompt injections |
-
-## 🛠️ Tech Stack
-
-**In use**: Python, FastAPI, LangGraph, DuckDB, pandas, scikit-learn, PyOD, PyTorch, Plotly, D3.js, dbt, uv, pre-commit, GitHub Actions, Docker
-
-**Planned**: LangChain, LiteLLM, PostgreSQL + PGVector, Neo4j, Redis, Spark, Airflow, Great Expectations, Kafka, BigQuery, XGBoost, LightGBM, HuggingFace Transformers, ONNX Runtime, MLflow, Optuna, SHAP, Evidently, Next.js, Terraform, Prometheus, Grafana
-
-## 📁 Project Structure
-
-```
-├── agents/            # LangGraph orchestrator and agent state (scaffold)
-├── backend/           # FastAPI app, routers and tests (scaffold)
-├── data_engineering/  # dbt project and raw sources (scaffold)
-├── docs/              # Hackathon brief, dataset docs + ERD, specs, research
-├── eda/               # Exploratory analysis: notebooks, scripts, reports, tests
-├── infrastructure/    # Dockerfiles and Terraform
-├── ml/                # ML training, serving, monitoring (empty)
-├── monitoring/        # Prometheus config
-└── scripts/           # Database initialisation SQL
-```
-
-Documentation index: [`docs/README.md`](docs/README.md).
-
-## 📜 License
-
-MIT
-
-## 👤 Author
-
-**Andres Becerra** — Factored AI & Data Hackathon 2026
+MIT · **Andrés Becerra**, Factored AI & Data Hackathon 2026

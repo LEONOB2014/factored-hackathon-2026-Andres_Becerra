@@ -1,6 +1,6 @@
 """
 Factored AI & Data Hackathon 2026
-AI-First Banking Customer Service System - FastAPI Backend
+BETA AID (Banking Evolutionary Transformation and AI Deployment) - FastAPI backend scaffold
 
 Main application entry point.
 """
@@ -21,18 +21,18 @@ logger = structlog.get_logger()
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan: startup and shutdown events."""
-    logger.info("Starting AI-First Banking Service")
+    logger.info("Starting BETA AID backend")
     # TODO: Initialize database connections
     # TODO: Load ML models into memory
     # TODO: Initialize agent graph
     # TODO: Connect to Redis for session management
     yield
-    logger.info("Shutting down AI-First Banking Service")
+    logger.info("Shutting down BETA AID backend")
     # TODO: Cleanup connections
 
 
 app = FastAPI(
-    title="AI-First Banking Customer Service",
+    title="BETA AID Backend",
     description=(
         "Intelligent customer service system for LATAM banking operations. "
         "Handles transaction disputes, card support, account inquiries, "
