@@ -193,3 +193,20 @@ def test_grounded_answer_rules():
         "Prazo de 30 dias [reg-br-pix-med2 v1.0].", p
     )  # number not in the source
     assert not grounded_answer("Veja [pol-genai-use v1.0].", p)  # cites a passage it was not given
+
+
+def test_queue_documents_rank_first_in_the_packet(engine):
+    engine.kb, engine.kb_threshold = (
+        FakeKB(
+            [
+                _chunk("pol-marketing-consent", "internal", 0.95),
+                _chunk("pol-card-dispute", "internal", 0.9),
+            ]
+        ),
+        0.8,
+    )
+    r = engine.message(login(engine, "C-SINGLE"), "me cobraron dos veces la misma compra")
+    assert [p["cite"] for p in r.handoff["procedures"]][:2] == [
+        "pol-card-dispute v1.0",
+        "pol-marketing-consent v1.0",
+    ]

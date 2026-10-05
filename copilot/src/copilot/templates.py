@@ -57,6 +57,16 @@ T: dict[str, dict[str, str]] = {
         "es": "Tu tarjeta de {kind} terminada en {last4} está {status}. Vence el {expiry}.",
         "pt": "Seu cartão de {kind} final {last4} está {status}. Vence em {expiry}.",
     },
+    "card_status_noexp": {
+        "es": "Tu tarjeta de {kind} terminada en {last4} está {status}. No tengo registrada su fecha de vencimiento.",
+        "pt": "Seu cartão de {kind} final {last4} está {status}. Não tenho registrada a data de vencimento.",
+    },
+    "expiry_ok_noexp": {
+        "es": "No tengo registrada la fecha de vencimiento de tu tarjeta terminada en {last4}. Si la necesitas, puedo "
+        "pasarte con un asesor.",
+        "pt": "Não tenho registrada a data de vencimento do seu cartão final {last4}. Se precisar, posso passar para um "
+        "atendente.",
+    },
     "balance_credit": {
         "es": "Tu tarjeta de crédito terminada en {last4} tiene un saldo de {balance} y un cupo de {limit}; "
         "disponible: {available}. Datos al {as_of}.",
@@ -269,6 +279,9 @@ def card_vars(card: Card, lang: str) -> dict:
 
 
 def render(key: str, lang: str, **kw) -> str:
+    # a missing expiry date is said in words, never shown as a dash
+    if kw.get("expiry") == "—" and f"{key}_noexp" in T:
+        key = f"{key}_noexp"
     return T[key][lang].format(**kw)
 
 

@@ -257,7 +257,7 @@ def render(report: dict) -> str:
     ]
     variants = list(report["variants"])
     out = [
-        "# Card copilot: challenge-set evaluation",
+        f"# Card copilot: challenge-set evaluation ({report.get('label', 'first scored run')})",
         "",
         f"{report['n_cases']} frozen cases ({report['by_lang']}), manifest `{report['manifest_ok']}`; snapshot as of {report['as_of']}. "
         "Rates with Wilson 95 % intervals. In-scope = the copilot should resolve it alone; attempted = cases it did not transfer.",
@@ -326,6 +326,10 @@ def main() -> int:
     ap.add_argument("--repeats", type=int, default=3)
     ap.add_argument("--freeze", action="store_true")
     ap.add_argument("--no-llm", action="store_true")
+    ap.add_argument(
+        "--label",
+        help="write reports/challenge_<label>.* instead of the headline report (e.g. after-fix runs)",
+    )
     args = ap.parse_args()
     if args.freeze:
         MANIFEST.write_text("\n".join(manifest_lines()) + "\n")
@@ -392,10 +396,12 @@ def main() -> int:
             file=sys.stderr,
         )
     REPORTS.mkdir(exist_ok=True)
-    (REPORTS / "challenge.json").write_text(
+    stem = f"challenge_{args.label.replace('-', '_')}" if args.label else "challenge"
+    report["label"] = args.label or "first scored run"
+    (REPORTS / f"{stem}.json").write_text(
         json.dumps(report, indent=1, ensure_ascii=False, default=str) + "\n"
     )
-    (REPORTS / "challenge.md").write_text(render(report) + "\n")
+    (REPORTS / f"{stem}.md").write_text(render(report) + "\n")
     print(render(report))
     return 0
 
