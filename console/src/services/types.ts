@@ -105,15 +105,6 @@ export interface DeskCase {
   timeline: { at: string; event: string; actor: string; hash: string }[];
 }
 
-export interface Kpi {
-  id: string;
-  label: string;
-  value: number;
-  lo: number;
-  hi: number;
-  display: string;
-  better: "higher" | "lower";
-}
 export interface UnsafeCase {
   turn_id: string;
   at: string;
@@ -137,21 +128,6 @@ export interface Veto {
   effect: string;
 }
 
-export interface AtlasCell {
-  model: string;
-  grain: "event" | "day" | "cell" | "hour";
-  verdict: Verdict | null;
-  gain?: number;
-  lo?: number;
-  hi?: number;
-  materiality?: number;
-  mde?: number;
-  root_cause?: string;
-  oot?: string;
-  benchmark?: string;
-  requirement?: string;
-  kumo?: { variant: string; gain: number; lo: number; hi: number; ablation: { table: string; delta: number }[] }[];
-}
 
 export interface QAgent {
   id: string;
