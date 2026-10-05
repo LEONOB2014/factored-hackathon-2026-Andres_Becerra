@@ -7,7 +7,7 @@
         dbt-run dbt-test ml-train ml-serve evals docker-build deploy \
         eda-setup eda-test eda-test-data eda-test-notebooks \
         stack-env stack-copilot stack-data stack-dev stack-stream stack-obs stack-ps stack-down \
-        copilot-setup copilot-test copilot-snapshot copilot-kb copilot-tune copilot-eval copilot-dev copilot-deploy
+        copilot-setup copilot-test copilot-snapshot copilot-kb copilot-tune copilot-eval copilot-dev copilot-deploy copilot-deploy-gcp
 
 # Default target
 help: ## Show this help
@@ -215,6 +215,10 @@ copilot-dev: ## Run the copilot locally on http://127.0.0.1:8000
 
 copilot-deploy: ## Deploy the copilot to Modal (needs modal setup and the copilot-data volume)
 	cd copilot && COPILOT_MODAL_SECRET=$${COPILOT_MODAL_SECRET:-} modal deploy deploy/modal_app.py
+
+copilot-deploy-gcp: ## Deploy the copilot to Cloud Run per residency region (MX Querétaro; CO and AR São Paulo)
+	copilot/deploy/cloudrun/deploy.sh mx northamerica-south1 MX
+	copilot/deploy/cloudrun/deploy.sh sa southamerica-east1 CO AR
 
 # ==============================================================================
 # Backend

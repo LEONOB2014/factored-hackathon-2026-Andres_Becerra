@@ -265,3 +265,23 @@ def test_breaker_opens_after_failures():
     assert b.state == "closed"
     b.fail()
     assert b.state == "open"
+
+
+def test_sandbox_keeps_actions_inside_the_session(settings):
+    from copilot.tools import Tools
+
+    t = Tools(settings.snapshot, settings.store, settings.secret, sandbox=True)
+    idt, tok_a = _sess(t, settings, "C-SINGLE")
+    a = idt.session(tok_a)
+    t.execute(a, t.prepare(a, "block", "P-1"))
+    b = idt.session(idt.login("C-SINGLE", settings.otp_fixture))
+    assert t.card(a, "P-1").status == "Blocked"
+    assert t.card(b, "P-1").status == "Active"  # another visitor starts from the snapshot
+
+
+def test_without_sandbox_actions_are_global(tools, settings):
+    idt, tok_a = _sess(tools, settings, "C-SINGLE")
+    a = idt.session(tok_a)
+    tools.execute(a, tools.prepare(a, "block", "P-1"))
+    b = idt.session(idt.login("C-SINGLE", settings.otp_fixture))
+    assert tools.card(b, "P-1").status == "Blocked"

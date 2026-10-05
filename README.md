@@ -9,6 +9,7 @@
 [![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
 
 **Live demo:** [aleonardobecerra--beta-aid-copilot-web.modal.run](https://aleonardobecerra--beta-aid-copilot-web.modal.run). Sign in as one of the demo customers with the test code shown on the page; the Grain Atlas is at [`/atlas`](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas).
+**Regional deployments (data residency, [ADR-021](docs/platform/adr/ADR-021.md)):** Mexico in Querétaro, [beta-aid-mx-621442591789.northamerica-south1.run.app](https://beta-aid-mx-621442591789.northamerica-south1.run.app) · Colombia and Argentina in São Paulo, [beta-aid-sa-621442591789.southamerica-east1.run.app](https://beta-aid-sa-621442591789.southamerica-east1.run.app).
 
 LATAM Bank is the hackathon's synthetic bank (Mexico, Colombia, Argentina; 13 tables). BETA AID is what we built for
 it: the data platform that makes its data trustworthy, the readiness control plane that decides which models the data
@@ -22,7 +23,7 @@ can support, and the copilot that serves its customers.
 | Data platform | [`platform/`](platform/) | ✅ Built and run end to end: lossless bronze, dbt silver, gold, aggregates and serving, Airflow 3 with country scopes, audit ledger, knowledge base, streaming fraud features ([docs](docs/platform/README.md)) |
 | Governed knowledge base | [`knowledge/`](knowledge/) | ✅ Approved, versioned documents indexed in pgvector and Neo4j |
 | Exploratory analysis and readiness | [`eda/`](eda/) | ✅ Closed in v0.3.0: dataset study, anomaly detection, grain series, country and pipeline replays; the Grain Atlas ([README](eda/README.md)) |
-| Architecture decisions | [`docs/platform/adr/`](docs/platform/adr/README.md) | ✅ ADR-001 to ADR-020 |
+| Architecture decisions | [`docs/platform/adr/`](docs/platform/adr/README.md) | ✅ ADR-001 to ADR-021 |
 | Strategy and research | [`docs/strategy/`](docs/strategy/README.md), [`docs/research/`](docs/research/) | 📚 Record of the analysis that shaped the plan |
 | Backend API, agent graph | `backend/`, `agents/` | 🧱 Original scaffolds; the copilot replaced them as the served application |
 | Legacy dbt scaffold | `data_engineering/` | 🧱 Superseded by `platform/dbt`; the CI "dbt Tests" job still runs this scaffold |

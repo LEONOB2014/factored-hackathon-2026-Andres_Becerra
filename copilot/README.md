@@ -6,7 +6,9 @@ general policy questions from the governed knowledge base with citations, and ha
 packet that saves them from asking again. It is the first consumer of the readiness control plane (ADR-019): the
 Grain Atlas is served at `/atlas`.
 
-**Live:** https://aleonardobecerra--beta-aid-copilot-web.modal.run (Modal; demo customers sign in with the test code shown on the page).
+**Live:** https://aleonardobecerra--beta-aid-copilot-web.modal.run (Modal; demo customers sign in with the test code shown on the page). Residency-true regional
+deployments on Cloud Run ([ADR-021](../docs/platform/adr/ADR-021.md)): Mexico https://beta-aid-mx-621442591789.northamerica-south1.run.app (northamerica-south1) and
+Colombia and Argentina https://beta-aid-sa-621442591789.southamerica-east1.run.app (southamerica-east1).
 
 ## Decision rights (RAPID)
 
@@ -72,8 +74,18 @@ make copilot-eval                  # frozen challenge set + retrieval comparison
 A Claude key in the repository's `.env` (`ANTHROPIC_API_KEY`) enables the low-confidence fallback, rephrasing and
 generated knowledge answers; without it the copilot runs its deterministic path.
 
-**Deploy** (Modal, one warm container): see `deploy/modal_app.py` for the one-time volume upload and secret, then
+**Deploy.** Modal, one warm container: see `deploy/modal_app.py` for the one-time volume upload and secret, then
 `make copilot-deploy`.
+
+Cloud Run, one service per residency region, each holding only its countries' data: `make copilot-deploy-gcp`,
+which runs `deploy/cloudrun/deploy.sh mx northamerica-south1 MX` and `deploy/cloudrun/deploy.sh sa southamerica-east1
+CO AR`. The script:
+- cuts the snapshot by country (`scripts/scope_snapshot.py`);
+- stages the build in a bucket pinned to the region;
+- builds in-region into that region's Artifact Registry;
+- deploys one warm instance.
+
+Check any deployment with `python eval/live_check.py <url>`.
 
 ## Evaluation (held out, frozen before scoring)
 

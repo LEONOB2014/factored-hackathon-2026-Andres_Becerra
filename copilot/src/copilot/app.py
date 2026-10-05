@@ -5,6 +5,7 @@ cd copilot && uv run uvicorn copilot.app:app --reload
 
 from __future__ import annotations
 
+import os
 from functools import lru_cache
 from pathlib import Path
 
@@ -35,7 +36,7 @@ app = FastAPI(title="BETA AID card copilot", version="0.1.0")
 def engine() -> Engine:
     s = Settings()
     tracing.setup()
-    tools = Tools(s.snapshot, s.store, s.secret, s.confirm_ttl_s)
+    tools = Tools(s.snapshot, s.store, s.secret, s.confirm_ttl_s, sandbox=s.sandbox)
     llm = LLM(s.llm_model, s.llm_timeout_s) if s.llm_available else None
     kb, kb_threshold = _knowledge()
     return Engine(s, tools, llm=llm, kb=kb, kb_threshold=kb_threshold)
@@ -114,6 +115,7 @@ def health() -> dict:
         "llm": e.llm is not None,
         "llm_model": e.s.llm_model if e.llm else None,
         "breaker": e.llm.breaker.state if e.llm else None,
+        "deployment": _deployment(e),
         "intent_params": e.intent.params,
         "knowledge_base": {
             "active_set_hash": e.kb.active_set_hash,
@@ -132,6 +134,23 @@ def demo() -> dict:
         "customers": list(resolve(e.s.snapshot).values()),
         "otp": e.s.otp_fixture,
         "stepup": e.s.stepup_fixture,
+        "deployment": _deployment(e),
+    }
+
+
+def _deployment(e: Engine) -> dict:
+    """Where this instance runs and which countries' data it holds (residency is visible, not just claimed)."""
+    import duckdb
+
+    con = duckdb.connect(str(e.s.snapshot), read_only=True)
+    countries = [
+        r[0] for r in con.execute("select distinct country_code from cards order by 1").fetchall()
+    ]
+    con.close()
+    return {
+        "name": os.environ.get("COPILOT_DEPLOYMENT", "local"),
+        "region": os.environ.get("COPILOT_REGION"),
+        "countries": countries,
     }
 
 
