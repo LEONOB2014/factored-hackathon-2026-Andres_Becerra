@@ -1,5 +1,5 @@
 """Optional MLflow tracing of every turn: a root span per turn with its stages as child spans, and the Claude calls
-captured by MLflow's Anthropic autologging. Off unless COPILOT_MLFLOW_URI (or MLFLOW_TRACKING_URI) is set and mlflow
+captured by MLflow's Anthropic autologging. Off unless COPILOT_MLFLOW_URI is set and mlflow
 is installed (`uv sync --extra tune`); the deployed app keeps its own per-turn traces in the audit log instead.
 
 Spans only ever receive masked text: card numbers are masked by the gateway before any span records the message.
@@ -33,7 +33,9 @@ class _Null(AbstractContextManager):
 def setup() -> bool:
     """Point tracing at the MLflow server; returns whether tracing is on."""
     global _mlflow
-    uri = os.environ.get("COPILOT_MLFLOW_URI") or os.environ.get("MLFLOW_TRACKING_URI")
+    uri = os.environ.get(
+        "COPILOT_MLFLOW_URI"
+    )  # explicit opt-in only: a generic MLFLOW_TRACKING_URI is not enough
     if not uri:
         return False
     try:
@@ -41,8 +43,12 @@ def setup() -> bool:
     except ImportError:
         log.warning("COPILOT_MLFLOW_URI is set but mlflow is not installed; tracing stays off")
         return False
-    mlflow.set_tracking_uri(uri)
-    mlflow.set_experiment(os.environ.get("COPILOT_MLFLOW_EXPERIMENT", "copilot-traces"))
+    try:
+        mlflow.set_tracking_uri(uri)
+        mlflow.set_experiment(os.environ.get("COPILOT_MLFLOW_EXPERIMENT", "copilot-traces"))
+    except Exception as e:  # tracing must never break the copilot
+        log.warning("MLflow at %s unavailable, tracing stays off: %s", uri, e)
+        return False
     try:
         mlflow.anthropic.autolog()
     except Exception as e:  # tracing must never break the copilot

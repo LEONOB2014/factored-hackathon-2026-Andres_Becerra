@@ -68,6 +68,8 @@ def test_plain_requests_pass_the_guard():
         ("quero bloquear o cartão", "pt"),
         ("necesito una reposición", "es"),
         ("não reconheço uma compra", "pt"),
+        ("caí num golpe do Pix, o que faço?", "pt"),
+        ("me robaron la tarjeta, qué hago", "es"),
     ],
 )
 def test_language(text, lang):
