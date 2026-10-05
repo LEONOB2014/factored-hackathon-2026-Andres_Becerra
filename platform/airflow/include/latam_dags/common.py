@@ -43,6 +43,32 @@ DEFAULT_ARGS = {
     "retry_delay": timedelta(minutes=2),
 }
 
+# dbt layers in build order, shared by dbt_lakehouse (scope ALL) and the country scope DAGs (ADR-020). Snapshots read
+# freshly built silver views; the aggregate grains (ADR-017) read gold and build day -> cell -> hour.
+LAYERS = {
+    "seeds": ["resource_type:seed"],
+    "silver": ["path:models/silver"],
+    "snapshots": ["resource_type:snapshot"],
+    "gold": ["path:models/gold/core", "path:models/gold/marts"],
+    "aggregates_day": ["tag:grain_day"],
+    "aggregates_cell": ["tag:grain_cell"],
+    "aggregates_hour": ["tag:grain_hour"],
+    "features_graph_knowledge": [
+        "path:models/features",
+        "path:models/graph",
+        "path:models/knowledge",
+    ],
+    "privacy_serving": ["path:models/privacy", "path:models/serving"],
+    "audit": ["path:models/audit"],
+}
+SCOPE_MARKETS = ("MX", "CO", "AR")  # country scopes cut at bronze (ADR-016); ALL is dbt_lakehouse
+SCOPES_DIR = f"{REPO}/data/scopes"
+
+
+def scope_lakehouse(code: str) -> Asset:
+    return Asset(f"duckdb://lakehouse/{code.lower()}/gold")
+
+
 DUCKDB_POOL = (
     "duckdb_lakehouse"  # one slot: DuckDB allows one writer, and heavy DuckDB jobs must not
 )

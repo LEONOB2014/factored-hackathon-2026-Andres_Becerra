@@ -1,4 +1,5 @@
-"""dbt lakehouse build with Cosmos: seeds -> silver -> snapshots -> gold -> features/graph/knowledge -> privacy/serving -> audit.
+"""dbt lakehouse build with Cosmos: seeds -> silver -> snapshots -> gold -> aggregates (day, cell, hour) ->
+features/graph/knowledge -> privacy/serving -> audit. This DAG is scope ALL; lakehouse_scoped builds each country.
 
 Each layer is a Cosmos task group (one Airflow task per model, tests after each group), so lineage, retries and
 failures are visible per model; Cosmos emits OpenLineage events to Marquez. All tasks share the single-writer
@@ -25,6 +26,7 @@ from latam_dags.common import (
     DEFAULT_ARGS,
     DUCKDB_POOL,
     LAKEHOUSE,
+    LAYERS,
     PLATFORM_PY,
 )
 
@@ -38,19 +40,6 @@ PROFILE = ProfileConfig(
     profile_name="latam_bank", target_name="dev", profiles_yml_filepath=f"{DBT_DIR}/profiles.yml"
 )
 EXECUTION = ExecutionConfig(dbt_executable_path=DBT_BIN)
-LAYERS = {  # order matters: snapshots read freshly built silver views
-    "seeds": ["resource_type:seed"],
-    "silver": ["path:models/silver"],
-    "snapshots": ["resource_type:snapshot"],
-    "gold": ["path:models/gold"],
-    "features_graph_knowledge": [
-        "path:models/features",
-        "path:models/graph",
-        "path:models/knowledge",
-    ],
-    "privacy_serving": ["path:models/privacy", "path:models/serving"],
-    "audit": ["path:models/audit"],
-}
 
 
 def layer(group_id: str, select: list[str]) -> DbtTaskGroup:
