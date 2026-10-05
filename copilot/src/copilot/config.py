@@ -54,7 +54,12 @@ class Settings:
     rephrase: bool = _flag("COPILOT_REPHRASE", True)
     llm_model: str = os.environ.get("COPILOT_LLM_MODEL", "claude-haiku-4-5")
     llm_timeout_s: float = float(os.environ.get("COPILOT_LLM_TIMEOUT", "6"))
-    intent_threshold: float = float(os.environ.get("COPILOT_INTENT_THRESHOLD", "0.55"))
+    # unset: the threshold tuned with the model (corpus/intent_params.json)
+    intent_threshold: float | None = (
+        float(os.environ["COPILOT_INTENT_THRESHOLD"])
+        if os.environ.get("COPILOT_INTENT_THRESHOLD")
+        else None
+    )
 
     @property
     def llm_available(self) -> bool:

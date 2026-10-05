@@ -138,6 +138,7 @@ class IntentModel:
         self.pipe = build(self.params)
         self.pipe.fit([e.text for e in ex], [e.intent for e in ex])
         self.labels = list(self.pipe.classes_)
+        self.threshold = float(self.params.get("threshold", 0.55))
 
     def predict(self, text: str) -> Prediction:
         t0 = time.perf_counter()

@@ -13,6 +13,7 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 
 from copilot import templates as tpl
+from copilot import tracing
 from copilot.audit import AuditLog
 from copilot.config import Settings
 from copilot.gateway import fold, screen
@@ -124,6 +125,7 @@ class Engine:
             settings.stepup_ttl_s, tools.known_customer,
         )  # fmt: skip
         self.convs: dict[str, Conversation] = {}
+        self.threshold = settings.intent_threshold or getattr(self.intent, "threshold", 0.55)
 
     # --- session ---------------------------------------------------------------------------------------------------
     def login(self, customer_id: str, otp: str) -> str:
@@ -140,6 +142,13 @@ class Engine:
 
     # --- a turn ----------------------------------------------------------------------------------------------------
     def message(self, token: str | None, text: str) -> Reply:
+        with tracing.span("copilot.turn", "AGENT") as root:
+            root.set_inputs({"text": screen(text).text})
+            reply = self._message(token, text)
+            _close(root, reply)
+        return reply
+
+    def _message(self, token: str | None, text: str) -> Reply:
         tr = Trace()
         with tr.stage("gateway"):
             scr = screen(text)
@@ -202,8 +211,7 @@ class Engine:
         pred = self._classify(scr.text, tr)
         # a card choice answers the pending question unless the message confidently asks for something else
         resumable = (
-            pred.intent in (conv.pending_intent, "unclear")
-            or pred.confidence < self.s.intent_threshold
+            pred.intent in (conv.pending_intent, "unclear") or pred.confidence < self.threshold
         )
         if conv.pending_intent and (mention["last4"] or mention["kind"]) and resumable:
             pred = Prediction(conv.pending_intent, 1.0, "resume", 0.0)
@@ -223,8 +231,9 @@ class Engine:
         card = None
         if self.policy.needs_card(pred.intent):
             try:
-                with tr.stage("tools.read"):
+                with tr.stage("tools.read", "TOOL") as sp:
                     cards = self.tools.cards(sess)
+                    sp.set_outputs({"cards": [_facts(c) for c in cards]})
             except ToolError:
                 return self._handoff(
                     sess,
@@ -243,15 +252,28 @@ class Engine:
             if reply:
                 return self._finish(sess, conv, reply, tr, scr.text)
 
-        with tr.stage("policy"):
+        with tr.stage("policy") as sp:
+            sp.set_inputs(
+                {"intent": pred.intent, "card": card.last4 if card else None, "misses": conv.misses}
+            )
             d = self.policy.decide(pred.intent, card, conv.misses)
+            sp.set_outputs(asdict(d) | {"policy_version": self.policy.version})
         tr.note(policy_rule=d.rule, autonomy=d.autonomy, policy_version=self.policy.version)
         return self._act(sess, conv, d, pred, card, tr, scr.text)
 
     def _classify(self, text: str, tr: Trace) -> Prediction:
-        with tr.stage("intent.model"):
+        with tr.stage("intent.model", "PARSER") as sp:
+            sp.set_inputs({"text": text})
             pred = self.intent.predict(text)
-        if pred.confidence >= self.s.intent_threshold or pred.source == "keyword":
+            sp.set_outputs(
+                {
+                    "intent": pred.intent,
+                    "confidence": pred.confidence,
+                    "top": pred.top,
+                    "threshold": self.threshold,
+                }
+            )
+        if pred.confidence >= self.threshold or pred.source == "keyword":
             return pred
         if self.llm is not None and self.s.llm_available:
             try:
@@ -368,6 +390,13 @@ class Engine:
         )
 
     def confirm(self, token: str | None, yes: bool, _trace: Trace | None = None) -> Reply:
+        with tracing.span("copilot.confirm", "AGENT") as root:
+            root.set_inputs({"confirm": yes})
+            reply = self._confirm(token, yes, _trace)
+            _close(root, reply)
+        return reply
+
+    def _confirm(self, token: str | None, yes: bool, _trace: Trace | None = None) -> Reply:
         tr = _trace or Trace()
         try:
             sess = self.identity.session(token)
@@ -472,6 +501,13 @@ class Engine:
         return self._finish(sess, conv, Reply(body, "action_done", lang), tr, label)
 
     def step_up(self, token: str | None, otp: str) -> tuple[str | None, Reply]:
+        with tracing.span("copilot.step_up", "AGENT") as root:
+            root.set_inputs({"second_factor": "[redacted]"})
+            new, reply = self._step_up(token, otp)
+            _close(root, reply)
+        return new, reply
+
+    def _step_up(self, token: str | None, otp: str) -> tuple[str | None, Reply]:
         tr = Trace()
         try:
             sess = self.identity.session(token)
@@ -578,6 +614,7 @@ class Engine:
         self, sess, conv, reply: Reply, tr: Trace, text: str, card: Card | None = None
     ) -> Reply:
         reply.trace = tr.done(
+            session_id=sess.session_id if sess else None,
             outcome=reply.outcome,
             model=self.s.llm_model if tr.usage.calls else None,
             prompt_version=PROMPT_VERSION if tr.usage.calls else None,
@@ -596,6 +633,21 @@ class Engine:
             latency_ms=reply.trace["latency_ms"],
         )
         return reply
+
+
+def _close(root, reply: Reply) -> None:
+    """Record a turn's outcome on its root span and tag the trace with session and policy."""
+    t = reply.trace
+    root.set_outputs({"reply": reply.text, "outcome": reply.outcome, "handoff": reply.handoff})
+    root.set_attributes({k: v for k, v in t.items() if isinstance(v, str | int | float | bool)})
+    tracing.tag_trace(
+        t.get("session_id"),
+        None,
+        outcome=reply.outcome,
+        intent=t.get("intent"),
+        policy_rule=t.get("policy_rule"),
+        language=reply.lang,
+    )
 
 
 def _facts(card: Card) -> dict:
@@ -619,18 +671,20 @@ class Trace:
         self.fields: dict = {}
         self.usage = Usage()
 
-    def stage(self, name: str):
+    def stage(self, name: str, span_type: str = "CHAIN"):
         trace = self
 
         class _S:
             def __enter__(self):
                 self.t = time.perf_counter()
+                self.span = tracing.span(name, span_type)
+                return self.span.__enter__()
 
             def __exit__(self, *exc):
                 trace.stages.append(
                     {"stage": name, "ms": round((time.perf_counter() - self.t) * 1000, 2)}
                 )
-                return False
+                return self.span.__exit__(*exc)
 
         return _S()
 

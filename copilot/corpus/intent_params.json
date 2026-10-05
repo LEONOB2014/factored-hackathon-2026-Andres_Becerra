@@ -1,0 +1,15 @@
+{
+ "params": {
+  "C": 97.8723189521979,
+  "ngram_min": 2,
+  "ngram_max": 4,
+  "sublinear_tf": true,
+  "class_weight": null,
+  "threshold": 0.77
+ },
+ "cv_macro_f1": 0.7595,
+ "oof_coverage_at_threshold": 0.6441,
+ "target_precision": 0.9,
+ "mlflow_run_id": "b5ac75aee5ce452785540f9baea4c205",
+ "tuned_at": "2026-10-05T15:39:37+00:00"
+}

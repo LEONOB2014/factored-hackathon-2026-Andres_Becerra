@@ -1,0 +1,483 @@
+{
+ "tuning": {
+  "params": {
+   "C": 97.8723189521979,
+   "ngram_min": 2,
+   "ngram_max": 4,
+   "sublinear_tf": true,
+   "class_weight": null,
+   "threshold": 0.77
+  },
+  "cv_macro_f1": 0.7595,
+  "oof_coverage_at_threshold": 0.6441,
+  "target_precision": 0.9,
+  "mlflow_run_id": "b5ac75aee5ce452785540f9baea4c205",
+  "tuned_at": "2026-10-05T15:39:37+00:00"
+ },
+ "held_out": [
+  {
+   "model": "learned_char_ngram_lr",
+   "n": 124,
+   "accuracy": 0.8065,
+   "macro_f1": 0.8081,
+   "macro_f1_by_language": {
+    "es": 0.7582,
+    "pt": 0.8551
+   },
+   "ece": 0.0735,
+   "latency_ms_p50": 0.275,
+   "latency_ms_p95": 0.383,
+   "errors": [
+    {
+     "text": "ya está, chao",
+     "lang": "es",
+     "expected": "smalltalk",
+     "got": "card_status"
+    },
+    {
+     "text": "me interesa un leasing para carro",
+     "lang": "es",
+     "expected": "out_of_scope",
+     "got": "human_agent"
+    },
+    {
+     "text": "recomiéndame una película",
+     "lang": "es",
+     "expected": "out_of_scope",
+     "got": "human_agent"
+    },
+    {
+     "text": "puedo sacar un crédito para estudiar",
+     "lang": "es",
+     "expected": "out_of_scope",
+     "got": "card_status"
+    },
+    {
+     "text": "quero trocar o e-mail cadastrado",
+     "lang": "pt",
+     "expected": "out_of_scope",
+     "got": "reissue_card"
+    },
+    {
+     "text": "posso pegar um crédito estudantil",
+     "lang": "pt",
+     "expected": "out_of_scope",
+     "got": "card_status"
+    },
+    {
+     "text": "la tarjeta me sirve todavía?",
+     "lang": "es",
+     "expected": "card_status",
+     "got": "reissue_card"
+    },
+    {
+     "text": "como figura mi tarjeta en el sistema",
+     "lang": "es",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "o cartão ainda serve?",
+     "lang": "pt",
+     "expected": "card_status",
+     "got": "reissue_card"
+    },
+    {
+     "text": "como aparece meu cartão no sistema",
+     "lang": "pt",
+     "expected": "card_status",
+     "got": "dispute"
+    },
+    {
+     "text": "qué cupo libre me queda",
+     "lang": "es",
+     "expected": "balance_limit",
+     "got": "limit_increase"
+    },
+    {
+     "text": "hasta qué mes me dura la tarjeta",
+     "lang": "es",
+     "expected": "expiry_renewal",
+     "got": "fraud_report"
+    },
+    {
+     "text": "até que mês meu cartão dura",
+     "lang": "pt",
+     "expected": "expiry_renewal",
+     "got": "fraud_report"
+    },
+    {
+     "text": "extravié mi tarjeta",
+     "lang": "es",
+     "expected": "block_card",
+     "got": "reissue_card"
+    },
+    {
+     "text": "extraviei meu cartão",
+     "lang": "pt",
+     "expected": "block_card",
+     "got": "reissue_card"
+    },
+    {
+     "text": "necesito habilitar la tarjeta que bloqueé",
+     "lang": "es",
+     "expected": "unblock_card",
+     "got": "block_card"
+    },
+    {
+     "text": "preciso habilitar o cartão que bloqueei",
+     "lang": "pt",
+     "expected": "unblock_card",
+     "got": "block_card"
+    },
+    {
+     "text": "me aparece un cobro de netflix que nunca contraté y no reconozco",
+     "lang": "es",
+     "expected": "fraud_report",
+     "got": "dispute"
+    },
+    {
+     "text": "estoy harto de este banco",
+     "lang": "es",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quiero dejar constancia de mi inconformidad",
+     "lang": "es",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "llevo semanas esperando respuesta",
+     "lang": "es",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "faz semanas que espero resposta",
+     "lang": "pt",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "comuníqueme con un funcionario",
+     "lang": "es",
+     "expected": "human_agent",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me coloca com um funcionário",
+     "lang": "pt",
+     "expected": "human_agent",
+     "got": "out_of_scope"
+    }
+   ],
+   "coverage_at_threshold": 0.629,
+   "accuracy_when_confident": 0.9487
+  },
+  {
+   "model": "keyword_baseline",
+   "n": 124,
+   "accuracy": 0.6129,
+   "macro_f1": 0.6517,
+   "macro_f1_by_language": {
+    "es": 0.6309,
+    "pt": 0.6685
+   },
+   "ece": null,
+   "latency_ms_p50": 0.083,
+   "latency_ms_p95": 0.099,
+   "errors": [
+    {
+     "text": "buen día señorita",
+     "lang": "es",
+     "expected": "smalltalk",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "listo",
+     "lang": "es",
+     "expected": "smalltalk",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "e aí, tudo certo?",
+     "lang": "pt",
+     "expected": "smalltalk",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "beleza então",
+     "lang": "pt",
+     "expected": "smalltalk",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "la tarjeta me sirve todavía?",
+     "lang": "es",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "sigue vigente el plástico de débito",
+     "lang": "es",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "como figura mi tarjeta en el sistema",
+     "lang": "es",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "o cartão ainda serve?",
+     "lang": "pt",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "o cartão de débito continua valendo",
+     "lang": "pt",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "como aparece meu cartão no sistema",
+     "lang": "pt",
+     "expected": "card_status",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "cuanto llevo gastado en la de credito",
+     "lang": "es",
+     "expected": "balance_limit",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quanto já gastei no de crédito",
+     "lang": "pt",
+     "expected": "balance_limit",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quanto estou devendo no cartão",
+     "lang": "pt",
+     "expected": "balance_limit",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "por qué no me pasa la tarjeta en amazon",
+     "lang": "es",
+     "expected": "decline_reason",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me están rebotando los pagos",
+     "lang": "es",
+     "expected": "decline_reason",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "ayer no pude pagar el taxi con la tarjeta, qué pasó",
+     "lang": "es",
+     "expected": "decline_reason",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "meus pagamentos estão sendo barrados",
+     "lang": "pt",
+     "expected": "decline_reason",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "ontem não consegui pagar o táxi com o cartão, o que houve",
+     "lang": "pt",
+     "expected": "decline_reason",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "hasta qué mes me dura la tarjeta",
+     "lang": "es",
+     "expected": "expiry_renewal",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "ya se me pasó la fecha de la tarjeta?",
+     "lang": "es",
+     "expected": "expiry_renewal",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "até que mês meu cartão dura",
+     "lang": "pt",
+     "expected": "expiry_renewal",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "la banda magnética se dañó, necesito otra",
+     "lang": "es",
+     "expected": "reissue_card",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me pueden emitir otra tarjeta",
+     "lang": "es",
+     "expected": "reissue_card",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "a tarja magnética estragou, preciso de outro",
+     "lang": "pt",
+     "expected": "reissue_card",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "podem emitir outro cartão pra mim",
+     "lang": "pt",
+     "expected": "reissue_card",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quiero que me quiten el bloqueo de la de crédito",
+     "lang": "es",
+     "expected": "unblock_card",
+     "got": "block_card"
+    },
+    {
+     "text": "necesito habilitar la tarjeta que bloqueé",
+     "lang": "es",
+     "expected": "unblock_card",
+     "got": "block_card"
+    },
+    {
+     "text": "quero que tirem o bloqueio do de crédito",
+     "lang": "pt",
+     "expected": "unblock_card",
+     "got": "block_card"
+    },
+    {
+     "text": "preciso habilitar o cartão que bloqueei",
+     "lang": "pt",
+     "expected": "unblock_card",
+     "got": "block_card"
+    },
+    {
+     "text": "el cupo es muy bajito, súbanmelo",
+     "lang": "es",
+     "expected": "limit_increase",
+     "got": "balance_limit"
+    },
+    {
+     "text": "o limite é muito baixo, aumentem",
+     "lang": "pt",
+     "expected": "limit_increase",
+     "got": "balance_limit"
+    },
+    {
+     "text": "hay movimientos que no son míos",
+     "lang": "es",
+     "expected": "fraud_report",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "alguien hizo compras en otro país con mi tarjeta",
+     "lang": "es",
+     "expected": "fraud_report",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "tem movimentações que não são minhas",
+     "lang": "pt",
+     "expected": "fraud_report",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "alguém fez compras em outro país com meu cartão",
+     "lang": "pt",
+     "expected": "fraud_report",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "el hotel me cobró doble",
+     "lang": "es",
+     "expected": "dispute",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quiero impugnar un cobro de una aerolínea",
+     "lang": "es",
+     "expected": "dispute",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me facturaron una suscripción ya cancelada",
+     "lang": "es",
+     "expected": "dispute",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "o hotel me cobrou em dobro",
+     "lang": "pt",
+     "expected": "dispute",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "me cobraram uma assinatura já cancelada",
+     "lang": "pt",
+     "expected": "dispute",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "estoy harto de este banco",
+     "lang": "es",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quiero dejar constancia de mi inconformidad",
+     "lang": "es",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "llevo semanas esperando respuesta",
+     "lang": "es",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "estou cansado deste banco",
+     "lang": "pt",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "quero registrar minha insatisfação",
+     "lang": "pt",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "faz semanas que espero resposta",
+     "lang": "pt",
+     "expected": "complaint",
+     "got": "out_of_scope"
+    },
+    {
+     "text": "comuníqueme con un funcionario",
+     "lang": "es",
+     "expected": "human_agent",
+     "got": "card_status"
+    },
+    {
+     "text": "me coloca com um funcionário",
+     "lang": "pt",
+     "expected": "human_agent",
+     "got": "card_status"
+    }
+   ]
+  }
+ ]
+}

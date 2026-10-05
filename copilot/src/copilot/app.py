@@ -12,6 +12,7 @@ from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 
+from copilot import tracing
 from copilot.config import REPO, Settings
 from copilot.engine import Engine
 from copilot.identity import AuthError
@@ -33,6 +34,7 @@ app = FastAPI(title="LATAM Bank card copilot", version="0.1.0")
 @lru_cache(maxsize=1)
 def engine() -> Engine:
     s = Settings()
+    tracing.setup()
     tools = Tools(s.snapshot, s.store, s.secret, s.confirm_ttl_s)
     llm = LLM(s.llm_model, s.llm_timeout_s) if s.llm_available else None
     return Engine(s, tools, llm=llm)
