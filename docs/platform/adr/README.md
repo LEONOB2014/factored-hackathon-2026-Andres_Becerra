@@ -22,3 +22,4 @@
 | [ADR-018](ADR-018.md) | Model readiness gates and the data-collection audit |
 | [ADR-019](ADR-019.md) | The readiness control plane is the product |
 | [ADR-020](ADR-020.md) | Lateral pipeline expansion: scope × grain |
+| [ADR-021](ADR-021.md) | Serve the copilot from the residency region of its customers |

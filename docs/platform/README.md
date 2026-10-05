@@ -19,7 +19,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [07 ML and graph learning](07_ml_and_graph_learning.md) | fraud ensemble + detector CI + HITL, TGN, federated GNN, MLflow records |
 | [08 Agentic interfaces](08_agentic_interfaces.md) | what the agent module consumes and must log; the card copilot ([`copilot/`](../../copilot/README.md)) is its first implementation |
 | [09 Data and model risk methodology](09_data_and_model_risk_methodology.md) | raw schema forensics without metadata, lossless bronze, cell-level findings, audited correction, drift MRM, keys, segmentation, text |
-| [ADRs](adr/README.md) | twenty architecture decisions, ADR-015 to ADR-020 recording the exploratory phase, the country scopes, the multi-grain star, the readiness gates and the control plane |
+| [ADRs](adr/README.md) | twenty-one architecture decisions, ADR-015 to ADR-021 recording the exploratory phase, the country scopes, the multi-grain star, the readiness gates, the control plane and the regional deployment |
 | [Runbook](runbook.md) | start, run, demo and verify |
 | [Generated dbt lineage](generated/dbt_lineage.md) | zone- and model-level lineage from the manifest |
 | [Phase 3 evidence](evidence/phase3/README.md) | parity, real-data findings and circuit-breaker control behind 09 §C, with the scripts that reproduce them |

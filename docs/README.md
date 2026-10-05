@@ -9,7 +9,7 @@ in the Factored AI & Data Hackathon 2026. Read in this order to follow the proje
 | [`dataset/`](dataset/) | LATAM Bank data dictionary, dataset summary, ERD and backup comparison |
 | [`strategy/`](strategy/README.md) | The data, compliance and AI strategy that came out of the exploratory study (chapters 01–13) |
 | [`platform/`](platform/README.md) | The data platform as built: architecture, flows, audit, privacy, knowledge base, ML, agent interfaces, runbook, evidence |
-| [`platform/adr/`](platform/adr/README.md) | Architecture decisions ADR-001 to ADR-020 |
+| [`platform/adr/`](platform/adr/README.md) | Architecture decisions ADR-001 to ADR-021 |
 | [`development/`](development/README.md) | How we work: git workflow, releasing, data and secrets, remote compute (Modal), approved plans |
 | [`specs/`](specs/) | The original design specs, written before building; each carries a note on what was built instead |
 | [`research/`](research/) | Background research on LATAM banking AI, regulation and modelling |
