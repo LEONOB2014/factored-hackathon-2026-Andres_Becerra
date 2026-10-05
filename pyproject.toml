@@ -111,7 +111,7 @@ include = ["agents*", "backend*", "data_engineering*", "ml*"]
 [tool.ruff]
 target-version = "py311"
 line-length = 100
-src = ["backend", "agents", "ml", "data_engineering", "eda/src", "eda/scripts", "eda/tests", "platform/libs", "platform/airflow/include", "copilot/src", "copilot/tests", "copilot/scripts", "copilot/eval"]
+src = ["backend", "agents", "ml", "data_engineering", "eda/src", "eda/scripts", "eda/tests", "platform/libs", "platform/airflow/include", "platform/services/data_api", "copilot/src", "copilot/tests", "copilot/scripts", "copilot/eval"]
 
 [tool.ruff.lint]
 select = [
@@ -173,7 +173,7 @@ ignore = [
 # --- end data platform ---
 
 [tool.ruff.lint.isort]
-known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda", "latam_platform", "latam_dags", "copilot"]
+known-first-party = ["backend", "agents", "ml", "data_engineering", "latam_eda", "latam_platform", "latam_dags", "copilot", "data_api"]
 
 [tool.mypy]
 python_version = "3.11"

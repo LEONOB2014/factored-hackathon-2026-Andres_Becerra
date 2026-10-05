@@ -7,6 +7,7 @@
         dbt-run dbt-test ml-train ml-serve evals docker-build deploy \
         eda-setup eda-test eda-test-data eda-test-notebooks \
         stack-env stack-copilot stack-data stack-dev stack-stream stack-obs stack-ps stack-down \
+        data-api-dev \
         copilot-setup copilot-test copilot-snapshot copilot-kb copilot-tune copilot-eval copilot-dev copilot-deploy copilot-deploy-gcp
 
 # Default target
@@ -188,6 +189,12 @@ stack-ps: ## Show the stack's containers
 
 stack-down: ## Stop the stack (volumes kept)
 	$(STACK) --profile core --profile graph --profile ml --profile stream --profile obs down
+
+# ==============================================================================
+# BETA AID Data API (platform/services/data_api, its own uv project)
+# ==============================================================================
+data-api-dev: ## Run the read-only Data API on http://127.0.0.1:8090
+	cd platform/services/data_api && uv run uvicorn data_api.app:app --host 127.0.0.1 --port 8090 --reload
 
 # ==============================================================================
 # Card copilot (copilot/, its own uv project)
