@@ -1,0 +1,3 @@
+scenario,test,statistic,p_value,effect,n,reading
+07 session and send,inner event transitions depart from independence (Cramér's V),32.697290116963,0.6264734195053617,0.000739847585181161,9955796,events in random order
+07 session and send,"an error changes purchase odds, given session length (logit)",0.9813072165493312,0.1878267985235076,-0.01886970172628164,297377,only length matters

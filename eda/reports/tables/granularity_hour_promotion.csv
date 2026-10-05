@@ -1,0 +1,12 @@
+model,decision,why
+"dim_time_of_day, dim_process_clock",promote (P0 with ADR-014),the declared clocks as data; every intraday fact needs them
+dim_branch_schedule,"promote, with collected opening days",the coverage dimension behind the teller-hours rule
+dim_agent_shift,promote when rosters exist,today it encodes an assumed roster; real rosters replace it
+fct_case_clock,promote,the regulatory deadline KPI is deterministic and reportable
+"fct_channel_hour, fct_contact_queue_hour",streaming only,monitors per hour; no hourly fact table in the warehouse
+fct_branch_hour,promote as a control input,teller-outside-hours rule; ATM cash stays daily
+fct_agent_hour,"internal, when rosters exist",adherence and occupancy are employee data and need rosters
+fct_session,promote (replaces the gold session date),on the delivery clock; the session is the digital analytics grain
+fct_send_response,promote,response delays per send; send-time models wait for randomised send times
+fct_customer_daypart,keep in the lab,no customer has habits here; re-test on real data
+every hour-grain model,do not deploy,0 green gates; re-run scripts/readiness_check.py as audit items land

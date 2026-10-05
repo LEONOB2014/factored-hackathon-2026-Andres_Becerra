@@ -1,0 +1,53 @@
+scenario,test,statistic,p_value,effect,n,reading,reject,q_value,material,signal
+05 agent and queue,active agents follow the Erlang requirement across hours of the week (Spearman),0.7824959479155736,5.511730210024857e-36,0.7824959479155736,168,mechanical: an agent is active only when given a contact,True,4.0944281560184653e-35,True,True
+06 case clock,AR: SLA flag agrees with the regulatory clock (κ),-0.0023359513753422,0.0,-0.0023359513753422,12831,the flag does not follow the clock,True,0.0,False,False
+06 case clock,CO: SLA flag agrees with the regulatory clock (κ),-0.0009939700253611,0.0,-0.0009939700253611,19444,the flag does not follow the clock,True,0.0,False,False
+06 case clock,MX: SLA flag agrees with the regulatory clock (κ),0.0023626401416241,0.0,0.0023626401416241,31366,the flag does not follow the clock,True,0.0,False,False
+04 branch,"teller outside hours (Monday to Friday), all branches: observed vs schedule-blind",0.6717779105846139,2.3435542145341523e-171,-0.0367065360065712,122149,expected 70.8 % if hours were ignored; observed 67.2 %,True,3.046620478894398e-170,False,False
+04 branch,"teller outside hours (Monday to Friday), Corporate: observed vs schedule-blind",0.670020964360587,3.0684885512484663e-63,-0.0363203606500528,45315,expected 70.6 % if hours were ignored; observed 67.0 %,True,3.191228093298405e-62,False,False
+04 branch,"teller outside hours (Monday to Friday), Express: observed vs schedule-blind",0.6736948898348073,2.129620682271018e-59,-0.0350643168539774,45341,expected 70.9 % if hours were ignored; observed 67.4 %,True,1.8456712579682156e-58,False,False
+04 branch,"teller outside hours (Monday to Friday), Premium: observed vs schedule-blind",0.6739578284052351,1.0782923951511243e-28,-0.0396217078687995,16504,expected 71.4 % if hours were ignored; observed 67.4 %,True,7.008900568482308e-28,False,False
+04 branch,"teller outside hours (Monday to Friday), Main: observed vs schedule-blind",0.6688905197144572,5.1599216030498784e-26,-0.0396318411279383,14989,expected 70.9 % if hours were ignored; observed 66.9 %,True,2.9812880373177074e-25,False,False
+03 market and channel,Branch: decline rate by hour,34.347534432178676,0.0602972099114424,0.0163521163091459,128454,flat,False,0.3131555388217178,False,False
+03 market and channel,CO ATM: flat hours,33.5299806276637,0.0722666628050118,0.0093062993789339,387150,flat,False,0.3131555388217178,False,False
+03 market and channel,CO App: flat hours,33.919433927130534,0.0663321412549615,0.0132456241028957,193332,flat,False,0.3131555388217178,False,False
+02 customer,customers with a preferred hour (share rejecting flat at 1 %),0.0105065782337171,0.1020957308559808,0.0005065782337171,64531,no more than chance,False,0.3948058852921129,False,False
+04 branch,"teller outside hours (every day), Express: observed vs schedule-blind",0.5959947949979048,0.1062938921940304,0.0037319056336061,45341,expected 59.2 % if hours were ignored; observed 59.6 %,False,0.3948058852921129,False,False
+05 agent and queue,Afternoon agents: contacts inside their shift vs the shift's share of the day,0.3348210367405691,0.1319437124016375,0.0014877034072358,227868,shift label unrelated to the work,False,0.45740486965900995,False,False
+03 market and channel,AR Transfer: flat hours,28.61229259172704,0.1935096562809455,0.0408860532435223,17116,flat,False,0.529605375084693,False,False
+03 market and channel,POS: decline rate by hour,28.772561906182126,0.1879690528134832,0.0043777639663532,1501322,flat,False,0.529605375084693,False,False
+06 case clock,elapsed hours to first response by created hour of day (Kruskal–Wallis),29.170829055124862,0.1747126901508584,0.000734670554957,39707,no effect,False,0.529605375084693,False,False
+07 session and send,"an error changes purchase odds, given session length (logit)",0.9813072165493312,0.1878267985235076,-0.0188697017262816,297377,only length matters,False,0.529605375084693,False,False
+03 market and channel,CO Branch: flat hours,27.471068364959702,0.2364460323786648,0.0267224751387272,38470,flat,False,0.5854854135090748,False,False
+03 market and channel,MX POS: flat hours,27.58468876749989,0.2318951412636836,0.0060556657354182,752219,flat,False,0.5854854135090748,False,False
+03 market and channel,AR Web: flat hours,26.107315662349237,0.2958262036983438,0.0142854265577099,127931,flat,False,0.6165753206878664,False,False
+03 market and channel,MX Branch: flat hours,26.15214830429661,0.2937362287094777,0.0201335319662203,64516,flat,False,0.6165753206878664,False,False
+04 branch,ATM transactions: flat hours,26.739592270561378,0.2672098590228897,0.0046721101006937,1224979,flat,False,0.6165753206878664,False,False
+06 case clock,time to first response by priority (log-rank),3.694234430233258,0.2964304426383973,,65191,priority does not speed the answer,False,0.6165753206878664,False,False
+03 market and channel,AR ATM: flat hours,25.490790983830543,0.3254865979043422,0.0099754915084959,256162,flat,False,0.6509731958086845,False,False
+02 customer,daypart concentration vs flat-hours simulation (KS),0.0041942350239595,0.3701644810560432,0.000111379513941,95369,profiles are multinomial noise,False,0.6672794936429095,False,False
+03 market and channel,ATM: decline rate by hour,24.42216297013362,0.3807491967488528,0.0043536318823278,1288489,flat,False,0.6672794936429095,False,False
+03 market and channel,CO Transfer: flat hours,24.20882590781316,0.3923213647365886,0.0305322809835104,25969,flat,False,0.6672794936429095,False,False
+04 branch,"teller outside hours (every day), all branches: observed vs schedule-blind",0.5931935586865222,0.3501142106361102,0.0013153334588631,122149,expected 59.2 % if hours were ignored; observed 59.3 %,False,0.6672794936429095,False,False
+07 session and send,opens happen at a preferred hour of day,24.10885574497621,0.3978012365948115,0.0071427178718795,472552,flat,False,0.6672794936429095,False,False
+03 market and channel,AR POS: flat hours,23.351058697400163,0.4404342413596496,0.0088449558560089,298480,flat,False,0.6707282176147946,False,False
+03 market and channel,MX App: flat hours,23.222430115681313,0.4478465143047259,0.0084956625563496,321746,flat,False,0.6707282176147946,False,False
+03 market and channel,Web: decline rate by hour,23.230673439344574,0.447370094727168,0.0060091351631935,643336,flat,False,0.6707282176147946,False,False
+07 session and send,open within 24 h depends on the send hour,23.160155498107923,0.4514516849330348,0.0043492981905795,1224343,flat,False,0.6707282176147946,False,False
+03 market and channel,AR App: flat hours,21.765795257915165,0.5344258096518761,0.0130249878436943,128298,flat,False,0.714193464195722,False,False
+03 market and channel,AR Branch: flat hours,22.167425789225693,0.5101643505528981,0.0295025945605263,25468,flat,False,0.714193464195722,False,False
+03 market and channel,App: decline rate by hour,22.043683558924137,0.5176158894187045,0.0058534195786557,643376,flat,False,0.714193464195722,False,False
+04 branch,"teller outside hours (every day), Premium: observed vs schedule-blind",0.5966432380029084,0.5356450981467915,-0.00236811278074,16504,expected 59.9 % if hours were ignored; observed 59.7 %,False,0.714193464195722,False,False
+05 agent and queue,Morning agents: contacts inside their shift vs the shift's share of the day,0.3338988831848036,0.5671612290972083,0.0005655498514702,228686,shift label unrelated to the work,False,0.7373095978263708,False,False
+04 branch,"teller outside hours (every day), Corporate: observed vs schedule-blind",0.5901136489021296,0.5961986675091977,0.0012357938872338,45315,expected 58.9 % if hours were ignored; observed 59.0 %,False,0.756154407572641,False,False
+07 session and send,inner event transitions depart from independence (Cramér's V),32.697290116963,0.6264734195053617,0.0007398475851811,9955796,events in random order,False,0.7756337574828288,False,False
+04 branch,"teller outside hours (every day), Main: observed vs schedule-blind",0.5902328374141037,0.6717283733050599,-0.0016984677652499,14989,expected 59.2 % if hours were ignored; observed 59.0 %,False,0.8123226839968166,False,False
+06 case clock,elapsed hours to first response by created weekday (Kruskal–Wallis),3.861196963393089,0.6954536937596087,9.72446724271669e-05,39707,no effect,False,0.8218998198977195,False,False
+03 market and channel,CO POS: flat hours,17.680746433271274,0.7745687075274679,0.0062638827617262,450623,flat,False,0.8676282769502653,False,False
+03 market and channel,MX ATM: flat hours,17.16878159016828,0.8008876402617834,0.0051585815383494,645177,flat,False,0.8676282769502653,False,False
+03 market and channel,Transfer: decline rate by hour,17.443276407870364,0.7869481285787099,0.014204271794176,86455,flat,False,0.8676282769502653,False,False
+07 session and send,send-to-open delay is uniform over the window (KS),0.0009587388652549,0.777465000711808,0.0009587388652549,472552,uniform delay,False,0.8676282769502653,False,False
+03 market and channel,CO Web: flat hours,15.99692664901088,0.855400256961436,0.0091053576819043,192949,flat,False,0.8896162672398934,False,False
+05 agent and queue,Night agents: contacts inside their shift vs the shift's share of the day,0.3336284254154762,0.845298875595504,0.0002950920821429,99404,shift label unrelated to the work,False,0.8896162672398934,False,False
+03 market and channel,MX Transfer: flat hours,14.876919529628776,0.8989905339517041,0.0185208875905433,43370,flat,False,0.9054253720703282,False,False
+03 market and channel,MX Web: flat hours,14.68921031086412,0.9054253720703282,0.0067493817560439,322456,flat,False,0.9054253720703282,False,False
