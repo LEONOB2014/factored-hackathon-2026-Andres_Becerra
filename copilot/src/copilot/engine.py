@@ -700,7 +700,7 @@ class Engine:
                     "score": round(c.score, 3),
                     "text": c.content,
                 }
-                for c in (retrieval.chunks if retrieval else [])
+                for c in _rank_for_queue(retrieval.chunks if retrieval else [], queue)
                 if c.score >= self.kb_threshold
             ][:3],
         }
@@ -746,6 +746,15 @@ class Engine:
             latency_ms=reply.trace["latency_ms"],
         )
         return reply
+
+
+# the documents that govern each handoff queue: the agent sees them first among the matching procedures
+QUEUE_DOCS = {"disputes": ("pol-card-dispute",), "fraud": ("pol-card-dispute",)}
+
+
+def _rank_for_queue(chunks: list, queue: str) -> list:
+    preferred = QUEUE_DOCS.get(queue, ())
+    return sorted(chunks, key=lambda c: (c.doc_id not in preferred, -c.score))
 
 
 def _close(root, reply: Reply) -> None:
