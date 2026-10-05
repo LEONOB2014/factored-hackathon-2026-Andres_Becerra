@@ -66,7 +66,7 @@ image = (
     .add_local_file(ATLAS, "/app/atlas.html")
 )
 
-app = modal.App("latam-card-copilot", image=image)
+app = modal.App("beta-aid-copilot", image=image)
 volume = modal.Volume.from_name("copilot-data")
 secret_name = os.environ.get("COPILOT_MODAL_SECRET")
 

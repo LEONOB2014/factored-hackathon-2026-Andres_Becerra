@@ -6,6 +6,8 @@ general policy questions from the governed knowledge base with citations, and ha
 packet that saves them from asking again. It is the first consumer of the readiness control plane (ADR-019): the
 Grain Atlas is served at `/atlas`.
 
+**Live:** https://aleonardobecerra--beta-aid-copilot-web.modal.run (Modal; demo customers sign in with the test code shown on the page).
+
 ## Decision rights (RAPID)
 
 | Role | Who | What it may do |

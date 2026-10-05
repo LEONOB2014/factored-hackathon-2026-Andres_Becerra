@@ -8,6 +8,8 @@
 
 [![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
 
+**Live demo:** [aleonardobecerra--beta-aid-copilot-web.modal.run](https://aleonardobecerra--beta-aid-copilot-web.modal.run). Sign in as one of the demo customers with the test code shown on the page; the Grain Atlas is at [`/atlas`](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas).
+
 LATAM Bank is the hackathon's synthetic bank (Mexico, Colombia, Argentina; 13 tables). BETA AID is what we built for
 it: the data platform that makes its data trustworthy, the readiness control plane that decides which models the data
 can support, and the copilot that serves its customers.
