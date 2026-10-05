@@ -317,9 +317,17 @@ export interface IntentHeldOut {
   coverage_at_threshold?: number;
   accuracy_when_confident?: number;
 }
+export interface IntentTuning {
+  params?: { threshold?: number } & Record<string, unknown>;
+  cv_macro_f1?: number;
+  oof_coverage_at_threshold?: number;
+  target_precision?: number;
+  mlflow_run_id?: string;
+  tuned_at?: string;
+}
 export interface Evaluation {
   runs: EvalRun[];
-  intent_model: { tuning: Record<string, unknown>; held_out: IntentHeldOut[] } | null;
+  intent_model: { tuning: IntentTuning; held_out: IntentHeldOut[] } | null;
   retrieval: Record<string, Record<string, number>>;
 }
 // One point of an interval chart: a rate and its interval for one run × variant.

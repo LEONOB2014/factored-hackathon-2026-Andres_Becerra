@@ -6,6 +6,7 @@ import { headlineRun, intervalPoints } from "@/services/evaluation";
 import { RATE_METRICS, type EvalBlock, type Rate, type RateMetric, type UnsafeCase } from "@/services/types";
 import { AutonomyBadge, IntervalBar, Mono, OutcomeBadge, PageHeader, StatusBadge } from "@/components/beta/badges";
 import { IntervalChart } from "@/components/beta/plots";
+import { ModelEvals } from "@/components/beta/ModelEvals";
 import { TracePanel } from "@/components/beta/TracePanel";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -64,7 +65,7 @@ function SupervisorPage() {
         {tx("KPIs del challenge set congelado, servidos por el copiloto (/api/control/evaluation). Intervalos de Wilson al 95 %.", "KPIs do challenge set congelado, servidos pelo copiloto (/api/control/evaluation). Intervalos de Wilson a 95 %.", "KPIs from the frozen challenge set, served by the copilot (/api/control/evaluation). Wilson 95% intervals.")}
       </PageHeader>
       <Tabs defaultValue="kpis">
-        <TabsList><TabsTrigger value="kpis">KPIs</TabsTrigger><TabsTrigger value="policy">{tx("Política", "Política", "Policy")}</TabsTrigger></TabsList>
+        <TabsList><TabsTrigger value="kpis">KPIs</TabsTrigger><TabsTrigger value="models">{tx("Modelos", "Modelos", "Models")}</TabsTrigger><TabsTrigger value="policy">{tx("Política", "Política", "Policy")}</TabsTrigger></TabsList>
         <TabsContent value="kpis" className="mt-4 space-y-6">
           {ev.isLoading && <p className="text-sm text-muted-foreground">{tx("Cargando la evaluación…", "Carregando a avaliação…", "Loading the evaluation…")}</p>}
           {ev.isError && <div className="panel p-4 text-sm text-blocked">{tx("No se pudo leer /api/control/evaluation", "Não foi possível ler /api/control/evaluation", "Could not read /api/control/evaluation")}: <Mono>{ev.error instanceof Error ? ev.error.message : String(ev.error)}</Mono></div>}
@@ -176,6 +177,9 @@ function SupervisorPage() {
               </tbody>
             </table>
           </div>
+        </TabsContent>
+        <TabsContent value="models" className="mt-4">
+          {ev.data ? <ModelEvals intent={ev.data.intent_model} retrieval={ev.data.retrieval} /> : <p className="text-sm text-muted-foreground">{ev.isError ? tx("No se pudo leer /api/control/evaluation", "Não foi possível ler /api/control/evaluation", "Could not read /api/control/evaluation") : tx("Cargando la evaluación…", "Carregando a avaliação…", "Loading the evaluation…")}</p>}
         </TabsContent>
         <TabsContent value="policy" className="mt-4 grid gap-4 lg:grid-cols-[3fr_2fr]">
           {pol.isError && <div className="panel p-4 text-sm text-blocked lg:col-span-2">{tx("No se pudo leer /api/policy", "Não foi possível ler /api/policy", "Could not read /api/policy")}: <Mono>{pol.error instanceof Error ? pol.error.message : String(pol.error)}</Mono></div>}
