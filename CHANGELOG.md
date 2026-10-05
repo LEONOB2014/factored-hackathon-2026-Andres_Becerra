@@ -6,6 +6,60 @@ All notable changes to this project are documented here. The format follows
 Entries are generated from Conventional Commits by commitizen; see
 [docs/development/releasing.md](docs/development/releasing.md).
 
+## v0.4.0 (2026-10-05)
+
+### Highlights
+
+- **BETA AID.** The project is now *BETA AID: Banking Evolutionary Transformation and AI Deployment*. Visible names
+  changed; code identifiers (`latam_*`, `LATAM_*`, the `latam-platform` stack) did not.
+- **The card-service copilot** (`copilot/`): Spanish and Portuguese card support for LATAM Bank.
+  - The model recommends, a versioned policy agrees or vetoes (A0 answer, A2 confirm, A3 hand off; nine card
+    vetoes), tools act only on the session customer's cards, and a person decides fraud, limits, disputes and
+    complaints.
+  - Controls outside the model: card-number masking, an injection and cross-customer guard, HMAC sessions with
+    step-up, a two-step confirmation with idempotency and read-back, grounded rephrasing, handoff packets,
+    per-turn traces and a hash-chained audit log.
+- **Held-out evaluation, frozen before scoring** (`copilot/eval`):
+  - 120 ES/PT cases: 0.950 correct for the learned model against 0.875 for a keyword router, 1/27 missed and 0/63
+    unnecessary transfers, 1 unsafe outcome reported (a Portuguese injection the guard missed);
+  - intent model 0.818 against 0.576 for keywords, tuned with Optuna and tracked in MLflow;
+  - retrieval hit@3 0.94, with zero retired or expired documents returned.
+- **RAG and GraphRAG over the governed knowledge base.** pgvector through `kb.active_chunk`, Neo4j over active
+  versions, and a bundled index proven identical to both. Customers see public documents only; internal procedures go
+  to the agent.
+- **Lateral pipelines** (ADR-015 to ADR-020): the exploratory record; country scopes cut at bronze; the multi-grain
+  star as a dbt layer (33 models, 87 contract tests); readiness gates; one Airflow DAG per scope.
+- **Deployed:**
+  - Modal: https://aleonardobecerra--beta-aid-copilot-web.modal.run
+  - per residency region on Cloud Run (ADR-021): Mexico in Querétaro, Colombia and Argentina in São Paulo, each
+    holding only its countries' data;
+  - every deployment passes the 16-check `eval/live_check.py`.
+
+### Upgrade notes
+
+- No breaking change. The copilot is its own uv project: `make copilot-setup && make copilot-test`.
+- New `make` targets per development stage (`stack-copilot`, `stack-dev`, …) and for the copilot (`copilot-*`).
+- `COPILOT_SANDBOX` (on by default) keeps a demo visitor's confirmed actions inside their session.
+
+### Docs, tests and build
+
+- **docs**: the root README rewritten for the project as built; documentation indexes; ADR-015 to ADR-021; status notes
+  on the original specs.
+- **test**: the frozen challenge set and its first scored run; the copilot CI job.
+- **build**: make targets per stage; Modal and Cloud Run deployments.
+
+### Feat
+
+- **agents**: deploy the copilot per residency region on Cloud Run
+- **agents**: add the Modal deployment and harden start-up
+- **agents**: answer policy questions from the governed knowledge base
+- **ml**: tune the intent model with Optuna, tracked in MLflow
+- **agents**: add the card-service copilot core
+- **airflow**: build each country scope with the same pipeline
+- **dbt**: add the aggregate grains as a gold layer
+- **platform**: cut country scopes from bronze before silver
+- **eda**: add the grain atlas and the data atlas sources (#33)
+
 ## v0.3.0 (2026-10-05)
 
 ### Highlights
