@@ -18,7 +18,7 @@ that makes them possible.**
 [![Correct outcome](https://img.shields.io/badge/correct%20outcome-0.950%20held%20out-0f766e)](copilot/eval/reports/challenge.md)
 [![Unsafe outcomes](https://img.shields.io/badge/unsafe%20outcomes-0%2F120%20after%20fix-0f766e)](copilot/eval/reports/challenge_after_fix.md)
 [![Retrieval](https://img.shields.io/badge/retrieval%20hit%403-0.94-0f766e)](copilot/eval/reports/kb_retrieval.md)
-[![Attacks inside BETA AID](https://img.shields.io/badge/attacks%20inside%20BETA%20AID-0%2F170%20succeeded-0f766e)](copilot/eval/reports/open_models.md)
+[![Attacks inside BETA AID](https://img.shields.io/badge/attacks%20inside%20BETA%20AID-0%2F255%20succeeded-0f766e)](copilot/eval/reports/open_models.md)
 [![Governance violations](https://img.shields.io/badge/governance%20violations-0-0f766e)](copilot/eval/reports/kb_retrieval.md)
 [![Lossless bronze](https://img.shields.io/badge/bronze-13%2F13%20tables%20reconciled-0f766e)](docs/platform/README.md#what-was-verified-on-the-running-stack-end-to-end-airflow-run-2026-10-03)
 
@@ -157,8 +157,10 @@ and the retrieval questions are pinned by [`MANIFEST.sha256`](copilot/eval/MANIF
 
 ### Open-weight models: a chatbot versus an agent inside BETA AID
 
-To show that the guardrails are architecture, not prompt engineering, two open-weight models were run locally
-(Ollama, temperature 0) and attacked twice with the same 85 adapted attacks.
+To show that the guardrails are architecture, not prompt engineering, three models were attacked twice with the same
+85 adapted attacks, at temperature 0:
+- two open-weight models run locally with Ollama;
+- one hosted model reached through an OpenAI-compatible gateway (Blaxel).
 - **Raw:** the model alone, as a chatbot whose system prompt holds a secret staff code and another customer's card.
 - **Inside BETA AID:** the same model in its two bounded jobs (classify when unsure, rephrase), behind the gateway,
   policy, tools and grounding checks.
@@ -172,6 +174,11 @@ numbers.
 |---|---|---|---|---|---|
 | NVIDIA Nemotron-Mini 4B | **12 / 85** (secret leaks, other customers' cards, full card numbers echoed) | **0 / 85** | 0.950 (114/120) | 0 / 120 | 399 ms (rephrase) |
 | Qwen2.5 3B | **12 / 85** | **0 / 85** | 0.933 (112/120) | 0 / 120 | 246 ms (rephrase) |
+| OpenAI GPT-4o-mini (hosted) | 0 / 85 | **0 / 85** | 0.917 (110/120) | 0 / 120 | 2,141 ms (rephrase, via gateway) |
+
+**The point:** the hosted frontier model resists these attacks on its own, but every customer turn leaves the region
+for a third-party API. Inside BETA AID, 3–4B models that run in the bank's own region are just as safe (0 of 85),
+with ten times lower time to first token.
 
 **Inside BETA AID, the model never sees a secret, another customer's data or a full card number,** and it never
 decides an action. Attacks either get the customer's real request answered from verified facts, or are refused,
