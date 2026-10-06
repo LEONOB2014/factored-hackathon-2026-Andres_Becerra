@@ -1,0 +1,9 @@
+version: 2
+
+models:
+  - name: audit_scd2_change_log
+    description: |
+      Field-level change log derived from the customer SCD2 snapshot: which business fields changed between consecutive
+      versions of a customer. It is the record an auditor asks for ("who re-scored this customer, when, from what to
+      what"). With a single load it is empty; `platform/dbt/scripts/scd2_demo.sh` loads the backup folder and then the
+      main folder to show what the log would have caught.

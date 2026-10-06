@@ -1,0 +1,249 @@
+version: 2
+
+models:
+  - name: dim_customer
+    description: |
+      Customer dimension, **SCD Type 2** from the `snap_customers` snapshot, pseudonymised: tokens only, no names or
+      documents. One row per customer version.
+
+      `customer_sk` hashes the version number rather than the snapshot time, so a rebuild from the same history gives
+      the same keys. Facts reach the attributes valid at their time through `customer_sk` (point-in-time join).
+
+      Known source findings (rule catalog `dq_rule_slo`):
+      - customers under 18 at registration (R05);
+      - `last_updated` after the end of the data (R06);
+      - a registration branch that does not exist (R23, 100 %).
+    columns:
+      - name: customer_sk
+        description: Surrogate key of one customer version (stable across rebuilds).
+      - name: customer_id
+        description: "{{ doc('col_customer_id') }}"
+      - name: version_no
+        description: Version number of the customer within its SCD2 history (1 = first observed).
+      - name: document_token
+        description: Token of the identity document; the document itself stays in silver.
+      - name: segment
+        description: Commercial segment of the customer in this version.
+      - name: credit_score
+        description: Credit score in this version.
+      - name: accepts_marketing
+        description: |
+          Marketing consent flag in this version. Sends to customers without valid consent are flagged by rule R21
+          and gated by the consent policy.
+      - name: valid_from
+        description: "{{ doc('col_scd2_validity') }}"
+      - name: valid_to
+        description: End of validity (exclusive); NULL for the current version.
+      - name: is_current
+        description: TRUE for the latest version of the customer.
+
+  - name: dim_product
+    description: |
+      Product dimension (accounts, cards, loans, investments, insurance), **SCD Type 2** from `snap_products`, with the
+      same validity convention as `dim_customer`.
+
+      Known findings:
+      - about half of the products were opened before their customer registered (R02, 49.9 %);
+      - cards still active after their expiration date (R22, 14.2 %): these feed the copilot's reissue rules.
+    columns:
+      - name: product_sk
+        description: Surrogate key of one product version.
+      - name: product_id
+        description: Product business key.
+      - name: customer_id
+        description: "{{ doc('col_customer_id') }}"
+      - name: product_family
+        description: Family of the product (for example credit_card, debit_card, loan, savings).
+      - name: is_credit_product
+        description: TRUE for credit products (credit cards, loans), which may carry a credit limit and days past due.
+      - name: credit_limit
+        description: Credit limit in the product currency (credit products only; rule R08 flags it elsewhere).
+      - name: expiration_date
+        description: Card or product expiration date.
+      - name: days_past_due
+        description: Days past due in this version (credit products only; rule R09 flags it elsewhere).
+      - name: valid_from
+        description: "{{ doc('col_scd2_validity') }}"
+      - name: is_current
+        description: TRUE for the latest version of the product.
+
+  - name: dim_country
+    description: |
+      The bank's markets, with each one's home currency, UTC offset and the **residency region** its customers'
+      personal data may live in.
+
+      The mapping mirrors `platform/policies/residency.yaml` (ADR-007). Colombia and Argentina have no in-country
+      region; their proposed region (São Paulo) awaits legal sign-off.
+    columns:
+      - name: country_code
+        description: ISO country code (MX, CO, AR).
+      - name: residency_region
+        description: Cloud region allowed for the country's personal data (ADR-007).
+      - name: is_bank_market
+        description: TRUE for the countries where the bank serves customers.
+
+  - name: dim_date
+    description: |
+      Calendar dimension, one row per day. It covers the data range plus forward dates so SLA deadlines can be
+      computed. `is_historical_zone` separates the history from the streamed holdout period.
+    columns:
+      - name: date_key
+        description: The day (primary key).
+      - name: is_weekend
+        description: TRUE on Saturday and Sunday (calendar weekend, not the country holiday calendar; see the
+          `seed_country_calendar` seed used by the aggregates).
+
+  - name: dim_agent
+    description: |
+      Contact-centre agents without direct identifiers: names, email and phone stay in silver. The agents' assigned
+      branch is missing from the branch master in most rows (R24, 69.3 %).
+    columns:
+      - name: agent_id
+        description: Agent business key.
+      - name: avg_csat
+        description: Average customer satisfaction of the agent as delivered by the source (not recomputed).
+
+  - name: dim_branch
+    description: Bank branches and their ATM and teller capacity, with location and status.
+    columns:
+      - name: branch_id
+        description: Branch business key.
+      - name: country_code
+        description: Country of the branch.
+
+  - name: dim_campaign
+    description: Marketing campaigns, with objective, promoted product, target segment and country, dates and budget.
+    columns:
+      - name: campaign_id
+        description: Campaign business key.
+
+  - name: dim_merchant
+    description: |
+      Merchants derived from transactions; the source has no merchant master. There are 24 merchants, drawn uniformly
+      by the generator, so "which merchant next" carries no signal (chapter 07, the temporal graph result).
+    columns:
+      - name: merchant_id
+        description: Merchant key derived from the merchant name.
+
+  - name: fct_transaction
+    description: |
+      Transaction fact, one row per transaction, with conformed keys. Customer and product attributes as they were at
+      transaction time are reached through `customer_sk` and `product_sk` (SCD2, point-in-time).
+
+      **Read before modelling fraud:** `fraud_score` is a leaked label. In the exploratory study, `fraud_score >= 35`
+      means `is_fraud` in 100 % of cases, while the behavioural features alone are at chance. So `fraud_score` must
+      never be a feature (ADR-012, chapter 07).
+
+      Data-quality flags `dq_r01`…`dq_r19` follow the rule catalog. For example, every Mexican transaction is labelled USD
+      (R17; no MXN exists, about half of all transactions), and 18.7 % are dated before their product was opened (R01).
+    columns:
+      - name: transaction_id
+        description: Transaction business key (primary key).
+      - name: transaction_ts_utc
+        description: "{{ doc('col_ts_utc') }}"
+      - name: process_date
+        description: "{{ doc('col_process_date') }}"
+      - name: customer_id
+        description: "{{ doc('col_customer_id') }}"
+      - name: customer_sk
+        description: Customer version valid at the transaction time (point-in-time join to `dim_customer`).
+      - name: product_sk
+        description: Product version valid at the transaction time (point-in-time join to `dim_product`).
+      - name: amount_usd
+        description: "{{ doc('col_amount_usd') }}"
+      - name: response_code
+        description: Authorisation response code. Its meaning and suggested action come from the `response_codes`
+          reference.
+      - name: is_fraud
+        description: Fraud label as delivered by the source. It is derived from `fraud_score` (leak), so it is not a
+          behavioural target.
+      - name: fraud_score
+        description: "Legacy fraud score delivered by the source. **Leaked label: never use it as a feature.**"
+      - name: dq_r01_before_product_open
+        description: "{{ doc('col_dq_flag') }} R01: transaction dated before the product was opened."
+      - name: dq_r17_mx_usd_label
+        description: "{{ doc('col_dq_flag') }} R17: USD label on a Mexican customer's transaction."
+      - name: date_key
+        description: "{{ doc('col_date_key') }}"
+
+  - name: fct_interaction
+    description: |
+      Contact-centre interaction fact, one row per contact (calls, chat, email, messaging), on the contacts' clock
+      (−8 h, ADR-014).
+
+      The customer's detected accent is a proxy for region or ethnicity, so it stays in silver for fairness analysis
+      only. The agent's accent and the match flag are operational QA attributes. Call transcripts reduce to a few
+      templates with unrendered placeholders (R27), so they carry no free text worth modelling.
+    columns:
+      - name: interaction_id
+        description: Interaction business key (primary key).
+      - name: interaction_ts_utc
+        description: "{{ doc('col_ts_utc') }}"
+      - name: process_date
+        description: "{{ doc('col_process_date') }}"
+      - name: contact_reason
+        description: Reason of the contact as recorded by the agent.
+      - name: duration_seconds
+        description: Handle time of the contact in seconds.
+      - name: wait_time_seconds
+        description: Customer wait before being attended, in seconds.
+      - name: was_resolved
+        description: TRUE when the contact was resolved in the interaction.
+      - name: was_escalated
+        description: TRUE when the contact was escalated.
+      - name: date_key
+        description: "{{ doc('col_date_key') }}"
+
+  - name: fct_complaint
+    description: |
+      Complaint fact, one row per complaint case, on the complaints' clock (−8 h, ADR-014), with assignment, first
+      response, resolution and SLA fields.
+
+      **`affected_product_id` must not be used for linkage:** in every non-null case it points to another customer's
+      product (R25, flagged by `dq_r25_product_not_owned`).
+    columns:
+      - name: complaint_id
+        description: Complaint business key (primary key).
+      - name: created_ts_utc
+        description: "{{ doc('col_ts_utc') }}"
+      - name: process_date
+        description: "{{ doc('col_process_date') }}"
+      - name: sla_breached
+        description: SLA breach flag as delivered by the source (rule R13 flags breaches resolved within 5 days).
+      - name: dq_r25_product_not_owned
+        description: "{{ doc('col_dq_flag') }} R25: the affected product belongs to a different customer."
+      - name: date_key
+        description: "{{ doc('col_date_key') }}"
+
+  - name: fct_campaign_send
+    description: |
+      Campaign send fact, one row per send, with delivery, open, click and conversion outcomes, on the sends' clock
+      (−6 h).
+
+      Voice and WhatsApp record no opens, so their conversions cannot be attributed (granularity series II). Sends to
+      customers without marketing consent are flagged by rule R21.
+    columns:
+      - name: send_id
+        description: Send business key (primary key).
+      - name: process_date
+        description: "{{ doc('col_process_date') }}"
+      - name: had_conversion
+        description: TRUE when the send led to a conversion.
+      - name: date_key
+        description: "{{ doc('col_date_key') }}"
+
+  - name: fct_digital_session
+    description: |
+      Digital session fact, one row per session (app and web), built from digital events. IP addresses are tokenised,
+      because an IP is personal data under LGPD.
+
+      About a quarter of events carry no customer id (R20). Those sessions are anonymous and are placed by IP country.
+    columns:
+      - name: session_id
+        description: Session key (primary key).
+      - name: session_start_utc
+        description: "{{ doc('col_ts_utc') }}"
+      - name: ip_token
+        description: Token of the IP address (the IP itself is personal data and stays out of gold).
+      - name: date_key
+        description: "{{ doc('col_date_key') }}"

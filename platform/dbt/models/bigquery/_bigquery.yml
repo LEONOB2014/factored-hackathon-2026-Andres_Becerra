@@ -1,0 +1,18 @@
+version: 2
+
+# BigQuery targets (bq_mx, bq_br) are designed and not applied (ADR-006). These models build only on those targets.
+models:
+  - name: bq_customer_360_by_country
+    description: |
+      Authorised view over the published customer 360 for the cloud analytics layer. Row access policies (Terraform
+      module `bigquery`) restrict each analyst group to its country, and policy tags enforce column-level security
+      (ADR-006, ADR-007). Designed, not applied.
+  - name: bq_dp_complaints_country_month
+    description: |
+      Differentially private complaint statistics for cross-country or external release, using BigQuery's native DP
+      clause. The privacy unit is the customer, who contributes to at most 3 groups. Epsilon and delta per query are
+      charged against the dataset's DP analysis-rule budget (ADR-009). Designed, not applied.
+  - name: bq_fraud_kpis_daily
+    description: |
+      Daily fraud and decline KPIs per country and channel for dashboards, built only on the BigQuery targets. The
+      lakehouse equivalent is `fct_transaction`. Designed, not applied.

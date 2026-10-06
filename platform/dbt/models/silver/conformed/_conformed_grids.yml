@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: int_customer_month_tx
+    description: |
+      Dense customer × month grid of transaction aggregates (inflows, outflows, payments, cash, counts), in USD with
+      exact sums. Months without activity are zero rows, which rolling windows need. Shared by the credit, AML and
+      collections marts.
+  - name: int_transactions_enriched_with_holdout
+    description: |
+      Historical plus holdout transactions, enriched with the same macro as `int_transactions_enriched`. It exists only
+      so the stream parity model can compute batch features for the replayed slice with the full history in its
+      windows (ADR-005). `_zone` tells the two apart.
