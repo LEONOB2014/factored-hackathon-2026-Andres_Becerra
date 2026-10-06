@@ -62,11 +62,23 @@ That is the product: **measure → diagnose → prescribe → fix → re-judge �
 governed model or produces a data requirement with an owner, an acceptance test and the threshold that turns it green.
 The first product off the line is a card-service copilot, because card support was the decision the data could support.
 
-## The product: the Grain Atlas
+## The product: a decision dashboard and an auditor agent
 
-The [**Grain Atlas**](https://beta-aid-grain-atlas.netlify.app) is where the factory becomes visible: the same 23.5
-million records read four ways (as delivered, cut by country, rolled up to the day and the campaign cell, re-grained to
-the hour), each with its data, findings, pipeline, walkthrough and decisions.
+BETA AID has three parts, in order of importance:
+1. **The decision dashboard, the [Grain Atlas](https://beta-aid-grain-atlas.netlify.app).** Insights at every level of
+   granularity, backed by rigorous statistics, justify each decision about what the data can support. The statistics
+   are out-of-time training, bootstrapped gains over a transparent benchmark with 95 % intervals, a materiality
+   threshold, the minimum detectable effect and false-discovery-rate control.
+2. **The auditor agent.** It turns every gate that fails into a data-quality document: the root cause, what the source
+   must collect, the owner, the acceptance test on a new feed and the threshold that turns it green. Those documents are
+   meant to trigger, in practical terms, the generation of new and better data.
+   - **Today:** the documents are produced by the readiness scorecard (ADR-018) and listed in the Atlas audit table.
+   - **Prototype:** the agent workflow is in the console's *Data quality & audit agents* and *Spec-driven delivery*
+     screens, on labelled demo data.
+3. **The products the data can support,** starting with the card-service copilot below.
+
+The Atlas reads the same 23.5 million records four ways: as delivered, cut by country, rolled up to the day and the
+campaign cell, and re-grained to the hour. Each grain has its data, findings, pipeline, walkthrough and decisions.
 
 <p align="center"><img src="docs/assets/atlas/grain-atlas.png" alt="Grain Atlas mission control: four grains, one bank, with the atlas map of every view and its verdict" width="100%"></p>
 
