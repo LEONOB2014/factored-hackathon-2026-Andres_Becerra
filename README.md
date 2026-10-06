@@ -9,7 +9,7 @@ for the data and, where the data is ready, a governed AI product. We don't build
 that makes them possible.**
 
 [![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.5.0-2563eb)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.6.0-2563eb)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/en/v1.0.0/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-FAB040?logo=pre-commit&logoColor=white)](.pre-commit-config.yaml)

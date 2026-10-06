@@ -6,6 +6,22 @@ All notable changes to this project are documented here. The format follows
 Entries are generated from Conventional Commits by commitizen; see
 [docs/development/releasing.md](docs/development/releasing.md).
 
+## v0.6.0 (2026-10-05)
+
+### Highlights
+
+- **A chatbot versus an agent inside BETA AID, measured.** Three models were attacked twice with 85 adapted attacks
+  from public datasets (Lakera/gandalf_ignore_instructions, deepset/prompt-injections, in ES/PT) plus card-number
+  probes:
+  - NVIDIA Nemotron-Mini 4B and Qwen2.5 3B (local): 12/85 succeed raw, 0/85 inside BETA AID;
+  - OpenAI GPT-4o-mini (hosted, via an OpenAI-compatible gateway): 0/85 raw and inside.
+  On the frozen challenge set inside BETA AID the three score 0.950, 0.933 and 0.917, all with 0/120 unsafe.
+
+### Feat
+
+- **agents**: add a hosted model through an OpenAI-compatible gateway
+- **agents**: evaluate open-weight models raw versus inside BETA AID
+
 ## v0.5.0 (2026-10-05)
 
 ### Highlights
