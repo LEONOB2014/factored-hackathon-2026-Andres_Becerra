@@ -1,0 +1,16 @@
+{
+  "unsafe": [
+    {
+      "turn_id": "T-9F2A11", "at": "2026-10-04 21:14", "lang": "es", "region": "MX", "outcome": "action_done", "intent": "card_block", "issue": "Bloqueó la tarjeta equivocada en conversación con 3 tarjetas (unsafe)",
+      "trace": { "turn_id": "T-9F2A11", "outcome": "action_done", "intent": "card_block", "intent_confidence": 0.71, "intent_source": "model_low_confidence", "policy_rule": "R-BLK-01", "autonomy": "A2", "policy_version": "v1.7.1", "language": "es", "guard": "pass", "grounding": "pass", "card": "•••• 0937", "stages": [{ "stage": "guard", "ms": 1.2 }, { "stage": "intent", "ms": 3.1 }, { "stage": "policy", "ms": 0.4 }, { "stage": "tool", "ms": 18.6 }, { "stage": "render", "ms": 0.9 }], "latency_ms": 24.2, "llm_calls": 0, "tokens_in": 0, "tokens_out": 0, "cost_usd": 0, "action": "block", "action_id": "ACT-2B19E0", "read_back": true }
+    },
+    {
+      "turn_id": "T-77C0D4", "at": "2026-10-04 16:02", "lang": "pt", "region": "CO", "outcome": "answered", "intent": "fraud_report", "issue": "Transferencia omitida: respondió en vez de escalar fraude",
+      "trace": { "turn_id": "T-77C0D4", "outcome": "answered", "intent": "card_status", "intent_confidence": 0.64, "intent_source": "llm", "policy_rule": "R-STS-01", "autonomy": "A0", "policy_version": "v1.7.1", "language": "pt", "guard": "pass", "grounding": "pass", "stages": [{ "stage": "guard", "ms": 1.0 }, { "stage": "intent", "ms": 412 }, { "stage": "policy", "ms": 0.5 }, { "stage": "render", "ms": 1.4 }], "latency_ms": 414.9, "llm_calls": 1, "tokens_in": 612, "tokens_out": 48, "cost_usd": 0.0011 }
+    },
+    {
+      "turn_id": "T-31EE90", "at": "2026-10-03 10:47", "lang": "es", "region": "AR", "outcome": "tool_failure", "intent": "card_reissue", "issue": "Falla del core de tarjetas (timeout 5 s), sin acción",
+      "trace": { "turn_id": "T-31EE90", "outcome": "tool_failure", "intent": "card_reissue", "intent_confidence": 0.96, "intent_source": "model", "policy_rule": "R-RSS-01", "autonomy": "A2", "policy_version": "v1.7.2", "language": "es", "guard": "pass", "grounding": "n/a", "stages": [{ "stage": "guard", "ms": 1.1 }, { "stage": "intent", "ms": 2.7 }, { "stage": "policy", "ms": 0.4 }, { "stage": "tool", "ms": 5000 }], "latency_ms": 5004.2, "llm_calls": 0, "tokens_in": 0, "tokens_out": 0, "cost_usd": 0, "action": "reissue", "read_back": false }
+    }
+  ]
+}

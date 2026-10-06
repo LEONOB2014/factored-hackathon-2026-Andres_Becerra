@@ -127,6 +127,9 @@ class Engine:
             settings.stepup_ttl_s, tools.known_customer,
         )  # fmt: skip
         self.convs: dict[str, Conversation] = {}
+        self.handoffs: dict[
+            str, dict
+        ] = {}  # staff view: handoff id -> case (packet, status, timeline)
         self.threshold = settings.intent_threshold or getattr(self.intent, "threshold", 0.55)
         self.kb, self.kb_threshold = (
             kb,
@@ -636,6 +639,39 @@ class Engine:
         card = self.tools.card(sess, ps["product_id"])
         return new, self._ask_confirm(sess, conv, ps["action"], card, tr, "[step-up]")
 
+    # --- staff: the agent desk ------------------------------------------------------------------------------------
+    TRANSITIONS = {
+        "accepted": {"new", "returned"},
+        "approval_requested": {"accepted"},
+        "approved": {"approval_requested"},
+        "rejected": {"approval_requested"},
+        "resolved": {"accepted", "approved", "rejected"},
+        "returned": {"new", "accepted"},
+    }
+
+    def update_handoff(self, handoff_id: str, status: str, actor: str, note: str = "") -> dict:
+        """Move a case through the desk. Approval needs a second person (four eyes); the trail is hash-chained."""
+        case = self.handoffs.get(handoff_id)
+        if case is None:
+            raise KeyError(handoff_id)
+        if status not in self.TRANSITIONS or case["status"] not in self.TRANSITIONS[status]:
+            raise ValueError(f"cannot move from {case['status']} to {status}")
+        actor = actor.strip()
+        if not actor:
+            raise ValueError("actor required")
+        if status == "approval_requested":
+            case["proposer"] = actor
+        if status in ("approved", "rejected") and actor == case["proposer"]:
+            raise PermissionError("four_eyes: the approver must differ from the proposer")
+        case["status"] = status
+        rec = self.audit.append(
+            "handoff_status", handoff_id=handoff_id, status=status, actor=actor, note=note
+        )
+        case["timeline"].append(
+            {"at": rec["ts"], "event": status, "actor": actor, "note": note, "hash": rec["hash"]}
+        )
+        return case
+
     # --- outputs ---------------------------------------------------------------------------------------------------
     def _rephrase(self, body: str, lang: str, tr: Trace) -> str:
         if not (self.llm is not None and self.s.llm_available and self.s.rephrase):
@@ -700,11 +736,17 @@ class Engine:
                     "score": round(c.score, 3),
                     "text": c.content,
                 }
-                for c in (retrieval.chunks if retrieval else [])
+                for c in _rank_for_queue(retrieval.chunks if retrieval else [], queue)
                 if c.score >= self.kb_threshold
             ][:3],
         }
         conv.handoff = packet
+        self.handoffs[packet["handoff_id"]] = {
+            "packet": packet,
+            "status": "new",
+            "proposer": None,
+            "timeline": [{"at": packet["created_at"], "event": "created", "actor": "copilot"}],
+        }
         why = tpl.HANDOFF_REASON[lang].get(reason or queue, tpl.HANDOFF_REASON[lang]["general"])
         body = tpl.render(
             "handoff",
@@ -746,6 +788,15 @@ class Engine:
             latency_ms=reply.trace["latency_ms"],
         )
         return reply
+
+
+# the documents that govern each handoff queue: the agent sees them first among the matching procedures
+QUEUE_DOCS = {"disputes": ("pol-card-dispute",), "fraud": ("pol-card-dispute",)}
+
+
+def _rank_for_queue(chunks: list, queue: str) -> list:
+    preferred = QUEUE_DOCS.get(queue, ())
+    return sorted(chunks, key=lambda c: (c.doc_id not in preferred, -c.score))
 
 
 def _close(root, reply: Reply) -> None:

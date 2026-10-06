@@ -12,6 +12,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [00 Plan](00_plan.md) | the approved implementation plan: decisions, phases, verification and risks |
 | [01 Architecture](01_architecture.md) | naming (medallion + Kimball), zones, system context, orchestration, local vs cloud vs hybrid, storage compartments and networks |
 | [02 Data flows](02_data_flows.md) | batch flow and gates, streaming sequence and latency budget, asset graph, lineage producers |
+| [Data model](data_model.md) | the gold star schemas: bus matrix, fact constellation, one star per fact and per mart |
 | [03 Data split](03_data_split.md) | historical vs stream holdout, ML splits with embargo, warm-up week |
 | [04 Audit and lineage](04_audit_and_lineage.md) | hash chains, WORM anchors, tamper tests, GenAI audit layers, crypto-shredding |
 | [05 Privacy and compliance](05_privacy_and_compliance.md) | policies as code, PII choke points, residency, differential privacy scope, regulatory triggers |
@@ -21,6 +22,7 @@ laptop (Docker Compose profiles); the GCP deployment is Terraform per residency 
 | [09 Data and model risk methodology](09_data_and_model_risk_methodology.md) | raw schema forensics without metadata, lossless bronze, cell-level findings, audited correction, drift MRM, keys, segmentation, text |
 | [ADRs](adr/README.md) | twenty-one architecture decisions, ADR-015 to ADR-021 recording the exploratory phase, the country scopes, the multi-grain star, the readiness gates, the control plane and the regional deployment |
 | [Runbook](runbook.md) | start, run, demo and verify |
+| [dbt docs (published)](https://beta-aid-dbt-docs.netlify.app) | every model and column, lineage graph and contracts; rebuild with `make dbt-docs-static` |
 | [Generated dbt lineage](generated/dbt_lineage.md) | zone- and model-level lineage from the manifest |
 | [Phase 3 evidence](evidence/phase3/README.md) | parity, real-data findings and circuit-breaker control behind 09 §C, with the scripts that reproduce them |
 | [Reproducibility evidence](evidence/reproducibility/README.md) | two builds of the same commit give identical relations; what was order-dependent and how it was fixed |

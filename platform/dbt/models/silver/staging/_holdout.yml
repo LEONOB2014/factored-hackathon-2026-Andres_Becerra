@@ -1,0 +1,11 @@
+version: 2
+
+models:
+  - name: stg_transactions_holdout
+    description: |
+      Holdout zone of transactions (`process_date` on or after `var('stream_cutoff')`): the slice replayed through
+      Redpanda → Flink in the streaming demo (ADR-005). Used only for stream/batch parity checks, never for training.
+  - name: stg_digital_events_holdout
+    description: |
+      Holdout zone of digital events (`process_date` on or after `var('stream_cutoff')`): the slice replayed through
+      Redpanda → Flink in the streaming demo (ADR-005). Used only for stream/batch parity checks, never for training.

@@ -23,6 +23,7 @@ models:
         description: "Legacy score. Deterministically implies the label (score >= 35 -> fraud). NEVER use as a feature."
 
   - name: int_products_enriched
+    description: "Conformed products: the typed products with the product family used by every mart, balances and limits in USD, utilisation, a days-past-due bucket and the last transaction date, plus data-quality flags R02 (opened before the customer registered), R07 (last update after the data end), R08/R09 (limit or days past due on non-credit products) and R22 (card active after expiry)."
     config: {meta: {grain: product_id, pit_safe: false}}
     columns:
       - name: product_id

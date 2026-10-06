@@ -5,11 +5,14 @@ cd copilot && uv run uvicorn copilot.app:app --reload
 
 from __future__ import annotations
 
+import csv
+import json
 import os
 from functools import lru_cache
 from pathlib import Path
 
 from fastapi import FastAPI, Header, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 
@@ -30,6 +33,12 @@ ATLAS = Path(
 )
 
 app = FastAPI(title="BETA AID card copilot", version="0.1.0")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=list(Settings().cors_origins),
+    allow_methods=["GET", "POST"],
+    allow_headers=["authorization", "content-type", "x-staff-code"],
+)
 
 
 @lru_cache(maxsize=1)
@@ -134,6 +143,7 @@ def demo() -> dict:
         "customers": list(resolve(e.s.snapshot).values()),
         "otp": e.s.otp_fixture,
         "stepup": e.s.stepup_fixture,
+        "staff": e.s.staff_fixture,
         "deployment": _deployment(e),
     }
 
@@ -187,3 +197,91 @@ def policy() -> dict:
 @app.get("/api/audit/verify")
 def audit_verify() -> dict:
     return engine().audit.verify()
+
+
+# --- control plane (read-only aggregates from committed reports; no customer rows) ----------------------------------
+NUM = ("value", "benchmark_value", "delta", "delta_lo", "delta_hi", "material", "mde")
+
+
+@app.get("/api/control/readiness")
+def control_readiness() -> dict:
+    """The readiness scorecard (ADR-018): every candidate model, its out-of-time gain and its verdict."""
+    path = engine().s.readiness_csv
+    if not path.is_file():
+        raise HTTPException(404, "readiness scorecard not bundled")
+    with path.open(newline="") as f:
+        rows = [
+            {k: (float(v) if k in NUM and v not in ("", None) else v) for k, v in r.items()}
+            for r in csv.DictReader(f)
+        ]
+    counts = {v: sum(r["verdict"] == v for r in rows) for v in ("green", "amber", "red")}
+    return {"source": path.name, "counts": counts, "models": rows}
+
+
+@app.get("/api/control/evaluation")
+def control_evaluation() -> dict:
+    """The frozen challenge-set results (headline and labelled re-runs), intent model and retrieval summaries."""
+    d = engine().s.eval_dir
+    out: dict = {"runs": []}
+    for name in ("challenge.json", "challenge_after_fix.json"):
+        f = d / name
+        if f.is_file():
+            r = json.loads(f.read_text())
+            out["runs"].append(
+                {
+                    "label": r.get("label", "first scored run"),
+                    "n_cases": r["n_cases"],
+                    "manifest_ok": r["manifest_ok"],
+                    "variants": {k: v["summary"] for k, v in r["variants"].items()},
+                }
+            )
+    for key, name in (("intent_model", "intent_model.json"), ("retrieval", "kb_retrieval.json")):
+        f = d / name
+        if f.is_file():
+            r = json.loads(f.read_text())
+            if key == "intent_model":
+                out[key] = {
+                    "tuning": r["tuning"],
+                    "held_out": [
+                        {k: v for k, v in m.items() if k != "errors"} for m in r["held_out"]
+                    ],
+                }
+            else:
+                out[key] = {n: {k: v for k, v in m.items() if k != "rows"} for n, m in r.items()}
+    return out
+
+
+# --- staff: the agent desk (test staff code; four eyes on approvals) ------------------------------------------------
+class HandoffStatusIn(BaseModel):
+    status: str
+    actor: str
+    note: str = ""
+
+
+def _staff(code: str | None) -> Engine:
+    e = engine()
+    if code != e.s.staff_fixture:
+        raise HTTPException(401, "staff_code_required")
+    return e
+
+
+@app.get("/api/handoffs")
+def handoffs(x_staff_code: str | None = Header(default=None)) -> dict:
+    e = _staff(x_staff_code)
+    cases = sorted(e.handoffs.values(), key=lambda c: c["packet"]["created_at"], reverse=True)
+    return {"cases": cases}
+
+
+@app.post("/api/handoffs/{handoff_id}/status")
+def handoff_status(
+    handoff_id: str, body: HandoffStatusIn, x_staff_code: str | None = Header(default=None)
+) -> dict:
+    e = _staff(x_staff_code)
+    try:
+        return e.update_handoff(handoff_id, body.status, body.actor, body.note)
+    except KeyError as err:
+        raise HTTPException(404, "unknown_handoff") from err
+    except PermissionError as err:
+        raise HTTPException(409, str(err)) from err
+    except ValueError as err:
+        raise HTTPException(422, str(err)) from err

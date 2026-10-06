@@ -28,6 +28,8 @@ cp -R knowledge "${stage}/knowledge"
 cp eda/reports/dashboards/grain_atlas/grain_atlas.html "${stage}/atlas.html"
 cp "data/copilot/scopes/${name}/snapshot.duckdb" "${stage}/data/snapshot.duckdb"
 cp -R data/copilot/kb_index "${stage}/data/kb_index"
+cp eda/reports/tables/granularity_hour_readiness.csv "${stage}/readiness.csv"
+cp -R copilot/eval/reports "${stage}/eval_reports"
 cp copilot/deploy/cloudrun/Dockerfile "${stage}/Dockerfile"
 
 # 3. an Artifact Registry repository in the same region, so the image (and the data in it) stays there
@@ -48,5 +50,5 @@ gcloud builds submit "${stage}" --region "${region}" --tag "${image}" --timeout 
   --gcs-source-staging-dir "${bucket}/source" --gcs-log-dir "${bucket}/logs"
 gcloud run deploy "${service}" --image "${image}" --region "${region}" \
   --allow-unauthenticated --min-instances 1 --max-instances 1 --cpu 1 --memory 2Gi --port 8080 \
-  --set-env-vars "COPILOT_DEPLOYMENT=${service},COPILOT_REGION=${region}"
+  --set-env-vars "^|^COPILOT_DEPLOYMENT=${service}|COPILOT_REGION=${region}|COPILOT_CORS_ORIGINS=${COPILOT_CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}"
 gcloud run services describe "${service}" --region "${region}" --format 'value(status.url)'

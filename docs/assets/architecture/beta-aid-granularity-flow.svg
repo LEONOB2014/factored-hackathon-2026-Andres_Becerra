@@ -1,0 +1,299 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 1180" width="1800" height="1180" font-family="Inter, 'Segoe UI', Helvetica, Arial, sans-serif">
+<title>BETA AID lakehouse by grain and country</title>
+<defs><marker id="a0D9488" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#0D9488"/></marker><marker id="a2563EB" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#2563EB"/></marker><marker id="a7C3AED" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#7C3AED"/></marker><marker id="aEA580C" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#EA580C"/></marker><style>
+.f{fill:none;stroke-width:2;stroke-linejoin:round;stroke-dasharray:7 5;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-24}}
+@media (prefers-reduced-motion: reduce){.f{animation:none}}
+</style></defs>
+<rect width="1800" height="1180" rx="16" fill="#FFFFFF"/>
+<text x="24.0" y="40.0" font-size="20" font-weight="800" fill="#0F172A" text-anchor="start">BETA AID · the lakehouse by grain and country</text>
+<text x="24.0" y="62.0" font-size="14" font-weight="700" fill="#334155" text-anchor="start">Andrés Becerra</text>
+<text x="24.0" y="81.0" font-size="11.5" font-weight="400" fill="#64748B" text-anchor="start">4 grain flows from lossless bronze, opened per country at silver: 12 gold cells, each with its own readiness gate and marts</text>
+<rect x="20" y="130" width="220" height="785" rx="10" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.3"/>
+<text x="34.0" y="152.0" font-size="13" font-weight="700" fill="#0F172A" text-anchor="start">Producer systems</text>
+<text x="34.0" y="170.0" font-size="11" font-weight="400" fill="#64748B" text-anchor="start">one per country, own distributions</text>
+<rect x="36" y="200" width="188" height="150" rx="10" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<rect x="36" y="200" width="8" height="150" rx="4" fill="#0D9488"/>
+<text x="56.0" y="228.0" font-size="14" font-weight="700" fill="#0D9488" text-anchor="start">MX · Mexico</text>
+<text x="56.0" y="254.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">core banking, cards, CRM</text>
+<text x="56.0" y="276.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own nulls, codes, clocks</text>
+<text x="56.0" y="298.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own schema versions</text>
+<text x="56.0" y="320.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own currency, ticket sizes</text>
+<rect x="36" y="420" width="188" height="150" rx="10" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<rect x="36" y="420" width="8" height="150" rx="4" fill="#2563EB"/>
+<text x="56.0" y="448.0" font-size="14" font-weight="700" fill="#2563EB" text-anchor="start">CO · Colombia</text>
+<text x="56.0" y="474.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">core banking, cards, CRM</text>
+<text x="56.0" y="496.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own nulls, codes, clocks</text>
+<text x="56.0" y="518.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own schema versions</text>
+<text x="56.0" y="540.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own currency, ticket sizes</text>
+<rect x="36" y="640" width="188" height="150" rx="10" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<rect x="36" y="640" width="8" height="150" rx="4" fill="#EA580C"/>
+<text x="56.0" y="668.0" font-size="14" font-weight="700" fill="#EA580C" text-anchor="start">AR · Argentina</text>
+<text x="56.0" y="694.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">core banking, cards, CRM</text>
+<text x="56.0" y="716.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own nulls, codes, clocks</text>
+<text x="56.0" y="738.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own schema versions</text>
+<text x="56.0" y="760.0" font-size="11.5" font-weight="400" fill="#475569" text-anchor="start">own currency, ticket sizes</text>
+<rect x="262" y="130" width="236" height="785" rx="10" fill="#FBF3EA" stroke="#B7793F" stroke-width="1.3"/>
+<text x="276.0" y="152.0" font-size="13" font-weight="700" fill="#7C4A1E" text-anchor="start">Landing → bronze_raw</text>
+<text x="276.0" y="170.0" font-size="11" font-weight="400" fill="#7C4A1E" text-anchor="start">lossless · fingerprinted · lineage</text>
+<rect x="274" y="180" width="212" height="136" rx="8" fill="#FFFFFF" stroke="#B7793F" stroke-width="1.3"/>
+<text x="288.0" y="208.0" font-size="15" font-weight="700" fill="#7C4A1E" text-anchor="start">Event flow</text>
+<text x="288.0" y="230.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">as delivered</text>
+<text x="288.0" y="246.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">one row per source record</text>
+<text x="288.0" y="302.0" font-size="10.5" font-weight="400" fill="#94A3B8" text-anchor="start">from the same event records</text>
+<rect x="274" y="372" width="212" height="136" rx="8" fill="#FFFFFF" stroke="#B7793F" stroke-width="1.3"/>
+<text x="288.0" y="400.0" font-size="15" font-weight="700" fill="#7C4A1E" text-anchor="start">Day flow</text>
+<text x="288.0" y="422.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">day and month</text>
+<text x="288.0" y="438.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">series I</text>
+<text x="288.0" y="494.0" font-size="10.5" font-weight="400" fill="#94A3B8" text-anchor="start">from the same event records</text>
+<rect x="274" y="564" width="212" height="136" rx="8" fill="#FFFFFF" stroke="#B7793F" stroke-width="1.3"/>
+<text x="288.0" y="592.0" font-size="15" font-weight="700" fill="#7C4A1E" text-anchor="start">Cell flow</text>
+<text x="288.0" y="614.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">market-hour, campaign cells</text>
+<text x="288.0" y="630.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">series II</text>
+<text x="288.0" y="686.0" font-size="10.5" font-weight="400" fill="#94A3B8" text-anchor="start">from the same event records</text>
+<rect x="274" y="756" width="212" height="136" rx="8" fill="#FFFFFF" stroke="#B7793F" stroke-width="1.3"/>
+<text x="288.0" y="784.0" font-size="15" font-weight="700" fill="#7C4A1E" text-anchor="start">Hour flow</text>
+<text x="288.0" y="806.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">each delivery clock</text>
+<text x="288.0" y="822.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">series III</text>
+<text x="288.0" y="878.0" font-size="10.5" font-weight="400" fill="#94A3B8" text-anchor="start">from the same event records</text>
+<rect x="512" y="130" width="16" height="785" rx="8" fill="#FFF7ED" stroke="#F59E0B" stroke-width="1.2"/>
+<text x="520.0" y="104.0" font-size="11.5" font-weight="700" fill="#B45309" text-anchor="middle">country scope cut · ADR-016</text>
+<text x="520.0" y="120.0" font-size="11" font-weight="400" fill="#B45309" text-anchor="middle">+ ALL pooled scope, for comparison</text>
+<rect x="542" y="130" width="470" height="785" rx="10" fill="#F5F7FA" stroke="#64748B" stroke-width="1.3"/>
+<text x="556.0" y="152.0" font-size="13" font-weight="700" fill="#334155" text-anchor="start">Silver · per country</text>
+<text x="556.0" y="170.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">typed contract → quality rules R01–R27 → conformed (FX, clocks)</text>
+<rect x="1030" y="130" width="330" height="785" rx="10" fill="#FFFBEB" stroke="#B88A00" stroke-width="1.3"/>
+<text x="1044.0" y="152.0" font-size="13" font-weight="700" fill="#7A5B00" text-anchor="start">Gold · 12 cells = 4 grains × 3 countries</text>
+<text x="1044.0" y="170.0" font-size="11" font-weight="400" fill="#7A5B00" text-anchor="start">Kimball star + readiness gate per cell</text>
+<rect x="556" y="182" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<rect x="556" y="182" width="44" height="40" rx="7" fill="#0D9488"/>
+<text x="578.0" y="207.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">MX</text>
+<text x="612.0" y="200.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">event · contract, drift baseline, imputation</text>
+<text x="612.0" y="216.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="182" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<text x="1058.0" y="200.0" font-size="12" font-weight="700" fill="#0D9488" text-anchor="start">MX · event star</text>
+<text x="1058.0" y="216.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="203" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="207.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="236" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<rect x="556" y="236" width="44" height="40" rx="7" fill="#2563EB"/>
+<text x="578.0" y="261.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">CO</text>
+<text x="612.0" y="254.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">event · contract, drift baseline, imputation</text>
+<text x="612.0" y="270.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="236" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<text x="1058.0" y="254.0" font-size="12" font-weight="700" fill="#2563EB" text-anchor="start">CO · event star</text>
+<text x="1058.0" y="270.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="257" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="261.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="290" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<rect x="556" y="290" width="44" height="40" rx="7" fill="#EA580C"/>
+<text x="578.0" y="315.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">AR</text>
+<text x="612.0" y="308.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">event · contract, drift baseline, imputation</text>
+<text x="612.0" y="324.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="290" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<text x="1058.0" y="308.0" font-size="12" font-weight="700" fill="#EA580C" text-anchor="start">AR · event star</text>
+<text x="1058.0" y="324.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="311" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="315.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<text x="1006.0" y="154.0" font-size="1" font-weight="400" fill="#0F172A" text-anchor="start"></text>
+<rect x="556" y="374" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<rect x="556" y="374" width="44" height="40" rx="7" fill="#0D9488"/>
+<text x="578.0" y="399.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">MX</text>
+<text x="612.0" y="392.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">day · contract, drift baseline, imputation</text>
+<text x="612.0" y="408.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="374" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<text x="1058.0" y="392.0" font-size="12" font-weight="700" fill="#0D9488" text-anchor="start">MX · day star</text>
+<text x="1058.0" y="408.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="395" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="399.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="428" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<rect x="556" y="428" width="44" height="40" rx="7" fill="#2563EB"/>
+<text x="578.0" y="453.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">CO</text>
+<text x="612.0" y="446.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">day · contract, drift baseline, imputation</text>
+<text x="612.0" y="462.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="428" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<text x="1058.0" y="446.0" font-size="12" font-weight="700" fill="#2563EB" text-anchor="start">CO · day star</text>
+<text x="1058.0" y="462.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="449" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="453.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="482" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<rect x="556" y="482" width="44" height="40" rx="7" fill="#EA580C"/>
+<text x="578.0" y="507.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">AR</text>
+<text x="612.0" y="500.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">day · contract, drift baseline, imputation</text>
+<text x="612.0" y="516.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="482" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<text x="1058.0" y="500.0" font-size="12" font-weight="700" fill="#EA580C" text-anchor="start">AR · day star</text>
+<text x="1058.0" y="516.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="503" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="507.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<text x="1006.0" y="346.0" font-size="1" font-weight="400" fill="#0F172A" text-anchor="start"></text>
+<rect x="556" y="566" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<rect x="556" y="566" width="44" height="40" rx="7" fill="#0D9488"/>
+<text x="578.0" y="591.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">MX</text>
+<text x="612.0" y="584.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">cell · contract, drift baseline, imputation</text>
+<text x="612.0" y="600.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="566" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<text x="1058.0" y="584.0" font-size="12" font-weight="700" fill="#0D9488" text-anchor="start">MX · cell star</text>
+<text x="1058.0" y="600.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="587" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="591.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="620" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<rect x="556" y="620" width="44" height="40" rx="7" fill="#2563EB"/>
+<text x="578.0" y="645.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">CO</text>
+<text x="612.0" y="638.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">cell · contract, drift baseline, imputation</text>
+<text x="612.0" y="654.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="620" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<text x="1058.0" y="638.0" font-size="12" font-weight="700" fill="#2563EB" text-anchor="start">CO · cell star</text>
+<text x="1058.0" y="654.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="641" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="645.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="674" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<rect x="556" y="674" width="44" height="40" rx="7" fill="#EA580C"/>
+<text x="578.0" y="699.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">AR</text>
+<text x="612.0" y="692.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">cell · contract, drift baseline, imputation</text>
+<text x="612.0" y="708.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="674" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<text x="1058.0" y="692.0" font-size="12" font-weight="700" fill="#EA580C" text-anchor="start">AR · cell star</text>
+<text x="1058.0" y="708.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="695" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="699.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<text x="1006.0" y="538.0" font-size="1" font-weight="400" fill="#0F172A" text-anchor="start"></text>
+<rect x="556" y="758" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<rect x="556" y="758" width="44" height="40" rx="7" fill="#0D9488"/>
+<text x="578.0" y="783.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">MX</text>
+<text x="612.0" y="776.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">hour · contract, drift baseline, imputation</text>
+<text x="612.0" y="792.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="758" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#0D9488" stroke-width="1.3"/>
+<text x="1058.0" y="776.0" font-size="12" font-weight="700" fill="#0D9488" text-anchor="start">MX · hour star</text>
+<text x="1058.0" y="792.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="779" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="783.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="812" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<rect x="556" y="812" width="44" height="40" rx="7" fill="#2563EB"/>
+<text x="578.0" y="837.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">CO</text>
+<text x="612.0" y="830.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">hour · contract, drift baseline, imputation</text>
+<text x="612.0" y="846.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="812" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#2563EB" stroke-width="1.3"/>
+<text x="1058.0" y="830.0" font-size="12" font-weight="700" fill="#2563EB" text-anchor="start">CO · hour star</text>
+<text x="1058.0" y="846.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="833" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="837.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<rect x="556" y="866" width="442" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<rect x="556" y="866" width="44" height="40" rx="7" fill="#EA580C"/>
+<text x="578.0" y="891.0" font-size="13" font-weight="700" fill="#FFFFFF" text-anchor="middle">AR</text>
+<text x="612.0" y="884.0" font-size="11" font-weight="600" fill="#334155" text-anchor="start">hour · contract, drift baseline, imputation</text>
+<text x="612.0" y="900.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">estimated on this country&#x27;s own population</text>
+<rect x="1044" y="866" width="302" height="40" rx="7" fill="#FFFFFF" stroke="#EA580C" stroke-width="1.3"/>
+<text x="1058.0" y="884.0" font-size="12" font-weight="700" fill="#EA580C" text-anchor="start">AR · hour star</text>
+<text x="1058.0" y="900.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">grain · reconcile · dense tests</text>
+<circle cx="1322" cy="887" r="11" fill="#FFFFFF" stroke="#B45309" stroke-width="1.6"/>
+<text x="1322.0" y="891.0" font-size="11" font-weight="700" fill="#B45309" text-anchor="middle">G</text>
+<text x="1006.0" y="730.0" font-size="1" font-weight="400" fill="#0F172A" text-anchor="start"></text>
+<rect x="1380" y="130" width="200" height="785" rx="10" fill="#F5F3FF" stroke="#7C3AED" stroke-width="1.3"/>
+<text x="1394.0" y="152.0" font-size="13" font-weight="700" fill="#5B21B6" text-anchor="start">Marts per grain family</text>
+<text x="1394.0" y="170.0" font-size="11" font-weight="400" fill="#5B21B6" text-anchor="start">derived from each gold cell</text>
+<rect x="1392" y="180" width="176" height="136" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.3"/>
+<text x="1404.0" y="204.0" font-size="13" font-weight="700" fill="#5B21B6" text-anchor="start">Event marts</text>
+<text x="1404.0" y="226.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">card support</text>
+<text x="1404.0" y="244.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">disputes</text>
+<text x="1404.0" y="262.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">customer 360</text>
+<text x="1404.0" y="280.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">eligibility</text>
+<rect x="1392" y="372" width="176" height="136" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.3"/>
+<text x="1404.0" y="396.0" font-size="13" font-weight="700" fill="#5B21B6" text-anchor="start">Day marts</text>
+<text x="1404.0" y="418.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">market-day</text>
+<text x="1404.0" y="436.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">channel-day</text>
+<text x="1404.0" y="454.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">branch-day</text>
+<text x="1404.0" y="472.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">customer-month (AML)</text>
+<rect x="1392" y="564" width="176" height="136" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.3"/>
+<text x="1404.0" y="588.0" font-size="13" font-weight="700" fill="#5B21B6" text-anchor="start">Cell marts</text>
+<text x="1404.0" y="610.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">campaign decision cell</text>
+<text x="1404.0" y="628.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">market-hour monitor</text>
+<rect x="1392" y="756" width="176" height="136" rx="8" fill="#FFFFFF" stroke="#7C3AED" stroke-width="1.3"/>
+<text x="1404.0" y="780.0" font-size="13" font-weight="700" fill="#5B21B6" text-anchor="start">Hour marts</text>
+<text x="1404.0" y="802.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">declared clocks</text>
+<text x="1404.0" y="820.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">case clock</text>
+<text x="1404.0" y="838.0" font-size="11" font-weight="400" fill="#475569" text-anchor="start">streaming monitors</text>
+<rect x="1606" y="130" width="174" height="785" rx="10" fill="#F8FAFC" stroke="#94A3B8" stroke-width="1.3"/>
+<text x="1620.0" y="152.0" font-size="13" font-weight="700" fill="#0F172A" text-anchor="start">Products, decisions</text>
+<text x="1620.0" y="170.0" font-size="11" font-weight="400" fill="#64748B" text-anchor="start">per country, per grain</text>
+<rect x="1618" y="200" width="150" height="92" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1630.0" y="228.0" font-size="12" font-weight="700" fill="#0F172A" text-anchor="start">Card copilot</text>
+<text x="1630.0" y="248.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">first product off the line</text>
+<rect x="1618" y="308" width="150" height="92" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1630.0" y="336.0" font-size="12" font-weight="700" fill="#0F172A" text-anchor="start">Disputes, collections</text>
+<text x="1630.0" y="356.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">next green gates</text>
+<rect x="1618" y="416" width="150" height="92" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1630.0" y="444.0" font-size="12" font-weight="700" fill="#0F172A" text-anchor="start">AML monitoring</text>
+<text x="1630.0" y="464.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">customer-month typologies</text>
+<rect x="1618" y="524" width="150" height="92" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1630.0" y="552.0" font-size="12" font-weight="700" fill="#0F172A" text-anchor="start">Campaign decisions</text>
+<text x="1630.0" y="572.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">cells with consent check</text>
+<rect x="1618" y="632" width="150" height="92" rx="8" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1630.0" y="660.0" font-size="12" font-weight="700" fill="#0F172A" text-anchor="start">Data-office scorecard</text>
+<text x="1630.0" y="680.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">12 gate verdicts → data</text>
+<text x="1630.0" y="698.0" font-size="10.5" font-weight="400" fill="#64748B" text-anchor="start">requirements with owners</text>
+<rect x="20" y="935" width="1760" height="80" rx="10" fill="#FFFDF8" stroke="#B45309" stroke-width="1.3" stroke-dasharray="6 4"/>
+<text x="36.0" y="961.0" font-size="13" font-weight="700" fill="#92400E" text-anchor="start">Watched per producer × country × grain (the consumer receives many producers)</text>
+<text x="36.0" y="991.0" font-size="11.5" font-weight="400" fill="#334155" text-anchor="start">■ Audit: hash-chained ledger of every load and correction</text>
+<text x="476.0" y="991.0" font-size="11.5" font-weight="400" fill="#334155" text-anchor="start">■ Anomalies: DQ rule rates R01–R27 per country, with SLOs</text>
+<text x="916.0" y="991.0" font-size="11.5" font-weight="400" fill="#334155" text-anchor="start">■ Drift: PSI against each country&#x27;s own reference window</text>
+<text x="1356.0" y="991.0" font-size="11.5" font-weight="400" fill="#334155" text-anchor="start">■ Schema evolution: circuit breaker per source contract</text>
+<rect x="20" y="1035" width="572" height="125" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="38.0" y="1063.0" font-size="15" font-weight="700" fill="#0F172A" text-anchor="start">Producers differ</text>
+<text x="38.0" y="1089.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">Each country&#x27;s systems send their own distributions, nulls, codes and schema</text>
+<text x="38.0" y="1109.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">versions. Contracts, drift baselines and imputations are estimated per country, so</text>
+<text x="38.0" y="1129.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">one market never hides another.</text>
+<rect x="614" y="1035" width="572" height="125" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="632.0" y="1063.0" font-size="15" font-weight="700" fill="#0F172A" text-anchor="start">Pooled data can hide local signal</text>
+<text x="632.0" y="1089.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">If P(y | x, country) differs by country, a pooled model learns a blur. Each cell is</text>
+<text x="632.0" y="1109.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">judged on its own and against the pooled ALL scope. On this synthetic feed the</text>
+<text x="632.0" y="1129.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">countries behave alike: no hidden signal, a finding in itself.</text>
+<rect x="1208" y="1035" width="572" height="125" rx="10" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="1.3"/>
+<text x="1226.0" y="1063.0" font-size="15" font-weight="700" fill="#0F172A" text-anchor="start">The grain decides what is learnable</text>
+<text x="1226.0" y="1089.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">Per hour the transactions are flat; per day a weekly pulse appears. Twelve gate</text>
+<text x="1226.0" y="1109.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">verdicts (4 grains × 3 countries) turn into data requirements with owners and</text>
+<text x="1226.0" y="1129.0" font-size="12" font-weight="400" fill="#475569" text-anchor="start">acceptance tests.</text>
+<path class="f" d="M486.0,238.0 L520.0,238.0 L520.0,203.0 L552.0,203.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M998.0,203.0 L1040.0,203.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M1334.0,203.0 L1384.0,238.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M486.0,238.0 L520.0,238.0 L520.0,257.0 L552.0,257.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M998.0,257.0 L1040.0,257.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M1334.0,257.0 L1384.0,238.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M486.0,238.0 L520.0,238.0 L520.0,311.0 L552.0,311.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M998.0,311.0 L1040.0,311.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M1334.0,311.0 L1384.0,238.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M486.0,430.0 L520.0,430.0 L520.0,395.0 L552.0,395.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M998.0,395.0 L1040.0,395.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M1334.0,395.0 L1384.0,430.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M486.0,430.0 L520.0,430.0 L520.0,449.0 L552.0,449.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M998.0,449.0 L1040.0,449.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M1334.0,449.0 L1384.0,430.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M486.0,430.0 L520.0,430.0 L520.0,503.0 L552.0,503.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M998.0,503.0 L1040.0,503.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M1334.0,503.0 L1384.0,430.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M486.0,622.0 L520.0,622.0 L520.0,587.0 L552.0,587.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M998.0,587.0 L1040.0,587.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M1334.0,587.0 L1384.0,622.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M486.0,622.0 L520.0,622.0 L520.0,641.0 L552.0,641.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M998.0,641.0 L1040.0,641.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M1334.0,641.0 L1384.0,622.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M486.0,622.0 L520.0,622.0 L520.0,695.0 L552.0,695.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M998.0,695.0 L1040.0,695.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M1334.0,695.0 L1384.0,622.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M486.0,814.0 L520.0,814.0 L520.0,779.0 L552.0,779.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M998.0,779.0 L1040.0,779.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M1334.0,779.0 L1384.0,814.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M486.0,814.0 L520.0,814.0 L520.0,833.0 L552.0,833.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M998.0,833.0 L1040.0,833.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M1334.0,833.0 L1384.0,814.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M486.0,814.0 L520.0,814.0 L520.0,887.0 L552.0,887.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M998.0,887.0 L1040.0,887.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M1334.0,887.0 L1384.0,814.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+<path class="f" d="M1568.0,238.0 L1604.0,238.0" stroke="#7C3AED" marker-end="url(#a7C3AED)"/>
+<path class="f" d="M1568.0,430.0 L1604.0,430.0" stroke="#7C3AED" marker-end="url(#a7C3AED)"/>
+<path class="f" d="M1568.0,622.0 L1604.0,622.0" stroke="#7C3AED" marker-end="url(#a7C3AED)"/>
+<path class="f" d="M1568.0,814.0 L1604.0,814.0" stroke="#7C3AED" marker-end="url(#a7C3AED)"/>
+<path class="f" d="M224.0,275.0 L258.0,275.0" stroke="#0D9488" marker-end="url(#a0D9488)"/>
+<path class="f" d="M224.0,495.0 L258.0,495.0" stroke="#2563EB" marker-end="url(#a2563EB)"/>
+<path class="f" d="M224.0,715.0 L258.0,715.0" stroke="#EA580C" marker-end="url(#aEA580C)"/>
+</svg>

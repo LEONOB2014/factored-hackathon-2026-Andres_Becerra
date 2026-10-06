@@ -16,6 +16,8 @@ COPY copilot/src /app/copilot/src
 COPY copilot/corpus /app/copilot/corpus
 COPY knowledge /app/knowledge
 COPY atlas.html /app/atlas.html
+COPY readiness.csv /app/readiness.csv
+COPY eval_reports /app/eval_reports
 COPY data /app/data
 
 ENV COPILOT_SNAPSHOT=/app/data/snapshot.duckdb \
@@ -24,6 +26,8 @@ ENV COPILOT_SNAPSHOT=/app/data/snapshot.duckdb \
     COPILOT_AUDIT=/var/copilot/audit.jsonl \
     COPILOT_ATLAS=/app/atlas.html \
     COPILOT_KNOWLEDGE=/app/knowledge \
+    COPILOT_READINESS=/app/readiness.csv \
+    COPILOT_EVAL_DIR=/app/eval_reports \
     PORT=8080
 
 RUN useradd --create-home --uid 10001 copilot && mkdir -p /var/copilot && chown -R copilot /var/copilot /app

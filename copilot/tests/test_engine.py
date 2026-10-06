@@ -193,3 +193,74 @@ def test_grounded_answer_rules():
         "Prazo de 30 dias [reg-br-pix-med2 v1.0].", p
     )  # number not in the source
     assert not grounded_answer("Veja [pol-genai-use v1.0].", p)  # cites a passage it was not given
+
+
+def test_queue_documents_rank_first_in_the_packet(engine):
+    engine.kb, engine.kb_threshold = (
+        FakeKB(
+            [
+                _chunk("pol-marketing-consent", "internal", 0.95),
+                _chunk("pol-card-dispute", "internal", 0.9),
+            ]
+        ),
+        0.8,
+    )
+    r = engine.message(login(engine, "C-SINGLE"), "me cobraron dos veces la misma compra")
+    assert [p["cite"] for p in r.handoff["procedures"]][:2] == [
+        "pol-card-dispute v1.0",
+        "pol-marketing-consent v1.0",
+    ]
+
+
+def test_desk_flow_with_four_eyes(engine):
+    import pytest
+
+    r = engine.message(login(engine, "C-FRAUD"), "por qué rechazaron mi tarjeta")
+    hid = r.handoff["handoff_id"]
+    assert engine.handoffs[hid]["status"] == "new"
+    engine.update_handoff(hid, "accepted", "agent.ana")
+    engine.update_handoff(hid, "approval_requested", "agent.ana", "block and reissue")
+    with pytest.raises(PermissionError):
+        engine.update_handoff(hid, "approved", "agent.ana")  # the proposer cannot approve
+    case = engine.update_handoff(hid, "approved", "lead.bruno")
+    assert case["status"] == "approved" and case["timeline"][-1]["hash"]
+    with pytest.raises(ValueError):
+        engine.update_handoff(
+            hid, "approval_requested", "agent.ana"
+        )  # not a valid move from approved
+    assert engine.audit.verify()["ok"]
+
+
+def test_staff_and_control_endpoints(engine, monkeypatch, tmp_path):
+    from copilot import app as appmod
+
+    monkeypatch.setattr(appmod, "engine", lambda: engine)
+    c = TestClient(appmod.app)
+    assert c.get("/api/handoffs").status_code == 401
+    staff = {"x-staff-code": engine.s.staff_fixture}
+    tok = login(engine, "C-FRAUD")
+    engine.message(tok, "por qué rechazaron mi tarjeta")
+    cases = c.get("/api/handoffs", headers=staff).json()["cases"]
+    assert len(cases) == 1 and cases[0]["packet"]["queue"] == "fraud"
+    hid = cases[0]["packet"]["handoff_id"]
+    assert (
+        c.post(
+            f"/api/handoffs/{hid}/status", json={"status": "approved", "actor": "x"}, headers=staff
+        ).status_code
+        == 422
+    )
+    assert (
+        c.post(
+            f"/api/handoffs/{hid}/status", json={"status": "accepted", "actor": "a"}, headers=staff
+        ).status_code
+        == 200
+    )
+    rd = c.get("/api/control/readiness").json()
+    assert rd["counts"] == {"green": 0, "amber": 2, "red": 9} and len(rd["models"]) == 11
+    ev = c.get("/api/control/evaluation").json()
+    assert ev["runs"][0]["label"] == "first scored run" and "learned" in ev["runs"][0]["variants"]
+    pre = c.options(
+        "/api/demo",
+        headers={"origin": "http://localhost:3000", "access-control-request-method": "GET"},
+    )
+    assert pre.headers.get("access-control-allow-origin") == "http://localhost:3000"

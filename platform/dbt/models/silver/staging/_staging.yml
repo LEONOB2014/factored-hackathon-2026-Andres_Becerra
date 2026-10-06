@@ -23,6 +23,7 @@ models:
               config: {severity: warn}
 
   - name: stg_products
+    description: "Accounts, cards, loans, investments and insurance, current state (400,000 products). Half were opened before their customer registered (R02) and 14 % of cards stay active after expiring (R22). Built on the contract-typed `typed_products` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     config: {meta: {grain: product_id}}
     columns:
       - name: product_id
@@ -34,11 +35,13 @@ models:
           - relationships: {arguments: {to: ref('stg_customers'), field: customer_id}}
 
   - name: stg_branches
+    description: "Bank branches (350) with location, type, ATM and teller capacity. Built on the contract-typed `typed_branches` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: branch_id
         data_tests: [unique, not_null]
 
   - name: stg_service_agents
+    description: "Contact-centre agents (1,200), restricted: names and contact data are personal data. Most assigned branches do not exist in the branch master (R24). Built on the contract-typed `typed_service_agents` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: agent_id
         data_tests: [unique, not_null]
@@ -50,11 +53,13 @@ models:
               config: {severity: warn}
 
   - name: stg_marketing_campaigns
+    description: "Marketing campaigns (200) with objective, promoted product, target segment and country, dates and budget. Built on the contract-typed `typed_marketing_campaigns` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: campaign_id
         data_tests: [unique, not_null]
 
   - name: stg_transactions
+    description: "One row per transaction (4.4 M in the historical zone), with the country vocabulary normalised (México/Mexico → MX). Built on the contract-typed `typed_transactions` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     config: {meta: {grain: transaction_id}}
     columns:
       - name: transaction_id
@@ -69,6 +74,7 @@ models:
           - relationships: {arguments: {to: ref('stg_customers'), field: customer_id}}
 
   - name: stg_call_center_interactions
+    description: "Contact-centre interactions (686,296): calls, chat, email and messaging, with reason, duration, wait, resolution and sentiment. The backup folder labelled one field in Spanish; both vocabularies are normalised to one, and the comma-separated mentioned product ids become a list (an undeclared foreign key). Built on the contract-typed `typed_call_center_interactions` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: interaction_id
         data_tests: [unique, not_null]
@@ -77,6 +83,7 @@ models:
           - accepted_values: {arguments: {values: ['Inbound Call', 'Outbound Call', 'Chat', 'Email', 'Video']}}
 
   - name: stg_call_transcripts
+    description: "Call transcripts (171,321). They reduce to a few dozen generator templates with unrendered slots such as `{monto}` and `{moneda}` (R27), so they carry no free text worth modelling and are never used for intent training. Built on the contract-typed `typed_call_transcripts` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: transcript_id
         data_tests: [unique, not_null]
@@ -87,16 +94,19 @@ models:
               config: {severity: warn}
 
   - name: stg_satisfaction_surveys
+    description: "Post-contact satisfaction surveys (212,759) with scores and comments; comments pass through the PII guard before any indexing. Built on the contract-typed `typed_satisfaction_surveys` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: survey_id
         data_tests: [unique, not_null]
 
   - name: stg_digital_events
+    description: "App and web events (15.6 M) in the historical zone. About a quarter carry no customer id (R20) and are placed by IP country downstream; IPs are personal data and are tokenised from gold onward. Built on the contract-typed `typed_digital_events` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: event_id
         data_tests: [unique, not_null]
 
   - name: stg_complaints
+    description: "Complaints (67,095) with category, channel, priority, SLA and resolution fields. The affected product points to another customer's product in every non-null case (R25), so it is never used for linkage. Built on the contract-typed `typed_complaints` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: complaint_id
         data_tests: [unique, not_null]
@@ -107,6 +117,7 @@ models:
               config: {severity: warn}
 
   - name: stg_campaign_sends
+    description: "Campaign sends (1.75 M) with delivery, open, click and conversion outcomes. Half go to customers without current marketing consent (R21). Built on the contract-typed `typed_campaign_sends` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     columns:
       - name: send_id
         data_tests: [unique, not_null]
@@ -115,6 +126,7 @@ models:
           - relationships: {arguments: {to: ref('stg_marketing_campaigns'), field: campaign_id}}
 
   - name: stg_daily_exchange_rates
+    description: "Daily exchange rates (13,164 rows) used to express amounts in USD. ARS stays flat at about 350/USD for three years in this synthetic feed. Built on the contract-typed `typed_daily_exchange_rates` (silver typing against `platform/contracts/sources`); vocabulary is normalised, values are not repaired here (repairs and data-quality flags live in the conformed `int_*` models so they stay auditable)."
     data_tests:
       - unique_combination:
           arguments: {columns: [rate_date, source_currency, target_currency]}

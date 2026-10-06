@@ -1,0 +1,13 @@
+version: 2
+
+models:
+  - name: privacy_input_complaints_country_month
+    description: |
+      Contribution-bounded input for the differentially private complaint statistics release (ADR-009). Each customer
+      contributes at most `var('dp_max_contrib', 3)` complaints per country, month and category. Bounding sensitivity
+      in SQL lets the OpenDP release (`latam_platform/privacy.py`, DAG `dp_release`) add calibrated noise, debited
+      from the privacy budget ledger before release. Raw counts here are never published.
+  - name: privacy_input_tx_segment_month
+    description: |
+      Contribution-bounded input for differentially private spend statistics (ADR-009). Each customer's monthly spend is
+      clamped to `[0, var('dp_spend_clamp_usd', 20000)]`, so one customer can move a sum by at most the clamp.

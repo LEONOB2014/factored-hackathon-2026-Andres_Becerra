@@ -1,0 +1,145 @@
+# Column descriptions of the serving contracts, read by generate_contracts.py when it writes
+# models/serving/_serving.yml. `common` applies to every serving model; a model's own entry wins.
+# Edit descriptions here: the generated YAML is overwritten on every regeneration.
+
+common:
+  customer_id: "{{ doc('col_customer_id') }}"
+  product_id: Product business key (joins `dim_product`).
+  country_code: >-
+    The customer's country (MX, CO or AR). It decides which residency region may serve the row (ADR-007,
+    ADR-021).
+  document_token: Token of the identity document; the document itself stays in silver.
+  product_type: Product type from the product master.
+  product_family: Product family derived in silver (credit_card, debit_card, loan, deposit, investment).
+  product_status: Product status from the product master (for example Active or Blocked).
+  currency: Currency label of the product as delivered by the source.
+  current_balance: Balance in the product currency, as delivered.
+  balance_usd: Balance converted to USD at the daily rate (`int_fx_usd`).
+  credit_limit: Credit limit in the product currency (credit products only).
+  utilization: Balance divided by the credit limit (credit products only).
+  days_past_due: Days past due (credit products only).
+  expiration_date: Card or product expiration date.
+  segment: Commercial segment of the customer.
+  credit_score: Current credit score.
+  accepts_marketing: Current marketing consent.
+  created_ts_utc: "{{ doc('col_ts_utc') }}"
+  last_tx_ts: Time (UTC) of the latest transaction.
+  as_of_ts: >-
+    End of the day the row describes: `var('as_of_date')` 23:59:59 (2026-05-17, the last day before the
+    stream cutoff). Every window (30, 90, 365 days) ends here.
+
+serving_account_inquiry:
+  available_credit: Credit limit minus current balance; credit cards only.
+  pending_count: Transactions on the product still in Pending status.
+  pending_amount: Sum of the Pending amounts, in the transaction currency.
+  declined_30d: Declined transactions in the 30 days to the as-of date.
+  reversed_30d: Reversed transactions in the 30 days to the as-of date.
+  last_decline_reason: Meaning of the latest decline's response code (`response_codes` reference).
+  last_decline_action: Suggested action for the latest decline (`response_codes` reference).
+  last_deposit_ts: Time (UTC) of the latest approved deposit.
+  last_payment_ts: Time (UTC) of the latest approved payment.
+  last_payment_amount: Amount of the latest approved payment, in the transaction currency.
+  declines_by_code_90d_json: >-
+    Declines in the 90 days to the as-of date by response code, as a JSON map of code to count
+    (`<missing>` when the source gave no code).
+  n_recent_transactions: Rows for the product in `serving_recent_transactions` (at most 20).
+
+serving_card_support:
+  is_blocked: TRUE when the card's status is Blocked.
+  days_to_expiry: Days from the as-of date to the expiration date (negative once expired).
+  is_active_but_expired: An active card past its expiration date (rule R22). It triggers REISSUE_CARD.
+  current_decline_streak: Declines since the card's last approved transaction, i.e. what the customer is living now.
+  declines_do_not_honor_30d: Declines with response code 05 (do not honor) in the last 30 days.
+  declines_invalid_card_30d: Declines with response code 14 (invalid card) in the last 30 days.
+  declines_insufficient_funds_30d: Declines with response code 51 (insufficient funds) in the last 30 days.
+  declines_expired_30d: Declines with response code 54 (expired card) in the last 30 days.
+  foreign_tx_90d: Cross-border transactions in the last 90 days.
+  foreign_countries_90d: Countries of those cross-border transactions, comma-separated.
+  open_cases: "{{ doc('col_card_open_cases') }}"
+  contacts_30d: Contact-centre interactions in the last 30 days that mention this card.
+  next_best_action: "{{ doc('col_next_best_action') }}"
+
+serving_credit_eligibility:
+  snapshot_date: Date of the latest point-in-time feature snapshot the decision uses.
+  credit_score_current: Credit score at the snapshot.
+  eligible_credit_card: No adverse-action reason, a score at or above the card cut-off, and no credit card held.
+  eligible_personal_loan: No adverse-action reason and a score at or above the loan cut-off.
+  decline_reasons: Adverse-action reason codes, comma-separated (empty when there are none).
+  score_reason: "{{ doc('col_score_reason') }}"
+
+serving_customer_360:
+  customer_status: Customer status from the customer master.
+  tenure_days: Days from registration to the as-of date.
+  monthly_income_usd: Declared monthly income converted to USD.
+  n_products: Products held.
+  n_active_products: Products in Active status.
+  product_types: Distinct product types held, comma-separated.
+  deposits_usd: USD balance of deposit and investment products.
+  debt_usd: USD balance of credit cards and loans.
+  max_days_past_due: Highest days past due across the customer's products.
+  tx_count_90d: Transactions in the last 90 days.
+  inflow_usd_90d: Approved incoming amounts in USD, last 90 days.
+  outflow_usd_90d: Approved outgoing amounts in USD, last 90 days.
+  decline_rate_90d: Share of transactions declined in the last 90 days.
+  logins_90d: Login events in digital channels, last 90 days.
+  contacts_90d: Contact-centre interactions, last 90 days.
+  last_contact_reason: Reason recorded on the latest contact.
+  open_cases: Open complaints filed by the customer.
+  complaints_365d: Complaints filed in the last 365 days.
+  sla_breaches_365d: Complaints of the last 365 days whose SLA was breached (as delivered by the source).
+  last_nps_score: Score of the latest NPS survey.
+  last_csat_score: Score of the latest CSAT survey.
+
+serving_dispute_case:
+  complaint_id: >-
+    Complaint business key. Disputes are complaints in the Transactions or Fees categories, or with subcategory
+    "Cargo no reconocido" or "Cobro indebido".
+  case_type: Case type from the complaint.
+  category: Complaint category.
+  subcategory: Complaint subcategory.
+  reception_channel: Channel the complaint arrived through.
+  came_via_regulator: TRUE when the reception channel is Regulator.
+  priority: Case priority.
+  status: Case status.
+  is_closed: TRUE when the case is closed.
+  claimed_amount: Amount the customer claims, in the claimed currency.
+  claimed_currency: Currency of the claimed amount.
+  hours_to_assignment: Hours from creation to assignment.
+  hours_to_first_response: Hours from creation to the first response.
+  hours_open_or_to_resolution: Hours from creation to resolution, or to the as-of date while still open.
+  sla_breached: SLA breach flag as delivered by the source (rule R13 flags breaches resolved within 5 days).
+  prior_disputes_365d: The customer's other disputes in the 365 days before this one.
+  linked_transaction_id: "{{ doc('col_linked_transaction_id') }}"
+  link_confidence: "{{ doc('col_link_confidence') }}"
+  evidence_transaction_json: >-
+    The linked transaction as JSON evidence: time, amount, currency, USD amount, merchant, channel, country,
+    status and the fraud label.
+
+serving_online_fraud_state:
+  hist_tx_count: Transactions before the stream cutoff.
+  hist_mean_log_amount: Mean of ln(1 + amount_usd) over the history (exact, order-independent aggregation).
+  hist_std_log_amount: Standard deviation of ln(1 + amount_usd) over the history.
+  hist_sum_log_amount: Sum of ln(1 + amount_usd); the stream updates it incrementally.
+  hist_sumsq_log_amount: Sum of squares of ln(1 + amount_usd); with the sum and count it rebuilds the variance.
+  hist_max_amount_usd: Largest USD amount in the history.
+  hist_sum_hour: Sum of local transaction hours; divided by the count it gives the usual hour.
+  seen_merchants_json: Distinct merchants seen, as a sorted JSON list.
+  seen_countries_json: Distinct transaction countries seen, as a sorted JSON list.
+  seen_channels_json: Distinct channels seen, as a sorted JSON list.
+  last_lat: Latitude of the latest transaction.
+  last_lon: Longitude of the latest transaction.
+  state_as_of_ts: >-
+    The stream cutoff (`var('stream_cutoff')`, 2026-05-18). The scorer starts from this state so the first
+    streamed transaction sees the same history as the batch features.
+
+serving_recent_transactions:
+  recency_rank: Position among the product's latest transactions (1 = latest; at most 20).
+  transaction_id: Transaction business key.
+  transaction_ts_local: Transaction time on the local clock.
+  transaction_type: Transaction type (for example Purchase, Payment or Deposit).
+  amount: Amount in the transaction currency.
+  transaction_status: Status (Approved, Declined, Pending or Reversed).
+  decline_or_status_reason: Meaning of the response code (`response_codes` reference).
+  merchant_name: Merchant name as delivered (NULL for non-merchant transactions).
+  channel: Channel of the transaction.
+  transaction_country_code: Country where the transaction took place.

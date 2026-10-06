@@ -332,3 +332,28 @@ jobs:
 
       - name: Run copilot tests
         run: uv run pytest -q
+
+  # ============================================================================
+  # BETA AID Console (TanStack Start, bun; no backend needed: fetch is mocked)
+  # ============================================================================
+  console:
+    name: "Console"
+    runs-on: ubuntu-latest
+    needs: quality
+    defaults:
+      run:
+        working-directory: console
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install bun
+        uses: oven-sh/setup-bun@v2
+
+      - name: Install console dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run console tests
+        run: bun run test
+
+      - name: Build the console
+        run: bun run build
