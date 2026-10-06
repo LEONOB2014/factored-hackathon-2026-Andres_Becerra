@@ -1,36 +1,41 @@
 # dbt lineage (generated)
 
-_Generated from `platform/dbt/target/manifest.json` (96 models)._
+_Generated from `platform/dbt/target/manifest.json` (131 models)._
 
 ## Zone-level lineage
 
 ```mermaid
 flowchart LR
-  audit["audit<br/>11 nodes"]
+  agg["agg<br/>33 nodes"]
+  audit["audit<br/>13 nodes"]
   features["features<br/>8 nodes"]
   gold["gold<br/>23 nodes"]
   graph["graph<br/>6 nodes"]
   knowledge["knowledge<br/>2 nodes"]
   privacy["privacy<br/>2 nodes"]
-  reference["reference<br/>8 nodes"]
+  reference["reference<br/>9 nodes"]
   serving["serving<br/>7 nodes"]
   silver["silver<br/>37 nodes"]
   snapshots["snapshots<br/>4 nodes"]
   source_bronze_raw["source:bronze_raw<br/>13 nodes"]
+  source_corrections["source:corrections<br/>1 nodes"]
   source_holdout_raw["source:holdout_raw<br/>2 nodes"]
   source_published["source:published<br/>4 nodes"]
   source_quarantine_raw["source:quarantine_raw<br/>5 nodes"]
-  audit -->|15| silver
+  audit -->|30| silver
   features -->|1| gold
   features -->|1| graph
+  gold -->|41| agg
   gold -->|4| graph
   gold -->|1| knowledge
   gold -->|6| serving
   graph -->|1| knowledge
+  reference -->|2| agg
   reference -->|6| audit
   reference -->|1| gold
   reference -->|1| graph
   reference -->|8| silver
+  silver -->|31| agg
   silver -->|21| audit
   silver -->|10| features
   silver -->|40| gold
@@ -43,6 +48,7 @@ flowchart LR
   snapshots -->|2| gold
   source_bronze_raw -->|37| audit
   source_bronze_raw -->|13| silver
+  source_corrections -->|2| audit
   source_holdout_raw -->|4| audit
   source_holdout_raw -->|2| silver
   source_quarantine_raw -->|5| audit

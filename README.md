@@ -21,7 +21,7 @@ made trustworthy first.**
 [![Lossless bronze](https://img.shields.io/badge/bronze-13%2F13%20tables%20reconciled-0f766e)](docs/platform/README.md#what-was-verified-on-the-running-stack-end-to-end-airflow-run-2026-10-03)
 
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![dbt](https://img.shields.io/badge/dbt-1.12-FF694B?logo=dbt&logoColor=white)](platform/dbt)
+[![dbt](https://img.shields.io/badge/dbt-1.12%20docs-FF694B?logo=dbt&logoColor=white)](https://beta-aid-dbt-docs.netlify.app)
 [![DuckDB](https://img.shields.io/badge/DuckDB-lakehouse-FFF000?logo=duckdb&logoColor=black)](https://duckdb.org/)
 [![Airflow](https://img.shields.io/badge/Airflow-3.1-017CEE?logo=apacheairflow&logoColor=white)](platform/airflow)
 [![Flink](https://img.shields.io/badge/Flink-1.19-E6526F?logo=apacheflink&logoColor=white)](platform/flink)
@@ -35,7 +35,8 @@ made trustworthy first.**
 **[Try the copilot](https://aleonardobecerra--beta-aid-copilot-web.modal.run)** ·
 **[Open the console](https://beta-aid-console.netlify.app)** ·
 **[Grain Atlas](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas)** ·
-[Architecture](docs/platform/01_architecture.md) · [Decisions (ADRs)](docs/platform/adr/README.md) ·
+[Architecture](docs/platform/01_architecture.md) · [Lakehouse docs (dbt)](https://beta-aid-dbt-docs.netlify.app) ·
+[Decisions (ADRs)](docs/platform/adr/README.md) ·
 [Evaluation](copilot/eval/reports/)
 
 <sub>Factored AI & Data Hackathon 2026 · built by Andrés Becerra</sub>
@@ -195,7 +196,7 @@ flowchart LR
   S -->|"digest-checked swap"| P[("Postgres<br/>bank_serving")]
 ```
 
-The lakehouse has 134 dbt models, and every layer is tested. Contracts make a renamed or retyped serving column fail the
+The lakehouse has 131 dbt models, every one documented ([browse the dbt docs](https://beta-aid-dbt-docs.netlify.app)), and every layer is tested. Contracts make a renamed or retyped serving column fail the
 build instead of breaking the copilot. Details: [data flows](docs/platform/02_data_flows.md) and
 [ADR-017](docs/platform/adr/ADR-017.md).
 

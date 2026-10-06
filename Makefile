@@ -4,7 +4,7 @@
 # ==============================================================================
 
 .PHONY: help setup up down clean test lint format check db-init db-migrate \
-        dbt-run dbt-test ml-train ml-serve evals docker-build deploy \
+        dbt-run dbt-test dbt-docs dbt-docs-static ml-train ml-serve evals docker-build deploy \
         eda-setup eda-test eda-test-data eda-test-notebooks \
         stack-env stack-copilot stack-data stack-dev stack-stream stack-obs stack-ps stack-down \
         data-api-dev \
@@ -79,8 +79,12 @@ dbt-run: ## Run all dbt models
 dbt-test: ## Run dbt tests
 	cd data_engineering/dbt && dbt test
 
-dbt-docs: ## Generate and serve dbt documentation
-	cd data_engineering/dbt && dbt docs generate && dbt docs serve --port 8081
+dbt-docs: ## Generate and serve the platform dbt docs on :8081 (needs the built lakehouse for the catalog)
+	cd platform/dbt && DBT_PROFILES_DIR=. uv run --project .. dbt docs generate && \
+		DBT_PROFILES_DIR=. uv run --project .. dbt docs serve --port 8081
+
+dbt-docs-static: ## Build the single-file docs site platform/dbt/target/static_index.html (what gets published)
+	cd platform/dbt && DBT_PROFILES_DIR=. uv run --project .. dbt docs generate --static
 
 spark-bronze: ## Run Bronze → Silver Spark ETL
 	cd data_engineering/spark && python jobs/bronze_to_silver.py
