@@ -4,8 +4,9 @@
 
 ### Banking Evolutionary Transformation and AI Deployment
 
-**An AI copilot that LATAM Bank can put in front of its card holders. It works because the data underneath has been
-made trustworthy first.**
+**The AI readiness factory. When a bank's data says "no signal", BETA AID turns that into a diagnosis, a work order
+for the data and, where the data is ready, a governed AI product. We don't build one AI product: we build the factory
+that makes them possible.**
 
 [![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/badge/version-0.4.0-2563eb)](CHANGELOG.md)
@@ -32,9 +33,9 @@ made trustworthy first.**
 [![Cloud Run](https://img.shields.io/badge/Cloud%20Run-MX%20%C2%B7%20SA-4285F4?logo=googlecloud&logoColor=white)](docs/platform/adr/ADR-021.md)
 [![Netlify](https://img.shields.io/badge/console-Netlify-00C7B7?logo=netlify&logoColor=white)](https://beta-aid-console.netlify.app)
 
+**[Open the Grain Atlas](https://beta-aid-grain-atlas.netlify.app)** ·
 **[Try the copilot](https://aleonardobecerra--beta-aid-copilot-web.modal.run)** ·
 **[Open the console](https://beta-aid-console.netlify.app)** ·
-**[Grain Atlas](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas)** ·
 [Architecture](docs/platform/01_architecture.md) · [Lakehouse docs (dbt)](https://beta-aid-dbt-docs.netlify.app) ·
 [Decisions (ADRs)](docs/platform/adr/README.md) ·
 [Evaluation](copilot/eval/reports/)
@@ -47,20 +48,44 @@ made trustworthy first.**
 
 ## Why this exists
 
-It is 11 p.m. and a card holder writes *"mi tarjeta no pasa"* ("my card won't go through"). Today that means a queue,
-then an agent switching between systems to work out whether the card is blocked, expired, flagged for fraud or simply
-over its limit.
+We were handed a bank's data (13 tables, 23.5 million rows, Mexico, Colombia and Argentina) and asked to build AI on
+it. We started where everyone starts, with the technology: graph neural networks, temporal graphs, agents. **The data
+said no.** Model after model, country by country, grain by grain, there was no signal: eleven hour-grain models trained
+out of time against transparent benchmarks, **zero green**.
 
-LATAM Bank serves Mexico, Colombia and Argentina, in Spanish and Portuguese. Its data has 686,296 contact-centre
-interactions and 67,095 complaints. Of its 140,040 cards, more than 65,000 have a clear, rule-based next action. Many of
-those contacts could be answered in seconds.
+The easy path is to fake a signal, or to ignore the data and demo something fragile on top. We asked a different
+question: **why can't these models learn?** Every failure turned out to be a diagnosis: a missing field, a broken
+capture, the wrong granularity, a data defect, a generator that never linked the variables. An unlearnable model is not
+a dead end; it is a **work order for the data**.
 
-**The hard part is not the chatbot.** A bank cannot put a model in front of customers unless:
-- the facts it reads are true;
-- the actions it takes are safe, confirmed and audited;
-- the cases it should not handle reach a person.
+That is the product: **measure → diagnose → prescribe → fix → re-judge → ship.** Every turn of the loop either ships a
+governed model or produces a data requirement with an owner, an acceptance test and the threshold that turns it green.
+The first product off the line is a card-service copilot, because card support was the decision the data could support.
 
-BETA AID is built in that order: **data you can prove → decisions you can govern → a copilot you can trust.**
+## The product: the Grain Atlas
+
+The [**Grain Atlas**](https://beta-aid-grain-atlas.netlify.app) is where the factory becomes visible: the same 23.5
+million records read four ways (as delivered, cut by country, rolled up to the day and the campaign cell, re-grained to
+the hour), each with its data, findings, pipeline, walkthrough and decisions.
+
+<p align="center"><img src="docs/assets/atlas/grain-atlas.png" alt="Grain Atlas mission control: four grains, one bank, with the atlas map of every view and its verdict" width="100%"></p>
+
+What it shows today, measured:
+- **0 / 11** hour-grain models pass their readiness gate; each red gate names its root cause (8 generator independence,
+  1 data defect), the owner who must collect the missing data and the acceptance test on a new feed.
+- **9 / 60** daily-grain targets are significant after false-discovery-rate control and material: the signal lives
+  where the data is ready.
+- **1** behavioural target is learnable at any grain: dormancy, AUC 0.72–0.73.
+
+The same scorecard runs inside the [console](https://beta-aid-console.netlify.app/atlas) as the readiness atlas, from
+the copilot's control API: out-of-time gain over the benchmark with 95 % intervals, materiality and the minimum
+detectable effect for every candidate model.
+
+<p align="center"><img src="docs/assets/atlas/console-readiness-atlas.png" alt="Console readiness atlas: forest plot of out-of-time gains with 95 percent intervals for the eleven hour-grain models, all red or amber" width="100%"></p>
+
+The Atlas is also served by every copilot deployment at `/atlas`
+([Modal](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas)). Its source is
+[`eda/reports/dashboards/grain_atlas`](eda/reports/dashboards/grain_atlas/), regenerated from the exploratory notebooks.
 
 ## What makes it different
 
@@ -77,9 +102,9 @@ BETA AID is built in that order: **data you can prove → decisions you can gove
 
 | Where | What to do |
 |---|---|
+| **[Grain Atlas](https://beta-aid-grain-atlas.netlify.app)** | Start at mission control, then open a grain (keys 1–4): what the data supports at each grain, and the audit table of data requirements. |
 | **[Copilot (Modal)](https://aleonardobecerra--beta-aid-copilot-web.modal.run)** | Sign in as a demo customer with the test code shown on the page. Ask *"mi tarjeta no pasa"*, then ask it to block a card and watch it confirm before acting. |
 | **[Console (Netlify)](https://beta-aid-console.netlify.app)** | Chat simulator → fraud handoff → **agent desk** (four eyes: an agent cannot approve their own request) → supervisor view. |
-| **[Grain Atlas](https://aleonardobecerra--beta-aid-copilot-web.modal.run/atlas)** | Which decisions the data can and cannot support, at every grain. |
 | **Regional copilots** | Mexico in Querétaro: [`beta-aid-mx`](https://beta-aid-mx-621442591789.northamerica-south1.run.app). Colombia and Argentina in São Paulo: [`beta-aid-sa`](https://beta-aid-sa-621442591789.southamerica-east1.run.app). |
 
 Some control-plane screens in the console still run on labelled demo data; the chat, desk and handoffs call the real
@@ -122,7 +147,60 @@ The diagram is generated by [`scripts/diagrams/architecture.py`](scripts/diagram
 - one copilot service per residency region;
 - the gate every request passes.
 
-The logical view:
+### The lakehouse by grain and country
+
+<img src="docs/assets/architecture/beta-aid-granularity-flow.svg" alt="BETA AID lakehouse by grain and country: four grain flows from lossless bronze, opened per country at silver into 12 gold cells, each with a readiness gate and marts" width="100%">
+
+Generated by [`scripts/diagrams/granularity_flow.py`](scripts/diagrams/granularity_flow.py). The structure is the
+instrument of the factory:
+- **Four grain flows** (event, day, cell, hour) start from the same lossless bronze records
+  ([ADR-017](docs/platform/adr/ADR-017.md)).
+- **Each flow opens per country at silver** (MX, CO, AR, plus the pooled ALL scope for comparison;
+  [ADR-016](docs/platform/adr/ADR-016.md)). Contracts, drift baselines and imputations are estimated on each
+  country's own population.
+- **Gold holds 12 cells, 4 grains × 3 countries,** each a tested star with its own readiness gate
+  ([ADR-018](docs/platform/adr/ADR-018.md)); the marts of each grain family are derived from them.
+- **Everything is watched per producer, country and grain:** a hash-chained audit, anomaly rates for rules R01–R27, drift
+  against each country's reference window, and a schema-evolution circuit breaker per source contract.
+
+#### Why split by country: one consumer, many producers
+
+A bank's lakehouse is a consumer fed by many producer systems, one or more per country, and they rarely share a
+distribution. Pooling them can hide or blur a signal that is strong inside each country:
+- **Different base rates.** Fraud, dormancy or complaint prevalence differs by market; a pooled model optimises for
+  the weighted average and dilutes the high-prevalence market's pattern.
+- **Covariate shift.** The same feature means different things per country: amounts, currencies and ticket sizes,
+  channels, time-of-day habits.
+- **Concept shift.** Fraud and behaviour have local vocabularies, so P(y | x, country) is not P(y | x); a pooled model
+  learns a blur.
+- **Country-correlated labels and quality.** Investigation intensity, label definitions, null rates, code sets,
+  late arrivals and schema versions differ by source system and add country-specific noise.
+
+So every cell is diagnosed on its own and against the pooled scope:
+- stratified, out-of-time evaluation per country against the same benchmark;
+- PSI and distribution comparisons across countries;
+- country-by-feature interactions;
+- label checks per country.
+
+The modelling options this opens are recorded rather than assumed:
+- separate models per country;
+- one model with country interactions;
+- hierarchical or multi-task models;
+- features normalised within country.
+
+**What this data showed, honestly:** on this synthetic feed the countries behave alike (ADR-016), so the country split
+recovered no hidden signal, and that is a finding in itself. The grain did matter: transactions are flat per hour and
+pulse weekly per day, and the day grain carries the significant targets. On real multi-producer feeds this same
+structure is where local signal, drift and schema evolution surface first.
+
+#### Why split by grain
+
+A bank decides at many grains: a transaction, a customer this month, a market today, a campaign cell, a queue this
+hour. Each grain changes what is learnable and what is monitorable. Re-graining the same records gives new fact and
+dimension tables, new variables and new marts, and each grain × country cell gets its own verdict. Twelve verdicts are
+twelve chances to ship a product or to name the data that is missing.
+
+### The logical view
 
 ```mermaid
 flowchart LR
