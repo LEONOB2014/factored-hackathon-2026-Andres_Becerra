@@ -83,5 +83,7 @@ class Settings:
 
     @property
     def llm_available(self) -> bool:
-        # a real key, not the .env.example placeholder
+        # a local open-weight model (evaluation), or a real Anthropic key, not the .env.example placeholder
+        if os.environ.get("COPILOT_LLM_BACKEND") == "ollama":
+            return self.use_llm
         return self.use_llm and os.environ.get("ANTHROPIC_API_KEY", "").startswith("sk-ant-")

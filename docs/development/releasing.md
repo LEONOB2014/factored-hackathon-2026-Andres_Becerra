@@ -20,6 +20,7 @@
 | `v0.3.0` | Close of the exploratory and evaluation phase. The Airflow and dbt platform was used to judge the predictive power of every data mart at the grains a bank decides on (granularity series I–III), with these results: the business clock ([ADR-014](../platform/adr/ADR-014.md)), the campaign decision cell, the bank at the hour, readiness gates for every model, and the data-collection audit ([strategy 13](../strategy/13_data_readiness_audit.md)). It also adds the Modal compute plan |
 | `v0.4.0` | BETA AID: the card-service copilot (policy, verified actions, handoff, RAG and GraphRAG), its frozen held-out evaluation, the lateral pipelines by scope and grain (ADR-015 to ADR-020), and deployment on Modal and per residency region on Cloud Run (ADR-021) |
 | `v0.5.0` | The AI readiness factory: the Grain Atlas published as the decision dashboard, the console wired to the real copilot and scorecard, the read-only Data API, the fully documented lakehouse and published dbt docs, the grain-by-country architecture, and documented security layers |
+| `v0.6.0` | Open-weight and hosted models evaluated raw versus inside BETA AID: 85 adapted public attacks per model, 0 succeed inside BETA AID, and the frozen challenge set with each model |
 
 ## Cut a release
 
