@@ -9,7 +9,7 @@ for the data and, where the data is ready, a governed AI product. We don't build
 that makes them possible.**
 
 [![CI](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml/badge.svg)](https://github.com/LEONOB2014/factored-hackathon-2026-Andres_Becerra/actions/workflows/ci.yml)
-[![Version](https://img.shields.io/badge/version-0.4.0-2563eb)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-0.5.0-2563eb)](CHANGELOG.md)
 [![License: MIT](https://img.shields.io/badge/license-MIT-16a34a)](LICENSE)
 [![Conventional Commits](https://img.shields.io/badge/commits-conventional-fe5196?logo=conventionalcommits&logoColor=white)](https://www.conventionalcommits.org/en/v1.0.0/)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-FAB040?logo=pre-commit&logoColor=white)](.pre-commit-config.yaml)
@@ -119,6 +119,10 @@ The Atlas is also served by every copilot deployment at `/atlas`
 | **[Console (Netlify)](https://beta-aid-console.netlify.app)** | Chat simulator → fraud handoff → **agent desk** (four eyes: an agent cannot approve their own request) → supervisor view. |
 | **Regional copilots** | Mexico in Querétaro: [`beta-aid-mx`](https://beta-aid-mx-621442591789.northamerica-south1.run.app). Colombia and Argentina in São Paulo: [`beta-aid-sa`](https://beta-aid-sa-621442591789.southamerica-east1.run.app). |
 
+**Reviewer access.** The copilot fills in its test codes itself: pick a demo customer and sign in. The console's agent
+desk asks for the test staff code **112233**, and approving a handoff needs a second agent (four eyes). All of these are
+documented test fixtures (see [Security and authentication](#security-and-authentication)).
+
 Some control-plane screens in the console still run on labelled demo data; the chat, desk and handoffs call the real
 copilot.
 
@@ -149,6 +153,37 @@ and the retrieval questions are pinned by [`MANIFEST.sha256`](copilot/eval/MANIF
   - 7 serving tables published with digests;
   - Flink and dbt streaming features in parity, 0 mismatches over 7,789 transactions;
   - the audit chain verified with 0 problems ([evidence](docs/platform/README.md#what-was-verified-on-the-running-stack-end-to-end-airflow-run-2026-10-03)).
+
+## Security and authentication
+
+The brief accepts sandbox services when their contracts and limitations are documented. It asks for authentication
+through a trusted test session or identity service, because a customer number alone does not prove identity, and for
+access to each customer's data to be enforced. BETA AID implements this in layers, outside the model, so a prompt can
+never talk its way past them.
+
+| Layer | Mechanism | Where | Proven by |
+|---|---|---|---|
+| **1. Identity and session** | A test identity service issues HMAC-SHA256 signed session tokens with a 15-minute TTL. Missing, expired or tampered tokens are refused, and comparisons are constant-time (`hmac.compare_digest`). A customer id alone never opens a session: a one-time code is required. | [`identity.py`](copilot/src/copilot/identity.py) | `no_session` challenge cases 6/6 |
+| **2. Step-up for sensitive actions** | Unblocking a card needs a second, step-up code on top of the session. | [`identity.py`](copilot/src/copilot/identity.py), [`policy.yaml`](copilot/src/copilot/policy.yaml) | Copilot tests |
+| **3. Action authorisation** | Every write is two-phase. The copilot proposes, then the customer confirms with a token: an HMAC over action, customer, session, card and expiry, with a 5-minute TTL and a single-use nonce as the idempotency key. A read-back must match before the copilot may say "done". | [`tools.py`](copilot/src/copilot/tools.py) | `confirm_cancel` cases 16/16 |
+| **4. Data isolation** | Tools read only the session customer's cards from a read-only snapshot; writes go to a separate operational store. A cross-customer guard runs before the model sees the turn, and each region serves only its own countries (a customer from the other region gets 401). | [`tools.py`](copilot/src/copilot/tools.py), [ADR-021](docs/platform/adr/ADR-021.md) | `other_customer` 10/10, `injection` 8/8 |
+| **5. Policy outside the model** | Autonomy levels A0, A2 and A3 plus nine vetoes live in a versioned YAML policy. Fraud, limits, disputes and complaints always go to a person. | [`policy.yaml`](copilot/src/copilot/policy.yaml) | Frozen challenge set (120 cases) |
+| **6. Staff access and four eyes** | The agent desk needs a staff code, and approving a handoff needs a different agent from the one who requested it (self-approval is refused with 409). | [`app.py`](copilot/src/copilot/app.py) | Copilot tests, console |
+| **7. Audit and observability** | Every turn is traced (policy version, rule, autonomy, grounding) and appended to a hash-chained log. | [`audit.py`](copilot/src/copilot/audit.py) | Chain verification |
+| **8. Data protection and retention** | Card numbers are masked before anything is logged, traced or sent to the LLM. Gold and serving hold tokens, not identities. Sessions live 15 minutes and confirmations 5 minutes; nothing is stored about the conversation beyond the masked, audited trace. | [`gateway.py`](copilot/src/copilot/gateway.py), [ADR-007](docs/platform/adr/ADR-007.md) | Copilot tests |
+
+**Documented limitations (test mode):**
+- **Test fixtures.** The one-time, step-up and staff codes are test fixtures, shown in the demo UI on purpose so
+  reviewers can sign in. They come from `COPILOT_TEST_*` environment variables; production replaces them with an OTP
+  sent by SMS or email for customers and an identity provider with roles for staff.
+- **Sandboxed writes.** In the public demo (`COPILOT_SANDBOX=1`), a confirmed action changes the card only inside the
+  session that made it, so visitors cannot affect each other.
+- **Customer scoping is enforced in the application layer.** Real customer data would add row-level security on the
+  Postgres serving tables, keyed by customer and country ([ADR-003](docs/platform/adr/ADR-003.md)).
+- **LLM fallback is optional.** With an `ANTHROPIC_API_KEY` configured, masked text goes to the Claude API when the
+  intent model is unsure. The public deployments run without a key, on the deterministic path (the tuned intent model
+  and grounded templates) that produced every reported number. With real data, the fallback needs a regional or
+  self-hosted model to respect residency.
 
 ## Architecture
 
