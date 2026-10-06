@@ -6,6 +6,50 @@ All notable changes to this project are documented here. The format follows
 Entries are generated from Conventional Commits by commitizen; see
 [docs/development/releasing.md](docs/development/releasing.md).
 
+## v0.5.0 (2026-10-05)
+
+### Highlights
+
+- **The AI readiness factory leads.** The README, diagrams and docs now present BETA AID as it is:
+  - a decision dashboard (the Grain Atlas) with rigorous statistics at every grain and country;
+  - an auditor agent that turns failed readiness gates into data-quality documents;
+  - the card copilot, as the first product the data could support.
+- **The Grain Atlas is published** at beta-aid-grain-atlas.netlify.app, and the console's readiness atlas reads the real
+  scorecard.
+- **The console is wired to the real copilot:** chat, agent desk with four eyes, supervisor, evaluation, autonomy policy
+  and readiness. The read-only Data API serves publications, counts and knowledge documents.
+- **Every lakehouse model and serving column is documented,** and the dbt docs are published at
+  beta-aid-dbt-docs.netlify.app.
+- **New generated diagrams:**
+  - infrastructure and data flow;
+  - the lakehouse by grain and country (4 grains × 3 countries = 12 gold cells);
+  - a star schema per fact and mart.
+- **Security and authentication** is documented layer by layer, with its test-mode limitations.
+
+### Feat
+
+- **platform**: serve knowledge documents and active-set hash
+- **platform**: serve publication log and table counts
+- **platform**: add read-only data api skeleton
+- **console**: show the intent model and retrieval evaluations
+- **console**: read the autonomy policy from the copilot API
+- **console**: count the overview readiness from the real scorecard
+- **console**: show the challenge-set evaluation on the supervisor
+- **console**: draw the readiness atlas from the real scorecard
+- **console**: add observable plot interval chart wrappers
+- **console**: read readiness and evaluation from the copilot API
+- **console**: wire the chat and the agent desk to the real copilot
+- **agents**: serve the control plane and the agent desk to the console
+- **console**: import the BETA AID Console prototype
+
+### Fix
+
+- **agents**: close the G07 guard miss and two reply refinements
+
+### Refactor
+
+- **console**: remove the mocks the real services replaced
+
 ## v0.4.0 (2026-10-05)
 
 ### Highlights
