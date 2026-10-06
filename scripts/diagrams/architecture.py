@@ -22,7 +22,8 @@ REPO = Path(__file__).resolve().parents[2]
 OUT = REPO / "docs" / "assets" / "architecture" / "beta-aid-architecture.svg"
 ICONS = "https://cdn.jsdelivr.net/npm/simple-icons@15.22.0/icons/{}.svg"
 FONT = "Inter, 'Segoe UI', Helvetica, Arial, sans-serif"
-W, H = 1720, 1170
+W, H = 1720, 1190
+HEADER = 20  # extra room under the title for the author line; the body shifts down by this much
 
 BRAND = {
     "apacheairflow": "#017CEE",
@@ -544,15 +545,18 @@ def build() -> str:
         f'<rect width="{W}" height="{H}" rx="16" fill="#FFFFFF"/>',
         '<text x="24" y="40" font-size="20" font-weight="800" fill="#0F172A">BETA AID · infrastructure and data '
         "flow</text>",
-        '<text x="24" y="60" font-size="11.5" fill="#64748B">Banking Evolutionary Transformation and AI Deployment '
+        '<text x="24" y="62" font-size="14" font-weight="700" fill="#334155">Andrés Becerra</text>',
+        '<text x="24" y="81" font-size="11.5" fill="#64748B">Banking Evolutionary Transformation and AI Deployment '
         "· Factored AI &amp; Data Hackathon 2026</text>",
         *legend,
+        f'<g transform="translate(0,{HEADER})">',
         *zones,
         *lake,
         *gate,
         *flows,
         *(node_svg(n, icons) for n in nodes.values()),
         *labels,
+        "</g>",
         "</svg>",
     ]
     return "\n".join(parts) + "\n"
