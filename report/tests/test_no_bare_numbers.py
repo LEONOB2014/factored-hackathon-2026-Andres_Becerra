@@ -69,6 +69,7 @@ NAME_MACROS = {
     "shaname",
     "CRtwo",
     "HCthree",
+    "logten",
 }  # method names with digits; every other macro body must be digit-free
 
 
