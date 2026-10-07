@@ -1,4 +1,81 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Audit, service levels and the pipeline gates}\label{ch:audit-and-gates}
 
-\emph{Planned content.} Integrity rules against their objectives and the fidelity of the pipeline emulator.
+The last task group of every run audits what the others built. Each integrity rule of \cref{sec:ad-rules} is counted
+against the rows it applies to, compared with an agreed baseline and maximum, and a gate fails the run when a rule of the
+highest severity exceeds its maximum. A gate is a statistical test run on every delivery, and like any test it has a
+false-alarm rate, a power and a target it is meant to detect. This chapter states the gate as a test and measures what it
+can and cannot catch.
+
+\section{The gate as a test}\label{sec:ag-test}
+
+For a rule with observed rate $\hat p$ over the $N$ rows of its table, a baseline $p_0$ and a maximum $p_{\max}$, the gate
+breaches when $\hat p > p_{\max}$. The built lakehouse evaluates $\est{ch13.rules}{value}$ rules. Every rule sits at its
+baseline, and $\est{ch13.breached}{value}$ breach; they are the subject of \cref{sec:ag-policy}. Of the rest,
+$\est{ch13.rules-live}{value}$ have a finite tolerance $p_{\max} - \hat p$ (\cref{tab:ch13-tolerance}); a few have a maximum equal to
+the whole table, because every row violates them by construction, and can never breach
+($\est{ch13.pinned-max}{value}$ of them).
+
+\paragraph{What the gate can detect.} The rate is computed over the whole table, history included. If a new delivery makes
+a share $f$ of the table violate the rule, the rate rises to $\hat p + f(1 - \hat p)$ at most, so the gate breaches only when
+\begin{equation}\label{eq:ag-share}
+  f > f^{\star} = \frac{p_{\max} - \hat p}{1 - \hat p}.
+\end{equation}
+For a fact table delivered daily over $T$ days, $f^{\star}$ corresponds to $f^{\star} T$ days of deliveries in which every
+row violates the rule. For approved transactions without a response code, the rate is $\est{ch13.r03-rate}{value}\,\%$ and the
+maximum $\est{ch13.r03-max}{value}\,\%$, so the gate breaches only after $\est{ch13.r03-days}{value}$ entirely corrupted days of
+transactions out of $\est{ch13.tx-days}{value}$. Across the fact-table rules the median is $\est{ch13.days-median}{value}$ such
+days, from $\est{ch13.days-min}{value}$ to $\est{ch13.days-max}{value}$. A delivery that doubles a rule's rate for one day moves
+the cumulative rate by a tiny fraction of the tolerance. The gate as built is a detector of slow, sustained degradation over
+much of the history; it cannot see a bad delivery.
+
+\paragraph{The per-delivery alternative.} A bad delivery is a change in one day's rate, and \cref{sec:sf-empty} showed how
+to test it: judge each day's rate against the baseline with a binomial rule. For the response-code rule the daily rate is
+binomial around a common value (dispersion $\est{ch13.r03-dispersion}{value}$, \cref{eq:sf-dispersion}), so with a median of
+$\est{ch13.r03-day-rows}{value}$ transactions a day, a rule reporting $\lvert z \rvert > \est{ch13.z-rule}{value}$ detects a rise of
+about $\est{ch13.r03-day-mde}{value}$ percentage points in a single day. Accumulating the daily evidence with a CUSUM
+\autocite{page1954} would also catch a smaller rise that persists over days. The per-partition circuit breaker of
+\cref{sec:sf-breaker} already works this way for formats and vocabularies; the semantic rules need the same treatment.
+
+\input{../build/generated/tables/ch13-tolerance}
+
+\section{Policies that always fail}\label{sec:ag-policy}
+
+The $\est{ch13.zero-policy}{value}$ breaching rules breach on every run: sends to customers who do not accept marketing ($\est{ch13.rate-r21}{value}\,\%$ of sends),
+complaints about a product owned by another customer ($\est{ch13.rate-r25}{value}\,\%$) and digital events on a product owned by
+another customer ($\est{ch13.rate-r26}{value}\,\%$). Their maximum is zero because they are policies, not tolerances: no send
+without consent, no cross-customer product reference. The data violate them by construction, so enforcing them would fail
+every run forever, and $\est{ch13.zero-policy-enforced}{value}$ of the $\est{ch13.zero-policy}{value}$ are enforced in the
+development environment. The distinction matters for design. A gate on change protects the pipeline against a degradation;
+a policy on state describes what the data must never contain, and its proper enforcement point is where the violating rows
+are used: the consent gate of the campaign mart, an ownership check in the complaint and event marts
+(\cref{ch:marts-and-features}). A permanently red gate trains its readers to ignore red.
+
+\section{Service levels per country}\label{sec:ag-countries}
+
+The country notebooks re-base each rule's maximum on the country: the baseline becomes the country's own rate and the
+maximum scales with it, $p^{c}_{\max} = \max\bigl(\hat p_c\, p_{\max} / p_0,\ \hat p_c + \delta\bigr)$ with a floor of
+$\delta = \est{ch13.floor-pp}{value}$ percentage points, while policy maxima of zero stay zero. Judged by the bank-wide
+maxima, the countries breach more rules than the bank ($\est{ch13.global-breach-mx}{value}$ in Mexico,
+$\est{ch13.global-breach-co}{value}$ in Colombia and $\est{ch13.global-breach-ar}{value}$ in Argentina), because a blend's
+maximum is wrong for its parts, the lesson of \cref{sec:sf-countries}; the backup breaches $\est{ch13.backup-global-breach}{value}$
+(\cref{tab:ch13-countries}). Judged by their own re-based maxima, no scope breaches anything. That result carries no
+information: a maximum estimated from the same rates it judges is above them by construction. A re-based service level is a
+valid control only when it is estimated on a reference window and applied to later deliveries, as the drift baselines of
+\cref{sec:sf-countries} are.
+
+\input{../build/generated/tables/ch13-countries}
+
+\section{Verdict and implications}\label{sec:ag-verdict}
+
+The audit layer measures every rule on every run and records it, which is what an audit trail needs. As a gate it is
+weaker than it looks. Its cumulative rates make it blind to a bad delivery, its zero-tolerance policies make it permanently
+red, and its country service levels pass by construction. Each has a direct repair: per-delivery binomial rules or a CUSUM
+for the semantic rules, enforcement of policies where the violating rows are consumed, and service levels estimated on a
+reference window. With them the gate would protect against what a daily pipeline actually suffers: a delivery that is
+worse than the ones before it.
+
+\section{Limitations}\label{sec:ag-limits}
+
+The analysis reads the rule summary of the last run; the per-day analysis is shown for one rule and transactions, and the
+equivalence of a share of the table to days of deliveries assumes deliveries of similar size. The emulator fidelity and
+build-time checks of the notebooks are not repeated here.
