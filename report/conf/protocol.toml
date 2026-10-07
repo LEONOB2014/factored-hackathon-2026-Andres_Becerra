@@ -49,6 +49,11 @@ offset_hours_digital_events = -6
 offset_hours_campaign_sends = -6
 offset_hours_contacts = -8
 offset_hours_complaints = -8
+# Legal clocks of the markets (fixed offsets 2023-2026, no daylight saving), used only by the report-only
+# business-date flip rate (Chapter 4); added by amendment.
+legal_offset_hours_mexico = -6
+legal_offset_hours_colombia = -5
+legal_offset_hours_argentina = -3
 
 [privacy]
 # No table cell or plotted group from fewer contributors than this (eng review A2).
@@ -183,3 +188,24 @@ old = "(absent)"
 new = 2.8
 date = "2026-10-07"
 reason = "documents a constant of the frozen readiness_verdict so the report can cite it; no behavior change"
+
+[[amendments]]
+field = "clock.legal_offset_hours_mexico"
+old = "(absent)"
+new = -6
+date = "2026-10-07"
+reason = "legal clock used by the report-only business-date flip rate (Chapter 4); constant of law, no effect on any gate"
+
+[[amendments]]
+field = "clock.legal_offset_hours_colombia"
+old = "(absent)"
+new = -5
+date = "2026-10-07"
+reason = "legal clock used by the report-only business-date flip rate (Chapter 4); constant of law, no effect on any gate"
+
+[[amendments]]
+field = "clock.legal_offset_hours_argentina"
+old = "(absent)"
+new = -3
+date = "2026-10-07"
+reason = "legal clock used by the report-only business-date flip rate (Chapter 4); constant of law, no effect on any gate"
