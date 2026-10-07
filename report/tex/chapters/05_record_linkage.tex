@@ -1,4 +1,178 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Record linkage and comparable rows}\label{ch:record-linkage}
 
-\emph{Planned content.} Fellegi--Sunter linkage, natural-key alignment, clone detection, the mismatch taxonomy and transition matrices.
+\Cref{ch:inventory-keys,ch:time-and-clocks} established that most rows of the backup have no counterpart in the main
+copy and that no re-dating aligns them. A minority of rows, however, can be paired, and on those pairs the remaining
+hypothesis can be tested: that records present in both copies were silently changed (\ident{H5}). Pairing must be
+earned row by row and validated against something the pairing did not use. This chapter builds the pairs in layers of
+increasing ambition (dates of shared keys, people under different keys, products and agents by natural key,
+transactions by content), then compares what the pairs say.
+
+\section{Aligning the dates of shared keys}\label{sec:rl-dates}
+
+For rows that share a key, \cref{ch:time-and-clocks} found offsets that drift smoothly by table. A drift model
+predicts each pair's offset from the median offset of its month, estimated on the other months only (leave one month
+out), so the evaluation is out of sample. The mean absolute error of the predicted date falls from
+$\est{ch05.mae-raw-campaign-sends}{value}$ days with no correction to $\est{ch05.mae-drift-campaign-sends}{value}$ for
+sends, against $\est{ch05.mae-const-campaign-sends}{value}$ for a single global constant, and from
+$\est{ch05.mae-raw-transactions}{value}$ to $\est{ch05.mae-drift-transactions}{value}$ days for transactions, of which
+$\est{ch05.within-day-transactions}{value}\,\%$ then fall within a day (\cref{tab:ch05-drift-alignment}). A residual
+jitter of a day or more remains for events and sends: dates of shared keys can be aligned approximately, never exactly,
+and day-level comparisons below use a tolerance window.
+
+\input{../build/generated/tables/ch05-drift-alignment}
+
+\section{People under different keys: probabilistic linkage}\label{sec:rl-fs}
+
+\subsection{A shared identifier is a noisy label}
+
+Of the $\est{ch05.shared-id}{value}$ customers whose key appears in both copies,
+$\est{ch05.shared-id-all-four}{value}\,\%$ agree on document number, first name, last name and date of birth,
+$\est{ch05.shared-id-none}{value}\,\%$ ($\est{ch05.shared-id-none-n}{value}$ customers) agree on none of them, and
+$\est{ch05.shared-id-partial}{value}\,\%$ agree on some. A shared key does not mean a shared person: for
+$\est{ch05.shared-id-none}{value}\,\%$ of the shared keys the key was given to someone else. Linkage therefore cannot be validated against keys.
+
+\subsection{The Fellegi--Sunter model}
+
+For a candidate pair $(a, b)$ of a main and a backup record, let $\gamma = (\gamma_1, \dots, \gamma_K)$ record whether
+the pair agrees on each of $K$ comparison fields. The theory of \textcite{fellegi1969} compares the probability of the
+agreement pattern among true matches $M$ and among non-matches $U$.
+
+\begin{assumption}[Conditional independence of agreements]\label{ass:ci}
+Given match status, agreements on different fields are independent:
+$\Prob(\gamma \mid M) = \prod_k m_k^{\gamma_k}(1 - m_k)^{1 - \gamma_k}$ and
+$\Prob(\gamma \mid U) = \prod_k u_k^{\gamma_k}(1 - u_k)^{1 - \gamma_k}$, with $m_k = \Prob(\gamma_k = 1 \mid M)$ and
+$u_k = \Prob(\gamma_k = 1 \mid U)$.
+\end{assumption}
+
+Under \cref{ass:ci} the log-likelihood ratio, in bits, is a sum of field weights,
+\begin{equation}\label{eq:fs-weight}
+  W(\gamma) = \sum_{k} \Bigl[\gamma_k \log_2 \frac{m_k}{u_k} + (1 - \gamma_k) \log_2 \frac{1 - m_k}{1 - u_k}\Bigr],
+\end{equation}
+and \textcite{fellegi1969} show that thresholding $W$ gives the linkage rule with the fewest undecided pairs for given
+error rates. A field earns a large weight when matches agree on it and strangers rarely do.
+
+\paragraph{Estimation.} Candidate pairs come from blocking: pairs that agree on the document number, on last name and
+date of birth, on the mobile phone, or on e-mail and date of birth. There are $\est{ch05.candidates}{value}$ of them,
+$\est{ch05.candidates-same-id}{value}$ sharing a key. The chance-agreement probabilities $u_k$ are estimated on random
+pairs of main and backup customers, not on the candidates, because blocking forces agreement on the blocking fields.
+The match probabilities $m_k$ and the match prevalence among candidates are then estimated by the EM algorithm
+\autocite{dempster1977}, with $u$ held fixed, as in the census linkage of \textcite{jaro1989}.
+
+The re-estimation differs from the exploratory notebook in one respect. The notebook drew its random pairs with an
+unseeded sample, so its weights changed slightly from run to run; this report draws them deterministically (the
+customers with the lowest seeded hash), so every rebuild reproduces the same weights (\cref{tab:ch05-fs-weights}). The
+estimates agree with the notebook's: agreeing on the document number is worth $\est{ch05.w-document-number}{value}$ bits,
+on the mobile phone $\est{ch05.w-mobile-phone}{value}$ and on the date of birth $\est{ch05.w-date-of-birth}{value}$,
+while country ($\est{ch05.w-country}{value}$ bits) and gender ($\est{ch05.w-gender}{value}$) carry little, having few
+categories.
+
+Some estimates need a caveat. For the document number and the mobile phone no random pair agreed, and the estimate of
+$u_k$ sits at the floor that keeps \cref{eq:fs-weight} finite. With no agreement among $N$ random pairs, an upper
+confidence bound for $u_k$ is about $3/N$ at the conventional level \autocite{hanley1983}, far below the floor, so these
+weights understate the true evidence and the linkage is, if anything, conservative. The EM prevalence among candidates
+is $\est{ch05.em-prevalence}{value}$, the cap of the algorithm: candidates are enriched in matches by construction, so
+absolute weights are approximate and the linkage is validated externally, below.
+
+\input{../build/generated/tables/ch05-fs-weights}
+
+\subsection{What the scores show}
+
+Because each field either agrees or not, the scores of \cref{eq:fs-weight} take values on a lattice of sums of field
+weights (\cref{fig:ch05-scores}). Pairs that share a key form a high mode, the same person, and a low mode below the
+threshold, the key given to someone else; most pairs under different keys cluster at a high score of their own,
+agreeing on all identity fields but the contact details. Against the key as a label the score's AUC is only
+$\est{ch05.auc-vs-id}{value}$, not because the score is weak but because the label is wrong for many of the shared
+keys.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig-05-linkage-scores}
+  \caption{Fellegi--Sunter scores of the candidate customer pairs, by whether the pair shares a key; the dashed line
+  is the linkage threshold. Counts on a log scale. Source: \ident{report/build/sources/ch05\_fs\_scores.csv}.}
+  \label{fig:ch05-scores}
+\end{figure}
+
+\subsection{Linkage and its blind validation}
+
+At the exploratory notebook's threshold of $\est{ch05.cut}{value}$ bits, $\est{ch05.linked-people}{value}$ main-copy
+customers are linked, $\est{ch05.linked-share}{value}\,\%$ of the population:
+$\est{ch05.linked-same-id}{value}$ pairs under the same key and $\est{ch05.linked-other-id}{value}$ under a different
+one. The result is stable around the threshold: it links $\est{ch05.linked-at-5}{value}$ customers at a much lower
+threshold and $\est{ch05.linked-at-15}{value}$ at a higher one (\cref{tab:ch05-sensitivity}).
+
+\input{../build/generated/tables/ch05-sensitivity}
+
+The linkage is validated on fields it never used (\cref{tab:ch05-validation}). Linked pairs agree on the address in
+$\est{ch05.held-address}{value}\,\%$ of cases against $\est{ch05.held-address-random}{value}\,\%$ for random pairs,
+and on the registration date in $\est{ch05.held-registration-date}{value}\,\%$ and the landline in
+$\est{ch05.held-landline-phone}{value}\,\%$, agreements a random pair essentially never shows. Low-cardinality fields
+such as the segment agree often among linked pairs ($\est{ch05.held-segment}{value}\,\%$) but only
+$\est{ch05.held-segment-lift}{value}$ times as often as at random, as they should: they cannot identify a person. This
+held-out evidence, not the key, shows the linked pairs are the same people.
+
+\input{../build/generated/tables/ch05-validation}
+
+\section{Products, agents and transactions}\label{sec:rl-other}
+
+Products carry a natural key, the product number, unique in each copy. Of the $\est{ch05.products-shared-id}{value}$
+products that share a key, $\est{ch05.products-id-same-object}{value}\,\%$ also share their number. Pairing on the number
+instead finds $\est{ch05.products-nk-pairs}{value}$ pairs, $\est{ch05.products-extra}{value}$ more than the shared keys,
+so product linkage should use the number, not the key.
+
+Transaction clones were identified in \cref{sec:time-filter} through shared keys. Searching without keys, for pairs
+with an identical fingerprint whose date difference lies within a few days of the month's median offset, finds
+$\est{ch05.window-pairs}{value}$ pairs and recovers $\est{ch05.window-recall}{value}\,\%$ of the clones found through
+keys. It adds $\est{ch05.window-other-id}{value}$ pairs under different keys, but placebo windows displaced by several
+months, where no true match can lie, return $\est{ch05.placebo-mean}{value}$ pairs on average: most of the additions are
+chance, and the clone core is essentially the one the keys already reveal.
+
+\section{What changed in the paired records}\label{sec:rl-changes}
+
+\paragraph{Customers.} Customers that are the same person under the same key are identical in nearly every field;
+the field that moves is the credit score. Among the $\est{ch05.scored}{value}$ of them with a score in both copies, $\est{ch05.rescored}{value}\,\%$
+were re-scored, with a median absolute change of $\est{ch05.rescore-median-abs}{value}$ points and a mean change of
+$\est{ch05.rescore-mean}{value}$: symmetric noise around the original. The change is not recorded. Re-scored
+customers keep the same last-update timestamp in $\est{ch05.rescored-same-updated}{value}\,\%$ of cases, the same share
+as customers whose score did not move ($\est{ch05.unchanged-same-updated}{value}\,\%$). In a bank, a value that changes
+without its audit column is a change-control failure. Customers whose identity fields partly agree look like blends of
+different records rather than updates: their city differs in $\est{ch05.edited-city-changed}{value}\,\%$ of cases.
+
+\paragraph{Products.} Products paired by number keep their type, status and opening date, but
+$\est{ch05.redenominated}{value}\,\%$ change currency, and the balance then changes by a fixed factor: a median of
+$\est{ch05.rate-cop}{value}$ Colombian pesos and $\est{ch05.rate-ars}{value}$ Argentine pesos per dollar
+(\cref{tab:ch05-redenomination}), flat rates that ignore the daily exchange-rate table. The re-denomination is exact in
+the median, but the balances are not equal after it: the standard deviation of the decimal logarithm of the balance
+ratio is between $\est{ch05.log-ratio-sd-min}{value}$ and $\est{ch05.log-ratio-sd-max}{value}$ for every currency
+pair, including pairs that kept their currency. The backup holds a re-denominated and perturbed copy of the products'
+economic state, attributed to different owners.
+
+\input{../build/generated/tables/ch05-redenomination}
+
+\paragraph{Transaction clones.} A clone is the same event, with the same amount, merchant, channel, status, fraud score
+and time of day, posted to a different customer and product a few days later. It keeps the branch in
+$\est{ch05.clone-same-branch}{value}\,\%$ of cases but the city in only $\est{ch05.clone-same-city}{value}\,\%$: the
+city follows the new owner.
+
+\paragraph{The control.} Complaints keep their keys in both copies and serve as the negative control. Of their
+$\est{ch05.complaint-columns}{value}$ columns besides the key, $\est{ch05.complaint-columns-equal}{value}$ are equal in
+every row; the others are the foreign keys to the customer, the product and the agent, and the customer agrees in
+$\est{ch05.complaint-customer-equal}{value}\,\%$ of complaints. A method that flagged complaint content as changed would be
+wrong; this one does not, and it shows that the backup re-keys foreign keys independently of attributes.
+
+\section{Verdict and implications}\label{sec:rl-verdict}
+
+\ident{H5}, silent mutation of shared records, is supported, but not as uniform noise. It has distinct components: an
+untraced credit-score refresh, a flat-rate currency re-denomination with perturbed balances, and the re-attribution of
+products and transactions to other customers. For the platform, keys are never trusted across sources without
+validation: customers are linked probabilistically and validated on held-out fields, products by their natural key.
+A source contract must require that every change of a value moves its audit timestamp, and that balances are
+converted with the daily exchange-rate table. None of these changes affects a model gate, since every gate is computed
+on the main copy alone; they decide what a backup can and cannot be used for, which is a restore of nothing but the
+complaints.
+
+\section{Limitations}\label{sec:rl-limits}
+
+\Cref{ass:ci} is false in detail: first name and gender, or city and country, are correlated, so the weights count
+some evidence more than once. The blind validation is what guards against that. The candidate pairs come from blocking rules,
+and a person whose record disagrees on every blocking field cannot be linked. The threshold is the exploratory
+notebook's choice; the sensitivity table shows the conclusion does not depend on it.
