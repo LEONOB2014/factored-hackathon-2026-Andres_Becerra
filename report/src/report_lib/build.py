@@ -16,13 +16,16 @@ class Chapter:
 
     def __init__(self, number: int, prefix: str):
         self.number, self.prefix, self.claims = number, prefix, []
+        self.status: str | None = (
+            None  # set to "positive-control" while recording claims on planted data
+        )
         self._hash: dict[Path, str] = {}
 
     def _src(self, path: Path, source_type: str) -> dict:
         if path not in self._hash:
             self._hash[path] = sources.sha256(path)
         rel = sources.rel(path)
-        status = expected_status(source_type, rel) or "exploratory"
+        status = expected_status(source_type, rel) or self.status or "exploratory"
         return {"source_type": source_type, "source_path": rel, "source_sha256": self._hash[path],
                 "status": status, "chapter": self.number}  # fmt: skip
 
@@ -85,6 +88,41 @@ class Chapter:
                 digits=digits,
                 **self._src(source, source_type),
             )  # fmt: skip
+        )
+
+    def metric(self, topic: str, interval, n: float, source: Path, source_type: str = "scripted",
+               digits: int | None = None) -> None:  # fmt: skip
+        """A model metric (AUC, average precision) with its interval and the rows it was computed on."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="metric",
+                estimate=float(interval.estimate),
+                n=float(n),
+                lo=float(interval.lo),
+                hi=float(interval.hi),
+                interval_method=interval.method,
+                digits=digits,
+                **self._src(source, source_type),
+            )
+        )
+
+    def difference(self, topic: str, interval, source: Path, cluster_unit: str, source_type: str = "scripted",
+                   unit: str | None = None, digits: int | None = None) -> None:  # fmt: skip
+        """A difference of two estimates (B minus A) with its interval."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="difference",
+                estimate=float(interval.estimate),
+                lo=float(interval.lo),
+                hi=float(interval.hi),
+                interval_method=interval.method,
+                cluster_unit=cluster_unit,
+                unit=unit,
+                digits=digits,
+                **self._src(source, source_type),
+            )
         )
 
     def write(self) -> Path:
