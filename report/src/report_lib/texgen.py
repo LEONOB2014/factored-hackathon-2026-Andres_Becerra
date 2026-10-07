@@ -89,6 +89,8 @@ def render_protocol(proto: dict) -> tuple[str, set[str]]:
             val = num(v)
         elif isinstance(v, list):
             val = ", ".join(num(x) if isinstance(x, int | float) else tex_escape(str(x)) for x in v)
+            keys.add(f"{k}.n")
+            lines.append(f"\\expandafter\\def\\csname proto@{k}.n\\endcsname{{{num(len(v))}}}")
         else:
             val = tex_escape(str(v))
         keys.add(k)

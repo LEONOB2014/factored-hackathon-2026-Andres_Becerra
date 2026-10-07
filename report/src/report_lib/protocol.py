@@ -38,15 +38,22 @@ def load(path: Path = PROTOCOL) -> dict[str, Any]:
     return tomllib.loads(path.read_text())
 
 
+ABSENT = "(absent)"  # an amendment's `old` for a key the frozen protocol did not have
+
+
 def flatten(d: dict[str, Any], prefix: str = "") -> dict[str, Any]:
-    """Dotted keys for every non-table value; arrays of tables (amendments, families) are left out."""
+    """Dotted keys for every value. An array of tables with an `id` field (families) becomes `<key>.<id>.<field>`,
+    so its entries are protected by the freeze too; [[amendments]] is the change log and is left out."""
     out: dict[str, Any] = {}
     for k, v in d.items():
         key = f"{prefix}{k}"
         if isinstance(v, dict):
             out.update(flatten(v, key + "."))
         elif isinstance(v, list) and v and all(isinstance(x, dict) for x in v):
-            continue
+            if k == "amendments":
+                continue
+            for i, item in enumerate(v):
+                out.update(flatten(item, f"{key}.{item.get('id', i)}."))
         else:
             out[key] = v
     return out
@@ -79,7 +86,8 @@ def freeze_violations(path: Path = PROTOCOL, repo: Path | None = None) -> list[s
     then = tomllib.loads(shown.stdout)
     a, b = flatten(then), flatten(now)
     amended = {
-        (x.get("field"), repr(x.get("old")), repr(x.get("new"))) for x in now.get("amendments", [])
+        (x.get("field"), repr(None if x.get("old") == ABSENT else x.get("old")), repr(x.get("new")))
+        for x in now.get("amendments", [])
     }
     for x in now.get("amendments", []):
         for f in ("field", "old", "new", "date", "reason"):

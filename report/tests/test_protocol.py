@@ -149,3 +149,27 @@ def test_dataset_files_match_their_frozen_hashes():
 
     for rel, digest in protocol.load()["dataset"]["sha256"].items():
         assert sources.sha256(REPO / "data" / rel) == digest, rel
+
+
+def test_families_are_protected_and_new_keys_need_an_absent_amendment(repo):
+    p = repo / "protocol.toml"
+    fam = '[[families]]\nid = "f1"\nsource = "s"\nsize = {size}\n'
+    text = BASE.format(frozen="true", commit="{commit}", cell=10, amend="") + "{extra}" + fam
+    frozen = _commit(repo, p, text.format(commit="", extra="", size=60))
+    _commit(repo, p, text.format(commit=frozen, extra="", size=60))
+    assert protocol.freeze_violations(p, repo) == []
+    p.write_text(text.format(commit=frozen, extra="", size=59))
+    assert any("families.f1.size" in v for v in protocol.freeze_violations(p, repo))
+    added = text.format(commit=frozen, extra="[gates]\nalpha = 0.05\n", size=60)
+    p.write_text(added)
+    assert any("gates.alpha" in v for v in protocol.freeze_violations(p, repo))
+    amend = '[[amendments]]\nfield = "gates.alpha"\nold = "(absent)"\nnew = 0.05\ndate = "d"\nreason = "r"\n'
+    p.write_text(added + amend)
+    assert protocol.freeze_violations(p, repo) == []
+
+
+def test_lists_expose_their_length_to_latex(tmp_path):
+    from report_lib import texgen
+
+    tex, keys = texgen.render_protocol({"gates": {"ids": ["a.b", "c.d", "e.f"]}})
+    assert "gates.ids.n" in keys and "\\num{3}" in tex
