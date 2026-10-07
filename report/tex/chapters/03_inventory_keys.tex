@@ -1,4 +1,178 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Inventory, keys and set difference}\label{ch:inventory-keys}
 
-\emph{Planned content.} Coverage, surrogate and natural keys, and content fingerprints between the main and backup copies.
+The dataset arrived as a main copy and a second copy that no document mentions, the backup. Before any modelling,
+the platform has to know what each copy contains, whether its keys identify rows and link tables, and how the copies
+relate. This chapter answers those questions with exact counts. It tests the first of the hypotheses the exploratory
+series set out: that the backup is incomplete (\ident{H4}) and that its entities are the main copy's entities under
+new surrogate keys (\ident{H2}). The time-shift hypothesis (\ident{H1}) is the subject of \cref{ch:time-and-clocks},
+mutated attributes (\ident{H5}) of \cref{ch:record-linkage}, and the independent-replicate hypothesis (\ident{H3}) of
+\cref{ch:statistical-equivalence}.
+
+\section{Census, not sample}\label{sec:inv-census}
+
+Every quantity in this chapter is computed on every row of a table: the number of rows, the number of distinct keys,
+the share of child rows whose parent is missing, the share of keys found in both copies. These are \emph{census}
+quantities. They describe the dataset as delivered, without sampling error, so they carry no interval
+(\cref{sec:em-ledger}). The question they answer is what the data are, not what process produced them; the second
+question needs inference and is left to \cref{ch:statistical-equivalence}. All counts are recomputed from the
+parquet files whose digests the protocol pins, so each one traces to a frozen input.
+
+\section{The tables and their documentation}\label{sec:inv-tables}
+
+The main copy holds $\est{ch03.tables-main}{value}$ tables; the backup holds $\est{ch03.tables-backup}{value}$
+(\cref{tab:ch03-inventory}). The documentation states a target volume for each table. Dimensions match it exactly:
+the customer table has $\est{ch03.rows-main-customers}{value}$ rows against $\est{ch03.documented-customers}{value}$
+documented. Facts do not. Transactions fall short of the documented volume by
+$\est{ch03.vs-documented-transactions}{value}\,\%$, while digital events exceed it by
+$\est{ch03.vs-documented-digital-events}{value}\,\%$, and the remaining facts sit close to the transaction shortfall.
+The exchange-rate table has $\est{ch03.rows-main-fx}{value}$ rows against $\est{ch03.documented-fx}{value}$ documented,
+because it stores every one of its $\est{ch03.fx-pairs}{value}$ currency pairs on each of its
+$\est{ch03.fx-days}{value}$ days, and the number of pairs times the number of days equals its row count exactly. Neither copy is the dataset
+the documentation describes; the deviations of the main copy are the baseline against which the backup is judged.
+
+\input{../build/generated/tables/ch03-inventory}
+
+\section{Keys}\label{sec:inv-keys}
+
+\subsection{Primary keys}
+
+\begin{definition}[Primary key]\label{def:pk}
+A column $k$ of table $T$ is a primary key when it is never null and no value repeats:
+$\lvert\{t[k] : t \in T\}\rvert = \lvert T \rvert$ and $t[k] \neq \textsc{null}$ for every row $t$.
+\end{definition}
+
+Across the $\est{ch03.keyed-tables}{value}$ keyed tables of both copies, the number of repeated key values is
+$\est{ch03.pk-duplicates}{value}$ and the number of null keys is $\est{ch03.pk-nulls}{value}$. Every primary key
+satisfies \cref{def:pk}. The extracts are structurally sound at the level of rows.
+
+\subsection{Referential integrity}
+
+\begin{definition}[Orphan share]\label{def:orphan}
+For a foreign key from column $c$ of a child table $C$ to key $k$ of a parent table $P$, with
+$C^{+} = \{t \in C : t[c] \neq \textsc{null}\}$, the null share is $1 - \lvert C^{+}\rvert / \lvert C \rvert$ and
+the orphan share is $\lvert\{t \in C^{+} : t[c] \notin P[k]\}\rvert / \lvert C^{+} \rvert$.
+\end{definition}
+
+The shares answer different questions. A null is a link the source chose not to record; an orphan is a link that
+points nowhere. \Cref{tab:ch03-foreign-keys} gives both for each of the $\est{ch03.fk-documented}{value}$ documented
+foreign keys of the main copy. Of these, $\est{ch03.fk-resolving}{value}$ have no orphans at all. The exceptions are
+the links of customers and agents to the branch table: the customer's registration branch is an orphan for
+$\est{ch03.fk-customer-branch-orphan}{value}\,\%$ of customers, and the agent's assigned branch for
+$\est{ch03.fk-agent-branch-orphan}{value}\,\%$ of the agents that have one. The codes share the format of real branch
+codes but are drawn independently of the branch table, while the product's opening branch and the transaction's branch
+resolve fully.
+
+Null shares reveal links that exist on paper only. The documented link from a complaint to the contact that
+originated it is null for $\est{ch03.fk-complaint-interaction-null}{value}\,\%$ of complaints, so no complaint can
+be traced to its contact. Digital events have no customer for $\est{ch03.fk-event-customer-null}{value}\,\%$ of rows,
+which matches anonymous sessions: every event that does name a customer resolves.
+
+\input{../build/generated/tables/ch03-foreign-keys}
+
+\section{What is in one copy and not the other}\label{sec:inv-setdiff}
+
+A different surrogate key does not prove a different entity, and the same key does not prove the same one. The
+comparison therefore moves from coarse to fine: volume by month, surrogate keys, natural keys that identify a
+real-world entity, and fingerprints of a row's business content.
+
+\subsection{Volume}
+
+\Cref{fig:ch03-coverage} shows, for each fact table and process month, the backup's row count over the main copy's.
+Call transcripts and satisfaction surveys are absent from the backup. Transactions are present for
+$\est{ch03.backup-tx-months}{value}$ of the main copy's $\est{ch03.main-tx-months}{value}$ months, and the backup holds
+$\est{ch03.rows-backup-transactions}{value}$ transactions, $\est{ch03.backup-transactions-share}{value}\,\%$ of the
+main copy's $\est{ch03.rows-main-transactions}{value}$. The other facts have a ratio close to one in every month.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig-03-backup-coverage}
+  \caption{Volume coverage of the backup: backup rows over main rows, per fact table and process month. Pale
+  cells are months the backup does not have; white cells are months with no rows in the main copy either. Source: \ident{report/build/sources/ch03\_monthly\_coverage.csv},
+  recomputed from the pinned parquet files.}
+  \label{fig:ch03-coverage}
+\end{figure}
+
+\subsection{Surrogate keys}
+
+For a table with key sets $K_m$ in the main copy and $K_b$ in the backup, the shared share is
+$s = \lvert K_m \cap K_b \rvert / \lvert K_m \rvert$. Complaints share $\est{ch03.pk-shared-complaints}{value}\,\%$ of
+their keys. Customers share $\est{ch03.pk-shared-customers}{value}\,\%$, transactions
+$\est{ch03.pk-shared-transactions}{value}\,\%$ of the main copy's keys (and
+$\est{ch03.pk-shared-backup-transactions}{value}\,\%$ of the backup's), products
+$\est{ch03.pk-shared-products}{value}\,\%$ and agents $\est{ch03.pk-shared-service-agents}{value}\,\%$
+(\cref{tab:ch03-pk-overlap}). Restoring the backup would replace most primary keys, and every reference held by
+another system would break.
+
+\input{../build/generated/tables/ch03-pk-overlap}
+
+\subsection{Natural keys}
+
+If the backup were the same population under new surrogate keys, fields that identify a real person would overlap
+almost completely. How much an overlap proves depends on how many values a field can take. Let a field take value $v$
+with probability $p_v$ in the main copy and $q_v$ in the backup, and let the backup have $N_b$ rows. The probability
+that a main-copy value appears in the backup by coincidence alone is
+\begin{equation}\label{eq:chance-overlap}
+  \pi = \sum_v p_v \bigl(1 - (1 - q_v)^{N_b}\bigr),
+\end{equation}
+which is near zero for a field whose values are almost all distinct, such as a document number, and approaches one
+for a field with few common values. A high overlap of a low-cardinality field is therefore weak evidence of shared
+identity; a low overlap of a high-cardinality field is strong evidence against it.
+
+Document numbers overlap for $\est{ch03.nk-shared-doc}{value}\,\%$ of customers
+($\est{ch03.nk-shared-doc-n}{value}$ customers), the combination of first name, last name and date of birth for
+$\est{ch03.nk-shared-name-dob}{value}\,\%$, and mobile phones for $\est{ch03.nk-shared-phone}{value}\,\%$
+(\cref{tab:ch03-natural-keys}). E-mail overlaps more, $\est{ch03.nk-shared-email}{value}\,\%$, but it is a
+low-cardinality field, with $\est{ch03.email-distinct}{value}$ distinct values for
+$\est{ch03.rows-main-customers}{value}$ customers, and \cref{eq:chance-overlap} predicts many coincidences. The overlap of
+document numbers exceeds the overlap of customer keys, so a small core of customers exists in both copies under
+different keys, but the large majority of customers have no counterpart.
+
+\input{../build/generated/tables/ch03-natural-keys}
+
+\subsection{Content fingerprints}
+
+Facts have no natural key. For them a fingerprint $h(t) = \mathrm{hash}(t[c_1], \dots, t[c_r])$ is computed over
+business columns, excluding keys and dates, and a main-copy row is matched when a row with the same fingerprint exists
+in the backup. With $b$ the bit width of DuckDB's hash type (\ident{UBIGINT}), accidental collisions among $n$
+fingerprints are bounded by $n^2 / 2^{b+1}$, negligible at these sizes. Coincidental matches of equal content are not:
+by the argument of \cref{eq:chance-overlap}, a fingerprint can only discriminate rows if most rows have one of their
+own. The notebook measures this with the uniqueness ratio $u = \lvert\{h(t)\}\rvert / n$, the number of distinct
+fingerprints per row.
+
+Transactions ($u = \est{ch03.fp-uniqueness-transactions}{value}$) and digital events
+($u = \est{ch03.fp-uniqueness-digital-events}{value}$) have informative fingerprints, and only
+$\est{ch03.fp-matched-transactions}{value}\,\%$ of transactions and $\est{ch03.fp-matched-digital-events}{value}\,\%$
+of events have an identical row in the backup (\cref{tab:ch03-fingerprints}). Campaign sends match at
+$\est{ch03.fp-matched-campaign-sends}{value}\,\%$, but their fingerprint is nearly constant
+($u = \est{ch03.fp-uniqueness-campaign-sends}{value}$), so the match is coincidence of common values and is not used
+as evidence.
+
+\input{../build/generated/tables/ch03-fingerprints}
+
+\section{Verdicts}\label{sec:inv-verdicts}
+
+\begin{description}[style=nextline]
+  \item[\ident{H4}, the backup is incomplete: supported.] Whole tables are absent, and the transaction history stops
+  after $\est{ch03.backup-tx-months}{value}$ months.
+  \item[\ident{H2}, the backup re-keys the same entities: rejected.] Natural identifiers with almost unique values
+  overlap for a small minority of customers, and the facts with discriminating fingerprints almost never reappear.
+  A small shared core exists; \cref{ch:record-linkage} pairs it.
+\end{description}
+
+\section{Implications for the pipelines and the gates}\label{sec:inv-implications}
+
+The main copy is the source of truth for every pipeline: the backup cannot be restored over it without replacing most
+keys, and no join between the copies on a surrogate key means anything. Some links documented as foreign keys cannot
+be used. Customers and agents cannot be joined to a branch, so the platform models an unknown branch member instead of
+dropping rows \autocite{kimball2013}. Complaints cannot be joined to the contact that started them, which is the
+missing field behind the service-level gate of \cref{ch:readiness-gates}. These findings do not change a model gate
+on their own; they fix which copy every gate is computed on, and they explain why the backup's re-estimation in
+\cref{ch:readiness-gates} covers a shorter history and fewer processes than the main copy's.
+
+\section{Limitations}\label{sec:inv-limits}
+
+The counts are exact for the files as delivered; they say nothing about how the files were produced. The fingerprint
+columns were chosen by the analyst, and a different choice would move the match shares; what does not move is the
+conclusion for the tables whose fingerprints are informative. The chance-overlap argument of
+\cref{eq:chance-overlap} is used qualitatively here: the stored results report the uniqueness ratio and the
+cardinality of each field, not the probability $\pi$ itself.
