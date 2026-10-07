@@ -1,0 +1,52 @@
+# The registered specification of the report. Drafted at P1–P2, frozen at P3 before any clustered gate
+# estimate exists (design: Contracts). After the freeze, every change needs an [[amendments]] entry
+# (field, old, new, date, reason); tests/test_protocol.py checks this against freeze_commit.
+
+[protocol]
+frozen = false
+freeze_commit = ""
+
+[dataset]
+# Measured at P3 as the maximum event timestamp per table; the cut-off is chosen then.
+end_date = ""
+cutoff_date = ""
+
+[clock]
+# ADR-014: each process on its delivery-day clock.
+offset_hours_transactions = -6
+offset_hours_digital_events = -6
+offset_hours_campaign_sends = -6
+offset_hours_contacts = -8
+offset_hours_complaints = -8
+
+[privacy]
+# No table cell or plotted group from fewer contributors than this (eng review A2).
+min_cell = 10
+
+[gates]
+# The 11 rows of latam_eda.hour_models.scorecard() (ADR-018), all of them whatever their verdict (E1).
+ids = [
+    "02-customer.daypart-of-the-next-transaction",
+    "02-customer.dormancy-from-the-time-of-day-profile",
+    "03-market-and-channel.hourly-volume-per-market-channel",
+    "04-branch.branch-hour-atm-cash",
+    "04-branch.teller-transaction-outside-opening-hours",
+    "05-agent-and-queue.handle-time-per-agent-hour",
+    "05-agent-and-queue.hourly-contact-arrivals-per-queue",
+    "06-case-clock.sla-breach-at-creation",
+    "06-case-clock.time-to-first-response",
+    "07-session-and-send.open-within-24-h-by-send-hour",
+    "07-session-and-send.session-purchase-from-the-event-sequence",
+]
+# Clustered re-estimates with more than this share of failed bootstrap draws are not assessable (Q2).
+nan_share_max = 0.05
+bootstrap_draws = 200
+
+[disk]
+# GiB. Measured at P0: one main/ALL scratch scope 3.2, the worktree's platform environment 1.7 (P1, D22).
+tex = 2
+duckdb_spill = 6
+build = 4
+scratch_scope = 3.2
+platform_env = 1.7
+headroom = 5

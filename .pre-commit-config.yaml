@@ -95,6 +95,24 @@ repos:
         files: ^(eda/|docs/dataset/)
         pass_filenames: false
 
+  # === Technical report (report/ is its own uv project; reads latam_eda and eda/reports/tables) ===
+  # The suite needs no dataset or TeX: lint, claims schema, protocol freeze, traceability, bibliography,
+  # privacy guard and BH equivalence. `make -C report` builds the PDF.
+  - repo: local
+    hooks:
+      - id: report-lock
+        name: report uv.lock matches pyproject
+        entry: uv lock --check --directory report
+        language: system
+        files: ^report/(pyproject\.toml|uv\.lock)$
+        pass_filenames: false
+      - id: report-tests
+        name: report tests
+        entry: uv run --directory report pytest -q
+        language: system
+        files: ^(report/|eda/src/|eda/reports/tables/|eda/notebooks/.*\.py$)
+        pass_filenames: false
+
   # === Commit Messages ===
   - repo: https://github.com/commitizen-tools/commitizen
     rev: v3.29.1

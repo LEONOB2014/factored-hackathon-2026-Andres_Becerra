@@ -38,6 +38,8 @@ eda/reports/dashboards/data/
 !eda/reports/tables/*.csv
 # Verification evidence: relation/column names, counts and verdicts only (docs/platform/evidence/*/README.md)
 !docs/platform/evidence/*/*.csv
+# Technical report configuration: the notebook-to-chapter map and the bibliography verification log
+!report/conf/*.csv
 *.duckdb
 
 # ML artifacts

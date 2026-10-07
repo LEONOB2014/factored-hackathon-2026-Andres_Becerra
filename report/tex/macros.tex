@@ -9,6 +9,8 @@
 \newcommand{\proto}[1]{%
   \ifcsname proto@#1\endcsname\csname proto@#1\endcsname
   \else\reportmissing{#1}\PackageWarning{report}{Undefined protocol key #1}\fi}
+% Marks an interval computed treating rows as independent (likely too narrow); explained in Chapter 2.
+\newcommand{\naivemark}{\textsuperscript{\dag}}
 \InputIfFileExists{../build/generated/claims.tex}{}{}
 \InputIfFileExists{../build/generated/protocol.tex}{}{}
 
