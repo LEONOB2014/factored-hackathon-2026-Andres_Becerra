@@ -68,6 +68,7 @@ def test_repository_allowlist_loads():
 NAME_MACROS = {
     "shaname",
     "CRtwo",
+    "HCthree",
 }  # method names with digits; every other macro body must be digit-free
 
 

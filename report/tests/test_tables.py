@@ -49,3 +49,9 @@ def test_generated_tables_match_their_sources():
         for row in csv.DictReader(f):
             path = REPO / row["source_path"]
             assert sources.sha256(path) == row["sha256"], row["label"]
+
+
+def test_unicode_math_in_headers_is_typeset():
+    assert texgen.tex_escape("χ²/dof ≥ 1 × 2") == (
+        r"\ensuremath{\chi}\textsuperscript{2}/dof \ensuremath{\ge} 1 \ensuremath{\times} 2"
+    )

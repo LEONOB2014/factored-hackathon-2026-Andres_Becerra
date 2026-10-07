@@ -38,7 +38,10 @@ def num(v: float, digits: int | None = None) -> str:
 def tex_escape(s: str) -> str:
     repl = {"\\": r"\textbackslash{}", "&": r"\&", "%": r"\%", "$": r"\$", "#": r"\#", "_": r"\_",
             "{": r"\{", "}": r"\}", "~": r"\textasciitilde{}", "^": r"\textasciicircum{}"}  # fmt: skip
-    return "".join(repl.get(ch, ch) for ch in s)
+    math = {"χ": r"\ensuremath{\chi}", "²": r"\textsuperscript{2}", "×": r"\ensuremath{\times}",
+            "±": r"\ensuremath{\pm}", "≤": r"\ensuremath{\le}", "≥": r"\ensuremath{\ge}", "−": r"\ensuremath{-}",
+            "µ": r"\ensuremath{\mu}", "≈": r"\ensuremath{\approx}"}  # fmt: skip
+    return "".join(repl.get(ch, math.get(ch, ch)) for ch in s)
 
 
 def claim_fields(c: Claim) -> dict[str, str]:
