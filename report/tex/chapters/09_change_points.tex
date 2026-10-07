@@ -1,4 +1,167 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Change points and process control}\label{ch:change-points}
 
-\emph{Planned content.} Penalised change-point detection and control charts with their alert rates.
+Operations ask of a daily series questions of different shapes: was yesterday normal, did the level of activity change
+at some date, and should someone be woken up this hour? The exploratory notebooks answer them with robust day rules,
+penalised change-point detection, control charts and hourly limits, and on this dataset every answer is the same: nothing
+happened. A null result is only as informative as the method's ability to see what it is looking for. This chapter
+therefore pairs every null finding with the size of effect the method would have caught, and checks that each monitor
+alerts at the rate its design promises when nothing happens.
+
+All series here are counted on each process's own delivery clock (\cref{ch:time-and-clocks}), per customer country,
+over the $\est{ch09.days}{value}$ complete delivery days.
+
+\section{The daily residual}\label{sec:cp-residual}
+
+Let $y_t$ be the number of transactions of a market on delivery day $t$. Its logarithm is modelled as
+\begin{equation}\label{eq:cp-calendar}
+  \log y_t = \alpha_{w(t)} + \beta\, \mathbb{1}\{t \text{ ends a month}\} + \gamma\, t + e_t ,
+\end{equation}
+with a coefficient per weekday $w(t)$ and a linear trend. \Cref{ch:time-and-clocks} found that, after the weekday,
+holidays and pay cycles explain nothing that survives the control of the false-discovery rate, so this smaller model
+loses nothing material. The residuals $e_t$ have a standard deviation between $\est{ch09.resid-sd-min}{value}$ and
+$\est{ch09.resid-sd-max}{value}$ on the log scale, about a tenth of the day's volume, and their lag-one autocorrelation
+is at most $\est{ch09.lag1-max}{value}$ in absolute value: once the week is removed, consecutive days are independent.
+That property is what makes the monitors below calibratable, and it is itself a fingerprint of a generator, since
+real daily volumes carry persistent shocks.
+
+\paragraph{Abnormal days.} The country notebooks call a day abnormal when its residual lies more than
+$\est{ch09.z-day}{value}$ robust standard deviations ($\kappa\,\mathrm{MAD}$, \cref{eq:sf-scale}) from the median. On the residuals of
+\cref{eq:cp-calendar} no day in any market qualifies ($\est{ch09.abnormal}{value}$), against
+$\est{ch09.abnormal-expected}{value}$ expected by chance under normality; the notebooks' fuller calendar model also finds
+$\est{ch09.nb-abnormal}{value}$. There are no outages, campaign peaks or delivery failures in the data.
+
+\section{Level shifts}\label{sec:cp-shifts}
+
+\subsection{Penalised segmentation}
+
+A level shift is a change in the mean of a series. For a series $x_1, \dots, x_n$ (here the weekly means of $e_t$,
+$\est{ch09.weeks}{value}$ weeks per market) and change points $0 = \tau_0 < \tau_1 < \dots < \tau_K < \tau_{K+1} = n$,
+penalised segmentation solves
+\begin{equation}\label{eq:cp-penalised}
+  \min_{K,\,\tau} \; \sum_{k=0}^{K} C\bigl(x_{(\tau_k + 1) : \tau_{k+1}}\bigr) + \beta K ,
+\end{equation}
+where $C$ is the cost of a segment and $\beta$ the price of a change. PELT finds the exact minimum in time close to
+linear by discarding candidate change points that can never be optimal again \autocite{killick2012}. The method has
+inputs that decide what it can find: the cost and the penalty. With the Gaussian cost $C(x_{a:b}) = \sum_{i=a}^{b} (x_i - \bar x_{a:b})^2$ the
+penalty is in units of variance, and $\beta = 2 \hat\sigma^2 \log n$ is the Schwarz criterion for a mean shift in
+Gaussian noise \autocite{schwarz1978}. The country notebooks instead use a kernel cost with a Gaussian (RBF) kernel
+\autocite{arlot2019}, which can detect changes in the whole distribution, with a penalty of $3 \log n$. Each term of a
+kernel cost is bounded, and a small shift of the mean barely changes the kernel similarities, so in kernel units this
+penalty is a high bar for a mean shift; it is not calibrated to the noise of the series. The last detector is the
+permutation binary segmentation of \cref{sec:sf-detectors}, at level $\est{ch09.bs-alpha}{value}$, which is valid here
+because the weekly residuals are close to independent.
+
+\subsection{What a null result is worth}
+
+On the real series none of the detectors finds a change point: the kernel PELT of the notebooks
+($\est{ch09.found-rbf}{value}$, as the notebooks report, $\est{ch09.nb-change-points}{value}$), the Gaussian PELT
+($\est{ch09.found-l2}{value}$) and the binary segmentation ($\est{ch09.found-bs}{value}$). To learn what this rules
+out, steps of known size were planted at random weeks of the real residual series, $\est{ch09.sims}{value}$ times per size
+and market, and a step counted as found when a change point fell within $\est{ch09.tol}{value}$ weeks of it; the
+false-alarm rate was measured on random permutations of the same series, which keep their values and destroy any
+change (\cref{tab:ch09-shift-detectors,fig:ch09-power}).
+
+\input{../build/generated/tables/ch09-shift-detectors}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\textwidth]{fig-09-power}
+  \caption{Share of planted level steps found by each detector, by the size of the step in weekly log volume, pooled
+  over the markets. The dotted line marks the conventional target power of
+  $\est{ch09.power-target}{value}\,\%$.}
+  \label{fig:ch09-power}
+\end{figure}
+
+The kernel PELT never raises a false alarm ($\est{ch09.false-rbf}{pct}\,\%$, interval $\est{ch09.false-rbf}{pct_ci}$), but
+it is also blind to moderate steps: a step of $\est{ch09.step-small}{value}\,\%$ is found
+$\est{ch09.power-rbf-5}{pct}\,\%$ of the time, a step of $\est{ch09.step-mid}{value}\,\%$ $\est{ch09.power-rbf-10}{pct}\,\%$
+($\est{ch09.power-rbf-10}{pct_ci}$), and only steps of $\est{ch09.mde-rbf}{value}\,\%$ and more reach the target power. The Gaussian PELT, with a false-alarm rate of $\est{ch09.false-l2}{pct}\,\%$ ($\est{ch09.false-l2}{pct_ci}$), and the
+binary segmentation, with $\est{ch09.false-bs}{pct}\,\%$ ($\est{ch09.false-bs}{pct_ci}$), both find steps of
+$\est{ch09.mde-l2}{value}\,\%$ at the target power ($\est{ch09.power-l2-5}{pct}\,\%$ and $\est{ch09.power-bs-5}{pct}\,\%$).
+The null result of the notebooks therefore stands, and it is stronger than they could show: the level of transactions did
+not shift by more than about $\est{ch09.mde-l2}{value}\,\%$ in any market at any time, roughly the standard deviation of a weekly mean
+($\est{ch09.weekly-sd-max}{value}$ on the log scale). The comparison also settles a design question: for monitoring the
+level of a series, a cost matched to the change sought with a penalty in the units of its noise beats a general-purpose
+cost with an uncalibrated penalty, which is blind to the moderate shifts that matter most.
+
+\section{Control charts}\label{sec:cp-charts}
+
+A change-point method looks back; a control chart decides each day. The granularity notebooks chart the residuals of
+daily volume with an exponentially weighted moving average \autocite{roberts1959},
+\begin{equation}\label{eq:cp-ewma}
+  z_t = \lambda e_t + (1 - \lambda) z_{t-1}, \qquad
+  \operatorname{Var}(z_t) \to \sigma^2 \frac{\lambda}{2 - \lambda},
+\end{equation}
+with $\lambda = \est{ch09.lambda}{value}$ and limits at $\pm \est{ch09.ewma-l}{value}$ stationary standard deviations.
+If the residuals are independent and normal, the share of days beyond the limits is
+$2\Phi(-L) = \est{ch09.nominal-alert-pct}{value}\,\%$; alerts cluster in runs, so the average time between first alerts is
+longer \autocite{lucas1990}. Both statements need independent residuals, which \cref{sec:cp-residual} established (the
+charted series have lag-one autocorrelations of at most $\est{ch09.ewma-lag1-max}{value}$). Over
+$\est{ch09.ewma-days}{value}$ market-days of transactions and contacts the charts alert on $\est{ch09.ewma-alerts}{value}$
+days, against $\est{ch09.ewma-expected}{value}$ at the nominal rate (\cref{tab:ch09-charts}).
+
+The daily decline rate is charted with a $p$-chart, whose limits $\bar p \pm 3\sqrt{\bar p (1 - \bar p) / n_t}$ widen on
+days with fewer transactions \autocite{montgomery2012}. They are right only if the declines of a day are binomial
+around a common rate; otherwise every day's extra-binomial variation becomes an alert, and the remedy is to inflate the
+limits by the observed dispersion \autocite{laney2002}. The Pearson dispersion of the decline rate
+(\cref{eq:sf-dispersion}) is at most $\est{ch09.dispersion-max}{value}$, so the binomial limits are calibrated as they
+stand. They alert on $\est{ch09.p-alerts}{value}$ of $\est{ch09.p-days}{value}$ market-days against
+$\est{ch09.p-expected}{value}$ expected; a count this high has a probability of $\est{ch09.p-tail}{value}$ under the nominal
+rate, weak evidence of a slight excess that the near-unit dispersion does not explain and that one alert every few
+months per market would not make troublesome. The contrast with the
+campaign empty shares of \cref{sec:sf-empty}, whose dispersion was orders of magnitude larger over all rows, is the
+practical lesson: measure the dispersion before trusting binomial limits.
+
+\input{../build/generated/tables/ch09-charts}
+
+\section{Hourly limits}\label{sec:cp-hours}
+
+A streaming monitor judges each hour's count against limits that a correct model would breach a thousandth of the time
+($\est{ch09.hour-nominal-pct}{value}\,\%$). With a Poisson model for the hour the limits are too narrow, and the reason is
+structural.
+
+\begin{proposition}\label{prop:cp-nb}
+Let a day's total $N$ have mean $\mu$ and variance $\mu + c\mu^2$, and let each of its events fall in a given hour with
+probability $p$, independently. Then the hour's count $X$ has mean $m = p\mu$ and variance $m + c\, m^2$.
+\end{proposition}
+
+\begin{proof}
+Given $N$, $X$ is binomial with $\mathbb{E}(X \mid N) = pN$ and $\operatorname{Var}(X \mid N) = p(1-p)N$. By the law of
+total variance, $\operatorname{Var}(X) = p(1-p)\mu + p^2(\mu + c\mu^2) = p\mu + c(p\mu)^2$.
+\end{proof}
+
+A day-level variation beyond Poisson therefore reaches every hour, with the same coefficient $c$. If the day's level is
+gamma-distributed around its mean, the hour is negative binomial with size $1/c$, the classical gamma--Poisson mixture
+\autocite{greenwood1920}. Both premises hold here. Hours are a multinomial thinning of their day: the dispersion of
+hour counts given the day's total is $\est{ch09.hour-phi-ar}{value}$, $\est{ch09.hour-phi-co}{value}$ and
+$\est{ch09.hour-phi-mx}{value}$ in the markets. The day's level varies beyond Poisson with a coefficient of variation
+of $\est{ch09.cv-mx}{value}\,\%$ in Mexico and nearly the same elsewhere, the residual spread of
+\cref{sec:cp-residual} seen from the other side. The variance of an hour is then $1 + c\,m$ times its Poisson
+variance, so Poisson limits fail worst where hours are busiest (\cref{tab:ch09-hours}): they flag
+$\est{ch09.pois-ar}{pct}\,\%$ of hours in Argentina, $\est{ch09.pois-co}{pct}\,\%$ in Colombia and
+$\est{ch09.pois-mx}{pct}\,\%$ in Mexico ($\est{ch09.pois-mx}{pct_ci}$). Negative-binomial limits with the day-level $c$
+flag $\est{ch09.nb-ar}{pct}\,\%$, $\est{ch09.nb-co}{pct}\,\%$ and $\est{ch09.nb-mx}{pct}\,\%$, below the nominal rate:
+counts are integers, so a quantile limit can only be placed between them and the realised tail probability falls below
+the nominal one. A monitor slightly conservative by construction is the right side to err on.
+
+\input{../build/generated/tables/ch09-hours}
+
+\section{Verdict and implications}\label{sec:cp-verdict}
+
+Nothing happened in the activity of this bank: no abnormal day, no level shift larger than about $\est{ch09.mde-l2}{value}\,\%$, no
+special cause in the control charts. The methods used to establish this are sound once calibrated, and the calibration
+is the transferable result. Change-point detection for monitoring should use a cost matched to the change sought and a
+penalty in the units of the noise, and should report the smallest shift it would have found. Control charts on counts
+and rates need independent residuals and a dispersion check before binomial or Poisson limits are trusted. Hourly
+limits must carry the day-level dispersion, as \cref{prop:cp-nb} shows, which turns a monitor that cries wolf several
+times a day into one that is quiet when nothing happens. On real data these monitors are where operations would first see
+an outage, a fraud wave or a missed delivery; on this dataset they can only be shown to be calibrated, not useful.
+
+\section{Limitations}\label{sec:cp-limits}
+
+The residual model omits holidays and pay cycles, which \cref{ch:time-and-clocks} found immaterial; the notebooks' fuller
+calendar model gives the same null results. Planted steps are permanent shifts of the mean; a transient episode, a
+change in variance or a gradual drift would need its own power analysis. The power curves pool the markets and use one
+tolerance window, so a detector that places its change point a few weeks late is counted as missing it. The control-chart
+and hourly results are recomputed here on transactions and contacts and stand in for the notebooks' tables, which were
+not stored.
