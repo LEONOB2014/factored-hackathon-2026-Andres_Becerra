@@ -84,6 +84,9 @@ def test_freeze_detects_unamended_edits_and_unfreezing(repo):
 
 def test_freeze_needs_a_commit(repo):
     p = repo / "protocol.toml"
+    _commit(repo, p, BASE.format(frozen="false", commit="", cell=10, amend=""))
+    p.write_text(BASE.format(frozen="true", commit="", cell=10, amend=""))
+    assert protocol.freeze_violations(p, repo) == []  # the freezing commit itself, before it lands
     _commit(repo, p, BASE.format(frozen="true", commit="", cell=10, amend=""))
     assert protocol.freeze_violations(p, repo) == ["frozen = true but freeze_commit is empty"]
 
@@ -113,3 +116,36 @@ def test_git_calls_ignore_hook_redirects(tmp_path, monkeypatch):
         env=protocol.git_env(),
     )
     assert head.returncode != 0, "the decoy repository received a commit"
+
+
+def _expand(pattern):
+    m = re.search(r"\{([^}]+)\}", pattern)
+    if not m:
+        return [pattern]
+    return [pattern[: m.start()] + opt + pattern[m.end() :] for opt in m.group(1).split(",")]
+
+
+def test_family_sizes_equal_the_tests_in_their_sources():
+    import pandas as pd
+
+    from report_lib.paths import REPO
+
+    for fam in protocol.load()["families"]:
+        n = sum(
+            int(pd.read_csv(REPO / p)[fam["column"]].notna().sum()) for p in _expand(fam["source"])
+        )
+        assert n == fam["size"], fam["id"]
+
+
+def test_every_gate_has_one_unit_and_one_split():
+    g = protocol.load()["gates"]
+    assert set(g["units"]) == set(g["ids"]) == set(g["splits"])
+
+
+@pytest.mark.data
+def test_dataset_files_match_their_frozen_hashes():
+    from report_lib import sources
+    from report_lib.paths import REPO
+
+    for rel, digest in protocol.load()["dataset"]["sha256"].items():
+        assert sources.sha256(REPO / "data" / rel) == digest, rel

@@ -1,15 +1,46 @@
-# The registered specification of the report. Drafted at P1–P2, frozen at P3 before any clustered gate
-# estimate exists (design: Contracts). After the freeze, every change needs an [[amendments]] entry
-# (field, old, new, date, reason); tests/test_protocol.py checks this against freeze_commit.
+# The registered specification of the report, frozen at P3 before any clustered gate estimate exists.
+# After the freeze every change needs an [[amendments]] entry (field, old, new, date, reason);
+# tests/test_protocol.py checks this against freeze_commit. The code the specification names (latam_eda's
+# readiness_verdict, paired_boot, clustered_gate and the scenarios of hour_models) is the code at freeze_commit.
 
 [protocol]
-frozen = false
+frozen = true
 freeze_commit = ""
 
 [dataset]
-# Measured at P3 as the maximum event timestamp per table; the cut-off is chosen then.
-end_date = ""
-cutoff_date = ""
+# Measured at P3 (2026-10-07): the maximum process_date of every main table, and of the backup's transactions.
+end_date = "2026-06-17"
+backup_transactions_end_date = "2024-09-25"
+backup_missing_tables = ["satisfaction_surveys", "call_transcripts"]
+# There is no untouched holdout: every notebook saw data up to end_date. Each gate keeps its own out-of-time split,
+# as coded at freeze_commit ([gates.splits]); re-estimation changes only how the interval is computed.
+split = "per scenario, as coded at freeze_commit"
+
+[dataset.sha256]
+"parquet/branches.parquet" = "5477ce2cd5f89edf43db656ad1db432640cb469115cff0bc4258286156a1a00f"  # pragma: allowlist secret
+"parquet/call_center_interactions.parquet" = "fac699558cca6ace4719c988d5007d82dbd509454baf1f151bf7152900982876"  # pragma: allowlist secret
+"parquet/call_transcripts.parquet" = "9abb9fd81f37ff721e294bdda2f17b0f0e47a7d67a75cdf988118411bca75e2b"  # pragma: allowlist secret
+"parquet/campaign_sends.parquet" = "c2536f117eea071795a6fd829875016a1c24304f6176260c099899b2b6d8565a"  # pragma: allowlist secret
+"parquet/complaints.parquet" = "52aea31d4e504d516407c5b340c1cd540bed680a247141530c6f58e292781f27"  # pragma: allowlist secret
+"parquet/customers.parquet" = "43f32ddd14b39cd33b15e9381d583dd24c267cffc9c6f280bc19aeecf8258315"  # pragma: allowlist secret
+"parquet/daily_exchange_rates.parquet" = "311bb43d4ca23939765058a95c2560e0ca7a3cc41a6ea9d52745305a03a2b084"  # pragma: allowlist secret
+"parquet/digital_events.parquet" = "e48320e9497573f5f2f009d91afb199186184313b8d6bf0027eab8d7094807f8"  # pragma: allowlist secret
+"parquet/marketing_campaigns.parquet" = "114f84339c91a119bd648413cd42baf1013721765ea547c61b3e3062e4678aad"  # pragma: allowlist secret
+"parquet/products.parquet" = "1b3166dfd3fecb472238fe385b0a1a8cf80ac2f183c9898b42b9cb0fe90c0e6c"  # pragma: allowlist secret
+"parquet/satisfaction_surveys.parquet" = "fb2f5944d614000b103d676832fe56e3e17f11b9bcd134402ed81e4b39a33e8d"  # pragma: allowlist secret
+"parquet/service_agents.parquet" = "4d920940e7fbe8a18d593b405d573e7caeb7cdf2cb04932972d527da9252dd4a"  # pragma: allowlist secret
+"parquet/transactions.parquet" = "cd87460f93b6b40d5355ca419657134b861a67a5ebb480ee2198712865576056"  # pragma: allowlist secret
+"parquet_backup/branches.parquet" = "5477ce2cd5f89edf43db656ad1db432640cb469115cff0bc4258286156a1a00f"  # pragma: allowlist secret
+"parquet_backup/call_center_interactions.parquet" = "b53d7e9ee1332086345d3fc1a72308e15ecd4655e08ea8d298a417357c7576cc"  # pragma: allowlist secret
+"parquet_backup/campaign_sends.parquet" = "5b3b1124fbd2d871915690f4fe5f6b6a7633b4c6b0aaa935d8e7b678dc0fc2cd"  # pragma: allowlist secret
+"parquet_backup/complaints.parquet" = "b46910498bcd3a4ebccf6ddfdf05035b467cd10ad1ec23c830a7d3a2536dc3f8"  # pragma: allowlist secret
+"parquet_backup/customers.parquet" = "60c48cc43303d6e4ac9d00e8a772afc3c04c6a5bc84a42664a291301895e6e05"  # pragma: allowlist secret
+"parquet_backup/daily_exchange_rates.parquet" = "311bb43d4ca23939765058a95c2560e0ca7a3cc41a6ea9d52745305a03a2b084"  # pragma: allowlist secret
+"parquet_backup/digital_events.parquet" = "98217c17dd19d76b539a28cfcab7a3430e32efef4ea44844403232589d1b6c60"  # pragma: allowlist secret
+"parquet_backup/marketing_campaigns.parquet" = "114f84339c91a119bd648413cd42baf1013721765ea547c61b3e3062e4678aad"  # pragma: allowlist secret
+"parquet_backup/products.parquet" = "1392004ec7e86a233cb4bea82b4b06b1d85194babecc9581a45637da07e22e31"  # pragma: allowlist secret
+"parquet_backup/service_agents.parquet" = "56409c34525a83318df785e137b52222e2755a16b52f64ac389fdf64d5537814"  # pragma: allowlist secret
+"parquet_backup/transactions.parquet" = "3b91ad6e731cb48d9360a4bf44049f89469290db2dea3beacf24ec295bdae9de"  # pragma: allowlist secret
 
 [clock]
 # ADR-014: each process on its delivery-day clock.
@@ -22,6 +53,14 @@ offset_hours_complaints = -8
 [privacy]
 # No table cell or plotted group from fewer contributors than this (eng review A2).
 min_cell = 10
+
+[intervals]
+level = 0.95
+# Cluster policy for claims (report_lib.estimators.intervals.ratio_by_policy): percentile cluster bootstrap from
+# min_clusters clusters; CR2 and wild cluster bootstrap from min_clusters_few; below that, descriptive only.
+min_clusters = 30
+min_clusters_few = 10
+bootstrap_draws = 2000
 
 [gates]
 # The 11 rows of latam_eda.hour_models.scorecard() (ADR-018), all of them whatever their verdict (E1).
@@ -38,12 +77,79 @@ ids = [
     "07-session-and-send.open-within-24-h-by-send-hour",
     "07-session-and-send.session-purchase-from-the-event-sequence",
 ]
-# Clustered re-estimates with more than this share of failed bootstrap draws are not assessable (Q2).
-nan_share_max = 0.05
+rule = "latam_eda.granularity.readiness_verdict, unchanged: green, amber or red from the 95 % bootstrap interval, materiality, MDE and fold signs"
+estimator = "readiness_check.py --cluster: latam_eda.granularity.clustered_gate on the scenario's clustered or day-block bootstrap"
 bootstrap_draws = 200
+min_clusters = 30
+nan_share_max = 0.05
+disagreement = "a re-estimated gate disagrees when its verdict or its root cause differs from the published scorecard"
+datasets = ["main", "backup"]
+# A gate's main and backup re-estimates differ materially when their deltas differ by more than the 95th
+# percentile of the paired main-backup sampling-noise baseline of the same metric (Chapter 6, computed by rule,
+# frozen here as a rule because its value needs Chapter 6's estimator); the row is then flagged copy_disagreement.
+copy_tolerance = "95th percentile of the paired main-backup noise baseline of the gate's metric (Chapter 6)"
+
+[gates.units]
+"02-customer.daypart-of-the-next-transaction" = "customer (rows are customers)"
+"02-customer.dormancy-from-the-time-of-day-profile" = "customer (rows are customers)"
+"03-market-and-channel.hourly-volume-per-market-channel" = "day, stationary blocks (Politis-White length)"
+"04-branch.branch-hour-atm-cash" = "day, stationary blocks (Politis-White length)"
+"04-branch.teller-transaction-outside-opening-hours" = "branch"
+"05-agent-and-queue.handle-time-per-agent-hour" = "agent"
+"05-agent-and-queue.hourly-contact-arrivals-per-queue" = "day, stationary blocks (Politis-White length)"
+"06-case-clock.sla-breach-at-creation" = "customer"
+"06-case-clock.time-to-first-response" = "customer"
+"07-session-and-send.open-within-24-h-by-send-hour" = "campaign"
+"07-session-and-send.session-purchase-from-the-event-sequence" = "customer"
+
+[gates.splits]
+"02-customer.daypart-of-the-next-transaction" = "history up to end minus 90 days; label: daypart of the first transaction after it"
+"02-customer.dormancy-from-the-time-of-day-profile" = "features at end minus 270 days (train) and end minus 90 days (test); label: no transaction in the next 90 days"
+"03-market-and-channel.hourly-volume-per-market-channel" = "last 56 days of each market x channel series; up to 26 weeks before for training"
+"04-branch.branch-hour-atm-cash" = "last 28 delivery days"
+"04-branch.teller-transaction-outside-opening-hours" = "branch transactions after the 2/3 quantile of their timestamps"
+"05-agent-and-queue.handle-time-per-agent-hour" = "agent-hours after the 2/3 quantile of hour_start"
+"05-agent-and-queue.hourly-contact-arrivals-per-queue" = "last 56 days of each queue series with at least 1000 contacts"
+"06-case-clock.sla-breach-at-creation" = "cases created after the 2/3 quantile of created_clock"
+"06-case-clock.time-to-first-response" = "cases created after the 2/3 quantile of created_clock"
+"07-session-and-send.open-within-24-h-by-send-hour" = "40 % hash sample of tracked, delivered sends; after the 2/3 quantile of send time"
+"07-session-and-send.session-purchase-from-the-event-sequence" = "25 % hash sample of sessions; after the 2/3 quantile of session start"
+
+# BH families (eng review R2-4): defined by source, not by citation; q is computed over every test in the family.
+# Report-only estimators produce intervals, not tests; a test they add must be declared here by amendment before
+# it runs.
+[[families]]
+id = "daily-series-i"
+source = "eda/reports/tables/granularity_signal.csv"
+column = "p_value"
+size = 60
+
+[[families]]
+id = "daily-series-ii"
+source = "eda/reports/tables/granularity_time_signal.csv"
+column = "p_value"
+size = 65
+
+[[families]]
+id = "hourly-series-iii"
+source = "eda/reports/tables/granularity_hour_signal.csv"
+column = "p_value"
+size = 52
+
+[[families]]
+id = "country-calendar-main"
+source = "eda/reports/tables/country_{all,ar,co,mx}_calendar_effects.csv"
+column = "p_value"
+size = 50
+
+[[families]]
+id = "country-calendar-backup"
+source = "eda/reports/tables/backup_{all,ar,co,mx}_calendar_effects.csv"
+column = "p_value"
+size = 50
 
 [disk]
-# GiB. Measured at P0: one main/ALL scratch scope 3.2, the worktree's platform environment 1.7 (P1, D22).
+# GiB. Measured at P0: one main/ALL scratch scope 3.2, the worktree's platform environment 1.7 (D22).
 tex = 2
 duckdb_spill = 6
 build = 4

@@ -68,7 +68,11 @@ def freeze_violations(path: Path = PROTOCOL, repo: Path | None = None) -> list[s
         return []
     commit = p.get("freeze_commit", "")
     if not commit:
-        return ["frozen = true but freeze_commit is empty"]
+        # The freezing commit cannot hold its own hash: an empty freeze_commit is allowed until a frozen protocol
+        # has been committed, then the next commit must record it.
+        if _ever_frozen(top, relpath):
+            return ["frozen = true but freeze_commit is empty"]
+        return []
     shown = _git("-C", top, "show", f"{commit}:{relpath}")
     if shown.returncode != 0:
         return [f"cannot read {relpath} at freeze_commit {commit}: {shown.stderr.strip()}"]
