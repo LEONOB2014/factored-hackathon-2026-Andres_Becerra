@@ -5,7 +5,7 @@
 
 [protocol]
 frozen = true
-freeze_commit = ""
+freeze_commit = "b387f693b4a4fe0888db1a96ec9d11e49e39f5fe"  # pragma: allowlist secret
 
 [dataset]
 # Measured at P3 (2026-10-07): the maximum process_date of every main table, and of the backup's transactions.
