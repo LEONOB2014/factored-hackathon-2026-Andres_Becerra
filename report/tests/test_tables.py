@@ -55,3 +55,16 @@ def test_unicode_math_in_headers_is_typeset():
     assert texgen.tex_escape("χ²/dof ≥ 1 × 2") == (
         r"\ensuremath{\chi}\textsuperscript{2}/dof \ensuremath{\ge} 1 \ensuremath{\times} 2"
     )
+
+
+@pytest.mark.parametrize(
+    "value, digits, expected",
+    [
+        (307.46, 3, r"\num{307}"),
+        (0.00087398, 2, r"\num{0.00087}"),
+        (12.0, None, r"\num{12}"),
+        (0.5, 3, r"\num{0.5}"),
+    ],
+)
+def test_num_rounds_to_significant_figures_without_a_trailing_zero(value, digits, expected):
+    assert texgen.num(value, digits) == expected

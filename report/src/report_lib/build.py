@@ -8,6 +8,7 @@ from report_lib import sources
 from report_lib.manifest import Claim, expected_status
 
 CENSUS = "census of the full table: every row is observed, so there is no sampling error"
+CONSTANT = "a constant set in the source (threshold or parameter), not an estimate"
 
 
 class Chapter:
@@ -47,6 +48,39 @@ class Chapter:
                 kind="descriptive",
                 value=float(value),
                 reason=CENSUS,
+                unit=unit,
+                digits=digits,
+                **self._src(source, source_type),
+            )  # fmt: skip
+        )
+
+    def proportion(self, topic: str, num: float, den: float, interval, source: Path, source_type: str = "scripted",
+                   cluster_unit: str = "none", digits: int | None = None) -> None:  # fmt: skip
+        """num / den with the interval an estimator of report_lib.estimators.intervals returned."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="proportion",
+                num=float(num),
+                den=float(den),
+                lo=float(interval.lo),
+                hi=float(interval.hi),
+                interval_method=interval.method,
+                cluster_unit=cluster_unit,
+                digits=digits,
+                **self._src(source, source_type),
+            )
+        )
+
+    def constant(self, topic: str, value: float, source: Path, source_type: str = "scripted", unit: str | None = None,
+                 digits: int | None = None) -> None:  # fmt: skip
+        """A threshold or parameter read from its source: descriptive, no interval (CONSTANT)."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="descriptive",
+                value=float(value),
+                reason=CONSTANT,
                 unit=unit,
                 digits=digits,
                 **self._src(source, source_type),

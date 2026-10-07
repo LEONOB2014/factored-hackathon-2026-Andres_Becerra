@@ -32,7 +32,9 @@ def num(v: float, digits: int | None = None) -> str:
     if float(v).is_integer() and abs(v) < 1e15:
         return f"\\num{{{int(v)}}}"
     d = digits or 3
-    return f"\\num{{{float(f'{v:.{d}g}')!r}}}"
+    r = float(f"{v:.{d}g}")
+    # a value that rounds to a whole number prints without a trailing ".0"
+    return f"\\num{{{int(r)}}}" if r.is_integer() and abs(r) < 1e15 else f"\\num{{{r!r}}}"
 
 
 def tex_escape(s: str) -> str:
