@@ -1,4 +1,207 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Time: shift diagnostics and the delivery clock}\label{ch:time-and-clocks}
 
-\emph{Planned content.} Drift model comparison, the matched filter, the delivery-day clock scan and business-date flip rates by country.
+Most rows of the main and backup copies do not match (\cref{ch:inventory-keys}). The first explanation to test is
+time: perhaps the backup holds the same records stored on other dates (\ident{H1}). A shift in time can mean
+different things, with different remedies, so this chapter separates them: a lag of the whole series
+(\cref{sec:time-global}), offsets of individual rows (\cref{sec:time-rows}), and re-dating of rows that are otherwise
+identical (\cref{sec:time-filter}). It then turns to a question every daily figure of the platform depends on: in
+which clock were the data's days drawn (\cref{sec:time-clock,sec:time-flips,sec:time-calendar})?
+
+\section{A lag of the whole series}\label{sec:time-global}
+
+If the backup were the main series moved by $k$ days, then for the daily counts $x_t$ (main) and
+$y_t$ (backup) the weekly pattern would be rotated by $k \bmod 7$, and after the weekly pattern is removed the
+cross-correlation of the series would peak at lag $k$.
+
+\paragraph{Weekday rotation.} For each three-month period with enough common days, let $\bar x_w$ and $\bar y_w$ be the
+standardised mean counts on weekday $w$. The rotation $r^\star = \arg\max_r \sum_w \bar x_{w+r} \bar y_w$ is the
+shift that best aligns the weekly profiles. It is zero in every three-month period for transactions
+($\est{ch04.rot-zero-transactions}{value}$ of $\est{ch04.rot-quarters-transactions}{value}$), contacts
+($\est{ch04.rot-zero-call-center-interactions}{value}$ of $\est{ch04.rot-quarters-call-center-interactions}{value}$),
+sends and complaints, and in $\est{ch04.rot-zero-digital-events}{value}$ of
+$\est{ch04.rot-quarters-digital-events}{value}$ periods for digital events, whose weekly profile is flatter and
+noisier (\cref{tab:ch04-global-lag}).
+
+\paragraph{Cross-correlation of the residuals.} Let $u_t$ and $v_t$ be the daily counts minus their weekday means,
+standardised. Their sample cross-correlation at lag $h$ is $\hat\rho_{uv}(h) = n^{-1} \sum_t u_t v_{t+h}$. Under
+independence of the series, each $\hat\rho_{uv}(h)$ is approximately normal with variance $1/n$, so the band
+$\pm z_{1-\alpha/2}/\sqrt{n}$ holds each lag with probability $1 - \alpha$ \autocite{brockwell1991}. Over the
+$\est{ch04.ccf-lags}{value}$ lags examined, about $\est{ch04.ccf-expected-outside}{value}$ are expected outside the
+band by chance alone. Excluding complaints, the tables have at most $\est{ch04.ccf-outside-max}{value}$ lags outside a
+band between $\est{ch04.ccf-band-min}{value}$ and $\est{ch04.ccf-band-max}{value}$, and the largest correlation in
+absolute value is $\est{ch04.ccf-max-abs}{value}$, with no peak standing out at any lag. This corrects a statement of the
+exploratory notebook, which reported every lag inside the band: a few lags fall outside, as many as chance predicts.
+Complaints are the exception that confirms the method: they are identical in both copies, and their correlation at
+lag zero is $\est{ch04.ccf-complaints-lag0}{value}$. A global lag is rejected.
+
+\input{../build/generated/tables/ch04-global-lag}
+
+\section{Offsets of individual rows}\label{sec:time-rows}
+
+For a row present in both copies under the same key, the offset is the difference of its dates, backup minus main.
+\Cref{tab:ch04-offsets} summarises it for each table. The offset is not a constant: transaction offsets range from
+$\est{ch04.offset-min-transactions}{value}$ to $\est{ch04.offset-max-transactions}{value}$ days and campaign-send
+offsets from $\est{ch04.offset-min-campaign-sends}{value}$ to $\est{ch04.offset-max-campaign-sends}{value}$ days. It is
+often not a whole number of days either: only $\est{ch04.whole-day-digital-events}{value}\,\%$ of shared events and
+$\est{ch04.whole-day-campaign-sends}{value}\,\%$ of shared sends differ by an exact multiple of a day. Yet the order of
+the shared rows in time is preserved: the rank correlation of \textcite{spearman1904} between the main and backup
+dates is at least $\est{ch04.spearman-min}{value}$ in every table. Sequences walking through the same stream of
+keys at slightly different speeds produce exactly this signature.
+
+\input{../build/generated/tables/ch04-offsets}
+
+\paragraph{How the offset drifts.} The monthly median offset $o_m$ of each table was fitted by a constant,
+a linear trend $o_m = a + bm$, and a piecewise-constant mean with change points found by binary segmentation
+\autocite{scott1974,truong2020}. The models are compared by the Bayesian information criterion of
+\textcite{schwarz1978},
+\begin{equation}\label{eq:bic}
+  \mathrm{BIC} = n \log\bigl(\hat\sigma^2\bigr) + k \log n,
+\end{equation}
+for $n$ months and $k$ parameters, the lower the better. A difference of several units is strong evidence for the
+model with the lower value. The constant model loses to the better of the drifting models by
+$\est{ch04.bic-gap-transactions}{value}$ for transactions, $\est{ch04.bic-gap-digital-events}{value}$ for events,
+$\est{ch04.bic-gap-call-center-interactions}{value}$ for contacts and $\est{ch04.bic-gap-campaign-sends}{value}$ for
+sends; for complaints, whose offset is zero, it wins (\cref{tab:ch04-drift-models}). Transactions drift by
+$\est{ch04.slope-transactions}{value}$ days per month ($R^2 = \est{ch04.r2-transactions}{value}$) and sends by
+$\est{ch04.slope-campaign-sends}{value}$ days per month ($R^2 = \est{ch04.r2-campaign-sends}{value}$); events and
+contacts need change points. A fixed storage delay of a set number of days cannot produce drifting, table-specific
+offsets of this kind.
+
+\input{../build/generated/tables/ch04-drift-models}
+
+\section{Re-dating of identical rows: the matched filter}\label{sec:time-filter}
+
+The decisive test of a clean re-dating looks at rows whose business content is identical in both copies, whatever
+their keys and dates. A re-dating by $k$ days would concentrate their date differences at $k$; independent draws from
+the same finite pools of values would spread them over the whole history. For transactions, whose fingerprint
+discriminates (\cref{ch:inventory-keys}), the content-identical pairs number $\est{ch04.mf-pairs}{value}$
+(\cref{fig:ch04-filter}). Both populations are present. A flat background spreads over
+$\est{ch04.mf-support-days}{value}$ days of difference, and a sharp peak sits a few days after zero: the most common
+difference, $\est{ch04.mf-mode}{value}$ days, holds $\est{ch04.mf-mode-share}{value}\,\%$ of pairs, and
+$\est{ch04.mf-within-week}{value}\,\%$ of pairs lie within a week of zero, where a uniform spread over the observed
+range would put $\est{ch04.mf-uniform-week}{value}\,\%$.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig-04-matched-filter}
+  \caption{Date difference, backup minus main, between transactions with identical business content. Left: the
+  whole range within a little over a year; right: the days around zero. Source:
+  \ident{report/build/sources/ch04\_matched\_filter.csv}, recomputed from the pinned parquet files.}
+  \label{fig:ch04-filter}
+\end{figure}
+
+The peak identifies a small set of transactions that are the same record re-dated. Among the transactions that share
+a key, \emph{clones} agree on amount, currency, type, channel, merchant and fraud score; \emph{collisions} share only
+the key. There are $\est{ch04.clones}{value}$ clones, $\est{ch04.clones-of-shared}{value}\,\%$ of the shared keys and
+$\est{ch04.clones-of-main}{value}\,\%$ of the main copy. Clones and collisions have the same offset distribution
+(mean $\est{ch04.clone-offset-mean}{value}$ against $\est{ch04.collision-offset-mean}{value}$ days, standard deviation
+$\est{ch04.clone-offset-sd}{value}$ against $\est{ch04.collision-offset-sd}{value}$), so the offset is a property of
+the key's position in the stream, not of the record. The customer of a clone agrees across the copies for
+$\est{ch04.clones-same-customer}{value}\,\%$ of clones, and its product for $\est{ch04.clones-same-product}{value}\,\%$:
+even the re-dated clones were re-keyed.
+
+\paragraph{Verdict on \ident{H1}.} A global lag is rejected; row-level offsets exist but drift smoothly and differ by
+table; a clean re-dating holds only for a core of clones. Re-dating the backup would not make the copies comparable.
+
+\section{In which clock were the days drawn?}\label{sec:time-clock}
+
+The source never states the time zone of its timestamps, yet every daily quantity depends on where a day starts:
+weekends, holidays, paydays, daily control charts and the hour features of the fraud models. The data can answer the
+question themselves.
+
+\begin{proposition}\label{prop:clock}
+Suppose events are generated on days of some clock $C$ with a weekly rhythm, and the time of day of an event is drawn
+independently of its weekday. Then hour of day and weekday are independent when time is read in clock $C$. Read in a
+clock shifted from $C$ by $s$ hours, with $s$ not a multiple of the length $D$ of a day, the weekday boundary cuts
+through the hours: events of the last $\lvert s \rvert \bmod D$ hours of each day of $C$ are attributed to the neighbouring weekday, and independence
+fails whenever the weekly rhythm is not flat.
+\end{proposition}
+
+The clock scan applies \cref{prop:clock}. For each whole-hour shift $s$, it cross-tabulates weekday and hour and
+computes the statistic of \textcite{pearson1900} for independence,
+\begin{equation}\label{eq:chi2}
+  X^2(s) = \sum_{w, h} \frac{(O_{wh} - E_{wh})^2}{E_{wh}},
+  \qquad E_{wh} = \frac{O_{w\cdot}\,O_{\cdot h}}{O_{\cdot\cdot}},
+\end{equation}
+with $\est{ch04.scan-dof}{value}$ degrees of freedom. The generating clock is the shift that minimises $X^2(s)$, where
+the statistic per degree of freedom falls to about one. In $\est{ch04.scan-agree}{value}$ of the
+$\est{ch04.scan-cells}{value}$ cells of process and market, the minimising shift equals the delivery offset of that
+process, $\proto{clock.offset_hours_transactions}$ hours for transactions, digital events and sends and
+$\proto{clock.offset_hours_contacts}$ hours for contacts and complaints (\cref{tab:ch04-clock-scan}). At that shift the
+statistic per degree of freedom lies between $\est{ch04.scan-best-min}{value}$ and $\est{ch04.scan-best-max}{value}$
+for every process except digital events; on the raw timestamps it is at least $\est{ch04.scan-raw-min}{value}$.
+
+Some processes depart from the picture. Digital events reach their minimum at the delivery offset, but their statistic
+per degree of freedom stays between $\est{ch04.scan-events-min}{value}$ and $\est{ch04.scan-events-max}{value}$: their
+time of day is not independent of the weekday even in their own clock, so \cref{prop:clock}'s premise fails for them.
+Satisfaction surveys are minimised at shifts of $\est{ch04.scan-surveys-shift-min}{value}$ to
+$\est{ch04.scan-surveys-shift-max}{value}$ hours in the other direction: a survey follows its contact with a delay, so
+its timestamp does not carry the delivery clock.
+
+\input{../build/generated/tables/ch04-clock-scan}
+
+\paragraph{The delivery day.} A second, independent test confirms the clock. Every row carries the date of the daily
+batch it was delivered in. Read on the raw timestamp, the timestamp's date equals the batch date for as few as
+$\est{ch04.clock-raw-min}{value}\,\%$ of rows of a process; shifted by the process's delivery offset, for at least
+$\est{ch04.clock-delivery-min}{value}\,\%$ of rows of every process in both copies. For contacts and complaints the
+transactions' offset is not enough: shifted by it, only $\est{ch04.clock-minus6-call-center-interactions}{value}\,\%$
+of contacts and $\est{ch04.clock-minus6-complaints}{value}\,\%$ of complaints match, which is why the integrity rules
+that applied the transactions' offset to these processes reported violations that are artefacts of the clock.
+
+\section{How much the wrong clock moves the calendar}\label{sec:time-flips}
+
+The country series had placed each customer's day on the market's legal time, $\proto{clock.legal_offset_hours_mexico}$,
+$\proto{clock.legal_offset_hours_colombia}$ and $\proto{clock.legal_offset_hours_argentina}$ hours from UTC for Mexico,
+Colombia and Argentina. The business-date flip rate measures the consequence of that choice: the share of rows whose
+date on the legal clock differs from their date on the delivery clock (\cref{tab:ch04-flips}). It is a census share.
+Mexico's legal clock coincides with the transactions' delivery clock, and $\est{ch04.flip-mx-flipped}{value}$
+Mexican transactions, events or sends change date. For Colombian transactions the share is
+$\est{ch04.flip-tx-co}{value}\,\%$ and for Argentine transactions $\est{ch04.flip-tx-ar}{value}\,\%$; across
+Argentine processes it ranges from $\est{ch04.flip-ar-min}{value}\,\%$ to $\est{ch04.flip-ar-max}{value}\,\%$, the
+highest values belonging to contacts and complaints, whose delivery clock is furthest from the legal one.
+
+\input{../build/generated/tables/ch04-flips}
+
+\section{What the calendar explains}\label{sec:time-calendar}
+
+The country series regressed the logarithm of daily transaction counts on weekday, holiday, long weekend, payday
+window, month end, bonus month and a trend, with country fixed effects for the whole bank. On a log scale a
+coefficient $\beta$ is a relative effect $e^\beta - 1$, and the intervals use the heteroscedasticity-consistent \HCthree{}
+covariance \autocite{mackinnon1985}. They ignore the serial dependence of daily counts (\cref{sec:em-series}), so they
+are marked as computed under independence. The regression's p-values form a family fixed by the protocol
+($\proto{families.country-calendar-main.size}$ tests on the main copy), and false-discovery control is applied over
+the whole family (\cref{sec:em-multiplicity}).
+
+Only $\est{ch04.cal-rejected}{value}$ of the family's tests survive at a false-discovery rate of
+$\proto{gates.alpha}$: the weekend terms ($\est{ch04.cal-rejected-weekday}{value}$ of them, Saturday and Sunday in each
+market) and the country levels. For the whole bank, Saturday volume differs from Monday's by
+$\est{ch04.cal-saturday}{estimate}\,\%$, interval $\est{ch04.cal-saturday}{ci}$, with $q = \est{ch04.cal-saturday}{q}$.
+Holidays move volume by $\est{ch04.cal-holiday}{estimate}\,\%$ ($q = \est{ch04.cal-holiday}{q}$). The payday window's
+coefficient, $\est{ch04.cal-payday}{estimate}\,\%$, has a p-value of $\est{ch04.cal-payday}{p}$, which would pass a
+single test, but its false-discovery adjusted value is $q = \est{ch04.cal-payday}{q}$, and it is not a discovery once
+the family is taken into account. The only calendar structure in the data is the weekly rhythm.
+
+On the wrong clock, that rhythm is distorted. In Argentina the legal clock weakens Saturday to
+$\est{ch04.sat-ar-local}{value}\,\%$ against $\est{ch04.sat-ar-business}{value}\,\%$ on the delivery clock, and makes
+Mondays quieter ($\est{ch04.mon-ar-local}{value}\,\%$ against $\est{ch04.mon-ar-business}{value}\,\%$); Colombia shows
+the same distortion, smaller, as its legal clock is closer to the delivery clock. The weekend moves by exactly the hours
+the clocks differ, as \cref{prop:clock} predicts.
+
+\section{Implications for the pipelines and the gates}\label{sec:time-implications}
+
+Every daily and hourly quantity of the platform is placed on the delivery clock of its process: the day boundary
+of the gold layer, the weekend and hour features of the fraud models, and the hour-grain star on which the readiness
+gates are computed (\cref{ch:readiness-gates}). The integrity rules for contacts and complaints must use their own
+delivery offset; with the transactions' offset they report violations that do not exist. The backup cannot be
+re-dated into the main copy. None of these findings changes a gate's verdict directly; together they define the clock
+in which every gate's features and test windows are measured, and an error in that clock would move the weekend and
+daypart features the customer and branch gates rely on.
+
+\section{Limitations}\label{sec:time-limits}
+
+The clock is identified by the weekly rhythm; a process without one would leave it undetermined. The scan tests whole
+hours only. The cross-correlation band is approximate, and correlations at different lags are not independent, so the
+count of lags outside it is a guide, not a test. The flip rate depends on the customer's country, not the transaction's,
+because a customer's day is what the calendar describes. The calendar regression's intervals ignore serial dependence,
+which makes them too narrow; the conclusion that only the weekend matters rests on false-discovery control of p-values
+that share that limitation, and the weekend effects are large enough to survive any plausible widening.
