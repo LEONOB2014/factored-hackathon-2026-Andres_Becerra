@@ -154,8 +154,9 @@ ignore = [
 
 # Technical report: LaTeX templates and regexes run long; scripts report what they wrote; typing-only imports
 # are kept at runtime; the protocol freeze check and its tests call git; tests pass claim fields as dict(...);
-# estimators use math names (B draws, G clusters, L block length).
-"report/**" = ["E501", "T201", "TC001", "TC002", "TC003", "S603", "S607", "C408", "N803", "N806"]
+# estimators use math names (B draws, G clusters, L block length); claims scripts build SQL from fixed table and
+# column names in code, never from input.
+"report/**" = ["E501", "T201", "TC001", "TC002", "TC003", "S603", "S607", "S608", "C408", "N803", "N806"]
 
 # Diagram generators: SVG markup runs long; the scripts report what they wrote.
 "scripts/diagrams/**" = ["E501", "T201"]

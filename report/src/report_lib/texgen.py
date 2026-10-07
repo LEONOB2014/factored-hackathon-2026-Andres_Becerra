@@ -140,7 +140,7 @@ def render_table(
     digest = sources.sha256(source)
     rel = sources.rel(source)
     spec = "".join("r" if pd.api.types.is_numeric_dtype(frame[c]) else "l" for c in frame.columns)
-    head = " & ".join(tex_escape(str(c)) for c in frame.columns)
+    head = " & ".join(tex_escape(str(c).replace("_", " ")) for c in frame.columns)
     body = []
     for row in frame.itertuples(index=False):
         cells = []
@@ -155,8 +155,8 @@ def render_table(
         r"\begin{table}[htbp]\centering\small",
         f"\\caption{{{caption} Source: \\texttt{{{tex_escape(rel)}}}, SHA-256 \\texttt{{{digest[:12]}}}.}}",
         f"\\label{{tab:{label}}}",
-        f"\\begin{{tabular}}{{{spec}}}", r"\toprule", head + r" \\", r"\midrule", *body, r"\bottomrule",
-        r"\end{tabular}", r"\end{table}",
+        f"\\fittable{{\\begin{{tabular}}{{{spec}}}", r"\toprule", head + r" \\", r"\midrule", *body, r"\bottomrule",
+        r"\end{tabular}}", r"\end{table}",
     ])  # fmt: skip
     tables = out_dir / "tables"
     tables.mkdir(parents=True, exist_ok=True)

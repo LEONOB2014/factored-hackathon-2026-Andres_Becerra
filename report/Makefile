@@ -8,7 +8,7 @@ BUILD := build
 OUT := $(BUILD)/tex
 UV := uv run
 
-.PHONY: pdf texgen claims preflight test clean
+.PHONY: pdf texgen claims figures preflight test clean
 
 pdf: texgen ## Compile tex/main.tex into build/report.pdf (latexmk + biber)
 	mkdir -p $(OUT) $(BUILD)/figures
@@ -24,9 +24,12 @@ preflight: ## Refuse to run data scripts unless the disk budget (conf/protocol.t
 	print(f'free {free:.1f} GiB, budget plus headroom {need:.1f} GiB'); \
 	raise SystemExit(0 if free >= need else 'not enough free disk for a data run')"
 
-claims: preflight ## Run every chapter's claims script, then texgen
+claims: preflight ## Run every chapter's claims script, then the figures and texgen
 	@for s in $$(ls scripts/claims/*.py | sort); do echo "== $$s"; $(UV) python $$s || exit 1; done
-	$(MAKE) texgen
+	$(MAKE) figures texgen
+
+figures: ## Redraw every figure from its (hashed) sources
+	@for s in $$(ls scripts/figures/*.py | sort); do echo "== $$s"; $(UV) python $$s || exit 1; done
 
 test: ## Run the report test suite
 	$(UV) pytest -q
