@@ -82,6 +82,12 @@ estimator = "readiness_check.py --cluster: latam_eda.granularity.clustered_gate 
 bootstrap_draws = 200
 min_clusters = 30
 nan_share_max = 0.05
+# Constants of readiness_verdict as frozen (documented by amendment, no behavior change): the gate interval is
+# the two-sided 1 - alpha bootstrap percentile interval; MDE = mde_multiplier x bootstrap SD, the multiplier being
+# z(1 - alpha/2) + z(power) rounded as in the code.
+alpha = 0.05
+power = 0.8
+mde_multiplier = 2.8
 disagreement = "a re-estimated gate disagrees when its verdict or its root cause differs from the published scorecard"
 datasets = ["main", "backup"]
 # A gate's main and backup re-estimates differ materially when their deltas differ by more than the 95th
@@ -156,3 +162,24 @@ build = 4
 scratch_scope = 3.2
 platform_env = 1.7
 headroom = 5
+
+[[amendments]]
+field = "gates.alpha"
+old = "(absent)"
+new = 0.05
+date = "2026-10-07"
+reason = "documents a constant of the frozen readiness_verdict so the report can cite it; no behavior change"
+
+[[amendments]]
+field = "gates.power"
+old = "(absent)"
+new = 0.8
+date = "2026-10-07"
+reason = "documents a constant of the frozen readiness_verdict so the report can cite it; no behavior change"
+
+[[amendments]]
+field = "gates.mde_multiplier"
+old = "(absent)"
+new = 2.8
+date = "2026-10-07"
+reason = "documents a constant of the frozen readiness_verdict so the report can cite it; no behavior change"
