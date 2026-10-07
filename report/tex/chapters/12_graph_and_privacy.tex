@@ -1,4 +1,126 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Graph exports and privacy}\label{ch:graph-and-privacy}
 
-\emph{Planned content.} Degree distributions, bounded contributions and noise on small cells.
+The platform exports its data in forms that travel further than the lakehouse: a property graph for relational learning
+and retrieval, pseudonymous tokens in place of direct identifiers, and differentially private statistics that may leave a
+country's trust boundary. Each export makes a promise. The graph promises that an edge means a real relationship, a token
+that it cannot be turned back into the identifier, and a private release that no individual's presence can be inferred
+from it while the statistics remain useful. This chapter tests these promises on the exports the last run produced.
+
+\section{The property graph}\label{sec:gp-graph}
+
+The graph has $\est{ch12.edges}{value}$ edges between customers, products, merchants, agents, branches, campaigns,
+complaints, countries and network addresses. Its structure limits what can be learned from it. First, it has
+$\est{ch12.transfer-edges}{value}$ edges between customers: the source records no counterparty of a transfer, so the
+money-movement patterns that ring and mule detection look for do not exist in the data. Second, its identifier nodes are
+dominated by an artefact. Of the $\est{ch12.ip-nodes}{value}$ address nodes, one is linked to
+$\est{ch12.ip-top-degree}{value}$ customers, $\est{ch12.ip-top-share}{value}\,\%$ of all $\est{ch12.customers}{value}$; every
+other address is shared by at most $\est{ch12.ip-max-other}{value}$ customers, and $\est{ch12.ip-shared-two}{value}$ are
+shared by exactly that many.
+
+The supernode is what missing values become. Tokens are computed as a hash of the salt joined to the value, and the
+concatenation treats a missing value as empty text, so every missing address maps to the same token. Formally, the
+tokenisation $\tau$ is injective on present values but $\tau(\text{missing}) = \tau(\text{empty})$ for every missing
+input, which merges all of them into one entity. The address is missing on $\est{ch12.events-ip-missing}{value}\,\%$ of
+identified digital events, enough for nearly every customer to have at least one such event and so an edge to the
+supernode. In a graph model this node would make every customer a neighbour of every other; in entity resolution it would
+merge them. The fix is to keep a missing input missing, and a test that no token is shared by more customers than real
+sharing can explain makes the property permanent. Once it is fixed, the genuine shared-address signal is the
+$\est{ch12.ip-shared-two}{value}$ pairs above, too little to validate graph-based fraud features on this data.
+
+\section{Tokens and their reversal}\label{sec:gp-tokens}
+
+A salted hash replaces an identifier $x$ by $\tau(x) = H(s \,\Vert\, x)$. It hides $x$ only if the attacker cannot try
+candidates: whoever knows the salt and the format of $x$ can hash every possible value and match. Document numbers have
+$\est{ch12.doc-lengths}{value}$ lengths, and $\est{ch12.doc-common-share}{value}\,\%$ have $\est{ch12.doc-common-length}{value}$
+digits. A single processor core of the machine that built this report, in an interpreted language, computes
+$\est{ch12.hash-rate}{value}$ hashes a second; it enumerates every document number of the common length in
+$\est{ch12.enumerate-common-s}{value}$ seconds and of the longest length in $\est{ch12.enumerate-longest-min}{value}$ minutes.
+Specialised hardware is faster by orders of magnitude. A salt shared by all tokens is therefore a key in all but name, and
+a weak one if it sits in configuration. The remedy is a keyed pseudorandom function, such as HMAC with a key held in a
+hardware security module \autocite{bellare1996,krawczyk1997}: without the key, enumeration is impossible; with it,
+tokenisation is a controlled service whose every use is logged. A pseudonymous token remains personal data under data
+protection law, because the controller can reverse it; the key is what keeps others from doing the same.
+
+\section{Differentially private statistics}\label{sec:gp-dp}
+
+\subsection{The guarantee and the mechanism}
+
+A randomised mechanism $M$ is $\varepsilon$-differentially private if, for every pair of datasets $D$ and $D'$ that
+differ in the data of one person and every set of outputs $S$,
+\begin{equation}\label{eq:gp-dp}
+  \Pr\{M(D) \in S\} \le e^{\varepsilon}\, \Pr\{M(D') \in S\}
+\end{equation}
+\autocite{dwork2006}. For a vector of counts $f$, adding independent Laplace noise of scale $\Delta / \varepsilon$ to each
+count achieves it, where $\Delta = \max_{D, D'} \lVert f(D) - f(D') \rVert_1$ is the sensitivity; for integer counts the
+discrete version, the two-sided geometric distribution with $\Pr\{L = k\} \propto q^{\lvert k \rvert}$ and
+$q = e^{-\varepsilon / \Delta}$, is the natural choice \autocite{ghosh2012}. When one person can contribute many rows,
+the sensitivity is made finite by bounding contributions: at most $c$ rows per group and at most $g$ groups per person,
+so that $\Delta = c\,g$ \autocite{wilson2020}. Releases compose: $k$ releases at $\varepsilon$ each cost $k\varepsilon$
+in total \autocite{dwork2014}.
+
+\subsection{The deployed release}
+
+The complaint release publishes counts by country, month and category at $\varepsilon = \est{ch12.eps}{value}$ per
+release, with $c = \est{ch12.per-group}{value}$ and $g = \est{ch12.max-groups}{value}$, so $\Delta = \est{ch12.sensitivity}{value}$
+and the noise has scale $\est{ch12.scale}{value}$ and standard deviation $\est{ch12.noise-sd}{value}$. The true cells have a
+median of $\est{ch12.cell-median}{value}$ complaints, so the noise is $\est{ch12.rel-noise}{value}\,\%$ of a typical cell: the
+release is mostly noise. Measured against the true counts, the published cells deviate with a standard deviation of
+$\est{ch12.err-sd}{value}$.
+
+The post-processing of the release adds properties of its own. Cells whose noisy count falls below
+$\est{ch12.suppress}{value}$ are suppressed; suppression costs no privacy, but it publishes a cell only when its noise was
+favourable, so the published cells overstate the truth by $\est{ch12.err-mean}{value}$ on average. And the public domain of
+countries includes one with no customers.
+
+\begin{proposition}\label{prop:gp-tail}
+For two-sided geometric noise with parameter $q$, $\Pr\{L \ge k\} = q^{k} / (1 + q)$ for every integer $k \ge 1$.
+\end{proposition}
+
+\begin{proof}
+The normalising constant of $q^{\lvert k \rvert}$ over the integers is $(1 + q)/(1 - q)$, so
+$\Pr\{L \ge k\} = \frac{1 - q}{1 + q} \sum_{j \ge k} q^{j} = \frac{q^{k}}{1 + q}$.
+\end{proof}
+
+A country with no complaints therefore publishes each cell with that probability at the suppression threshold:
+$\est{ch12.br-expected}{value}$ of its $\est{ch12.br-cells}{value}$ cells are expected to appear, and
+$\est{ch12.br-published}{value}$ did. The release reports complaints from a market where the bank has no customers. Nothing
+in the guarantee is violated, but a reader who does not know the noise scale will read noise as fact; the noise scale must
+travel with every release, and cells should not be suppressed in a way that hides it.
+
+\subsection{Bounds that fit the data}
+
+The deployed bounds never bind. Of the $\est{ch12.complaints}{value}$ complaints, $\est{ch12.single-share}{value}\,\%$ are the only
+one their customer filed in their group, no customer has more than $\est{ch12.max-per-group-obs}{value}$ in a group, and none
+spans more than $\est{ch12.max-groups-obs}{value}$ groups. The sensitivity is set for a contributor who does not exist, and
+the release pays for that contributor in noise. \Cref{tab:ch12-bounds} weighs the alternatives: a tighter bound removes some
+complaints (a bias) and buys less noise. With at most $\est{ch12.best-per-group}{value}$ complaint per group and
+$\est{ch12.best-groups}{value}$ groups per customer, $\est{ch12.best-removed}{value}\,\%$ of complaints are dropped and the error
+of a cell falls from $\est{ch12.current-rmse}{value}$ to $\est{ch12.best-rmse}{value}$, at the same $\varepsilon$. One caution
+governs the choice: bounds read off the data are themselves a function of the data and leak through it. They must come from
+knowledge that holds without looking (a customer rarely files the same kind of complaint repeatedly in a month) or from a small,
+separately accounted share of the budget spent on a private quantile.
+
+\input{../build/generated/tables/ch12-bounds}
+
+\paragraph{The budget against the schedule.} The release runs every month, and each run republishes every month of the history
+at $\varepsilon = \est{ch12.eps}{value}$, against an annual budget of $\est{ch12.eps-total}{value}$. The budget covers
+$\est{ch12.releases-per-budget}{value}$ releases, the schedule asks for $\est{ch12.releases-per-year}{value}$, and the ledger
+refuses the rest; meanwhile each republication of an old month adds to its cumulative loss. Publishing each month once,
+when it closes, spends the budget on new information instead of on repeating the old.
+
+\section{Verdict and implications}\label{sec:gp-verdict}
+
+The exports are well designed and each has one defect that breaks its promise. The graph carries a supernode of missing
+values and no money-movement edges, so it can support neither entity resolution nor graph fraud features until the token fix
+lands and the source records counterparties. The tokens are reversible by enumeration because the salt is the only secret;
+a keyed function with a protected key is required before real data arrives. The private release is correct as a mechanism
+and nearly useless as a statistic, because its contribution bounds are set for a worst case the data never shows; tighter
+bounds chosen without looking at the data, a schedule that fits the budget, and noise scales published with the counts
+turn it into a usable product.
+
+\section{Limitations}\label{sec:gp-limits}
+
+The graph and the release are the exports of the last pipeline run. The hash rate was measured in a single interpreted
+process and understates an attacker's speed. The comparison of bounds uses the average number of complaints removed per
+cell as the bias, which is exact on average but not for each cell, and evaluates bounds on the same data whose privacy they
+protect, which is legitimate for this analysis and not for choosing a production setting.
