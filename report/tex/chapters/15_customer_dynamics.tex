@@ -1,4 +1,126 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Customer dynamics}\label{ch:customer-dynamics}
 
-\emph{Planned content.} Activity as a Markov chain, cohorts, count models, value concentration, survival analysis and a lifetime-value proxy.
+A customer's relationship with the bank unfolds over months: active, quiet, active again, until it lapses. The
+granularity series describes that movement with a Markov chain over monthly activity states, with survival analysis of the
+time to the first long lapse, with the concentration of value across customers, and with cross-process early warnings.
+This chapter examines the assumptions of each description and what each finds, with one question in front: how much of what
+looks like customer behaviour is the exposure of \cref{sec:ag2-exposure}?
+
+\section{Activity as a Markov chain}\label{sec:cd-markov}
+
+Each customer-month is in one of the activity states: dormant (no transaction), light (at most $\est{ch15.light-max}{value}$) and
+active (more). If the next state depends only on the current one, the sequence of states is a Markov chain with transition
+matrix $P$, and its stationary distribution and sojourn times summarise it. The stationary distribution $\pi$, the solution of $\pi P = \pi$ with
+$\sum_i \pi_i = 1$, is where the population settles if $P$ holds; the expected stay in state $i$ once entered is
+$1 / (1 - P_{ii})$ months. Over $\est{ch15.transitions}{value}$ consecutive-month transitions (\cref{tab:ch15-markov}), the
+stationary distribution puts $\est{ch15.pi-dormant}{value}$ of the population in the dormant state against
+$\est{ch15.obs-dormant}{value}$ observed, $\est{ch15.pi-light}{value}$ in the light state against $\est{ch15.obs-light}{value}$
+and $\est{ch15.pi-active}{value}$ in the active state against $\est{ch15.obs-active}{value}$: the bank is in equilibrium. A
+dormant month is followed by another with probability $\est{ch15.p-dd}{value}$ and by activity with probability
+$\est{ch15.p-da}{value}$, so a single empty month is weak evidence of a lapse; the dormant state lasts
+$\est{ch15.sojourn-dormant}{value}$ months on average, the active state only $\est{ch15.sojourn-active}{value}$.
+
+\input{../build/generated/tables/ch15-markov}
+
+\paragraph{Is the chain Markov?} The exploratory notebook took the first-order property for granted. It can be tested by
+asking whether the state of the month before last changes the next state once the current one is known \autocite{anderson1957}. With
+$N_{ijk}$ the number of customer-month triples in states $i$, $j$, $k$, the likelihood-ratio statistic against a
+second-order chain is
+\begin{equation}\label{eq:cd-g2}
+  G^2 = 2 \sum_{i,j,k} N_{ijk} \log \frac{N_{ijk}\, N_{j\cdot}}{N_{ij\cdot}\, N_{jk}} ,
+\end{equation}
+with $N_{j\cdot}$, $N_{ij\cdot}$ and $N_{jk}$ the corresponding margins, asymptotically $\chi^2$ with
+$\est{ch15.g2-df}{value}$ degrees of freedom for these states. Over $\est{ch15.triples}{value}$ triples it is
+$\est{ch15.g2}{value}$ ($p = \est{ch15.g2-p}{value}$): the chain is not first-order. More informative than the test, which
+rejects any departure at this sample size, is its size. Knowing the earlier state changes the probability of the next by
+$\est{ch15.g2-effect}{value}$ on average (the largest change per current state, weighted by frequency). Within groups of
+customers with a similar overall activity rate the same measure falls to a median of $\est{ch15.g2-effect-within-median}{value}$
+and at most $\est{ch15.g2-effect-within-max}{value}$ across $\est{ch15.rate-groups}{value}$ groups.
+
+The memory is therefore not in the customers; it is in the mixture. A population of customers with different rates, each
+nearly memoryless, produces an aggregate sequence that looks as though it remembers: a customer seen dormant in consecutive months is more
+likely to be one of the low-rate customers, and so to stay dormant. This is the mover--stayer structure of
+\textcite{frydman1984}, and here its source is the exposure of \cref{sec:ag2-exposure}. The monthly chain is a sound KPI of
+the population, its dormant-to-active and active-to-active rates monitored per market; it is not a model of an individual
+unless it conditions on that individual's own rate.
+
+\section{Dormancy and exposure}\label{sec:cd-dormancy}
+
+Of customers active in a month, $\est{ch15.dormant-base}{value}$ make no transaction the next month. The series' model
+predicts that with an AUC of $\est{ch15.model-auc}{value}$, its best single feature reaching $\est{ch15.model-best-single}{value}$.
+The number of products a customer holds, alone and with no behaviour at all, reaches $\est{ch15.auc-held}{estimate}$
+($\est{ch15.auc-held}{ci}$, DeLong); this month's number of transactions alone reaches only
+$\est{ch15.auc-ntx}{estimate}$ ($\est{ch15.auc-ntx}{ci}$). Most of the learnable signal is exposure, as \cref{eq:ag2-exposure}
+predicts, and the part that behaviour adds is small. A retention model on this data should be judged by its gain over the
+products-held baseline, not over chance.
+
+\section{Survival to the first lapse}\label{sec:cd-survival}
+
+The series measures, from each customer's start, the time to the first run of $\est{ch15.lapse-months}{value}$ consecutive months without a transaction. Customers
+still active at the end of the data are censored: their lapse has not been observed, and averaging only the lapsed customers'
+times would understate the time to lapse. The Kaplan--Meier estimator handles censoring by multiplying conditional survival
+over the observed lapse times,
+\begin{equation}\label{eq:cd-km}
+  \hat S(t) = \prod_{t_i \le t} \Bigl(1 - \frac{d_i}{n_i}\Bigr),
+\end{equation}
+with $d_i$ lapses among the $n_i$ customers still at risk at time $t_i$ \autocite{kaplan1958}. Groups are compared by the
+log-rank test \autocite{peto1972}, and summarised by the restricted mean survival time
+$\mathrm{RMST}(\tau) = \int_0^\tau \hat S(t)\,dt$, the expected months engaged within a horizon $\tau$ \autocite{royston2013}.
+
+On average $\est{ch15.lapsed-pct}{value}\,\%$ of customers lapse, with a median of $\est{ch15.median-lapse}{value}$ months and a
+survival at a year between $\est{ch15.s12-min}{value}$ and $\est{ch15.s12-max}{value}$ in every group
+(\cref{tab:ch15-survival}). The country difference is detectable (log-rank $p = \est{ch15.lr-country-p}{value}$) and
+immaterial: the restricted mean survival times of the countries differ by $\est{ch15.rmst-gap}{value}$ of a month within $\est{ch15.rmst-horizon}{value}$ months. Segments do not differ ($p = \est{ch15.lr-segment-p}{value}$). The series' lapse-risk ranking, a proportional-hazards
+model in the sense of \textcite{cox1972}, reaches a concordance of $\est{ch15.concordance}{value}$
+($\est{ch15.concordance-lo}{value}$ to $\est{ch15.concordance-hi}{value}$) from activity in the first months, which is again a
+measure of the customer's rate. Detectability and materiality part ways at this sample size; the restricted mean survival time,
+in months a manager understands, is the measure to report.
+
+\input{../build/generated/tables/ch15-survival}
+
+\section{How concentrated is value?}\label{sec:cd-value}
+
+The Lorenz curve plots the cumulative share of spend against the cumulative share of customers ordered by spend
+\autocite{lorenz1905}, and the Gini coefficient is the area between it and the diagonal as a share of the area under the diagonal; for sorted spends
+$x_{(1)} \le \dots \le x_{(n)}$,
+\begin{equation}\label{eq:cd-gini}
+  G = \frac{\sum_{i=1}^{n} (2i - n - 1)\, x_{(i)}}{n \sum_{i=1}^{n} x_{(i)}} .
+\end{equation}
+Lifetime spend has a Gini coefficient of $\est{ch15.gini}{value}$; the top tenth of customers account for
+$\est{ch15.top-decile}{value}\,\%$ of it, and $\est{ch15.zero-spend}{value}\,\%$ of customers spent nothing. Value is moderately
+concentrated: no small group carries the bank, and a service model tiered by value would have little to tier on.
+
+\section{Early warnings across processes}\label{sec:cd-lifts}
+
+The series tested whether an event in one process warns of another in the next month: a digital error of a contact, an
+unresolved contact of a complaint, a complaint or a decline of dormancy, campaign pressure of attrition. For each pair it
+compares the probability of the consequent with and without the antecedent (\cref{tab:ch15-lifts}). No relative risk differs
+from one by more than $\est{ch15.lift-max-dev}{value}$, and the largest is the mechanical case of \cref{sec:ag2-ledger}: declined
+customers are, by construction, active ones. The processes of this bank do not talk to each other at the customer-month
+grain.
+
+\input{../build/generated/tables/ch15-lifts}
+
+\section{Customers at the hour}\label{sec:cd-hours}
+
+Does a customer have a preferred hour? For each customer with enough transactions, the series tested whether their hours
+are uniform at a level of $\est{ch15.preferred-alpha}{value}\,\%$. If no customer had a preference, about that share would be
+rejected by chance; the share rejected is $\est{ch15.preferred-hour}{pct}\,\%$ (Wilson interval
+$\est{ch15.preferred-hour}{pct_ci}$), exactly the chance rate. The daypart profiles of customers are indistinguishable from
+multinomial noise around a flat profile (Kolmogorov--Smirnov $p = \est{ch15.daypart-ks-p}{value}$). A personalised send time
+has nothing to personalise on here.
+
+\section{Verdict and implications}\label{sec:cd-verdict}
+
+The customer dynamics of this bank are the dynamics of a mixture of customers with different rates. The population is in
+equilibrium, a single quiet month is mostly noise, and the apparent memory of the monthly chain is the mixture's, not the
+customers'. Dormancy and lapse are learnable mainly because customers differ in how many products they hold. Countries and
+segments lapse alike in every way that matters, value is moderately spread, processes do not warn of one another, and nobody
+prefers an hour. For the platform the useful deliverables are the population KPIs (the chain's rates per market, the
+Kaplan--Meier curve and the restricted mean survival time) and a retention model judged against the exposure baseline.
+
+\section{Limitations}\label{sec:cd-limits}
+
+The chain, the second-order test and the exposure baseline are recomputed here on processing months; the activity-rate groups
+use each customer's rate over the whole window, a diagnostic of heterogeneity that a predictive model could not use. The
+survival summary, the lapse model's concordance, the lifts and the hour tests are the series' stored results.
