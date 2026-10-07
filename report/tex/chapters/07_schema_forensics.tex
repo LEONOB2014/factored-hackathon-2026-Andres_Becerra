@@ -1,4 +1,357 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Schema forensics, contracts and drift}\label{ch:schema-forensics}
 
-\emph{Planned content.} Layered detectors with positive controls, the circuit breaker, country baselines and distribution stability.
+The source tables arrive as CSV files with no metadata: no schema, no types, no version and no change log. Every
+layer above them assumes that each table has one stable schema. If a producer changed a format, a vocabulary, a unit or
+a key convention without saying so, every typed copy would carry the change forward silently, because a typed copy has
+already erased the evidence: the original formats, the decimal separators, the leading zeros and the difference
+between an empty field and a missing one. This chapter therefore infers the schema from the raw text, file by file,
+asks whether it ever changed, and then examines the controls the platform builds on that inference: the source
+contract, the circuit breaker that holds a day of data when it no longer looks like the contract, and the baselines
+those checks compare against. The question throughout cuts both ways: did the source change, and would the controls
+have noticed if it had?
+
+\section{Every record accounted for}\label{sec:sf-physical}
+
+A CSV record is defined by its grammar, not by its lines: a quoted field may contain line breaks
+\autocite{shafranovich2005}. The fingerprint of each file therefore counts records with a CSV parser and, separately,
+the physical line terminators, so that the counts can be reconciled exactly. Every file of every table in both copies
+ends its lines with a carriage return and line feed; the bare line feeds that remain can only sit inside quoted
+fields. If no record is lost or invented, then for each table
+\begin{equation}\label{eq:sf-identity}
+  \text{terminators} - \text{headers} - \text{records} = 0 ,
+\end{equation}
+with one header per file. The identity holds for $\est{ch07.tables-identity}{value}$ of the
+$\est{ch07.tables-main}{value}$ main and $\est{ch07.tables-backup}{value}$ backup tables: the
+$\est{ch07.files-main}{value}$ main files hold $\est{ch07.records-main}{value}$ records and the
+$\est{ch07.files-backup}{value}$ backup files $\est{ch07.records-backup}{value}$, with nothing unexplained
+(\cref{tab:ch07-physical}). The only multi-line records are call transcripts: every one of the
+$\est{ch07.transcript-records}{value}$ transcripts spans several lines, with $\est{ch07.transcript-lf-per-record}{value}$
+embedded line feeds per transcript on average, which is why a line count overstates that table and a grammar count does
+not. The files show $\est{ch07.defects}{value}$ physical defects of any kind (ragged rows, grammar errors, invalid
+\ident{UTF-8}, NUL bytes, lone carriage returns), and $\est{ch07.multi-header-tables}{value}$ tables changed their header in any
+partition.
+
+\input{../build/generated/tables/ch07-physical}
+
+\section{Types inferred from text}\label{sec:sf-lexical}
+
+\begin{definition}[Inferred type]\label{def:sf-type}
+Classify each non-empty value of a column into a lexical class (integer, integer with a leading zero, decimal with a
+point or a comma, ISO or day-first date, timestamp with or without an offset, IP address, JSON, text). Order the types
+as the lattice
+$\mathsf{boolean} \sqsubset \mathsf{integer} \sqsubset \mathsf{decimal} \sqsubset \mathsf{date} \sqsubset
+\mathsf{timestamp} \sqsubset \mathsf{time} \sqsubset \mathsf{json} \sqsubset \mathsf{ip} \sqsubset \mathsf{string}$.
+The inferred type is the least element of the lattice whose classes cover at least a share
+$c = \est{ch07.type-coverage}{value}$ of the non-empty values; the values outside it are the column's minority formats.
+\end{definition}
+
+The coverage threshold makes inference robust to a handful of malformed values while still naming them. Across the
+$\est{ch07.typed-columns}{value}$ columns with a type narrower than text, the minority formats hold
+$\est{ch07.minority-values}{value}$ values: every non-empty value fits its column's type. Codes with leading zeros
+(postal codes, document and product numbers, response codes) coexist with plain digits in
+$\est{ch07.leading-zero-columns}{value}$ columns; they are codes, and the inference correctly leaves them as text.
+
+\paragraph{What typing kept and lost.} Comparing the raw text with the typed copies column by column, over
+$\est{ch07.audited-columns}{value}$ columns, the only loss is representational: in $\est{ch07.empty-to-null}{value}$
+columns an empty field became a NULL. The raw files carry $\est{ch07.null-token-columns}{value}$ columns with a null
+token, so the empty string is the only absence marker and its meaning survives the conversion; the representation does
+not, which is why the lossless bronze layer keeps the text as written. No leading zero was lost, no time-zone suffix
+existed to be lost ($\est{ch07.tz-columns}{value}$ columns carry one) and $\est{ch07.other-losses}{value}$ other losses
+were found.
+
+\section{Detecting change in daily fingerprints}\label{sec:sf-detectors}
+
+Every daily file yields a fingerprint per column: the share of each lexical class, the empty share, the vocabulary of
+low-cardinality columns and the median magnitude of numbers. Change is sought in the day series of these
+fingerprints, with a detector for discrete signals and another for continuous ones.
+
+\subsection{Presence: born, died, transient}
+
+For a discrete signal (a header, a value class, a vocabulary value) the series is a daily indicator $I_t$. Let the
+value be seen first on day $f$ and last on day $l$, and let $\hat p$ be the share of days between them on which it is
+present.
+
+\begin{proposition}\label{prop:sf-presence}
+If presence were a stationary Bernoulli sequence with daily probability $p$, the probability of $L$ consecutive absent
+days before the first sighting is $(1 - p)^{L}$.
+\end{proposition}
+
+The classifier calls a value \emph{born} when $f \ge k$ and $(1-\hat p)^{f} < \alpha$, \emph{died} when the same holds
+after $l$, an \emph{episode} when both hold, \emph{stable} when the value is present on at least a share
+$\est{ch07.presence-stable}{value}$ of all days, \emph{transient} when it is seen on fewer than $k$ days and
+\emph{intermittent} otherwise, with $k = \est{ch07.presence-k}{value}$ and $\alpha = \est{ch07.presence-alpha}{value}$.
+The rule separates a value that was launched late, even if sparse afterwards, from a rare value that merely skipped some
+days. \Cref{prop:sf-presence} carries caveats: $\hat p$ is estimated from the same series, and real presence is not
+independent from day to day (a campaign runs for weeks), so long absences are more frequent than the geometric law
+predicts and the rule leans towards reporting. Since a report is a prompt for review, not a hold, that is the
+direction in which to err.
+
+\subsection{Shifts in a share: binary segmentation with a permutation test}
+
+For a continuous signal $x_1, \dots, x_n$ (the daily share of a class or of empty values) the detector looks for
+sustained shifts in the mean. The standardized CUSUM statistic of a split after day $k$ is
+\begin{equation}\label{eq:sf-cusum}
+  T_k = \frac{\lvert S_k \rvert}{\sqrt{k (n - k) / n}}, \qquad S_k = \sum_{i \le k} (x_i - \bar x),
+\end{equation}
+the scan statistic of the classical change-point literature \autocite{page1954,csorgo1998}. Binary segmentation
+\autocite{scott1974,truong2020} splits the series at $\arg\max_k T_k$ (with at least $\est{ch07.binseg-min-size}{value}$
+days on each side) when the split passes a test, then repeats on each segment. The test is a permutation test
+\autocite{antoch2001}: with $T^{\ast}_{(r)}$ the maximum statistic of the $r$-th of $R = \est{ch07.binseg-perm}{value}$
+random permutations of the segment,
+\begin{equation}\label{eq:sf-perm}
+  \hat p = \frac{1 + \#\{r : T^{\ast}_{(r)} \ge \max_k T_k\}}{R + 1},
+\end{equation}
+and the split is kept when $\hat p \le \est{ch07.binseg-alpha}{value}$; the smallest attainable value is
+$\est{ch07.binseg-min-p}{value}$. A shift is reported only when the means on either side of a kept split differ by at
+least $\est{ch07.share-delta}{value}$, and a step in the log-median of a numeric column only when it exceeds
+$\est{ch07.scale-min-step}{value}$ (a factor of $\est{ch07.scale-min-factor}{value}$): with this many rows nearly
+everything is detectable, so materiality is decided by effect size, not by the test.
+
+\paragraph{The permutation test assumes exchangeability.} Under the null of no change, the permutation distribution of
+\cref{eq:sf-perm} is exact only if the days are exchangeable. Daily series of a bank are not: campaigns, channel mixes
+and weekly cycles make neighbouring days alike, and a permutation destroys that dependence, so the null distribution is
+too narrow and the test finds changes that are not there. A simulation measures how much this matters. Change-free
+autoregressive series $x_t = \phi x_{t-1} + \varepsilon_t$ of the same length as the campaign series were segmented
+$\est{ch07.sim-reps}{value}$ times per value of $\phi$. With independent days the procedure raised an alarm on
+$\est{ch07.sim-alarm-phi0}{pct}\,\%$ of the series (interval $\est{ch07.sim-alarm-phi0}{pct_ci}$), within its nominal
+level. At $\phi = \est{ch07.sim-phi3}{value}$ it raised one on $\est{ch07.sim-alarm-phi3}{pct}\,\%$
+($\est{ch07.sim-alarm-phi3}{pct_ci}$), and at $\phi = \est{ch07.sim-phi6}{value}$ on
+$\est{ch07.sim-alarm-phi6}{pct}\,\%$ ($\est{ch07.sim-alarm-phi6}{pct_ci}$). The remedy is a permutation that keeps the
+dependence, permuting blocks of days instead of days \autocite{kirch2007}, or a test on the residuals of a fitted
+autoregression. \Cref{sec:sf-empty} shows that the series the breaker monitors are, in fact, strongly autocorrelated
+unless they are conditioned on applicability, and that after conditioning the dependence vanishes.
+
+\subsection{Positive controls}
+
+A detector is credible only if it finds changes that are known to exist (\cref{sec:em-ledger}). The exploratory
+notebook injected each of $\est{ch07.mutations}{value}$ schema mutations into copies of real daily transaction files,
+verbatim before a change day in the middle of the window and mutated from it on, and ran the same fingerprinting and
+detection on each copy and on an untouched copy of the same window (\cref{tab:ch07-scorecard}). Every mutation was
+found: recall $\est{ch07.recall}{pct}\,\%$, with a maximum delay of $\est{ch07.delay-max}{value}$ days,
+$\est{ch07.false-alarms}{value}$ false alarms before the change days and $\est{ch07.clean-new-findings}{value}$ new
+findings in the clean copy. With this few mutations the result bounds recall from below only loosely, at
+$\est{ch07.recall}{pct_lo}\,\%$ (Wilson, \cref{eq:wilson}), and every mutation rewrote every file from its change day:
+gross, persistent changes of format, unit, key or grammar are caught at once; a change confined to part of a day's
+rows has not been tested this way.
+
+\input{../build/generated/tables/ch07-scorecard}
+
+\section{What the detectors found}\label{sec:sf-findings}
+
+On the main copy the detectors report $\est{ch07.findings}{value}$ findings (\cref{tab:ch07-change-log}). None is a
+change of unit ($\est{ch07.findings-unit-change}{value}$ steps of the log-magnitude match a decimal power or an exchange
+rate); the declared shape of every table was constant. What changed lies inside the content.
+
+\input{../build/generated/tables/ch07-change-log}
+
+\paragraph{Channels born and retired.} Campaign sends gained a WhatsApp channel shortly after the table starts and
+carried a Voice channel for an episode of its history; neither has open or click tracking. As they ramp up, the empty
+shares of the open fields and of the subject (which only e-mails have) move with them. These are the
+$\est{ch07.findings-share-shift}{value}$ share shifts of the log. They are instrumentation drift, not a change of
+customer behaviour: a funnel rate computed over all channels moves when the channel mix moves, so funnel metrics must be
+computed per channel (\cref{sec:sf-empty}).
+
+\paragraph{A null rendered into text.} The subject \ident{¡Oferta especial en nan!} appears on
+$\est{ch07.nan-subjects}{value}$ sends, $\est{ch07.nan-share-with-subject}{value}\,\%$ of the sends that have a subject
+and $\est{ch07.nan-share-sends}{value}\,\%$ of all sends: a message template filled with a missing product, the
+floating-point NaN serialised as a word. It is valid text to every type check; only the contract's scan for null words
+flags it. It is a defect of the source, and a customer-facing one.
+
+\paragraph{The unaccented country is a label, not a typo.} Transactions and digital events spell Mexico both with and
+without the accent. A misspelling would occur in proportion to Mexican activity. Instead, \ident{Mexico} is one of
+the labels the generator uses for a foreign destination, alongside \ident{USA}, \ident{Spain} and \ident{Brazil}: among
+the transactions carrying one of those labels, the share labelled \ident{Mexico} is $\est{ch07.mexico-label-ar}{pct}\,\%$
+for Argentine customers ($\est{ch07.mexico-label-ar}{pct_ci}$, resampling customers), $\est{ch07.mexico-label-co}{pct}\,\%$
+for Colombian customers ($\est{ch07.mexico-label-co}{pct_ci}$) and $\est{ch07.mexico-label-mx}{pct}\,\%$ for Mexican
+customers ($\est{ch07.mexico-label-mx}{pct_ci}$): every country, Mexico included, uses the foreign labels uniformly
+(\cref{tab:ch07-foreign-labels}). The accented spelling, by contrast, appears on $\est{ch07.accented-non-mexican}{value}$
+transactions of non-Mexican customers. Conformance maps both spellings to the same country code, so the
+$\est{ch07.mx-foreign-mexico}{value}$ unaccented transactions of Mexican customers, out of their
+$\est{ch07.mx-foreign}{value}$ foreign-labelled ones, become domestic. Geographically that is defensible, but it means
+a cross-border feature for Mexican customers loses that part of its positive class.
+
+In digital events the unaccented label means something else again. It appears on $\est{ch07.events-identified-mexico}{value}$
+events of identified customers and on $\est{ch07.events-anon-mexico}{value}$ anonymous events,
+$\est{ch07.events-anon-mexico-share}{value}\,\%$ of anonymous traffic, against $\est{ch07.events-anon-accented}{value}$
+anonymous events with the accent. The raw label is therefore a perfect marker of anonymous traffic, and a model given
+the raw string would learn the generator's labelling rule. Identified customers, moreover, log in from their own
+country on every one of the $\est{ch07.events-identified}{value}$ identified events ($\est{ch07.events-cross-border}{value}$
+cross-border logins), so features such as a login from an unusual country carry no signal in this dataset: they belong
+in a bank's design, but they cannot be validated here.
+
+\input{../build/generated/tables/ch07-foreign-labels}
+
+\section{The contract and the circuit breaker}\label{sec:sf-breaker}
+
+The inferred schema, reviewed, becomes the source contract: per column a type, whether a value is required, an
+accepted vocabulary or key pattern, the expected empty share and the typical magnitude of numbers. The contract is
+applied at the level of cells and again at the level of partitions, in the spirit of declarative data-quality
+verification \autocite{schelter2018}.
+
+\paragraph{Cells.} Typing reads the lossless text and casts it against the contract. A value that breaks the contract is
+flagged with a code (does not cast, wrong format, required but empty, bad key, unknown vocabulary, variant spelling,
+null rendered into text, unrendered template slot), never dropped and never silently repaired: the row flows on with
+the cell typed as NULL and the finding recorded. Every record therefore survives typing; only a held partition is
+excluded later.
+
+\paragraph{Partitions.} A producer change does not damage cells at random: it changes a whole day at once. The circuit
+breaker profiles each day of each table and compares it with the contract. A check of severity A holds the partition:
+format or key problems in more than a share $\est{ch07.t-format}{value}$ of the non-empty values, a required column
+empty in more than the same share of rows, unknown vocabulary in more than a share $\est{ch07.t-vocabulary}{value}$, a
+column absent from the header, or a change of scale. The scale check compares the day's log-median $m_d$ with the
+contract's $m_0$ and its median absolute deviation $\mathrm{MAD}_0$, and holds when
+\begin{equation}\label{eq:sf-scale}
+  \lvert m_d - m_0 \rvert \ge \est{ch07.t-scale-log}{value}
+  \quad\text{and}\quad
+  \frac{\lvert m_d - m_0 \rvert}{\max\bigl(\kappa\,\mathrm{MAD}_0,\ \est{ch07.t-mad-floor}{value}\bigr)} > \est{ch07.t-scale-z}{value},
+\end{equation}
+on days with at least $\est{ch07.t-min-nonzero}{value}$ non-zero values: a move by a factor of at least
+$\est{ch07.t-scale-factor}{value}$ that is also extreme relative to the column's normal day-to-day variation. The
+constant $\kappa = 1/\Phi^{-1}(3/4)$ makes the MAD a consistent estimator of the standard deviation under normality
+\autocite{rousseeuw1993}, and the floor stops a column with an almost constant median from holding on a trivial move.
+A check of severity B only reports: a smaller share of unknown vocabulary, or an empty share that moved by at least
+$\est{ch07.band}{value}$ from the contract's.
+
+Holding instead of repairing is a decision about which error to prefer. A held partition makes every derived table
+incomplete, visibly so, since the hold is in the audit trail and a reviewer must release it; a guessed repair (rescale by
+a plausible factor, swap the decimal separator) would put a plausible wrong number into the gold layer, invisibly. Under the
+reviewed contract the breaker holds $\est{ch07.held-global-country-all}{value}$ partitions of the main copy: the source
+never changed shape.
+
+\section{The empty-share check}\label{sec:sf-empty}
+
+The severity-B empty-share check is the only check the real data triggers. On the campaign sends it reports
+$\est{ch07.subject-reports}{value}$ days for the subject and $\est{ch07.was-opened-reports}{value}$ for the open flag,
+out of $\est{ch07.days}{value}$ days, against contract baselines of $\est{ch07.baseline-subject}{value}$ and
+$\est{ch07.baseline-was-opened}{value}$. The exploratory notebook counted one subject report fewer; of the subject
+reports recounted here, $\est{ch07.no-email-reported}{value}$ fall on the $\est{ch07.days-no-email}{value}$ days on which
+no e-mail was sent at all, so that no send could carry a subject.
+
+\paragraph{The band against sampling noise.} If each send of a day were an independent draw with empty probability $p$,
+the daily empty share $s_d = e_d / n_d$ would have standard deviation $\sqrt{p(1-p)/n_d}$. On the median day the fixed
+band spans $\est{ch07.subject-band-sd}{value}$ such standard deviations for the subject and
+$\est{ch07.was-opened-band-sd}{value}$ for the open flag, so these reports are not sampling noise. The test of the
+binomial assumption is the Pearson dispersion
+\begin{equation}\label{eq:sf-dispersion}
+  \hat\varphi = \frac{1}{D - 1} \sum_{d=1}^{D} \frac{n_d (s_d - \bar s)^2}{\bar s (1 - \bar s)},
+\end{equation}
+which is close to one when days are binomial draws around a common share and grows with any extra-binomial variation
+\autocite{cochran1954,mccullagh1989}. Over all rows it is $\est{ch07.subject-all-dispersion}{value}$ for the subject and
+$\est{ch07.was-opened-all-dispersion}{value}$ for the open flag, and the daily shares have lag-one autocorrelations of
+$\est{ch07.subject-all-lag1}{value}$ and $\est{ch07.was-opened-all-lag1}{value}$: the share wanders with the day's
+channel mix, because the subject exists only for e-mail and the open flag is not tracked for WhatsApp and Voice. On these
+series the segmentation of \cref{sec:sf-detectors} finds $\est{ch07.subject-all-cps}{value}$ and
+$\est{ch07.was-opened-all-cps}{value}$ change points, the regime in which its permutation test is anti-conservative.
+
+\paragraph{Conditioning on applicability.} Measured only on the rows where the field applies (e-mails for the subject;
+e-mail, SMS and push for the open flag) the picture changes completely (\cref{fig:ch07-empty-share,tab:ch07-empty-share}).
+The dispersion falls to $\est{ch07.subject-cond-dispersion}{value}$ and $\est{ch07.was-opened-cond-dispersion}{value}$,
+the lag-one autocorrelation to $\est{ch07.subject-cond-lag1}{value}$ and $\est{ch07.was-opened-cond-lag1}{value}$, and
+the segmentation finds $\est{ch07.subject-cond-cps}{value}$ and $\est{ch07.was-opened-cond-cps}{value}$ change points:
+within the applicable rows, each day is a binomial draw from a share that never moved. That licenses a noise-aware rule.
+Estimate the baseline $b_0$ on a reference window of the first $\est{ch07.reference-days}{value}$ days, before the
+period it monitors, and report a later day when
+\begin{equation}\label{eq:sf-z}
+  \lvert z_d \rvert = \frac{\lvert s_d - b_0 \rvert}{\sqrt{b_0 (1 - b_0) / n_d}} > \est{ch07.z-rule}{value},
+\end{equation}
+with $s_d$ and $n_d$ taken over the applicable rows. With $b_0 = \est{ch07.subject-cond-baseline}{value}$ and
+$\est{ch07.was-opened-cond-baseline}{value}$ the rule reports $\est{ch07.subject-cond-z}{value}$ of
+$\est{ch07.subject-cond-days-judged}{value}$ and $\est{ch07.was-opened-cond-z}{value}$ of
+$\est{ch07.was-opened-cond-days-judged}{value}$ later days with applicable rows; the same $z$ rule on all rows would report
+$\est{ch07.subject-all-z}{value}$ and $\est{ch07.was-opened-all-z}{value}$ days.
+
+\paragraph{Sensitivity.} The conditioned rule is also the more sensitive one. A day is reported when its applicable
+share moves by about $\est{ch07.subject-mde}{value}$ for the subject and $\est{ch07.was-opened-mde}{value}$ for the open
+flag (medians over days). The fixed band, by contrast, needs a subject outage on nearly the whole e-mail stream to see
+it: on the median day it reports only when a share $\est{ch07.outage-needed-median}{value}$ or more of that day's
+e-mails lose their subject (between $\est{ch07.outage-needed-p10}{value}$ and $\est{ch07.outage-needed-p90}{value}$ on
+most days), so a partial loss of subjects, the realistic failure, passes unseen while channel-mix days are reported.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig-07-empty-share}
+  \caption{Daily empty share of the subject (top) and the open flag (bottom) of campaign sends. Left: all rows,
+  against the contract baseline and the fixed band of the empty-share check; red points are reported days. Right:
+  rows where the field applies, against a baseline estimated on the reference window, with the band of the binomial
+  rule of \cref{eq:sf-z}, which widens on days with few applicable sends.}
+  \label{fig:ch07-empty-share}
+\end{figure}
+
+\input{../build/generated/tables/ch07-empty-share}
+
+\begin{remark}
+The rule of \cref{eq:sf-z} is calibrated only where $\hat\varphi$ is close to one. A column whose applicable share still
+shows extra-binomial variation needs its variance inflated by $\hat\varphi$ (a quasi-binomial band), and a column
+without a natural applicability condition needs one to be written into the contract before its empty share can be
+monitored at all.
+\end{remark}
+
+\section{One contract, several populations}\label{sec:sf-countries}
+
+The contract's baselines were measured on the whole bank. The country series of notebooks asks whether a bank-wide
+contract fits each country (\cref{tab:ch07-country-contracts}). It does not. Under the reviewed contract the breaker
+would hold $\est{ch07.held-global-country-mx}{value}$ partitions of Mexico, $\est{ch07.held-global-country-co}{value}$ of
+Colombia and $\est{ch07.held-global-country-ar}{value}$ of Argentina, nearly every day, all on the scale check. The
+typical transaction amount of a country is $\est{ch07.amount-scale-country-mx}{value}$ times the bank-wide baseline in
+Mexico, $\est{ch07.amount-scale-country-co}{value}$ times in Colombia and $\est{ch07.amount-scale-country-ar}{value}$
+times in Argentina: amounts are recorded in the account's currency, and the bank-wide median of a mixture of
+currencies describes none of its components. Baselines re-estimated on each country's reference window remove every
+hold ($\est{ch07.held-country-country-mx}{value}$, $\est{ch07.held-country-country-co}{value}$ and
+$\est{ch07.held-country-country-ar}{value}$) without blinding the scale check, since a unit change would still move the
+country's own median. The production design that follows is a scale check per currency within each table, so that no
+blend ever sets a baseline. The severity-B reports grow as the country shrinks
+($\est{ch07.b-reports-country-mx}{value}$, $\est{ch07.b-reports-country-co}{value}$ and
+$\est{ch07.b-reports-country-ar}{value}$), as \cref{sec:sf-empty} predicts for a fixed band: fewer rows a day mean a
+noisier share.
+
+The backup is different in kind. Under either contract it holds $\est{ch07.held-country-backup-all}{value}$ partitions,
+because its contact types use a vocabulary outside the contract and its click flag is empty where the contract requires
+a value (\cref{sec:eq-differences}). These are rule checks, and no re-estimated baseline can release them: the breaker
+stops exactly the defects \cref{ch:statistical-equivalence} found.
+
+\paragraph{Stationarity and its noise floor.} Beyond the daily checks, the country notebooks compare each month with the
+opening months through the population stability index of $\est{ch07.psi-columns}{value}$ transaction columns (type, channel, currency, status
+and amount decile). For category shares $p_r$ in the reference and $p_m$ in month $m$,
+\begin{equation}\label{eq:sf-psi}
+  \mathrm{PSI} = \sum_{j} (p_{m,j} - p_{r,j}) \ln \frac{p_{m,j}}{p_{r,j}}
+  = \mathrm{KL}(p_m \,\|\, p_r) + \mathrm{KL}(p_r \,\|\, p_m),
+\end{equation}
+the symmetrised divergence of \textcite{jeffreys1946}. The conventional reading treats values below
+$\est{ch07.psi-stable}{value}$ as stable and above $\est{ch07.psi-shift}{value}$ as a different population. Those
+thresholds ignore sample size, and the sampling distribution supplies the missing yardstick: when nothing changed, the
+index of a column with $B$ categories is approximately $\chi^2_{B-1}$ scaled by $1/n_r + 1/n_m$
+\autocite{yurdakul2018}. The largest monthly index over all these columns is $\est{ch07.max-psi-country-all}{value}$ for
+the bank, against a bound of $\est{ch07.psi-floor-all}{value}$ that the largest index of a change-free history stays
+below with probability $\est{ch07.psi-level}{value}\,\%$, and every country lies below its own bound as well
+(\cref{tab:ch07-country-contracts}). The transaction population is not merely stable by the conventional reading; it is
+indistinguishable from sampling noise around a fixed distribution. That is what a generator with fixed parameters
+produces, and it has a consequence for every later chapter: this dataset cannot test a model's robustness to drift.
+
+\input{../build/generated/tables/ch07-country-contracts}
+
+\section{Verdict and implications}\label{sec:sf-verdict}
+
+The source never changed its declared shape: every record is accounted for, every value fits its inferred type, no
+header moved and the circuit breaker holds nothing on the main copy. The detectors are credible for gross changes, which
+they found on the day they were injected. The undeclared changes are in the content (channels born and retired, a null
+written into text, a country label that encodes a destination or anonymity), and each needs an owner: the source for
+the template defect, conformance for the labels, and per-channel metrics for the instrumentation drift.
+
+For the controls, the chapter's measurements turn into contract changes. Empty shares should be monitored within the
+rows where a field applies and judged by a binomial rule against a reference-window baseline, which is calibrated where
+the dispersion is close to one and is far more sensitive than the fixed band. Scale baselines should be set per
+currency. Change-point tests on daily series should respect serial dependence, by permuting blocks or testing
+residuals, because a permutation of days understates the p-value as soon as neighbouring days are alike. And a missing
+day produces no profile, so no check fires: an expected-partition check driven by the landing manifest is the one
+control the breaker lacks.
+
+\section{Limitations}\label{sec:sf-limits}
+
+The fingerprints, the change log, the propagation audit, the mutation scorecard and the country contracts are the
+exploratory notebooks' stored results; the physical identity, the label analysis, the dispersion and autocorrelation of
+the empty shares, the binomial rule and the stability bound are recomputed here from the fingerprint cache and the
+pinned Parquet copy. The positive controls cover one table and gross changes only. The simulation uses Gaussian
+autoregressive noise, a stand-in for the real dependence, not a model of it. The binomial rule was calibrated on the
+columns analysed here, and the stability bound treats months and columns as independent, which makes it conservative.
+The cell-level counts of the typed layer come from the pipeline notebooks and were not re-run; the content findings they
+contain are the ones recomputed above.
