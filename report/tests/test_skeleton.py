@@ -20,7 +20,6 @@ def test_every_include_exists_and_every_chapter_is_included():
 
 
 def test_latam_eda_is_importable_read_only():
-    import report_lib.eda  # noqa: F401
     from latam_eda import data, pipeline
 
     assert pipeline.SETTINGS["memory_limit"] == "4GB"

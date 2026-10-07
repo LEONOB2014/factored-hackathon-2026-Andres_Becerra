@@ -10,7 +10,6 @@ from pathlib import Path
 
 import duckdb
 
-from report_lib import eda as _eda  # noqa: F401  (puts ../eda/src on sys.path)
 from report_lib.paths import BUILD
 
 

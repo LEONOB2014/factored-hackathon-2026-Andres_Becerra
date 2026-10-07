@@ -2,7 +2,7 @@
 
 import duckdb
 
-from latam_eda import pipeline  # noqa: E402
+from latam_eda import pipeline
 from report_lib import (
     db,
     eda,  # noqa: F401

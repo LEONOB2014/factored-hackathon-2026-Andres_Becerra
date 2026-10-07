@@ -5,8 +5,7 @@ import pandas as pd
 import pytest
 from statsmodels.stats.multitest import multipletests
 
-from latam_eda.granularity import bh_fdr  # noqa: E402
-from report_lib import eda  # noqa: F401
+from latam_eda.granularity import bh_fdr
 from report_lib.estimators import bh
 from report_lib.paths import TABLES
 
