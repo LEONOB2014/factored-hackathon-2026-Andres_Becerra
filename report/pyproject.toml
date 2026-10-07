@@ -1,0 +1,36 @@
+[project]
+name = "beta-aid-report"
+version = "0.1.0"
+description = "Technical report on the statistical foundations of the Grain Atlas: claims ledger, figures and LaTeX build"
+readme = "README.md"
+requires-python = ">=3.12"
+# latam_eda is imported read-only from ../eda/src (eda is a virtual uv project, not an installable package; see
+# report_lib/eda.py). Its runtime dependencies are pinned to the exact versions in eda/uv.lock so shared code
+# behaves identically in both environments.
+dependencies = [
+    "duckdb==1.5.6",
+    "numpy==2.3.5",
+    "pandas==3.0.6",
+    "scipy==1.18.1",
+    "scikit-learn==1.9.1",
+    "pyarrow==25.0.1",
+    "matplotlib==3.11.2",
+    "pydantic>=2.11",
+    "pylatexenc>=2.10",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.3.0", "statsmodels==0.15.0"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/report_lib"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src", "../eda/src"]
+addopts = "-ra --strict-markers"
+markers = ["data: needs the downloaded dataset in the repository-level data/ (skipped when absent)"]
