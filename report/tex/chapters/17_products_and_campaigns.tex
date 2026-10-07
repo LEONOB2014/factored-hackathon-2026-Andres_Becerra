@@ -1,4 +1,111 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Products, campaigns and the limits of causal claims}\label{ch:products-and-campaigns}
 
-\emph{Planned content.} Vintages, dormancy, campaign economics, sequences and bursts, the campaign decision cell and the holdout that would settle causation.
+Products and campaigns are where a bank expects analytics to pay: which products will go unused, which campaigns convert,
+where the next send should go. They are also where analyses most easily overreach, because every comparison of campaigns is
+a comparison of the customers and channels they happened to reach. This chapter examines the product grain, the spend mix,
+campaign economics, the decision cell that the granularity series proposed for allocating sends, and the time sequences
+between events, and it separates what each finding shows from what it would take to make it causal.
+
+\section{Products}\label{sec:pc-products}
+
+At the product-month grain nothing is learnable. Whether a product used this month will go unused for the following $\est{ch17.prod-horizon}{value}$ months is
+predicted with an AUC of $\est{ch17.prod-dormant-auc}{value}$, and whether a credit product is more than a month past due,
+from its payment history, with $\est{ch17.prod-dpd-auc}{value}$ ($\est{ch17.prod-dpd-auc-lo}{value}$ to
+$\est{ch17.prod-dpd-auc-hi}{value}$). Roll rates, the monthly transition of credit products between delinquency buckets,
+cannot be built at all: days past due are a single snapshot per product, not a monthly history. The customer-level dormancy
+signal of \cref{sec:cd-dormancy} disappears at the product grain because it was exposure, the number of products, not a
+property of any one of them.
+
+\section{The spend mix}\label{sec:pc-mix}
+
+The concentration of spend across the $\est{ch17.categories}{value}$ merchant categories is measured by the
+Herfindahl--Hirschman index, $\mathrm{HHI} = \sum_i p_i^2$ for category shares $p_i$ in per cent, which is $H / k$ for $k$ equal shares and $H = \est{ch17.hhi-max}{value}$ when one category takes everything. Its mean across market-months is
+$\est{ch17.hhi-mean}{value}$, against $\est{ch17.hhi-uniform}{value}$ for an even split: spend is spread almost evenly. The mix
+does not move: the stability index between the opening and the closing $\est{ch17.psi-months}{value}$ months is at most $\est{ch17.cat-psi-max}{value}$
+(\cref{eq:sf-psi}), and month and category are independent in every market ($p \ge \est{ch17.cat-p-min}{value}$). There is no
+seasonal or trend shift in what customers buy for a merchant model to learn.
+
+\section{Campaigns}\label{sec:pc-campaigns}
+
+Of the $\est{ch17.campaigns}{value}$ campaigns, $\est{ch17.campaigns-untracked}{value}$ ran on channels without open tracking
+(\cref{sec:sf-findings}) and record $\est{ch17.untracked-conversions}{value}$ conversions: their effect is not measured, not
+absent. Among the tracked campaigns, conversion rates differ far more than binomial noise allows: the Pearson dispersion of
+conversions across campaigns (\cref{eq:sf-dispersion}) is $\est{ch17.phi-all}{value}$. Within each of the
+$\est{ch17.channels-tracked}{value}$ tracked channels, however, it lies between $\est{ch17.phi-within-min}{value}$ and
+$\est{ch17.phi-within-max}{value}$, the range of pure chance. Campaigns differ only through their channel, whose conversion
+rates run from $\est{ch17.rate-min}{value}\,\%$ to $\est{ch17.rate-max}{value}\,\%$. The series found that a campaign's
+conversion can be ranked before launch from its attributes (out-of-fold rank correlation $\est{ch17.launch-rho}{value}$); the
+attribute that does the work is the channel. Prior sends do not lower conversion (logit slope $\est{ch17.fatigue-slope}{value}$,
+$p = \est{ch17.fatigue-p}{value}$): there is no measurable contact fatigue.
+
+\section{The decision cell and shrinkage}\label{sec:pc-cells}
+
+The series proposed allocating sends by decision cell: channel, promoted product, objective, segment and market. A cell's
+conversion rate is estimated from few sends, so the raw rate is noisy. Empirical Bayes treats the cells' true rates as draws
+from a common beta distribution, whose mixture with the binomial is the beta-binomial of \textcite{skellam1948}, fits its
+parameters $\alpha$ and $\beta$ by maximum likelihood, and replaces each cell's rate by its posterior mean,
+\begin{equation}\label{eq:pc-eb}
+  \tilde\theta_c = \frac{s_c + \alpha}{n_c + \alpha + \beta},
+\end{equation}
+which shrinks a cell with few sends towards the common mean and leaves a cell with many sends near its own rate
+\autocite{efron1975}. The prior's concentration $\kappa = \alpha + \beta$ is the number of sends it is worth. Fitted to the
+$\est{ch17.cells}{value}$ tracked cells, $\kappa = \est{ch17.kappa}{value}$ sends, against a median cell of
+$\est{ch17.median-sends}{value}$: the data say that cells hardly differ, so the prior outweighs most cells' own evidence.
+
+Each predictor is scored on the cells' held-out months by log loss per send, a strictly proper scoring rule
+\autocite{gneiting2007}, as skill against the global rate, with intervals from resampling cells (\cref{tab:ch17-cells}). The
+raw cell rate does worse than the global rate (skill $\est{ch17.skill-raw}{estimate}$, $\est{ch17.skill-raw}{ci}$): it fits
+noise. The channel rate does better ($\est{ch17.skill-channel}{estimate}$, $\est{ch17.skill-channel}{ci}$), and so does empirical
+Bayes centred on the channel ($\est{ch17.skill-ebc}{estimate}$), but they cannot be told apart: the difference in log loss is
+$\est{ch17.ebc-minus-channel}{estimate}$ ($\est{ch17.ebc-minus-channel}{ci}$). Everything a cell adds beyond its channel is
+noise, which matches the dispersion of \cref{sec:pc-campaigns}.
+
+\input{../build/generated/tables/ch17-cells}
+
+\section{Allocating sends}\label{sec:pc-allocation}
+
+The series replayed allocation policies on the held-out months: each policy splits the same number of sends across cells
+by rates estimated on earlier months, and is credited with each cell's realised held-out conversion rate, value and cost
+(\cref{tab:ch17-allocation}). The actual mix produced $\est{ch17.alloc-actual-conv}{value}$ conversions; a random allocation
+produces $\est{ch17.alloc-placebo}{value}$ on average. The bank's targeting is indistinguishable from chance. Sending greedily to
+the best channel would raise conversions by $\est{ch17.alloc-channel-conv}{value}\,\%$ and cost by
+$\est{ch17.alloc-channel-cost}{value}\,\%$, lowering the return on cost from $\est{ch17.alloc-actual-roi}{value}$ to
+$\est{ch17.alloc-channel-roi}{value}$; the empirical-Bayes cells do the same. A proportional tilt raises conversions by
+$\est{ch17.alloc-tilt-conv}{value}\,\%$ at $\est{ch17.alloc-tilt-cost}{value}\,\%$ more cost. Maximising conversions and
+maximising return are different objectives, because the channel that converts best also costs most per send.
+
+\input{../build/generated/tables/ch17-allocation}
+
+\paragraph{What the replay cannot show.} A replay credits a policy with rates observed under the actual allocation. It assumes
+that a cell converts at the same rate when it receives many more sends, and that the customers who would be sent to under the
+new policy behave like those who were, neither of which the data can check. Off-policy evaluation can correct for the way the
+logged policy chose its sends when that choice is known \autocite{dudik2011}, but here it is not, and no observational method
+recovers the effect of a send on a customer who was never left unsent at random (\cref{sec:mf-campaigns}). The decision that
+would settle the question is an experiment: hold out a random share of each cell, and measure the difference.
+
+\section{Sequences, sessions and sends}\label{sec:pc-sequences}
+
+Does one event lead to another within hours: a digital error to a call, a decline to a call, a send to a session? For each
+pair the series compares the number of consequents in a window after the antecedent with the number in the same window before
+it. Across $\est{ch17.seq-tests}{value}$ pairs and windows, the ratio of after to before ranges from
+$\est{ch17.seq-ratio-min}{value}$ to $\est{ch17.seq-ratio-max}{value}$, with $\est{ch17.seq-raw-sig}{value}$ $p$-values below the
+conventional level even before any correction. Inside a digital session, events follow one another in random order
+(Cram\'er's $V$ of $\est{ch17.funnel-v}{value}$ between consecutive events), and an error does not change the odds of a purchase
+once the session's length is held fixed (odds ratio $\est{ch17.error-or}{value}$, $p = \est{ch17.error-p}{value}$): longer
+sessions contain both more errors and more purchases, a confounder a naive comparison would mistake for an effect. The delay
+from send to open is uniform over its window (Kolmogorov--Smirnov $p = \est{ch17.delay-ks-p}{value}$) and opening within a day
+does not depend on the hour of the send ($p = \est{ch17.sendhour-p}{value}$). Send-time optimisation has nothing to optimise.
+
+\section{Verdict and implications}\label{sec:pc-verdict}
+
+Products carry no learnable signal, the spend mix is even and stable, and campaigns differ only by channel. A decision cell
+finer than the channel adds noise, which empirical Bayes correctly shrinks away, and the current targeting performs like a
+random allocation. The one robust lever, the channel, trades conversions against cost. Every causal question here (does this
+campaign cause conversions, would a different allocation earn more, does an error cause a call) is unanswerable from these
+data and answerable by a randomised holdout, which is the single most valuable change the marketing process could make.
+
+\section{Limitations}\label{sec:pc-limits}
+
+The campaign dispersion and the cell scoring are recomputed here from the series' stored campaign and cell tables; the
+allocation replay, the category, product, sequence, session and send results are the series' stored results. Untracked
+channels are excluded from every conversion analysis, so their campaigns' effect remains unknown.

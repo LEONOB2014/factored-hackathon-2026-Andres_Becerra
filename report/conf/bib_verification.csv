@@ -119,3 +119,7 @@ cohen1960,doi:10.1177/001316446002000104,2026-10-07,"A Coefficient of Agreement 
 gross2008,isbn:9780471791270,2026-10-07,"Fundamentals of queueing theory (J. Wiley & Sons, 2008, 4th ed.) via openlibrary.org"
 allen1990,isbn:9780120510511,2026-10-07,"Probability, statistics, and queueing theory (Academic Press, 1990, 2nd ed.) via openlibrary.org"
 cohen1988,isbn:9780805802832,2026-10-07,"Statistical power analysis for the behavioral sciences (L. Erlbaum Associates, 1988, 2nd ed.) via openlibrary.org"
+efron1975,doi:10.1080/01621459.1975.10479864,2026-10-07,"Data Analysis Using Stein's Estimator and its Generalizations (Journal of the American Statistical Association, 1975) via api.crossref.org"
+skellam1948,doi:10.1111/j.2517-6161.1948.tb00014.x,2026-10-07,"A Probability Distribution Derived from the Binomial Distribution by Regarding the Probability of Success as Variable (Journal of the Royal Statistical Society Series B, 1948) via api.crossref.org"
+gneiting2007,doi:10.1198/016214506000001437,2026-10-07,"Strictly Proper Scoring Rules, Prediction, and Estimation (Journal of the American Statistical Association, 2007) via api.crossref.org"
+dudik2011,url:https://arxiv.org/abs/1103.4601,2026-10-07,"Doubly Robust Policy Evaluation and Learning (arXiv abstract page, HTTP 200)"
