@@ -1,4 +1,134 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Aggregation theory}\label{ch:aggregation}
 
-\emph{Planned content.} The bus matrix, information loss under aggregation, the ecological fallacy and the cross-grain consistency check.
+Part IV asks a question the earlier parts could not: at what grain does this bank's data carry information? A grain is
+the unit one row of a fact describes, a customer in a month, a market on a day, an agent in an hour. Aggregating to a
+coarser grain removes noise and also removes detail; it can create correlations that hold for no individual and hide
+signals that only the individual carries. This chapter sets out the rules the granularity series built its aggregates
+by, the statistical profile of each grain, and the traps of aggregation, the ecological fallacy and exposure, before
+the pooled ledger of every target the series evaluated. The chapters that follow examine customers
+(\cref{ch:customer-dynamics}), operations (\cref{ch:operations}) and products and campaigns
+(\cref{ch:products-and-campaigns}) grain by grain.
+
+\section{Grains, stars and the tests of an aggregate}\label{sec:ag2-star}
+
+The series designs its aggregates as a dimensional star: a bus matrix of business processes against conformed dimensions,
+and one fact table per grain \autocite{kimball2013}. Every aggregate must pass the same tests. Its \emph{grain is unique}: no rows share the key that defines the grain. It \emph{reconciles}: summed over its rows, every additive measure equals the
+same measure counted on the atomic rows. And it is \emph{dense} where it must be: every unit appears in every period, with
+an explicit zero when nothing happened, because a rolling average over a sparse table silently skips the quiet periods. The
+stored build checks pass all of them: $\est{ch14.checks-day-ok}{value}$ of $\est{ch14.checks-day}{value}$ checks on the
+$\est{ch14.models-day}{value}$ models of the day and month star, and $\est{ch14.checks-hour-ok}{value}$ of
+$\est{ch14.checks-hour}{value}$ on the $\est{ch14.models-hour}{value}$ models of the hour star.
+
+Measures are stored so that they add up. A rate is stored as its numerator and denominator, never as a ratio, because the
+rate of a coarser grain is a ratio of sums,
+\begin{equation}\label{eq:ag2-ratio}
+  R = \frac{\sum_i n_i}{\sum_i d_i} = \sum_i \frac{d_i}{\sum_j d_j}\, r_i ,
+\end{equation}
+a weighted mean of the finer rates $r_i = n_i / d_i$ with weights proportional to their denominators, and not their
+plain average. The plain average gives a quiet day the same weight as a busy one and changes when the same data are cut
+differently, which is the arithmetic behind Simpson's paradox.
+
+\section{Zeros and dispersion}\label{sec:ag2-profile}
+
+Properties of a grain's main count decide which models suit it (\cref{tab:ch14-grains}). The share of zeros says
+whether most units do nothing in most periods; the ratio of variance to mean says whether units differ beyond chance,
+since a Poisson count has a ratio of one and heterogeneity between units raises it \autocite{cameron2013}.
+
+\input{../build/generated/tables/ch14-grains}
+
+Zeros alone do not call for a zero-inflated model \autocite{lambert1992}; zeros in excess of what the mean implies do. A
+Poisson count with mean $\mu$ is zero with probability $e^{-\mu}$. Customer-month contacts have a mean of
+$\est{ch14.cm-contact-mean}{value}$, so $\est{ch14.cm-contact-pois-zero}{value}\,\%$ zeros are expected and
+$\est{ch14.cm-contact-zero}{value}\,\%$ are observed, with a variance-to-mean ratio of $\est{ch14.cm-contact-vm}{value}$;
+complaints expect $\est{ch14.cm-complaint-pois-zero}{value}\,\%$ and show $\est{ch14.cm-complaint-zero}{value}\,\%$, ratio
+$\est{ch14.cm-complaint-vm}{value}$. Both are Poisson to the precision shown: every customer contacts the bank and complains at
+the same rate, so there is nothing at this grain that distinguishes one customer from another. Transactions differ. With a
+mean of $\est{ch14.cm-tx-mean}{value}$ a Poisson count would be zero in $\est{ch14.cm-tx-pois-zero}{value}\,\%$ of
+customer-months; the data show $\est{ch14.cm-tx-zero}{value}\,\%$ and a ratio of $\est{ch14.cm-tx-vm}{value}$. Customers do
+differ in how much they transact, and \cref{sec:ag2-exposure} shows why. Product-months are idle
+$\est{ch14.pm-tx-zero}{value}\,\%$ of the time. At the market-day grain there are no zeros
+($\est{ch14.md-tx-zero}{value}\,\%$), and the variance-to-mean ratio of $\est{ch14.md-tx-vm}{value}$ measures differences
+between markets and weekdays, not noise; once those are removed, the daily residuals are independent
+(\cref{sec:cp-residual}).
+
+\paragraph{Hour grains.} Below the day the question is whether a grain is populated at all. If events in a cell arrive as
+a Poisson process with mean $\lambda$, the cell is occupied with probability $1 - e^{-\lambda}$. For every hour grain the
+series considered except one, the observed occupancy matches that prediction within
+$\est{ch14.occ-gap-other}{value}$ percentage points (\cref{tab:ch14-sparsity}): the events of a customer, a product, a branch
+or an agent within the hour fall at random, with no clustering a model could use. The exception, market by channel by
+hour, is occupied $\est{ch14.occ-gap-max}{value}$ points less than Poisson predicts, because some channels are closed at
+some hours: structural zeros, the one kind that a zero-inflated model is for. Only $\est{ch14.viable-hour}{value}$ of the
+$\est{ch14.hour-grains}{value}$ hour grains carry enough events per cell to be worth storing; a customer is active in
+$\est{ch14.customer-hour-occ}{value}\,\%$ of their hours.
+
+\input{../build/generated/tables/ch14-sparsity}
+
+\section{The ecological fallacy}\label{sec:ag2-ecological}
+
+A correlation between aggregates says nothing, by itself, about the units inside them \autocite{robinson1950}. The law of
+total covariance makes the reason precise. For measures $X$ and $Y$ of units grouped into cells $G$,
+\begin{equation}\label{eq:ag2-covariance}
+  \operatorname{Cov}(X, Y) = \mathbb{E}\bigl[\operatorname{Cov}(X, Y \mid G)\bigr]
+  + \operatorname{Cov}\bigl(\mathbb{E}[X \mid G],\ \mathbb{E}[Y \mid G]\bigr),
+\end{equation}
+and an analysis of cell means sees only the second term, which a driver common to $X$ and $Y$ at the cell level can make
+large while the first is zero. The series measured this with one pair of measures, digital errors and contacts. Across
+market-days the rank correlation is $\est{ch14.eco-md-raw}{value}$; once the weekday is removed it is
+$\est{ch14.eco-md-adj}{value}$. Across customer-months it is $\est{ch14.eco-cm}{value}$, across customers' lifetimes
+$\est{ch14.eco-life}{value}$, and $\est{ch14.eco-life-adj}{value}$ after controlling for how long each customer was active.
+The aggregate correlation was made entirely by the calendar: busy days are busy for every process. Customers with errors do
+not call more. Every co-movement shown on a dashboard of aggregates is a hypothesis about units, to be tested at the unit
+grain after the common drivers are removed.
+
+\section{Exposure}\label{sec:ag2-exposure}
+
+Dormancy, a month without transactions, is the one customer target the series found learnable, and its signal has a simple
+source. Suppose each product a customer holds is used in a month independently with probability $p$. Then a customer
+holding $k$ products is dormant with probability
+\begin{equation}\label{eq:ag2-exposure}
+  \Pr(\text{dormant} \mid k) = c\,(1 - p)^{k},
+\end{equation}
+with $c$ absorbing activity not tied to a held product. On a log scale this is a straight line in $k$. Fitted by weighted
+least squares to the dormant share of customer-months by products held, the line has ratio $r = \est{ch14.exp-r}{value}$,
+intercept $c = \est{ch14.exp-c}{value}$ and $R^2 = \est{ch14.exp-r2}{value}$, deviating from the data by at most
+$\est{ch14.exp-gap}{value}$; the products are used in $\est{ch14.exp-p}{value}$ of product-months, so independence predicts a
+ratio of $1 - p$, which matches. The dormant share falls from $\est{ch14.exp-dormant-1}{value}$ for one product to $\est{ch14.exp-dormant-8}{value}$ for the most products held, entirely by arithmetic. A customer-level dormancy model therefore learns, above
+all, how many products a customer holds: exposure, not behaviour. This is also the heterogeneity behind the excess zeros of
+\cref{sec:ag2-profile}, and it is the yardstick any claim of behavioural signal must beat.
+
+\section{The pooled target ledger}\label{sec:ag2-ledger}
+
+The series evaluated $\est{ch14.ledger-targets}{value}$ targets across $\est{ch14.ledger-grains}{value}$ grains:
+classifications judged by their AUC, survival models by their concordance \autocite{harrell1982}, forecasts by the mean
+absolute scaled error against the seasonal-naive forecast \autocite{hyndman2006}. Each carries a one-sided $p$-value: for an AUC, against chance from the Hanley--McNeil standard error \autocite{hanley1982}; for a forecast, the Diebold--Mariano test
+of equal absolute loss against the naive forecast \autocite{diebold1995}, with the small-sample correction of
+\textcite{harvey1997}. The ledger pools all of them and controls the false-discovery rate (\cref{eq:bh}); recomputed here, its
+$q$-values agree exactly with the stored ones ($\est{ch14.ledger-q-reproduced}{value}$ for agreement). Of the
+$\est{ch14.ledger-tested}{value}$ targets, $\est{ch14.ledger-discoveries}{value}$ survive at a false-discovery rate of $\est{ch14.fdr-level}{value}\,\%$ (\cref{tab:ch14-ledger,tab:ch14-discoveries}).
+
+\input{../build/generated/tables/ch14-ledger}
+
+\input{../build/generated/tables/ch14-discoveries}
+
+The discoveries are of a few kinds: the dormancy and lapse targets that exposure explains, a few daily forecasts that beat the
+weekly naive forecast (taken up in \cref{ch:operations}), and campaign differences (\cref{ch:products-and-campaigns}). One
+deserves a warning: the early-warning rule that customers declined for insufficient funds go dormant has a relative risk below one, so it warns in the wrong direction, and the series itself judged the association immaterial. The direction has a mechanical reason: a customer must transact to be declined, so declined customers are active by construction, another face of exposure. And one caution applies to the forecasts: the Diebold--Mariano variance is computed
+here without any autocorrelation term, which is right for one-step forecast errors that are uncorrelated and optimistic
+otherwise.
+
+\section{Verdict and implications}\label{sec:ag2-verdict}
+
+The aggregates are sound by construction: unique grains, reconciled measures, dense grids, rates as ratios of sums. What
+they reveal about this bank is mostly the absence of structure. Contacts and complaints are Poisson at the customer-month
+grain, events fall at random within hours, an aggregate correlation between errors and contacts is the calendar's, and the
+learnable customer signal is the arithmetic of exposure. A small set of grains carries information worth promoting, and
+the chapters of this part name them. Rules from this chapter apply to every later use of the aggregates: test a
+co-movement at the unit grain before believing it, and compare any behavioural signal with the exposure it might merely
+reflect.
+
+\section{Limitations}\label{sec:ag2-limits}
+
+The zero and dispersion profile is recomputed here on processing months and days, a close stand-in for the series' local
+calendar; the build checks, the hour-grain sparsity, the correlations, the exposure table and the ledger are the series'
+stored results. The ledger's $p$-values come from the series' own models, which this chapter does not refit; their
+interpretation depends on the caveats noted for each test.
