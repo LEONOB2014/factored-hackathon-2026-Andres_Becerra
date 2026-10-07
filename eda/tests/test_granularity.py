@@ -272,3 +272,104 @@ def test_hour_star_schedule_and_shift_dimensions():
         "Rotating": 24,
     }
     assert s.check(["dim_branch_schedule", "dim_agent_shift"]).ok.all()
+
+
+# ------------------------------------------------------------------ clustered and block resampling (technical report)
+def _paired_boot_v0(metric, y, a, b, B=300, seed=0):
+    """paired_boot exactly as published with the v0.6.0 scorecard; the default path must stay identical to it."""
+    rng = np.random.default_rng(seed)
+    y, a, b = np.asarray(y), np.asarray(a), np.asarray(b)
+    d0 = metric(y, a) - metric(y, b)
+    out = np.empty(B)
+    for k in range(B):
+        i = rng.integers(0, len(y), len(y))
+        try:
+            out[k] = metric(y[i], a[i]) - metric(y[i], b[i])
+        except ValueError:
+            out[k] = np.nan
+    return float(d0), out
+
+
+def _fixtures():
+    from sklearn.metrics import mean_absolute_error, roc_auc_score
+
+    rng = np.random.default_rng(11)
+    y = rng.integers(0, 2, 400)
+    yield roc_auc_score, y, y + rng.normal(0, 1, 400), rng.normal(0, 1, 400)
+    yr = rng.gamma(2, 50, 300)
+    yield (
+        (lambda t, p: -mean_absolute_error(t, p)),
+        yr,
+        yr + rng.normal(0, 20, 300),
+        yr.mean() + 0 * yr,
+    )
+    ys = np.array(
+        [0, 0, 0, 1, 0, 0, 0, 0]
+    )  # rare class: some resamples have one class only (NaN draws)
+    yield roc_auc_score, ys, rng.normal(0, 1, 8), rng.normal(0, 1, 8)
+
+
+@pytest.mark.parametrize("case", list(_fixtures()))
+def test_paired_boot_default_path_is_unchanged(case):
+    metric, y, a, b = case
+    d_new, out_new = g.paired_boot(metric, y, a, b, B=200, seed=2026)
+    d_old, out_old = _paired_boot_v0(metric, y, a, b, B=200, seed=2026)
+    assert d_new == d_old
+    np.testing.assert_array_equal(out_new, out_old)
+
+
+def test_cluster_rows_keep_whole_clusters():
+    groups = np.array(["c", "a", "b", "a", "c", "c"])
+    members = g.cluster_members(groups)
+    assert [sorted(groups[m].tolist()) for m in members] == [["a", "a"], ["b"], ["c", "c", "c"]]
+    rows = g.cluster_rows(members, np.random.default_rng(0))
+    drawn = pd.Series(groups[rows]).value_counts()
+    sizes = {"a": 2, "b": 1, "c": 3}
+    assert all(n % sizes[k] == 0 for k, n in drawn.items())
+
+
+def test_cluster_bootstrap_is_wider_than_iid_on_clustered_data():
+    """Simulated fixture: 60 clusters with a shared effect; the iid bootstrap understates the spread."""
+    rng = np.random.default_rng(3)
+    groups = np.repeat(np.arange(60), 50)
+    effect = rng.normal(0, 1, 60)[groups]
+    y = np.zeros(len(groups))
+    a, b = effect + rng.normal(0, 0.2, len(groups)), rng.normal(0, 0.2, len(groups))
+    metric = lambda t, p: -np.mean(np.abs(t - p))  # noqa: E731
+    _, iid = g.paired_boot(metric, y, a, b, B=300, seed=1)
+    _, clu = g.paired_boot(metric, y, a, b, B=300, seed=1, groups=groups)
+    assert np.std(clu) > 3 * np.std(iid)
+
+
+def test_stationary_units_have_the_requested_mean_block_length():
+    rng = np.random.default_rng(5)
+    u = np.concatenate([g.stationary_units(400, 8.0, rng) for _ in range(50)])
+    assert u.min() >= 0 and u.max() < 400
+    runs = np.diff(np.flatnonzero(np.diff(u) != 1))
+    assert 6 < runs.mean() < 10
+
+
+def test_politis_white_block_grows_with_dependence():
+    rng = np.random.default_rng(9)
+    e = rng.normal(size=600)
+    ar = np.empty(600)
+    ar[0] = e[0]
+    for t in range(1, 600):
+        ar[t] = 0.8 * ar[t - 1] + e[t]
+    assert g.politis_white_block(e) < 3 < g.politis_white_block(ar)
+    assert g.politis_white_block(np.ones(50)) == 1.0
+
+
+def test_clustered_gate_rules():
+    boot = np.full(200, 0.05)
+    ok = g.clustered_gate(boot, 0.05, 0.02, "generator independence", "customer", 120, 0.05)
+    assert (
+        ok["verdict"] in {"green", "amber", "red"}
+        and ok["n_clusters"] == 120
+        and ok["nan_share"] == 0
+    )
+    few = g.clustered_gate(boot, 0.05, 0.02, "generator independence", "campaign", 12, 0.05)
+    assert few["verdict"] == "not assessable" and "too few clusters" in few["root_cause"]
+    boot[:20] = np.nan
+    thin = g.clustered_gate(boot, 0.05, 0.02, "generator independence", "customer", 120, 0.05)
+    assert thin["verdict"] == "not assessable" and thin["nan_share"] == 0.1

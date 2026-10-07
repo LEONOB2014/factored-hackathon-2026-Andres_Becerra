@@ -234,3 +234,25 @@ def test_timed_runner_stops_at_the_first_failing_cell(tmp_path, capsys):
     assert "FAILED" in capsys.readouterr().out
     saved = nbformat.read(path, as_version=4)
     assert saved.cells[2].outputs[0].ename == "ValueError"
+
+
+@pytest.mark.data
+@pytest.mark.slow
+def test_readiness_check_default_reproduces_the_published_scorecard(tmp_path, monkeypatch):
+    """Without --cluster the scorecard must equal eda/reports/tables/granularity_hour_readiness.csv byte for byte."""
+    import subprocess
+    import sys
+
+    root = Path(__file__).resolve().parents[1]
+    monkeypatch.setenv("LATAM_SCOPE_DIR", str(tmp_path / "scratch"))
+    out = tmp_path / "scorecard.csv"
+    subprocess.run(
+        [sys.executable, str(root / "scripts" / "readiness_check.py"), "--dataset", "main", "--scope", "ALL",
+         "--out", str(out)],
+        cwd=root,
+        check=True,
+    )  # fmt: skip
+    assert (
+        out.read_bytes()
+        == (root / "reports" / "tables" / "granularity_hour_readiness.csv").read_bytes()
+    )

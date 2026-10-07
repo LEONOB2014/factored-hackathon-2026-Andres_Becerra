@@ -26,6 +26,9 @@ if TYPE_CHECKING:
 
 B = 200  # bootstrap resamples per gate
 SEED = 2026
+NAN_SHARE_MAX = (
+    0.05  # clustered runs: above this share of failed bootstrap draws a gate is not assessable
+)
 
 # what each red model would need, by scenario and model (the data-collection audit reads these)
 REQUIREMENTS = {
@@ -142,8 +145,12 @@ def _row(
     cause,
     n_train,
     n_test,
+    clustered: dict | None = None,
 ):
-    gate = g.readiness_verdict(boot, delta, material, cause)
+    if clustered is None:
+        gate = g.readiness_verdict(boot, delta, material, cause)
+    else:
+        gate = g.clustered_gate(boot, delta, material, cause, **clustered)
     req = REQUIREMENTS[(scenario, model)]
     row = g.readiness_row(
         scenario, model, metric, value, bench_name, bench_value, gate, req, n_train, n_test
@@ -154,8 +161,33 @@ def _row(
     return row
 
 
-def _auc_gate(scenario, model, y_tr_n, y, p_model, p_bench, bench_name, material, cause):
-    delta, boot = g.paired_boot(roc_auc_score, y, p_model, p_bench, B=B, seed=SEED)
+def _clustered(cluster: bool, unit: str, groups, nan_share_max: float) -> dict | None:
+    """The clustered-gate settings of one gate, or None on the default (iid) path."""
+    if not cluster:
+        return None
+    return {
+        "unit": unit,
+        "n_clusters": int(pd.Series(groups).nunique()),
+        "nan_share_max": nan_share_max,
+    }
+
+
+def _auc_gate(
+    scenario,
+    model,
+    y_tr_n,
+    y,
+    p_model,
+    p_bench,
+    bench_name,
+    material,
+    cause,
+    groups=None,
+    unit: str = "",
+    nan_share_max: float = NAN_SHARE_MAX,
+):
+    """AUC gain over the benchmark; rows resampled iid, or whole clusters when `groups` is given."""
+    delta, boot = g.paired_boot(roc_auc_score, y, p_model, p_bench, B=B, seed=SEED, groups=groups)
     auc_m, auc_b = roc_auc_score(y, p_model), roc_auc_score(y, p_bench)
     return _row(
         scenario,
@@ -170,11 +202,36 @@ def _auc_gate(scenario, model, y_tr_n, y, p_model, p_bench, bench_name, material
         cause,
         y_tr_n,
         len(y),
+        _clustered(groups is not None, unit, groups, nan_share_max),
     )
 
 
+def _day_block_boot(
+    day: np.ndarray, e0: np.ndarray, e1: np.ndarray, relative: bool, rng
+) -> tuple[np.ndarray, int]:
+    """Stationary block bootstrap over calendar days of the pooled error difference e0 − e1 (or its relative form).
+
+    Rows are aggregated per day first; days are resampled in blocks whose mean length comes from the
+    Politis–White rule on the daily difference series, so serial dependence between days is kept.
+    """
+    codes, _ = pd.factorize(day, sort=True)
+    n = codes.max() + 1
+    s0, s1 = np.bincount(codes, e0, n), np.bincount(codes, e1, n)
+    cnt = np.bincount(codes, minlength=n).astype(float)
+    daily = (s0 - s1) / np.where(cnt > 0, cnt, 1)
+    L = g.politis_white_block(daily)
+    boot = np.empty(B)
+    for k in range(B):
+        u = g.stationary_units(n, L, rng)
+        a, b, c = s0[u].sum(), s1[u].sum(), cnt[u].sum()
+        boot[k] = (a - b) / a if relative else (a - b) / c
+    return boot, int(n)
+
+
 # ------------------------------------------------------------------------------------------------ 02 the customer
-def customer(star: Star) -> tuple[list[dict], dict]:
+def customer(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> tuple[list[dict], dict]:
     """Dormancy in the next 90 days from the time-of-day profile, and the daypart of the next transaction."""
     tx = star.q("""select customer_id, transaction_ts_utc - interval 6 hour as ts from {int_transactions_enriched}
                    order by customer_id, ts""")
@@ -212,6 +269,9 @@ def customer(star: Star) -> tuple[list[dict], dict]:
             "six-month count (logistic)",
             0.02,
             "generator independence",
+            te.index.to_numpy() if cluster else None,
+            "customer",
+            nan_share_max,
         )
     )
     detail["dormancy_base_rate"] = float(te.dormant.mean())
@@ -252,6 +312,7 @@ def customer(star: Star) -> tuple[list[dict], dict]:
             "generator independence",
             len(past),
             len(yi),
+            _clustered(cluster, "customer", common, nan_share_max),
         )
     )
     return rows, detail
@@ -299,7 +360,16 @@ def _hourly_forecast(y: pd.Series, how: pd.Series, dayid: pd.Series, test_hours:
     }
 
 
-def _forecast_gate(scenario, model, frames, material, cause, n_train):
+def _forecast_gate(
+    scenario,
+    model,
+    frames,
+    material,
+    cause,
+    n_train,
+    cluster: bool = False,
+    nan_share_max: float = NAN_SHARE_MAX,
+):
     """Pooled scaled absolute error of the best hourly model against the weekday mean spread flat (the same level
     information without an hourly profile), bootstrapped over test days."""
     best_name, best = None, None
@@ -308,15 +378,26 @@ def _forecast_gate(scenario, model, frames, material, cause, n_train):
         if best is None or e.mean() < best.mean():
             best_name, best = name, e
     e0 = np.concatenate([np.abs(f["y"] - f["weekday mean / 24"]) / f["scale"] for f in frames])
+    # calendar day of each test hour (every series' test window covers the same last days)
+    cal = np.concatenate([np.arange(len(f["y"])) // 24 for f in frames])
     ok = ~np.isnan(e0) & ~np.isnan(best)
-    e0, best = e0[ok], best[ok]
-    day = np.arange(len(e0)) // 24
+    e0, best, cal = e0[ok], best[ok], cal[ok]
     rng = np.random.default_rng(SEED)
-    ud = np.unique(day)
-    boot = np.empty(B)
-    for k in range(B):
-        pick = np.isin(day, rng.choice(ud, len(ud)))
-        boot[k] = e0[pick].mean() - best[pick].mean()
+    clustered = None
+    if cluster:
+        boot, n_days = _day_block_boot(cal, e0, best, False, rng)
+        clustered = {
+            "unit": "day (stationary blocks)",
+            "n_clusters": n_days,
+            "nan_share_max": nan_share_max,
+        }
+    else:
+        day = np.arange(len(e0)) // 24
+        ud = np.unique(day)
+        boot = np.empty(B)
+        for k in range(B):
+            pick = np.isin(day, rng.choice(ud, len(ud)))
+            boot[k] = e0[pick].mean() - best[pick].mean()
     row = _row(
         scenario,
         model,
@@ -330,6 +411,7 @@ def _forecast_gate(scenario, model, frames, material, cause, n_train):
         cause,
         n_train,
         len(e0),
+        clustered,
     )
     row["best_variant"] = best_name
     return row
@@ -345,7 +427,9 @@ def forecast_variants(frames: list[dict]) -> pd.DataFrame:
     return pd.Series(out, name="pooled MASE").to_frame()
 
 
-def channel(star: Star) -> tuple[list[dict], dict]:
+def channel(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> tuple[list[dict], dict]:
     ch = star.q("""select country_code, channel, hour_start, hour_of_day, delivery_weekday, delivery_day, n_tx
                    from {fct_channel_hour} order by country_code, channel, hour_start""")
     frames = []
@@ -363,13 +447,17 @@ def channel(star: Star) -> tuple[list[dict], dict]:
         0.05,
         "generator independence",
         26 * 168 * len(frames),
+        cluster,
+        nan_share_max,
     )
     return [row], {"series": len(frames), "variants": forecast_variants(frames)}
 
 
 # ------------------------------------------------------------------------------------------------ 04 the branch
-def branch(star: Star) -> tuple[list[dict], dict]:
-    t = star.q("""select t.transaction_id, t.transaction_ts_utc, t.amount_usd, t.transaction_type, t.transaction_category,
+def branch(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> tuple[list[dict], dict]:
+    t = star.q("""select t.transaction_id, t.branch_id, t.transaction_ts_utc, t.amount_usd, t.transaction_type, t.transaction_category,
                          t.is_cash, p.segment, p.age_years, b.branch_type, s.open_fraction
                   from {int_transactions_enriched} t
                   join {int_customer_profile} p using (customer_id)
@@ -402,6 +490,9 @@ def branch(star: Star) -> tuple[list[dict], dict]:
             "base rate",
             0.02,
             "data defect",
+            t.branch_id[te].to_numpy() if cluster else None,
+            "branch",
+            nan_share_max,
         )
     ]
 
@@ -450,10 +541,19 @@ def branch(star: Star) -> tuple[list[dict], dict]:
     day = pd.factorize(full.delivery_day)[0]
     ud = np.unique(day)
     e0, e1 = np.abs(y - flat), np.abs(y - shaped)
-    boot = np.empty(B)
-    for k in range(B):
-        pick = np.isin(day, rng.choice(ud, len(ud)))
-        boot[k] = (e0[pick].mean() - e1[pick].mean()) / e0[pick].mean()
+    atm_clustered = None
+    if cluster:
+        boot, n_days = _day_block_boot(day, e0, e1, True, rng)
+        atm_clustered = {
+            "unit": "day (stationary blocks)",
+            "n_clusters": n_days,
+            "nan_share_max": nan_share_max,
+        }
+    else:
+        boot = np.empty(B)
+        for k in range(B):
+            pick = np.isin(day, rng.choice(ud, len(ud)))
+            boot[k] = (e0[pick].mean() - e1[pick].mean()) / e0[pick].mean()
     rows.append(
         _row(
             "04 branch",
@@ -468,6 +568,7 @@ def branch(star: Star) -> tuple[list[dict], dict]:
             "generator independence",
             len(bh) - len(full),
             len(full),
+            atm_clustered,
         )
     )
     return rows, {
@@ -477,7 +578,9 @@ def branch(star: Star) -> tuple[list[dict], dict]:
 
 
 # ------------------------------------------------------------------------------------------------ 05 agent and queue
-def agent(star: Star) -> tuple[list[dict], dict]:
+def agent(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> tuple[list[dict], dict]:
     a = star.q("""select f.agent_id, f.hour_start, f.contacts, f.handle_seconds, f.in_shift, f.contact_hour_of_day,
                          d.experience_level, d.agent_type, d.specialty
                   from {fct_agent_hour} f join {dim_agent} d using (agent_id) order by f.hour_start, f.agent_id""")
@@ -499,8 +602,9 @@ def agent(star: Star) -> tuple[list[dict], dict]:
     bench = te.agent_id.map(tr.groupby("agent_id").aht.mean()).fillna(tr.aht.mean()).to_numpy()
     pm = m.predict(X.loc[te.index])
     y = te.aht.to_numpy()
+    agents = te.agent_id.to_numpy() if cluster else None
     delta, boot = g.paired_boot(
-        lambda yy, p: -mean_absolute_error(yy, p), y, pm, bench, B=B, seed=SEED
+        lambda yy, p: -mean_absolute_error(yy, p), y, pm, bench, B=B, seed=SEED, groups=agents
     )
     rel = delta / mean_absolute_error(y, bench)
     rows = [
@@ -517,6 +621,7 @@ def agent(star: Star) -> tuple[list[dict], dict]:
             "missing field",
             len(tr),
             len(te),
+            _clustered(cluster, "agent", agents, nan_share_max),
         )
     ]
 
@@ -540,6 +645,8 @@ def agent(star: Star) -> tuple[list[dict], dict]:
             0.05,
             "generator independence",
             26 * 168 * len(frames),
+            cluster,
+            nan_share_max,
         )
     )
     return rows, {
@@ -549,11 +656,13 @@ def agent(star: Star) -> tuple[list[dict], dict]:
 
 
 # ------------------------------------------------------------------------------------------------ 06 the case clock
-def case_clock(star: Star) -> tuple[list[dict], dict]:
+def case_clock(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> tuple[list[dict], dict]:
     from lifelines import CoxPHFitter
     from lifelines.utils import concordance_index
 
-    c = star.q("""select complaint_id, created_clock, created_hour_of_day, created_weekday, priority, category,
+    c = star.q("""select complaint_id, customer_id, created_clock, created_hour_of_day, created_weekday, priority, category,
                          reception_channel, country_code, hours_to_first_response, hours_observed_response,
                          responded_event, sla_breached
                   from {fct_case_clock} order by created_clock, complaint_id""")
@@ -572,10 +681,15 @@ def case_clock(star: Star) -> tuple[list[dict], dict]:
     T, E = c.hours_observed_response[te].to_numpy(), c.responded_event[te].astype(int).to_numpy()
     rng = np.random.default_rng(SEED)
     cidx = concordance_index(T, -risk, E)
+    cust = c.customer_id[te].to_numpy() if cluster else None
+    members = g.cluster_members(cust) if cluster else None
     boot = np.empty(B)
     for k in range(B):
-        i = rng.integers(0, len(T), len(T))
-        boot[k] = concordance_index(T[i], -risk[i], E[i]) - 0.5
+        i = rng.integers(0, len(T), len(T)) if members is None else g.cluster_rows(members, rng)
+        try:
+            boot[k] = concordance_index(T[i], -risk[i], E[i]) - 0.5
+        except ZeroDivisionError:  # a resample with no comparable pairs
+            boot[k] = np.nan
     rows = [
         _row(
             "06 case clock",
@@ -590,6 +704,7 @@ def case_clock(star: Star) -> tuple[list[dict], dict]:
             "generator independence",
             int(tr.sum()),
             int(te.sum()),
+            _clustered(cluster, "customer", cust, nan_share_max),
         )
     ]
 
@@ -607,14 +722,19 @@ def case_clock(star: Star) -> tuple[list[dict], dict]:
             "base rate",
             0.02,
             "generator independence",
+            cust,
+            "customer",
+            nan_share_max,
         )
     )
     return rows, {"cases": len(c), "responded_share": float(c.responded_event.mean())}
 
 
 # ------------------------------------------------------------------------------------------------ 07 session and send
-def session_send(star: Star) -> tuple[list[dict], dict]:
-    s = star.q("""select session_id, session_start_utc, hour_of_day, n_pageviews, n_clicks, n_forms, n_errors,
+def session_send(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> tuple[list[dict], dict]:
+    s = star.q("""select session_id, customer_id, session_start_utc, hour_of_day, n_pageviews, n_clicks, n_forms, n_errors,
                          first_error_position, has_purchase
                   from {fct_session} order by session_start_utc, session_id""")
     s = _sample(s, "session_id", 0.25)
@@ -648,10 +768,13 @@ def session_send(star: Star) -> tuple[list[dict], dict]:
             "session length only",
             0.02,
             "generator independence",
+            s.customer_id[te].to_numpy() if cluster else None,
+            "customer",
+            nan_share_max,
         )
     ]
 
-    r = star.q("""select send_id, send_channel, send_hour_of_day, send_weekday, opened, hours_to_open,
+    r = star.q("""select send_id, campaign_id, send_channel, send_hour_of_day, send_weekday, opened, hours_to_open,
                          send_ts.send_ts_utc
                   from {fct_send_response} f join (select send_id, send_ts_utc from {fct_campaign_send}) send_ts
                   using (send_id) where open_tracked and was_delivered order by send_ts_utc, send_id""")
@@ -676,6 +799,9 @@ def session_send(star: Star) -> tuple[list[dict], dict]:
             "channel only",
             0.02,
             "generator independence",
+            r.campaign_id[te].to_numpy() if cluster else None,
+            "campaign",
+            nan_share_max,
         )
     )
     return rows, {"sessions_sampled": len(s), "sends_sampled": len(r)}
@@ -691,11 +817,17 @@ SCENARIOS = {
 }
 
 
-def scorecard(star: Star) -> pd.DataFrame:
-    """Every scenario's models and gates, in a stable order: the readiness scorecard of the hour grain."""
+def scorecard(
+    star: Star, cluster: bool = False, nan_share_max: float = NAN_SHARE_MAX
+) -> pd.DataFrame:
+    """Every scenario's models and gates, in a stable order: the readiness scorecard of the hour grain.
+
+    With `cluster`, each gate's bootstrap resamples its independent unit (customer, agent, branch, campaign, or
+    blocks of days) and the rows add `resampling`, `n_clusters` and `nan_share`; the default path is unchanged.
+    """
     rows = []
     for fn in SCENARIOS.values():
-        rows.extend(fn(star)[0])
+        rows.extend(fn(star, cluster=cluster, nan_share_max=nan_share_max)[0])
     out = pd.DataFrame(rows)
     num = out.select_dtypes("number").columns
     out[num] = out[num].round(6)
