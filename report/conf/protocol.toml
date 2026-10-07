@@ -159,6 +159,12 @@ source = "eda/reports/tables/backup_{all,ar,co,mx}_calendar_effects.csv"
 column = "p_value"
 size = 50
 
+[benford]
+# Reference values for interpreting first-digit conformity (Nigrini 2012), added by amendment: mean absolute
+# deviation above `marginal` is marginally acceptable, above `nonconformity` nonconforming.
+mad_first_digit_marginal = 0.012
+mad_first_digit_nonconformity = 0.015
+
 [disk]
 # GiB. Measured at P0: one main/ALL scratch scope 3.2, the worktree's platform environment 1.7 (D22).
 tex = 2
@@ -209,3 +215,17 @@ old = "(absent)"
 new = -3
 date = "2026-10-07"
 reason = "legal clock used by the report-only business-date flip rate (Chapter 4); constant of law, no effect on any gate"
+
+[[amendments]]
+field = "benford.mad_first_digit_marginal"
+old = "(absent)"
+new = 0.012
+date = "2026-10-07"
+reason = "reference value from the literature used to interpret Benford conformity (Chapter 6); no effect on any gate"
+
+[[amendments]]
+field = "benford.mad_first_digit_nonconformity"
+old = "(absent)"
+new = 0.015
+date = "2026-10-07"
+reason = "reference value from the literature used to interpret Benford conformity (Chapter 6); no effect on any gate"
