@@ -1,4 +1,148 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Conformance}\label{ch:conformance}
 
-\emph{Planned content.} Currency conversion, imputation and its bias, slowly changing dimensions and point-in-time joins.
+Conformance turns typed source rows into facts and dimensions that can be joined, summed and compared: amounts in a
+common currency, a point-in-time key from every fact to the version of its customer and product that was valid when
+the fact happened, a hash that tells a snapshot when a record changed, and a pipeline that builds each table only after
+everything it reads. Each step embeds a mathematical assumption, and each assumption can be checked against the data
+or the code. This chapter checks them.
+
+\section{The lineage as an order}\label{sec:cf-lineage}
+
+The lakehouse is a directed acyclic graph $G = (V, E)$ whose nodes are models, snapshots and seeds and whose edge
+$(u, v)$ says that $v$ reads $u$. Airflow does not run the graph node by node; it runs task groups in a fixed sequence,
+each group building its nodes in dependency order. Let $g : V \to \{1, \dots, \est{ch10.groups}{value}\}$ assign each
+node its group. The schedule is correct only if $g$ is monotone along every edge:
+\begin{equation}\label{eq:cf-monotone}
+  (u, v) \in E \implies g(u) \le g(v).
+\end{equation}
+An edge that breaks \cref{eq:cf-monotone} reads a table that has not yet been rebuilt in the current run: stale by one
+run, or missing altogether on a fresh lakehouse. The exploratory notebook found one such edge by running the pipeline.
+This report checks the property statically, from the dbt sources: the references of every model, those of the macros it
+calls, and the snapshot definitions, mapped to the task groups by the selectors of the Airflow DAG. The graph has
+$\est{ch10.nodes}{value}$ nodes and $\est{ch10.edges}{value}$ edges (the notebook's count of buildable nodes is
+smaller because it leaves out seeds and the nodes it does not emulate), and exactly $\est{ch10.back-edges}{value}$ edge
+breaks \cref{eq:cf-monotone}: the credit-eligibility mart, built with the gold layer, reads the point-in-time credit
+features, built several groups later. The fix is to move the mart after the features group, and the check itself is
+cheap enough to run in continuous integration, so that the property cannot silently break again.
+
+The same graph says where a defect would travel (\cref{tab:ch10-fanout}). The correction overlay of the typed layer
+sits upstream of $\est{ch10.desc-dq-corrections-active}{value}$ nodes, the staged transactions of
+$\est{ch10.desc-stg-transactions}{value}$ and the conformed transaction fact of
+$\est{ch10.desc-int-transactions-enriched}{value}$. A change to any of them needs the whole test suite, not the tests of
+its neighbours.
+
+\input{../build/generated/tables/ch10-fanout}
+
+\section{Exchange rates}\label{sec:cf-rates}
+
+The rate table quotes every pair of the dollar, the Mexican, Colombian and Argentine pesos for each of
+$\est{ch10.fx-days}{value}$ days. Its structure is simple and revealing (\cref{tab:ch10-rates}). Each rate is a fixed
+centre, $\est{ch10.centre-cop}{value}$ Colombian pesos, $\est{ch10.centre-ars}{value}$ Argentine pesos and
+$\est{ch10.centre-mxn}{value}$ Mexican pesos per dollar, plus a daily deviation bounded by about
+$\est{ch10.jitter-max}{value}\,\%$ with no memory: lag-one autocorrelations of the log rate are
+$\est{ch10.lag1-cop}{value}$, $\est{ch10.lag1-ars}{value}$ and $\est{ch10.lag1-mxn}{value}$. If the deviation is uniform
+on $[-a, a]$, the coefficient of variation is $a / \sqrt{3}$, which for a bound of $\est{ch10.jitter-bound}{value}\,\%$ is
+$\est{ch10.uniform-cv}{value}\,\%$; the observed values ($\est{ch10.cv-cop}{value}$, $\est{ch10.cv-ars}{value}$ and
+$\est{ch10.cv-mxn}{value}$) match it. A Kolmogorov--Smirnov test does not reject uniformity for the Argentine
+($p = \est{ch10.ks-uniform-p-ars}{value}$) and Mexican ($p = \est{ch10.ks-uniform-p-mxn}{value}$) peso, but rejects it for
+the Colombian peso ($p = \est{ch10.ks-uniform-p-cop}{value}$), whose deviation has the same bound and a different shape.
+
+\input{../build/generated/tables/ch10-rates}
+
+Real exchange rates behave nothing like this: they wander like random walks, and over a history of this length the Argentine peso in
+particular could not have stayed flat. The consequence for every later chapter is that no feature sensitive to
+devaluation or inflation can be validated on this dataset. The table also fails a consistency that any real quote
+system satisfies. Without arbitrage, rates satisfy
+\begin{equation}\label{eq:cf-arbitrage}
+  r_{ij}\, r_{ji} = 1, \qquad r_{ij}\, r_{jk} = r_{ik}
+\end{equation}
+up to the bid--ask spread. Here the product of a rate and its quoted inverse deviates from one by up to
+$\est{ch10.inverse-max-dev}{value}\,\%$, and the Argentine-to-Colombian rate disagrees with the rate through the dollar by
+up to $\est{ch10.triangle-max-dev}{value}\,\%$: each quote is drawn independently. The platform rightly uses one direction
+only, every currency to the dollar, and must never derive a rate from others.
+
+\section{The dollar amount}\label{sec:cf-usd}
+
+The conformed transaction fact needs every amount in dollars. The rule is: a dollar amount is itself; otherwise take the
+source's dollar amount, and if it is missing, convert at the rate in force on the processing date, found by an as-of join
+(the latest rate on or before that date). Of the $\est{ch10.nonusd}{value}$ non-dollar transactions,
+$\est{ch10.imputed}{value}$ have no source dollar amount, $\est{ch10.imputed-share}{value}\,\%$ of all transactions, the
+fixed-rate null injection of \cref{sec:ad-rules}.
+
+An imputation can be validated where the truth is observed. On the $\est{ch10.checked}{value}$ transactions that carry
+both amounts, the rule's conversion at the daily rate is unbiased (mean relative error $\est{ch10.err-daily-bias}{value}\,\%$)
+but noisy: its standard deviation is $\est{ch10.err-daily-sd}{value}\,\%$, and $\est{ch10.p95-level}{value}\,\%$ of absolute errors stay
+below $\est{ch10.err-daily-p95}{value}\,\%$. The reason is visible in the source's own conversion. The rate implied by the source,
+its dollar amount divided by the local amount, varies by at most $\est{ch10.implied-range}{value}\,\%$ around its median, the
+rounding of cents, and is uncorrelated with the table's rate of the day (correlation $\est{ch10.implied-corr}{value}$): the
+source converts at the fixed centre, and the imputation imports the table's daily jitter. Converting at the median rate
+instead gives an error with standard deviation $\est{ch10.err-median-sd}{value}\,\%$, with the same share of absolute errors below
+$\est{ch10.err-median-p95}{value}\,\%$: $\est{ch10.err-ratio}{value}$ times more precise. The general method transfers to a
+real source, whose conversion convention (spot of the transaction date, of the processing date, or a monthly rate) can
+be identified the same way, by regressing the implied rate on candidate rates.
+
+\paragraph{Dollars in Mexico.} All of the Mexican customers' transactions are labelled in dollars
+($\est{ch10.mx-usd-share}{value}\,\%$) and the Mexican peso never appears as a transaction currency
+($\est{ch10.mxn-transactions}{value}$ transactions), although the rate table quotes it. Are these amounts pesos under the
+wrong label? The distributions answer no. The median dollar amount of Mexican transactions is $\est{ch10.mx-usd-median}{value}$,
+against $\est{ch10.other-usd-median}{value}$ for everyone else's dollar amounts, and the Kolmogorov--Smirnov distance
+between the distributions is $\est{ch10.mx-ks}{value}$: pesos would be larger by a factor of the rate. The amounts are
+dollars; the generator simply never used the Mexican currency for transactions.
+
+\section{Point-in-time joins}\label{sec:cf-pit}
+
+A slowly changing dimension of the versioned kind (\ident{SCD2}) keeps one row per version of a record, valid on an interval $[a_k, b_k)$, with the
+current version open-ended \autocite{kimball2013}. A fact at time $t$ joins the version with $a_k \le t < b_k$, so that a
+question about the past (which segment was this customer in when the payment was declined?) is answered with the state
+of that moment. The join is a total function only if the intervals of each key cover every time at which a fact can
+occur. They do not here: the first version starts at registration or opening, and $\est{ch10.before-registration}{value}\,\%$
+of transactions predate their customer's registration and $\est{ch10.before-opening}{value}\,\%$ their product's opening, the
+broken timelines of \cref{sec:ad-rules}. These facts find no version. The fix is to make the first version valid from the
+beginning of time, $a_1 = -\infty$: the first observed state is the best available estimate of the state before it was
+observed, and the join becomes total, which a not-null test on the fact's dimension keys can then enforce.
+
+\section{The change hash}\label{sec:cf-hash}
+
+The snapshots detect a change by comparing a hash of a record's business columns between runs:
+\begin{equation}\label{eq:cf-hash}
+  h(x) = H\bigl(\phi(x_1) \,\Vert\, \texttt{|} \,\Vert\, \phi(x_2) \,\Vert\, \cdots\bigr), \qquad
+  \phi(v) = \begin{cases} \text{the text of } v & v \text{ present} \\ \texttt{<null>} & v \text{ missing,} \end{cases}
+\end{equation}
+with $H$ the \ident{MD5} digest of $b = \est{ch10.hash-bits}{value}$ bits \autocite{rivest1992}. A real change can become
+invisible in either of the ways below. The first is a collision of the digest. For $N$ records with independent, uniform digests, the union bound gives
+\begin{equation}\label{eq:cf-birthday}
+  \Pr(\text{any collision}) \le \binom{N}{2}\, 2^{-b},
+\end{equation}
+which for the $\est{ch10.hash-keys}{value}$ records of the snapshotted tables is below $\est{ch10.hash-bound}{value}$.
+\ident{MD5} is broken as a cryptographic hash: collisions can be constructed deliberately \autocite{wang2005}. That matters for
+integrity against an adversary, not for detecting accidental changes, which is all the snapshot asks of it. The second
+failure is in the encoding: the map $x \mapsto$ text must be injective, or different records produce the same text and
+the same digest with certainty. Joining with a separator is injective only if no field contains the separator and no
+value equals the null token. On the data, $\est{ch10.hash-ambiguous}{value}$ records violate either condition, so the
+encoding is injective here; escaping the separator, or prefixing each field with its length, would make injectivity a
+property of the code instead of a property of the data.
+
+\section{The dense monthly grid}\label{sec:cf-grid}
+
+The credit, AML and collections marts read a dense grid: every customer in every one of the $\est{ch10.grid-months}{value}$
+months, with zero rows for months without activity, because a rolling window over a sparse table silently skips the
+quiet months and overstates averages. The grid is mostly zeros: $\est{ch10.grid-empty}{value}\,\%$ of customer-months have no
+transaction. A zero here is an observation (the customer did nothing), not a missing value, and imputing it would be
+wrong; the partial months at the edges of the data, by contrast, are incomplete and belong outside any trend.
+
+\section{Verdict and implications}\label{sec:cf-verdict}
+
+Conformance is sound where it can be checked, and the checks found what to change. One edge of the lineage reads a later
+task group, which a static check can catch on every pull request. The rate table is a fixed centre plus memoryless
+jitter whose quotes contradict each other, so the platform must keep a single conversion direction and can validate no
+inflation-sensitive feature. The dollar imputation should convert at the source's own convention, here the median rate,
+which makes it some tens of times more precise. The first version of every slowly changing dimension should start at the
+beginning of time. And the change hash is safe from accidental collisions but relies on the data for the injectivity of
+its encoding, which the code should guarantee instead.
+
+\section{Limitations}\label{sec:cf-limits}
+
+The lineage is parsed from the dbt sources with regular expressions; models generated or referenced dynamically would
+escape it, which the agreement with the notebook's run-time finding suggests is not the case here. The imputation is
+validated on the rows that carry a source dollar amount, under the assumption that the missing ones were generated the same
+way. The collision bound assumes uniform digests, which is the design property of the hash, not a measured one.

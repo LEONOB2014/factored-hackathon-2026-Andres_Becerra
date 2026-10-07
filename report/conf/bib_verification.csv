@@ -82,3 +82,5 @@ laney2002,doi:10.1081/QEN-120003555,2026-10-07,"Improved Control Charts for Attr
 greenwood1920,doi:10.2307/2341080,2026-10-07,"An Inquiry into the Nature of Frequency Distributions Representative of Multiple Happenings (Journal of the Royal Statistical Society, 1920) via api.crossref.org"
 montgomery2012,isbn:9781118146811,2026-10-07,"Introduction To Statistical Quality Control (Wiley, 2012) via openlibrary.org"
 arlot2019,url:https://jmlr.org/papers/v20/16-155.html,2026-10-07,"A Kernel Multiple Change-point Algorithm via Model Selection (JMLR paper page, HTTP 200)"
+rivest1992,url:https://www.rfc-editor.org/rfc/rfc1321.html,2026-10-07,"RFC 1321: The MD5 Message-Digest Algorithm (RFC Editor, HTTP 200)"
+wang2005,doi:10.1007/11426639_2,2026-10-07,"How to Break MD5 and Other Hash Functions (EUROCRYPT 2005, Lecture Notes in Computer Science) via api.crossref.org"
