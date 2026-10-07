@@ -1,4 +1,137 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Marts, rules and features without leakage}\label{ch:marts-and-features}
 
-\emph{Planned content.} Deterministic rules, additive scores, out-of-time splits with an embargo, point-in-time windows and the known complaint-product defect.
+The gold layer serves consumers of different kinds. Marts answer operational questions with deterministic rules: is this
+customer eligible for credit, how worried should collections be about this product, does this customer-month match a
+money-laundering typology, which transaction is this complaint about? Feature tables feed learned models and must
+contain, for every row, only what was knowable at the moment the row describes. This chapter examines both from the
+built lakehouse: whether the features are free of leakage and contain anything to learn, and whether each rule behaves
+as its design intends on this data.
+
+\section{Point-in-time features}\label{sec:mf-pit}
+
+A feature of an event at time $t$ for entity $e$ is point-in-time when it is a function of the entity's history strictly
+before $t$:
+\begin{equation}\label{eq:mf-pit}
+  f_w(e, t) = A\bigl(\{\, x_{e,s} : t - w \le s < t \,\}\bigr),
+\end{equation}
+for a window $w$ and an aggregate $A$ (a count, a sum, a maximum, a time since the last event). The strict inequality
+matters: including the current row lets a model read the event it is asked to predict. A feature that could not have been
+computed at decision time is leakage, and leakage makes offline accuracy a promise production cannot keep
+\autocite{kaufman2012}. The fraud features follow \cref{eq:mf-pit}: windows of an hour, a day and a week exclude the
+current transaction, the last login is found by an as-of join on logins strictly before it, and the shipped fraud score,
+which \cref{sec:ad-fraud} showed to be the label in disguise, is absent by design.
+
+\paragraph{The out-of-time split.} Fraud models are trained, validated and tested on consecutive periods, never on a
+random shuffle, because a shuffle lets a model learn the future of the very customers it is tested on. Between periods
+an embargo removes the rows of a band of days before each boundary \autocite{lopezdeprado2018}: a rolling window that
+straddles the boundary, or a label resolved after it, would otherwise carry information across. The split holds
+$\est{ch11.rows-train}{value}$ training rows ($\est{ch11.fraud-train}{value}$ fraud), $\est{ch11.rows-valid}{value}$ validation
+rows ($\est{ch11.fraud-valid}{value}$) and $\est{ch11.rows-test}{value}$ test rows ($\est{ch11.fraud-test}{value}$). The
+measured gaps between the last training row and the first validation row, and between validation and test, are
+$\est{ch11.gap-train-valid}{value}$ and $\est{ch11.gap-valid-test}{value}$ days, matching the configured embargo of
+$\est{ch11.embargo-days}{value}$ days.
+
+\section{Is there anything to learn?}\label{sec:mf-signal}
+
+Before any model, the cheapest test of learnability is each feature alone. On the validation split, the ROC AUC of each of
+the $\est{ch11.features}{value}$ numeric features against the fraud label, with DeLong intervals (\cref{eq:auc-delong}), is
+at most $\est{ch11.auc-max-dev}{value}$ away from chance level (\cref{tab:ch11-single-auc}). Only
+$\est{ch11.features-off-chance}{value}$ interval excludes chance, which is what chance alone produces at this number of
+features, and that one is a feature almost constant across rows, the count of declines in the last day: its AUC differs
+from chance level by $\est{ch11.auc-off-dev}{value}$, and its interval, $\est{ch11.auc-off-width}{value}$ wide, is narrow only
+because the DeLong variance collapses when almost every score is tied. The features are well built and the label has no
+learnable content, the same conclusion \cref{sec:ad-fraud} reached with a full model. No supervised fraud model should be
+trained on this label.
+
+\input{../build/generated/tables/ch11-single-auc}
+
+\section{Credit eligibility}\label{sec:mf-credit}
+
+Eligibility is a rule with reason codes: a customer is eligible unless a reason applies, and every refusal carries its
+reasons, so that a copilot can explain a decision instead of reciting a score. Of $\est{ch11.elig-customers}{value}$
+customers, $\est{ch11.elig-card}{value}$ are eligible for a credit card and $\est{ch11.elig-loan}{value}$ for a personal loan
+(\cref{tab:ch11-reasons}). The dominant reason, insufficient income history, applies to
+$\est{ch11.reason-income-share}{value}\,\%$ of customers. It follows from the direction assumption of the conformed fact
+(\cref{ch:conformance}): only deposits count as inflows, so the income a rule can observe is thin. On real data with a
+signed amount the same rule would see salaries; here it can only refuse, and it says why.
+
+\input{../build/generated/tables/ch11-reasons}
+
+\section{The collections score}\label{sec:mf-collections}
+
+The early-warning score adds points for warning signs: days past due, falling payments, declined payments for
+insufficient funds, contacts, negative sentiment. An additive score ranks well only if its components separate the cases
+that matter. By days-past-due bucket (\cref{tab:ch11-early-warning}), the mean score rises from
+$\est{ch11.ew-current}{value}$ for current products to $\est{ch11.ew-dpd30}{value}$ for those up to a month late, and then
+stops: $\est{ch11.ew-dpd60}{value}$ in the \ident{31-60} bucket and $\est{ch11.ew-dpd90}{value}$ in the \ident{90+} bucket. The
+score cannot rank the delinquencies collections cares most about, because its other components are uninformative on this
+data. And the $\est{ch11.ew-unknown-n}{value}$ products without a days-past-due value score like current ones
+($\est{ch11.ew-unknown}{value}$): unknown is treated as on time. A score must separate unknown from good, by an explicit
+state or by a separate flag, or it reports confidence it does not have.
+
+\input{../build/generated/tables/ch11-early-warning}
+
+\section{A peer rule that cannot fire}\label{sec:mf-aml}
+
+The anti-money-laundering mart flags a customer-month whose inflow is extreme among its peers, the customers of the same
+segment and country in the same month, by a robust $z$-score $(x - \tilde x) / (\kappa\,\mathrm{MAD})$ with the median and
+the median absolute deviation of the peer group. In the built mart, the rule has fired $\est{ch11.aml-peer-hits}{value}$
+times in $\est{ch11.aml-rows}{value}$ customer-months, and its score is defined for $\est{ch11.aml-z-defined}{value}$ of them.
+
+\begin{proposition}\label{prop:mf-mad}
+If a strict majority of the values of a group equal $c$, the group's median is $c$ and its median absolute deviation is zero.
+\end{proposition}
+
+\begin{proof}
+A strict majority of the values are at most $c$ and a strict majority are at least $c$, so every median equals $c$. The
+absolute deviations from $c$ are zero for a strict majority of the values, so their median is zero.
+\end{proof}
+
+A customer-month without deposits has an inflow of zero, and $\est{ch11.aml-zero-share}{value}\,\%$ of customer-months have
+none. Every one of the $\est{ch11.peer-groups}{value}$ peer groups has a majority of zeros (at least
+$\est{ch11.peer-zero-min}{value}\,\%$), so by \cref{prop:mf-mad} every group has a MAD of zero, the division is guarded to
+NULL, and the rule is dead. The breakdown is not a defect of the MAD: a high-breakdown estimator of scale must report zero
+when a majority of the data coincide, and the more efficient alternatives of \textcite{rousseeuw1993} do the same. The fix
+is to condition. Computed on the $\est{ch11.pos-rows}{value}$ months with inflow, the peer MAD is positive in every group and
+the rule flags $\est{ch11.pos-flags}{value}$ customer-months. The lesson extends to every rule built on a robust scale: test
+it on a planted positive before trusting its silence.
+
+\section{Linking a complaint to a transaction}\label{sec:mf-disputes}
+
+A dispute is about a transaction, but complaints carry no transaction key (\cref{ch:inventory-keys}). The disputes mart
+links them by matching customer, amount and time. Of $\est{ch11.disputes}{value}$ complaints,
+$\est{ch11.disputes-candidates}{value}$ have candidate transactions at all, $\est{ch11.disputes-unique}{value}$ have exactly
+one, some have up to $\est{ch11.disputes-max}{value}$, and only $\est{ch11.disputes-linked}{value}$ reach a link with any
+confidence. A heuristic cannot recover a key the source never recorded. The only real fix is to capture the disputed
+transaction when the complaint is taken, which the copilot can do at intake.
+
+\section{Campaigns: a causal question without a control}\label{sec:mf-campaigns}
+
+The campaign mart asks whether a campaign caused conversions. In the potential-outcomes framework each send has an outcome
+$Y(1)$ if the customer is treated and $Y(0)$ if not, and the uplift is $\tau = \mathbb{E}[Y(1) - Y(0)]$
+\autocite{rubin1974}. Only one outcome is ever observed for a unit, the fundamental problem of causal inference
+\autocite{holland1986}, so $\tau$ is identified from observational data only if treated and untreated units are comparable
+given observed covariates and every kind of unit has a positive chance of either. Here $\est{ch11.send-delivered}{value}\,\%$
+of sends were delivered and the rest failed for reasons that may themselves relate to the customer; there is no untreated
+group chosen at random, and conversions are rare ($\est{ch11.send-converted}{value}\,\%$). The uplift is not identifiable from
+these data, and no model, however flexible, changes that; a randomised holdout must come before any uplift work.
+
+The same mart answers compliance questions directly. $\est{ch11.send-no-consent}{value}\,\%$ of sends went to customers who do
+not currently accept marketing, and $\est{ch11.send-already-held}{value}\,\%$ promoted a product the customer already held.
+Gating on consent costs nothing measurable here, since conversions are rare either way, and is the first rule to enforce.
+
+\section{Verdict and implications}\label{sec:mf-verdict}
+
+The feature layer is built correctly: point-in-time windows, an embargoed out-of-time split, no leaked score. What it
+feeds has nothing to learn from the fraud label. The marts are deterministic and explainable, which is their purpose, and
+their behaviour on this data shows where each rule needs repair: eligibility refuses almost everyone for want of observed
+income, the collections score saturates and mistakes unknown for current, the AML peer rule is dead by a theorem, dispute
+linkage cannot replace a key, and campaign uplift needs an experiment the data never ran. Each finding is a change to a
+rule or a requirement on the source, and none can be fixed by a better model.
+
+\section{Limitations}\label{sec:mf-limits}
+
+The measurements read the lakehouse built by the last Airflow run; a rebuild after the fixes of earlier chapters would
+change some counts. The complaint-in-ninety-days training table, which the notebooks propose as the first learned use case,
+is a view onto files outside this workspace and could not be read. Single-feature AUCs bound what each feature carries
+alone; interactions are bounded by the full model of \cref{sec:ad-fraud}.
