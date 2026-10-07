@@ -1,4 +1,229 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{The evidence model}\label{ch:evidence-model}
 
-\emph{Planned content.} Estimands, the claims ledger, the status of each claim, clustered and bootstrap intervals, multiplicity control and the registered re-estimation protocol with its limits.
+Every later chapter makes quantitative statements about LATAM Bank's data: a share of rows, a rate of events, a
+difference between the main and backup copies, a gain of a model over a benchmark. This chapter fixes what such a
+statement means, which uncertainty it must carry, and what it may and may not be used for. It sets out the estimands
+and the unit of analysis (\cref{sec:em-estimands}), the claims ledger that every number in the report comes from
+(\cref{sec:em-ledger}), the interval estimators and the rule that chooses among them
+(\cref{sec:em-iid,sec:em-clusters,sec:em-few,sec:em-series}), the control of false discoveries across many tests
+(\cref{sec:em-multiplicity}), what a registered re-estimation can and cannot establish
+(\cref{sec:em-registered}), and the rule that turns a model's out-of-time gain into a readiness verdict
+(\cref{sec:em-gate}).
+
+\section{Estimands and the unit of analysis}\label{sec:em-estimands}
+
+The dataset records events: transactions, digital events, contacts, sends, complaints. Events are not independent
+draws. A customer makes many transactions, an agent handles many contacts, a campaign sends many messages, and the
+days of a calendar follow one another. We write the data as a nested structure.
+
+\begin{definition}[Clustered observations]\label{def:clusters}
+Let $g = 1, \dots, G$ index clusters (customers, agents, branches, campaigns or days) and $i = 1, \dots, m_g$ the
+observations of cluster $g$, with $n = \sum_g m_g$. An observation carries an outcome $y_{gi}$ and, for a ratio, a
+size $d_{gi} > 0$ (for a proportion, $d_{gi} = 1$ and $y_{gi} \in \{0, 1\}$).
+\end{definition}
+
+The estimand of most descriptive claims is a ratio of population totals,
+\begin{equation}\label{eq:ratio}
+  \theta = \frac{\E \bigl[\sum_i y_{gi}\bigr]}{\E \bigl[\sum_i d_{gi}\bigr]},
+  \qquad
+  \hat\theta = \frac{\sum_{g} Y_g}{\sum_{g} D_g},
+  \quad Y_g = \sum_{i} y_{gi},\; D_g = \sum_{i} d_{gi},
+\end{equation}
+a share, a rate per exposure or a mean per unit. The estimator $\hat\theta$ is the same whatever the dependence
+between observations; its sampling distribution is not. The independent unit is the cluster, not the row, and the
+interval of a claim must be computed over the unit that is actually independent.
+
+\begin{assumption}[Independence between clusters]\label{ass:clusters}
+The cluster totals $(Y_g, D_g)$, $g = 1, \dots, G$, are independent and identically distributed. Observations within
+a cluster may be arbitrarily dependent.
+\end{assumption}
+
+\Cref{ass:clusters} is weaker than independence of rows, which is the special case $m_g = 1$. It is the assumption
+behind every clustered interval in this report; where it is doubtful, because clusters share a calendar day or a
+branch, the chapter that uses it says so.
+
+\section{The claims ledger}\label{sec:em-ledger}
+
+No number derived from data is typed into this report. Every such number is a field of a row of the claims ledger,
+and the text cites it with a macro that the build generates from that row.
+
+\begin{definition}[Claim]\label{def:claim}
+A claim is a row with an identifier, a kind, a status, the path and the \shaname{} digest of the artefact it was
+computed from, and the fields its kind requires: a count needs a value; a proportion needs a numerator, a positive
+denominator, an interval, the method that produced the interval and the cluster unit; a test needs its statistic, its
+p-value, its family and the false-discovery adjusted value $q$ of \cref{sec:em-multiplicity}.
+\end{definition}
+
+The build fails when a chapter cites a claim that does not exist, cites a field the claim does not have, or contains a
+typed number in prose or in mathematics. A claim's status records what it may be used for.
+
+\begin{description}[style=nextline]
+  \item[Exploratory] A number from the notebooks or from the result tables they wrote. The notebooks searched among
+  many specifications, and some of their intervals treat rows as independent; an exploratory claim describes what
+  was found, and an interval computed under row independence is marked with \naivemark{} wherever it is printed.
+  \item[Registered] A re-estimation under the specification frozen before it ran (\cref{sec:em-registered}). It is
+  the only status that may decide whether a readiness gate's verdict holds.
+  \item[Positive control] A number measured on data with a planted, known answer, such as anomalies injected to
+  measure a detector's recall. It shows whether a method can find what it should; it is never evidence about the bank
+  and never enters a table of real-data results.
+\end{description}
+
+Whole tables are not split into claims. A table is rendered from one stored result, and its caption prints the path
+and the first characters of the \shaname{} digest of that result, so a reader can check that the table and the file
+agree.
+
+\section{Intervals under independence}\label{sec:em-iid}
+
+When rows are independent, the share $\hat p = Y/n$ of $Y$ successes in $n$ trials has the Wilson interval
+\autocite{wilson1927}, obtained by inverting the score test of $H_0\colon p = p_0$:
+\begin{equation}\label{eq:wilson}
+  \frac{\hat p + \frac{z^2}{2n}}{1 + \frac{z^2}{n}}
+  \;\pm\;
+  \frac{z}{1 + \frac{z^2}{n}} \sqrt{\frac{\hat p(1 - \hat p)}{n} + \frac{z^2}{4n^2}},
+  \qquad z = z_{1 - \alpha/2}.
+\end{equation}
+Unlike the Wald interval $\hat p \pm z\sqrt{\hat p(1-\hat p)/n}$, it stays inside $[0, 1]$ and keeps its coverage
+near the nominal level when $p$ is close to the boundary, which is where many of the dataset's shares lie (null rates,
+fraud rates, defect rates). The exact interval of \textcite{clopper1934} guarantees at least the nominal coverage at
+the price of width; we use it only when a guarantee is required. For a count of $k$ events over exposure $E$, the
+exact Poisson interval \autocite{garwood1936} is
+\begin{equation}\label{eq:garwood}
+  \left[\frac{\chi^2_{2k,\,\alpha/2}}{2E},\; \frac{\chi^2_{2k+2,\,1-\alpha/2}}{2E}\right],
+\end{equation}
+with the lower bound set to zero when $k = 0$. Every interval in this report has level $1 - \alpha =
+\proto{intervals.level}$.
+
+\section{Why independence fails, and the cluster bootstrap}\label{sec:em-clusters}
+
+Suppose the outcomes of a cluster share a common component, so that any pair of observations of the same cluster
+has correlation $\rho$, and all clusters have size $m$. Then
+\begin{equation}\label{eq:deff}
+  \Var\bigl(\hat\theta\bigr) = \frac{\sigma^2}{n}\bigl(1 + (m - 1)\rho\bigr),
+\end{equation}
+the design effect of \textcite{kish1965}. An interval that assumes $\rho = 0$ is too narrow by the factor
+$\sqrt{1 + (m-1)\rho}$, which grows without bound with the cluster size. In this dataset clusters are large: a
+customer has many transactions, an agent many contact hours. A small within-customer correlation is enough to make a
+row-level interval useless. The fix does not need $\rho$ or a model of it: resample the independent units.
+
+\begin{definition}[Cluster bootstrap]\label{def:cluster-bootstrap}
+Draw $G$ clusters with replacement from $\{1, \dots, G\}$, keeping all rows of each drawn cluster, and recompute
+$\hat\theta^{*} = \sum_{g^*} Y_{g^*} \big/ \sum_{g^*} D_{g^*}$. Repeat $B$ times. The percentile interval is
+$[\hat\theta^{*}_{(\alpha/2)}, \hat\theta^{*}_{(1-\alpha/2)}]$, the empirical quantiles of the replicates.
+\end{definition}
+
+Under \cref{ass:clusters} the cluster totals are an independent sample, so the bootstrap of
+\textcite{efron1979} applies to them directly; resampling clusters rather than rows is what keeps the within-cluster
+dependence intact \autocite{davison1997,field2007}. Its large-sample justification is the same as the sandwich
+variance of \textcite{liang1986}, which this bootstrap estimates without a parametric model, and it is reliable when
+the number of clusters is large. The report uses it from $G = \proto{intervals.min_clusters}$ clusters upward. The test
+suite checks the claim behind this section on simulated nested data with a known answer: the interval of
+\cref{eq:wilson} covers the truth far less often than its nominal level, and the cluster bootstrap covers it close to
+the nominal level.
+
+\section{Few clusters}\label{sec:em-few}
+
+With few clusters the sandwich variance is biased downwards and the bootstrap distribution is lumpy
+\autocite{cameron2008,mackinnon2023}. Between $\proto{intervals.min_clusters_few}$ and
+$\proto{intervals.min_clusters}$ clusters the report writes $\hat\theta$ as a weighted mean of cluster ratios,
+$\hat\theta = \sum_g w_g r_g$ with $w_g = D_g / \sum_h D_h$ and $r_g = Y_g / D_g$, and corrects the variance as follows.
+
+\paragraph{\CRtwo.} The bias-reduced variance of \textcite{bell2002} rescales each cluster's residual by its leverage.
+For this intercept-only weighted model the leverage of cluster $g$ is $h_g = w_g$, and
+\begin{equation}\label{eq:cr2}
+  \widehat{\Var}_{\mathrm{\CRtwo}}\bigl(\hat\theta\bigr)
+  = \sum_{g} w_g^2 \, \frac{(r_g - \hat\theta)^2}{1 - h_g},
+\end{equation}
+with the interval $\hat\theta \pm t_{G-1,\,1-\alpha/2}\,\widehat{\Var}_{\mathrm{\CRtwo}}^{1/2}$.
+
+\paragraph{Wild cluster bootstrap.} Following \textcite{cameron2008}, each replicate multiplies every cluster's
+residual by an independent Rademacher sign $v_g \in \{-1, 1\}$, sets $r_g^{*} = \hat\theta + v_g (r_g - \hat\theta)$,
+and records the studentised statistic $t^{*} = (\hat\theta^{*} - \hat\theta) / \mathrm{se}_{\mathrm{\CRtwo}}^{*}$. The
+interval inverts the quantiles of $t^{*}$ around the observed \CRtwo{} standard error. Below
+$\proto{intervals.min_clusters_few}$ clusters, as with the markets of the dataset taken as clusters, no interval is
+reported: the claim is descriptive and says why.
+
+\section{Serial dependence}\label{sec:em-series}
+
+Days are not exchangeable: volumes, contacts and errors on consecutive days are correlated, so resampling days
+independently understates the variance of a mean over days for the same reason as \cref{eq:deff}. The report uses the
+stationary bootstrap of \textcite{politis1994}: a replicate is a sequence of blocks of consecutive days, each block
+starting at a uniform day and having a geometric length with mean $L$, the series being read as a circle. The mean
+block length follows the automatic rule of \textcite{politis2004} as corrected by \textcite{patton2009}:
+\begin{equation}\label{eq:pw}
+  \hat b = \left(\frac{2\,\hat G^2}{\hat D}\right)^{1/3} n^{1/3},
+  \qquad
+  \hat G = \sum_{|k| \le M} \lambda(k/M)\,|k|\,\hat R(k),
+  \qquad
+  \hat D = 2\Bigl(\sum_{|k| \le M} \lambda(k/M)\,\hat R(k)\Bigr)^2,
+\end{equation}
+where $\hat R$ is the sample autocovariance, $\lambda$ the flat-top window that equals $1$ on $[0, 1/2]$ and falls
+linearly to $0$ at $1$, and $M$ the bandwidth chosen from the first run of autocorrelations that stay within their
+noise band. Applied to the daily differences that a gate averages, \cref{eq:pw} makes the block length grow with the
+dependence the data show and shrink to single days when there is none.
+
+\section{Many tests}\label{sec:em-multiplicity}
+
+The notebooks ran many hypothesis tests. Read one at a time, a few small p-values among many are expected by chance,
+so the report controls the false discovery rate, the expected share of false rejections among all rejections
+\autocite{benjamini1995}. For ordered p-values $p_{(1)} \le \dots \le p_{(m)}$ of a family of $m$ tests, the
+adjusted values are
+\begin{equation}\label{eq:bh}
+  q_{(i)} = \min_{j \ge i} \min\Bigl(1, \frac{m\,p_{(j)}}{j}\Bigr),
+\end{equation}
+and rejecting every hypothesis with $q \le \alpha$ controls the false discovery rate at $\alpha$ when the tests are
+independent or positively dependent \autocite{benjamini2001}. The rate is only controlled over the family it is
+computed on, so families are defined by where the tests come from, never by which tests the text happens to cite. The
+protocol fixes them before any registered result exists: the notebooks' own declared families of the daily series
+($\proto{families.daily-series-i.size}$ and $\proto{families.daily-series-ii.size}$ tests) and of the hourly series
+($\proto{families.hourly-series-iii.size}$ tests), and the calendar effects of the country series on the main and the
+backup copies ($\proto{families.country-calendar-main.size}$ and $\proto{families.country-calendar-backup.size}$
+tests). The report's implementation of \cref{eq:bh} reproduces the adjusted values the notebooks stored for their
+declared families, and agrees with independent implementations on every p-value column of the stored results.
+A sentence that calls a result statistically detectable must cite its $q$.
+
+\section{Specification search and the registered re-estimation}\label{sec:em-registered}
+
+The analyses behind the Grain Atlas were exploratory: across many notebooks, choices of features, windows, benchmarks
+and tests were made after looking at the data. Such choices can make chance findings look real
+\autocite{simmons2011}. The standard remedy is to fix the analysis before seeing its result
+\autocite{nosek2018}. This report does what is possible here and states what is not.
+
+The dataset ends on \proto{dataset.end_date}, and every notebook saw data up to that day. There is no untouched
+holdout. What can still be fixed in advance is the specification. Before any clustered estimate of a gate existed,
+the protocol froze, in the repository's history, the gates to re-estimate (all $\proto{gates.ids.n}$ of them,
+whatever their published verdict), each gate's out-of-time split as coded, its cluster unit, the verdict rule and the
+rules that make a gate not assessable, the rule for comparing the main and backup copies, the test families, and the
+digest of every data file. Any later change needs a dated amendment with a reason, and the build checks every frozen
+field against the freezing commit.
+
+A registered re-estimation therefore rules out adjusting the specification after seeing the clustered result, and an
+interval that ignores the dependence between rows. It does not rule out that the original choices of features, windows
+or benchmarks were shaped by the same data. It changes only how the uncertainty of a gate is measured, so a change of
+verdict can be attributed to that and to nothing else.
+
+\section{The readiness gate}\label{sec:em-gate}
+
+A candidate model is trained out of time and compared with a transparent benchmark on the same test rows. Let
+$\Delta$ be its gain (a higher AUC, a lower error or loss, expressed so that larger is better), $\Delta^{*}_1, \dots,
+\Delta^{*}_B$ its bootstrap replicates, $[L, U]$ their $\alpha/2$ and $1 - \alpha/2$ quantiles with
+$\alpha = \proto{gates.alpha}$, and $\mu$ the smallest gain worth deploying, set per model before training. The
+minimum detectable effect at the test volume is
+\begin{equation}\label{eq:mde}
+  \mathrm{MDE} = c\,\widehat{\mathrm{sd}}\bigl(\Delta^{*}\bigr),
+  \qquad c = \proto{gates.mde_multiplier} \approx z_{1-\alpha/2} + z_{\pi},\; \pi = \proto{gates.power}.
+\end{equation}
+
+\begin{definition}[Readiness verdict]\label{def:verdict}
+The gate is \emph{green} when $L > 0$, $\Delta \ge \mu$ and, when folds are evaluated, every fold's gain has the
+sign of $\Delta$; \emph{amber} when $L > 0$ but the gain is not material or the folds disagree; \emph{red} otherwise,
+with the root cause \emph{insufficient volume} when $\mathrm{MDE} > \mu$ (even a material gain could not be told
+from noise) and the scenario's structural cause when it is not.
+\end{definition}
+
+The registered re-estimation keeps \cref{def:verdict} unchanged and replaces only the replicates: each gate's
+bootstrap resamples its independent unit (customers, agents, branches, campaigns, or stationary blocks of days) instead
+of rows. It adds the following rules. A gate is \emph{not assessable} when it has fewer than $\proto{gates.min_clusters}$
+clusters, because a cluster bootstrap with so few units cannot be trusted, and when more than a share
+$\proto{gates.nan_share_max}$ of its replicates fail, for example because a resample of customers contains a single
+class and its AUC is undefined. A re-estimated gate disagrees with the published scorecard when its verdict or its
+root cause changes; \cref{ch:readiness-gates} reports every gate, on the main and the backup copies, under this rule.

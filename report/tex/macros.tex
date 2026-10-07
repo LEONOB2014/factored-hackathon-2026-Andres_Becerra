@@ -14,6 +14,13 @@
 \InputIfFileExists{../build/generated/claims.tex}{}{}
 \InputIfFileExists{../build/generated/protocol.tex}{}{}
 
+% Identifiers that contain digits but are not statistics (decision records, notebooks, files): the lint skips
+% the argument, so a quantity can never hide in it unnoticed by a reader.
+\newcommand{\ident}[1]{\texttt{#1}}
+% Names of methods that contain digits (never quantities); tests/test_no_bare_numbers.py allows only these.
+\newcommand{\shaname}{SHA-256}
+\newcommand{\CRtwo}{CR2}
+
 % Theorem-like environments.
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}[chapter]

@@ -46,6 +46,7 @@ def test_typed_numbers_fail(snippet):
         "A classifier two-sample test and a two-sided interval.",
         r"The effect is significant (q = \est{ch19.gate}{q}).",
         r"\label{sec:x2} \includegraphics[width=0.5\textwidth]{fig-01}",
+        r"The rule of \ident{ADR-018} and notebook \ident{granularity_hour/08}.",
     ],
 )
 def test_allowed_forms_pass(snippet):
@@ -62,3 +63,22 @@ def test_allowlist_entries_need_a_reason(tmp_path):
 def test_repository_allowlist_loads():
     allow = lint.load_allow()
     assert allow["math"] and not allow["prose"]
+
+
+NAME_MACROS = {
+    "shaname",
+    "CRtwo",
+}  # method names with digits; every other macro body must be digit-free
+
+
+def test_macros_cannot_smuggle_numbers():
+    import re
+
+    from report_lib.paths import TEX
+
+    for name, body in re.findall(
+        r"\\newcommand\{\\(\w+)\}(?:\[\d\])?\{(.*)\}\s*$", (TEX / "macros.tex").read_text(), re.M
+    ):
+        body = re.sub(r"#\d", "", body)  # parameter references
+        if re.search(r"\d", body):
+            assert name in NAME_MACROS, f"macro \\{name} contains a digit"

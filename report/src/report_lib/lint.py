@@ -27,7 +27,7 @@ from pylatexenc.macrospec import MacroSpec
 from report_lib.paths import CONF
 
 SKIP_MACROS = {
-    "est", "proto", "ref", "eqref", "pageref", "cref", "Cref", "autoref", "label", "cite", "citet",
+    "est", "proto", "ident", "ref", "eqref", "pageref", "cref", "Cref", "autoref", "label", "cite", "citet",
     "citep", "textcite", "parencite", "autocite", "citeauthor", "citeyear", "fullcite", "footcite",
     "include", "input", "includegraphics", "url", "href", "verb", "addbibresource", "bibliography",
     "setcounter", "addtocounter", "vspace", "hspace", "rule", "includeonly", "nocite",
@@ -50,6 +50,7 @@ WORDS = re.compile(
 _MACROS = [
     MacroSpec("est", "{{"),
     MacroSpec("proto", "{"),
+    MacroSpec("ident", "{"),
     MacroSpec("cref", "*{"),
     MacroSpec("Cref", "*{"),
     MacroSpec("textcite", "[[{"),
