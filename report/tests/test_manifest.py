@@ -131,3 +131,20 @@ def test_built_claims_record_no_absolute_paths():
 
     absolute = [c.id for c in claims.load_all(CLAIMS_DIR).values() if c.source_path.startswith("/")]
     assert absolute == []
+
+
+@pytest.mark.data
+def test_every_built_claim_matches_its_source():
+    """A claim's digest must be the digest of its source as it is now: rerun the chapter script after any change."""
+    from report_lib import sources
+    from report_lib.paths import CLAIMS_DIR, REPO
+
+    pairs = {(c.source_path, c.source_sha256) for c in claims.load_all(CLAIMS_DIR).values()}
+    digests: dict[str, str] = {}
+    stale = []
+    for path, digest in sorted(pairs):
+        if path not in digests:
+            digests[path] = sources.sha256(REPO / path)
+        if digests[path] != digest:
+            stale.append(path)
+    assert stale == []
