@@ -7,6 +7,11 @@
 # Needs: gcloud authenticated with a project set (Cloud Run, Artifact Registry and Cloud Build enabled; the default
 # compute service account, which Cloud Build runs as, holding roles/cloudbuild.builds.builder), the demo
 # snapshot and knowledge index under data/copilot/ (make copilot-snapshot, make copilot-kb). Run from the repo root.
+#
+# Optional language model (a hosted OpenAI-compatible endpoint): set COPILOT_LLM_BACKEND=openai, COPILOT_LLM_BASE_URL,
+# COPILOT_LLM_MODEL, optionally COPILOT_LLM_PRICE_IN/OUT, and COPILOT_LLM_SECRET, the name of a Secret Manager secret
+# holding the API key (the service account needs roles/secretmanager.secretAccessor on it). The key is mounted as
+# COPILOT_LLM_API_KEY and never passed on the command line. Without COPILOT_LLM_BACKEND the copilot has no model.
 set -euo pipefail
 
 name="$1"; region="$2"; shift 2; countries=("$@")
@@ -48,7 +53,14 @@ gcloud storage buckets describe "${bucket}" >/dev/null 2>&1 \
 # 5. build in the same region and deploy one always-warm instance (sessions and actions live in the process)
 gcloud builds submit "${stage}" --region "${region}" --tag "${image}" --timeout 1800 \
   --gcs-source-staging-dir "${bucket}/source" --gcs-log-dir "${bucket}/logs"
+env="^|^COPILOT_DEPLOYMENT=${service}|COPILOT_REGION=${region}|COPILOT_CORS_ORIGINS=${COPILOT_CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}"
+llm=(--clear-secrets)
+if [ -n "${COPILOT_LLM_BACKEND:-}" ]; then
+  env+="|COPILOT_LLM_BACKEND=${COPILOT_LLM_BACKEND}|COPILOT_LLM_BASE_URL=${COPILOT_LLM_BASE_URL:?}|COPILOT_LLM_MODEL=${COPILOT_LLM_MODEL:?}"
+  [ -n "${COPILOT_LLM_PRICE_IN:-}" ] && env+="|COPILOT_LLM_PRICE_IN=${COPILOT_LLM_PRICE_IN}|COPILOT_LLM_PRICE_OUT=${COPILOT_LLM_PRICE_OUT:?}"
+  llm=(--set-secrets "COPILOT_LLM_API_KEY=${COPILOT_LLM_SECRET:?name of the Secret Manager secret holding the key}:latest")
+fi
 gcloud run deploy "${service}" --image "${image}" --region "${region}" \
   --allow-unauthenticated --min-instances 1 --max-instances 1 --cpu 1 --memory 2Gi --port 8080 \
-  --set-env-vars "^|^COPILOT_DEPLOYMENT=${service}|COPILOT_REGION=${region}|COPILOT_CORS_ORIGINS=${COPILOT_CORS_ORIGINS:-http://localhost:3000,http://localhost:5173}"
+  --set-env-vars "${env}" "${llm[@]}"
 gcloud run services describe "${service}" --region "${region}" --format 'value(status.url)'
