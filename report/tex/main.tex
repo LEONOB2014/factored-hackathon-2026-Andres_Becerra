@@ -6,6 +6,7 @@
 \begin{document}
 \frontmatter
 \input{frontmatter/title}
+\cleardoublepage\pdfbookmark[0]{Contents}{bm-contents}
 \tableofcontents
 \input{frontmatter/abstract}
 \input{frontmatter/conventions}
@@ -39,6 +40,7 @@
 \include{chapters/20_conclusions}
 
 \appendix
+\cleardoublepage\bookmarksetup{startatroot}\pdfbookmark[-1]{Appendices}{bm-appendices}
 \include{appendices/a_traceability}
 \include{appendices/b_claims_ledger}
 \include{appendices/c_per_country}
@@ -46,5 +48,6 @@
 \include{appendices/e_notation}
 
 \backmatter
+\bookmarksetup{startatroot}
 \printbibliography[heading=bibintoc]
 \end{document}
