@@ -164,6 +164,27 @@ def marts(ch: Chapter, con) -> None:
         ch.census(f"send-{tag}", 100 * v, LAKE, unit="percent", digits=3)
 
 
+def r25(ch: Chapter, con) -> None:
+    """The known R25 defect downstream: a complaint's affected product always belongs to another customer."""
+    cards, with_cases, cases = con.sql("""select count(*), count(*) filter (where open_cases > 0), sum(open_cases)
+                                          from gold.mart_card_support""").fetchone()  # fmt: skip
+    owner = con.sql("""select count(*) filter (where f.customer_id = m.customer_id)
+                       from gold.fct_complaint f join gold.mart_card_support m on m.product_id = f.affected_product_id
+                       where not f.is_closed""").fetchone()[0]  # fmt: skip
+    for tag, v in (("r25-cards", cards), ("r25-cards-with-cases", with_cases), ("r25-open-cases", cases),
+                   ("r25-owner-cases", owner)):  # fmt: skip
+        ch.count(tag, int(v), LAKE)
+    d = con.sql("""select count(*) filter (where f.affected_product_id is not null),
+                          count(*) filter (where f.affected_product_id is not null and f.claimed_amount is null),
+                          count(*) filter (where f.affected_product_id is null),
+                          count(*) filter (where f.affected_product_id is null and d.n_candidates is not null),
+                          count(*) filter (where d.link_confidence in ('high', 'low'))
+                   from gold.mart_transaction_disputes d join gold.fct_complaint f using (complaint_id)""").fetchone()  # fmt: skip
+    for tag, v in zip(("disputes-with-product", "disputes-product-no-amount", "disputes-no-product",
+                       "disputes-no-product-candidates", "disputes-product-match"), d, strict=True):  # fmt: skip
+        ch.count(tag, int(v), LAKE)
+
+
 def main() -> None:
     con = duckdb.connect(str(LAKE), read_only=True)
     ch = Chapter(11, "ch11")
@@ -172,6 +193,7 @@ def main() -> None:
     single_auc(ch, con)
     aml(ch, con)
     marts(ch, con)
+    r25(ch, con)
     proj = REPO / "platform" / "dbt" / "dbt_project.yml"
     days = int(re.search(r"embargo_days:\s*(\d+)", proj.read_text()).group(1))
     ch.constant("embargo-days", days, proj)

@@ -99,11 +99,31 @@ it on a planted positive before trusting its silence.
 \section{Linking a complaint to a transaction}\label{sec:mf-disputes}
 
 A dispute is about a transaction, but complaints carry no transaction key (\cref{ch:inventory-keys}). The disputes mart
-links them by matching customer, amount and time. Of $\est{ch11.disputes}{value}$ complaints,
-$\est{ch11.disputes-candidates}{value}$ have candidate transactions at all, $\est{ch11.disputes-unique}{value}$ have exactly
-one, some have up to $\est{ch11.disputes-max}{value}$, and only $\est{ch11.disputes-linked}{value}$ reach a link with any
-confidence. A heuristic cannot recover a key the source never recorded. The only real fix is to capture the disputed
-transaction when the complaint is taken, which the copilot can do at intake.
+links them by searching the complainant's transactions in the window before the complaint, scoring each candidate for
+the same product as the complaint's affected product, an amount within a small tolerance of the claimed amount, and
+recency. Of $\est{ch11.disputes}{value}$ complaints, $\est{ch11.disputes-candidates}{value}$ have candidate
+transactions at all, $\est{ch11.disputes-unique}{value}$ have exactly one, some have up to
+$\est{ch11.disputes-max}{value}$, and only $\est{ch11.disputes-linked}{value}$ reach a link with any confidence.
+
+The affected product decides most of this, and it is a field drawn at random: it never belongs to the complainant
+(\cref{sec:le-random}). A candidate's product therefore never matches, and the number of links that rest on it is
+$\est{ch11.disputes-product-match}{value}$. Worse, whenever a complaint names a product, which
+$\est{ch11.disputes-with-product}{value}$ complaints do, the mart admits a transaction as a candidate only if its product
+or its amount matches; for the $\est{ch11.disputes-product-no-amount}{value}$ of them that claim no amount, no candidate can
+exist. Nearly every complaint with candidates, $\est{ch11.disputes-no-product-candidates}{value}$ of them, is among the
+$\est{ch11.disputes-no-product}{value}$ that name no product. Every link that is made rests on the amount alone. A
+heuristic cannot recover a key the source never recorded, and it should not lean on a field that carries no
+information: the product term should be dropped from the match until the source records the affected product
+correctly, and the real fix is to capture the disputed transaction when the complaint is taken, which the copilot can do
+at intake.
+
+\paragraph{Cases on a card.} The card-support mart, which gives the copilot its context for a card, counts the open
+complaints whose affected product is that card. Of its $\est{ch11.r25-cards}{value}$ cards,
+$\est{ch11.r25-cards-with-cases}{value}$ carry open cases, $\est{ch11.r25-open-cases}{value}$ in all, and the number of
+those cases raised by the card's owner is $\est{ch11.r25-owner-cases}{value}$. Every open case the mart shows an agent
+belongs to another customer. The count does not enter the next-best action, so no decision changes, but an agent or the
+copilot reading it would discuss a stranger's complaint with the customer; the mart should count the cases of the card's
+owner, by customer, until the product field can be trusted.
 
 \section{Campaigns: a causal question without a control}\label{sec:mf-campaigns}
 
