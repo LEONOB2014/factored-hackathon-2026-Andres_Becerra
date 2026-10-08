@@ -1,4 +1,30 @@
-% Stub: generated or written in a later phase.
 \chapter{Claims ledger}\label{app:claims-ledger}
 
-\emph{Planned content.}
+Every number the chapters cite is a field of a row of this ledger (\cref{sec:em-ledger}). The chapters of
+Parts~II to~VI rest on $\est{ch01.ledger-claims}{value}$ claims, computed from $\est{ch01.ledger-sources}{value}$
+distinct artefacts: $\est{ch01.ledger-exploratory}{value}$ exploratory, $\est{ch01.ledger-registered}{value}$ registered
+and $\est{ch01.ledger-positive-control}{value}$ positive controls. Of the $\est{ch01.ledger-with-interval}{value}$ claims
+that carry an interval, $\est{ch01.ledger-clustered}{value}$ resample or correct for an independent unit and
+$\est{ch01.ledger-iid}{value}$ assume independent rows, of which $\est{ch01.ledger-naive}{value}$ are printed with
+\naivemark{} because their method is the naive one; the rest are census counts, constants of a source, or locations,
+which carry no sampling error. The counts in this paragraph are themselves claims, listed under \cref{ch:introduction} and left out of
+the totals they report.
+
+The columns are the following.
+\begin{description}[style=nextline]
+  \item[Claim] The identifier the chapters cite with \verb|\est|; its prefix is the chapter.
+  \item[St.] The status: E exploratory, R registered, P positive control.
+  \item[Value] The headline field of the claim: the value of a count or a descriptive claim; the share, with its
+  numerator and denominator, of a proportion; the estimate of a difference, ratio or metric; the statistic of a test.
+  \item[Interval] The interval at the report's level, marked \naivemark{} when it treats rows as independent; for a
+  test, its p-value and its false-discovery adjusted value $q$.
+  \item[Method] The interval method and the cluster unit it resamples. A claim without an interval says why it has
+  none: \emph{census}, a share or ratio of a whole table, observed without sampling error; \emph{constant}, a
+  threshold or parameter read from its source; \emph{exact count}, a number of rows, values or events; or \emph{not
+  assessable}, a gate the protocol's rules leave without a verdict.
+  \item[Source] The artefact the claim was computed from, numbered in the table of sources at the end, which gives its
+  path and the first characters of its digest. A path under \ident{data/} names a file of the git-ignored dataset,
+  pinned by its digest in \cref{tab:app-data}.
+\end{description}
+
+\input{../build/generated/appendices/claims}

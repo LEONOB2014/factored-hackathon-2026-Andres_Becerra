@@ -1,4 +1,15 @@
-% Stub: generated or written in a later phase.
 \chapter{Traceability matrix}\label{app:traceability}
 
-\emph{Planned content.}
+The report sets out to cover every method of the notebooks behind the Grain Atlas, and this appendix is the evidence
+that it does. The notebook map lists every heading of the first and second level in the $\est{ch01.ledger-notebooks}{value}$
+notebook sources, parsed from their jupytext files, and names for each heading the chapter that treats it or the reason
+it is out of scope. The test suite parses the sources again on every build and fails if a heading is missing from the
+map or has neither a chapter nor a reason. Of the $\est{ch01.ledger-headings}{value}$ headings,
+$\est{ch01.ledger-headings-mapped}{value}$ are treated in a chapter and $\est{ch01.ledger-headings-out}{value}$ are
+interactive widgets, whose content is covered by the sections they explore.
+
+Notebooks run once per market (the country template's \ident{country\_all}, \ident{country\_ar},
+\ident{country\_co} and \ident{country\_mx} runs, and the backup runs) share one source and appear once.
+\Cref{tab:app-traceability} groups the headings by notebook; an indented heading is a section of the heading above it.
+
+\input{../build/generated/appendices/traceability}

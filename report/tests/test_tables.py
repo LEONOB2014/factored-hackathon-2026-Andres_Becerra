@@ -77,3 +77,24 @@ def test_wrapped_columns_get_a_paragraph_spec(tmp_path):
         src, "wrapped", "Wrapped.", out_dir=tmp_path, min_cell=10, widths={"reason": "5cm"}
     )
     assert r"\begin{tabular}{l>{\raggedright\arraybackslash}p{5cm}}" in out.read_text()
+
+
+def test_mixed_columns_format_numbers_only_on_request(tmp_path):
+    src = tmp_path / "t.csv"
+    pd.DataFrame(
+        {"measure": ["rate", "first day", "code"], "MX": ["0.98146806", "2023-06-17", "0012"]}
+    ).to_csv(src, index=False)
+    plain = texgen.render_table(src, "plain", "Plain.", out_dir=tmp_path, min_cell=10).read_text()
+    assert "0.98146806" in plain and "0012" in plain
+    parsed = texgen.render_table(
+        src, "parsed", "Parsed.", out_dir=tmp_path, min_cell=10, parse_numbers=True
+    )
+    text = parsed.read_text()
+    assert r"\num{0.981}" in text and "2023-06-17" in text
+
+
+def test_caption_paths_can_break_after_each_slash():
+    assert (
+        texgen.breakable_path("eda/reports/x_y.csv")
+        == r"eda/\allowbreak{}reports/\allowbreak{}x\_y.csv"
+    )
