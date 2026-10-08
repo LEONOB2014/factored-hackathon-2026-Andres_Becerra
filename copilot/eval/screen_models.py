@@ -28,9 +28,8 @@ from copilot.llm import CLASSIFY_SYSTEM, INTENT_DESCRIPTIONS
 from copilot.llm_local import chat_openai
 
 OUT = Path(__file__).resolve().parent / "reports" / "screening"
-TIMEOUT_S = (
-    30.0  # well past the copilot's own model timeout, so slow tails are measured instead of cut
-)
+# well past the copilot's own model timeout, so slow tails are measured instead of cut
+TIMEOUT_S = 30.0
 MESSAGES = [
     ("es", "oye y lo del plástico ese que no me llegó"),
     ("pt", "quero saber quanto devo no cartão"),
