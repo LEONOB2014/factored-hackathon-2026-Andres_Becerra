@@ -8,7 +8,7 @@ BUILD := build
 OUT := $(BUILD)/tex
 UV := uv run
 
-.PHONY: pdf texgen claims figures preflight test clean
+.PHONY: pdf texgen claims figures preflight test clean atlas
 
 pdf: texgen ## Compile tex/main.tex into build/report.pdf (latexmk + biber)
 	mkdir -p $(OUT) $(BUILD)/figures
@@ -30,6 +30,9 @@ claims: preflight ## Run every chapter's claims script, then the figures and tex
 
 figures: ## Redraw every figure from its (hashed) sources
 	@for s in $$(ls scripts/figures/*.py | sort); do echo "== $$s"; $(UV) python $$s || exit 1; done
+
+atlas: pdf ## The Grain Atlas with this report as a book: build/atlas/grain_atlas.html
+	$(UV) python scripts/atlas_ebook.py
 
 test: ## Run the report test suite
 	$(UV) pytest -q
