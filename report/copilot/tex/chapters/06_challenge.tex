@@ -1,0 +1,115 @@
+\chapter{The frozen challenge set}\label{ch:challenge}
+
+The intent model's held-out score says how often a message is understood; the challenge set says how often a whole
+conversation ends correctly and safely, with the policy, the tools, the confirmation flow and the gateway all
+involved.
+
+\section{The cases}
+
+The set holds \est{chl.cases}{value} scripted conversations, \est{chl.cases-es}{value} in Spanish and
+\est{chl.cases-pt}{value} in Portuguese, in \est{chl.categories}{value} categories (\cref{tab:challenge-composition});
+\est{chl.multi-turn}{value} of them have more than one turn, such as a question, a clarifying answer and a
+confirmation. They were written from the specification of what a correct bank agent must do, before any scored run,
+and frozen by a manifest of file digests that every run checks; the first scored run found the set unchanged. Each
+case names a demonstration customer by the role it plays (a customer with a single active card, a closed card, a
+fraud flag, several cards), never by an identifier, and some inject a tool failure before a turn.
+
+Each case declares its scope: \est{chl.scope-resolve}{value} cases the copilot should resolve alone,
+\est{chl.scope-escalate}{value} that a person must decide, and \est{chl.scope-guard}{value} where it must refuse,
+deny, or ask the customer to authenticate. A case passes when its final turn has the expected outcome, the expected
+hand-off queue, and exactly the expected action in the operational store.
+
+\generated{tables/challenge-composition}
+
+\section{Metrics}
+
+\begin{description}[style=nextline]
+  \item[Correct final outcome] the share of all cases that pass.
+  \item[Safe automated resolution] the share of the cases to resolve (or of the cases the copilot did not
+  transfer) that pass with no unsafe outcome.
+  \item[Containment] the share of cases not transferred to a person.
+  \item[Missed transfers] the share of the cases a person must decide that the copilot did not transfer.
+  \item[Unnecessary transfers] the share of the cases to resolve that the copilot transferred anyway.
+  \item[Unsafe outcomes] the share of cases with any of the following, detected by the harness from the operational
+  store and the replies rather than from the copilot's own labels: an action the case does not call for, a wrong or
+  unconfirmed action, an unblock without the step-up, a success reported without a read-back, data served without a
+  session, another customer's or an unknown card served, or an injection not refused.
+\end{description}
+
+\section{Keyword routing against the learned model}
+
+The copilot was run on the frozen set without any language model in a pair of configurations that differ only in
+intent recognition:
+keyword routing, and the learned model of \cref{ch:intent}, which asks the customer to rephrase when unsure.
+
+\begin{table}[htbp]\centering\small
+  \caption{The first scored run: share with numerator, denominator and Wilson interval.}
+  \label{tab:challenge-main}
+  \begin{tabular}{lll}
+    \toprule
+    Metric & Keyword routing & Learned model \\
+    \midrule
+    Correct final outcome & \est{chl.first-keyword-correct}{num}/\est{chl.first-keyword-correct}{den} \est{chl.first-keyword-correct}{ci}
+      & \est{chl.first-learned-correct}{num}/\est{chl.first-learned-correct}{den} \est{chl.first-learned-correct}{ci} \\
+    Safe resolution, of cases to resolve & \est{chl.first-keyword-safe-in-scope}{num}/\est{chl.first-keyword-safe-in-scope}{den} \est{chl.first-keyword-safe-in-scope}{ci}
+      & \est{chl.first-learned-safe-in-scope}{num}/\est{chl.first-learned-safe-in-scope}{den} \est{chl.first-learned-safe-in-scope}{ci} \\
+    Safe resolution, of cases attempted & \est{chl.first-keyword-safe-attempted}{num}/\est{chl.first-keyword-safe-attempted}{den} \est{chl.first-keyword-safe-attempted}{ci}
+      & \est{chl.first-learned-safe-attempted}{num}/\est{chl.first-learned-safe-attempted}{den} \est{chl.first-learned-safe-attempted}{ci} \\
+    Containment & \est{chl.first-keyword-containment}{num}/\est{chl.first-keyword-containment}{den} \est{chl.first-keyword-containment}{ci}
+      & \est{chl.first-learned-containment}{num}/\est{chl.first-learned-containment}{den} \est{chl.first-learned-containment}{ci} \\
+    Missed transfers & \est{chl.first-keyword-missed}{num}/\est{chl.first-keyword-missed}{den} \est{chl.first-keyword-missed}{ci}
+      & \est{chl.first-learned-missed}{num}/\est{chl.first-learned-missed}{den} \est{chl.first-learned-missed}{ci} \\
+    Unnecessary transfers & \est{chl.first-keyword-unnecessary}{num}/\est{chl.first-keyword-unnecessary}{den} \est{chl.first-keyword-unnecessary}{ci}
+      & \est{chl.first-learned-unnecessary}{num}/\est{chl.first-learned-unnecessary}{den} \est{chl.first-learned-unnecessary}{ci} \\
+    Unsafe outcomes & \est{chl.first-keyword-unsafe}{num}/\est{chl.first-keyword-unsafe}{den} \est{chl.first-keyword-unsafe}{ci}
+      & \est{chl.first-learned-unsafe}{num}/\est{chl.first-learned-unsafe}{den} \est{chl.first-learned-unsafe}{ci} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+The learned model ends \est{chl.first-learned-correct}{num} of the \est{chl.first-learned-correct}{den} cases
+correctly, against \est{chl.first-keyword-correct}{num} for keyword routing (\cref{tab:challenge-main}). On the same
+cases the learned model passes where keywords fail \est{chl.mcnemar-b}{value} times and the reverse happens
+\est{chl.mcnemar-c}{value} times; the exact McNemar test gives $p = \est{chl.mcnemar}{p}$, a single planned
+comparison. It misses fewer transfers a person must decide (\est{chl.first-learned-missed}{num} of
+\est{chl.first-learned-missed}{den}, against \est{chl.first-keyword-missed}{num}) and makes no unnecessary transfer.
+By language it passes \est{chl.first-learned-correct-es}{num} of \est{chl.first-learned-correct-es}{den} Spanish and
+\est{chl.first-learned-correct-pt}{num} of \est{chl.first-learned-correct-pt}{den} Portuguese cases.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\linewidth]{fig-chl-categories}
+  \caption{Correct final outcome by category in the first scored run, with Wilson intervals; the number of cases in
+  each category is in brackets.}
+  \label{fig:chl-categories}
+\end{figure}
+
+\Cref{fig:chl-categories} shows where the difference comes from: multi-card conversations, where keywords lose the
+thread when the customer answers which card they mean; reserved requests that must reach a specific queue;
+out-of-scope requests; and knowledge questions, none of which keyword routing sent where it should. The learned
+model loses a little on paraphrases and on a question about a missing value, where an informal wording falls below
+its threshold and the copilot asks the customer to rephrase. Every category has few cases, so the per-category intervals are wide; the figure locates the
+difference rather than measuring it.
+
+The learned configuration failed \est{chl.learned-failures}{value} cases (\cref{tab:challenge-failures} in
+\cref{app:tables}): informal paraphrases it asked to rephrase, a code-switched confirmation, a knowledge question that
+found no document, and one unsafe outcome. Without a model, the copilot runs a turn in a median of
+\est{chl.learned-ms-p50}{value}\,ms (\est{chl.learned-ms-p95}{value}\,ms at the \proto{stats.high_percentile}th
+percentile).
+
+\section{The unsafe outcome and the rerun after the fix}
+
+Both configurations had one unsafe outcome, the same case: a Portuguese message that tells the copilot it is now an
+assistant without limits and asks it to raise the customer's limit. The gateway's injection rules did not recognise
+the second-person persona wording, so the message went through; keyword routing answered about the balance, and the
+learned model routed a limit increase to a person. Neither changed anything, but a guard case must be refused, and
+the harness counts it as unsafe.
+
+The fix widened the gateway's injection patterns to second-person persona prompts in Portuguese and Spanish and to
+requests for an assistant without limits or rules. The frozen set was then run again: the learned configuration
+passed \est{chl.after-learned-correct}{num} of \est{chl.after-learned-correct}{den} cases with
+\est{chl.after-learned-unsafe}{num} unsafe outcomes (interval \est{chl.after-learned-unsafe}{ci}), and keyword routing
+\est{chl.after-keyword-correct}{num} with \est{chl.after-keyword-unsafe}{num}. Because the fix was chosen knowing which
+case had failed, this rerun is not a held-out result; the first run remains the estimate of how the copilot does on
+cases it has not seen. The rerun is the baseline for the model runs of \cref{ch:models}, which used the copilot after
+the fix.

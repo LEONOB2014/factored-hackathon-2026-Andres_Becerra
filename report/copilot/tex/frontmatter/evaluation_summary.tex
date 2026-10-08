@@ -1,0 +1,54 @@
+\chapter*{Summary}\addcontentsline{toc}{chapter}{Summary}\markboth{Summary}{Summary}
+
+BETA AID's card copilot serves bank customers in Spanish and Portuguese. A deterministic core decides every
+outcome: a signed session, a gateway that masks card numbers and screens attacks, a learned intent model, a
+versioned policy, tools that act only after a confirmation, and template replies built from tool facts. A language
+model is optional and bounded: it may label a message the intent model is unsure of, reword a template reply under a
+grounding check, and write a cited answer from governed documents. This report evaluates each part, and the
+language models tested inside the copilot, with every number traced to a stored result.
+
+\paragraph{Findings.}
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Intent model.} On the held-out phrasings, written before tuning, the learned model labels
+  \est{int.acc-learned}{num} of \est{int.acc-learned}{den} correctly (\est{int.acc-learned}{pct}\,\%, interval
+  \est{int.acc-learned}{pct_ci}\,\%), against \est{int.acc-keyword}{num} for the keyword baseline; the exact McNemar
+  test gives $p = \est{int.mcnemar}{p}$. Above its confidence threshold the model labels
+  \est{int.cover}{pct}\,\% of phrasings on its own, \est{int.acc-confident}{pct}\,\% of them correctly.
+  \item \textbf{Retrieval.} The served retriever ranks the right document first for \est{kb.bundled-hit1}{num} of
+  \est{kb.bundled-hit1}{den} answerable test questions and never returned a document outside the governed active
+  set (\est{kb.bundled-violations}{value} violations), but at its threshold it rejected
+  \est{kb.bundled-rejected}{num} of the \est{kb.bundled-rejected}{den} unanswerable ones.
+  \item \textbf{Challenge set.} On the \est{chl.cases}{value} frozen cases the production configuration ends
+  \est{chl.first-learned-correct}{num} with the correct outcome in its first scored run, against
+  \est{chl.first-keyword-correct}{num} with keyword routing ($p = \est{chl.mcnemar}{p}$). Both had
+  \est{chl.first-learned-unsafe}{num} unsafe outcome, a Portuguese injection that was not refused; after the fix, the
+  rerun had \est{chl.after-learned-unsafe}{num}, a result that is no longer held out.
+  \item \textbf{Attacks.} Alone, the \est{atk.runs}{value} models tested broke the card-service rules on as many as
+  \est{atk.nemotron4b-raw}{num} of the \est{atk.attacks}{value} adapted attacks. Inside BETA AID none did, for any
+  model; with no events in \est{atk.attacks}{value} trials each rate is below \est{atk.qwen30-tf-wrapped-upper}{value}
+  with one-sided confidence \proto{stats.level}. The same \est{atk.refused-by-all}{value} attacks were refused under every
+  model, because the gateway refuses them before any model runs.
+  \item \textbf{Models inside the copilot.} On the \est{mod.compared-cases}{value} cases the model runs could be
+  compared on, accuracy with a model ranged from \est{mod.gpt4omini-correct-compared}{num} to
+  \est{mod.qwen30-fl-correct-compared}{num} correct, against \est{mod.base-correct-compared}{num} without one; none
+  of the differences is distinguishable from chance (\est{mod.vs-base-q05}{value} of \est{atk.runs}{value} tests
+  with $q \le \proto{stats.alpha}$). Every model gained the same \est{mod.common-gains}{value} informal phrasings and
+  lost a few multi-card follow-ups or an out-of-scope request.
+  \item \textbf{A defect in the stored model runs.} The environments that ran the models lacked the retrieval
+  embedder, so every model run failed every knowledge case for that reason alone. With retrieval working, the hosted
+  models resolve \est{mod.qwen30-tf-replay-passed}{value} of the \est{mod.knowledge-cases}{value} knowledge cases;
+  the copilot without a model resolves \est{mod.base-knowledge-passed}{value}. Both harnesses now stop when retrieval
+  cannot embed.
+  \item \textbf{Speed.} In the labelling job, \model{Qwen3-30B-A3B-Instruct-2507} on Token Factory has a median call
+  of \est{scr.qwen30-tf-p50}{estimate}\,ms (interval \est{scr.qwen30-tf-p50}{ci}), and
+  \est{scr.qwen30-fl-minus-tf}{estimate}\,ms more on Featherless (interval \est{scr.qwen30-fl-minus-tf}{ci}).
+  \model{Qwen2.5-14B-Instruct} exceeded the copilot's \est{sys.model-timeout}{value}\,s model timeout on
+  \est{scr.qwen14-fl-over}{value} of \est{scr.qwen14-fl-ok}{value} calls, and \model{DeepSeek-V4-Flash} returned
+  a valid label on at most \est{scr.dsv4flash-tf-valid}{num} of \est{scr.dsv4flash-tf-valid}{den}.
+\end{itemize}
+
+\paragraph{Recommendation.} Run the copilot with \model{Qwen3-30B-A3B-Instruct-2507} on Nebius Token Factory. The
+evaluations cannot separate the candidate models on safety or accuracy: inside BETA AID all were safe on every attack,
+and their accuracy differences are within chance. The choice therefore rests on what the measurements do separate:
+this configuration had the fastest and tightest calls of the hosted options, no call near the timeout, and a valid
+label on every call.

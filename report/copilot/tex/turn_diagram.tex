@@ -1,0 +1,37 @@
+% One conversation turn through BETA AID: the deterministic path (ink) and the places a language model may act (teal).
+% Kept at the top of tex/ so the number lint, which reads the prose, does not read TikZ coordinates.
+\begin{tikzpicture}[
+  font=\footnotesize,
+  stage/.style={draw=ink, rounded corners=2pt, fill=paper, align=center, minimum height=9mm, text width=23mm, inner sep=2pt},
+  model/.style={draw=teal, rounded corners=2pt, fill=teal!8, align=center, text width=23mm, inner sep=2pt, minimum height=9mm},
+  stop/.style={draw=brick, rounded corners=2pt, fill=brick!8, align=center, text width=23mm, inner sep=2pt, minimum height=9mm},
+  flow/.style={-{Stealth[length=2mm]}, ink, thick},
+  side/.style={-{Stealth[length=2mm]}, teal, dashed},
+  exit/.style={-{Stealth[length=2mm]}, brick},
+  node distance=5mm and 6mm]
+  \node[stage] (id) {identity\\ signed session};
+  \node[stage, right=of id] (gw) {gateway\\ mask, screen, language};
+  \node[stage, right=of gw] (intent) {intent model\\ confident?};
+  \node[stage, right=of intent] (card) {card resolution\\ from the session};
+  \node[stage, below=12mm of card] (policy) {policy\\ autonomy, vetoes};
+  \node[stage, left=of policy] (tools) {verified tools\\ read, confirm, act};
+  \node[stage, left=of tools] (reply) {template reply\\ tool facts only};
+  \node[stage, left=of reply] (audit) {trace and\\ hash-chained audit};
+  \node[model, above=8mm of intent] (classify) {model labels\\ an unsure message};
+  \node[model, below=8mm of reply] (rephrase) {model rephrases;\\ grounding check};
+  \node[model, below=8mm of tools] (kb) {knowledge base;\\ model answers, cited};
+  \node[stop, above=8mm of gw] (refuse) {refused before\\ any model};
+  \node[stop, below=8mm of policy] (handoff) {hand-off packet\\ to a person};
+  \draw[flow] (id) -- (gw);
+  \draw[flow] (gw) -- (intent);
+  \draw[flow] (intent) -- (card);
+  \draw[flow] (card) -- (policy);
+  \draw[flow] (policy) -- (tools);
+  \draw[flow] (tools) -- (reply);
+  \draw[flow] (reply) -- (audit);
+  \draw[side] (intent) -- (classify);
+  \draw[side] (reply) -- (rephrase);
+  \draw[side] (policy.south west) -- (kb.north east);
+  \draw[exit] (gw) -- (refuse);
+  \draw[exit] (policy) -- (handoff);
+\end{tikzpicture}

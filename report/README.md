@@ -13,6 +13,19 @@ make -C report claims       # run scripts/claims/*.py against the data (checks t
 make -C report test         # the guarantees below; also run by pre-commit on every change under report/
 ```
 
+## The copilot documents
+
+The same pipeline builds a second pair of documents about the BETA AID card copilot: a short brief
+(`copilot/tex/brief.tex`) and a full evaluation report (`copilot/tex/evaluation.tex`). They read only the stored
+evaluation results under `copilot/eval/reports/`, never the dataset, so they build anywhere.
+
+```bash
+make -C report copilot      # build/copilot/brief.pdf and build/copilot/evaluation.pdf
+```
+
+`REPORT_DOC=copilot` points `report_lib` at `copilot/tex`, `copilot/conf` and `build/copilot`; the claims scripts and
+figures live in `scripts/copilot/`. `make -C report test` and pre-commit run the suite once per document.
+
 ## What the tests guarantee
 
 | test | guarantee |

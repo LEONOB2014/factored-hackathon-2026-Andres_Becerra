@@ -1,0 +1,46 @@
+\chapter{Introduction}\label{ch:introduction}
+
+BETA AID is the customer-service copilot of a demonstration bank operating in Mexico, Colombia and Argentina. It
+answers card questions (status, balance and limit, declines, expiry), performs card actions (block, unblock,
+reissue) after the customer confirms, and hands a case to a person with a prepared packet when a person must
+decide: fraud, disputes, complaints, limit increases. It speaks Spanish and Portuguese, and it reads card facts
+only from a snapshot of the bank's serving layer, scoped to the customer of a verified session.
+
+The copilot is built so that no language model decides what happens to a customer. A learned intent model, a
+versioned policy and verified tools decide; templates state the facts. A language model may be plugged in for
+bounded jobs: labelling a message the intent model is unsure of, rewording a reply under a grounding check, and
+writing a cited answer from governed documents. \Cref{ch:system} describes the turn in detail.
+
+\section{What this report evaluates}
+
+\Cref{tab:evaluations} lists the \est{ovr.evaluations}{value} evaluations. Each answers a question a bank would ask
+before trusting the copilot with customers:
+\begin{description}[style=nextline]
+  \item[Does it understand the customer?] The intent model on held-out phrasings (\cref{ch:intent}).
+  \item[Does it answer from the right documents, and only from approved ones?] Retrieval over the governed
+  knowledge base (\cref{ch:retrieval}).
+  \item[Does it end conversations correctly and safely?] A frozen challenge set of \est{ovr.cases}{value} scripted
+  conversations scored on their final outcome and on unsafe outcomes (\cref{ch:challenge}).
+  \item[Can an attacker make it break the rules?] \est{ovr.attacks}{value} adapted attacks against each language
+  model alone and inside the copilot (\cref{ch:attacks}).
+  \item[Which language model should it run with?] The challenge set with each of the \est{ovr.models}{value} models
+  inside the copilot (\cref{ch:models}) and a speed screening of hosted models in the job the copilot gives them most
+  often (\cref{ch:screening}).
+\end{description}
+
+\generated{tables/evaluations}
+
+\section{How to read the numbers}
+
+No number in the chapters is typed by hand. Each is a field of a row of the claims ledger
+(\cref{app:claims-ledger}), computed by a script from a stored evaluation result whose digest the row records.
+Proportions are printed with their numerator and denominator and a Wilson interval at confidence level
+\proto{stats.level} \parencite{wilson1927}; medians and other statistics of a sample carry a percentile bootstrap interval
+\parencite{efron1979}. Paired comparisons on the same items use the exact McNemar test \parencite{mcnemar1947}, and
+each family of such tests is adjusted for the false discovery rate \parencite{benjamini1995}; the adjusted value is
+printed as $q$. \Cref{ch:design} explains these choices and what they assume.
+
+The samples are small. A frozen challenge set of \est{ovr.cases}{value} cases is large enough to show that the
+learned router beats keywords, and too small to rank language models that differ by a few cases. Where a
+comparison shows no difference, the report says so, and reports the interval that bounds how large an undetected
+difference could be.

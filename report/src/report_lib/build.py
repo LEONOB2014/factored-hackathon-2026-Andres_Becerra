@@ -76,6 +76,21 @@ class Chapter:
             )
         )
 
+    def descriptive(self, topic: str, value: float, source: Path, reason: str, source_type: str = "scripted",
+                    unit: str | None = None, digits: int | None = None) -> None:  # fmt: skip
+        """A value with no interval, for the reason given (a figure stored by its source run without one)."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="descriptive",
+                value=float(value),
+                reason=reason,
+                unit=unit,
+                digits=digits,
+                **self._src(source, source_type),
+            )  # fmt: skip
+        )
+
     def constant(self, topic: str, value: float, source: Path, source_type: str = "scripted", unit: str | None = None,
                  digits: int | None = None) -> None:  # fmt: skip
         """A threshold or parameter read from its source: descriptive, no interval (CONSTANT)."""

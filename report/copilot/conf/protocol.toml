@@ -13,6 +13,7 @@ alpha = 0.05                 # false discovery rate within a family of paired te
 interval = "Wilson score"    # proportions
 paired_test = "exact McNemar (two-sided binomial on the discordant pairs)"
 bootstrap_reps = 10000       # percentile bootstrap of medians, high percentiles and macro-F1
+high_percentile = 95         # the tail latency reported beside the median
 seed = 20261008
 ece_bins = 10                # equal-width confidence bins, as in the tuning script
 

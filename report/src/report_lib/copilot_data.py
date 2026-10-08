@@ -30,6 +30,10 @@ POLICY = COPILOT / "src" / "copilot" / "policy.yaml"
 CONFIG = COPILOT / "src" / "copilot" / "config.py"
 SOURCES = BUILD / "sources"
 
+# Figure palette: ink for text, a teal for the production configuration and for "inside BETA AID", a brick red for
+# the raw model and the baseline it is compared with, a grey for references.
+INK, LEARNED, RAW, MUTED = "#1f2a37", "#0f766e", "#b45309", "#9ca3af"
+
 
 @dataclass(frozen=True)
 class Run:

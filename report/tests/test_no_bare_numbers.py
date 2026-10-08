@@ -47,6 +47,7 @@ def test_typed_numbers_fail(snippet):
         r"The effect is significant (q = \est{ch19.gate}{q}).",
         r"\label{sec:x2} \includegraphics[width=0.5\textwidth]{fig-01}",
         r"The rule of \ident{ADR-018} and notebook \ident{granularity_hour/08}.",
+        r"The model \model{Qwen3-30B-A3B-Instruct-2507} on the gateway.",
     ],
 )
 def test_allowed_forms_pass(snippet):

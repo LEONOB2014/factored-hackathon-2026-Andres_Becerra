@@ -1,0 +1,13 @@
+\section{Recommended configuration and limits}
+
+Run the copilot with \model{Qwen3-30B-A3B-Instruct-2507} on Nebius Token Factory. It was as safe as every model inside
+BETA AID and as accurate as the evaluations can tell (\est{mod.qwen30-tf-correct-compared}{num} of
+\est{mod.qwen30-tf-correct-compared}{den} compared cases), and it was the fastest and steadiest hosted option: a
+slowest call of \est{scr.qwen30-tf-max}{value}\,ms against a timeout of \est{sys.model-timeout}{value}\,s, and a valid
+label on \est{scr.qwen30-tf-valid}{num} of \est{scr.qwen30-tf-valid}{den} calls. The copilot remains fully usable
+without a model; the model adds the informal phrasings the copilot would otherwise ask the customer to rephrase.
+
+The limits are those of the samples. The frozen set cannot rank models that differ by a few cases; each model ran once
+at temperature zero; the attacks are public prompts adapted to the card service; the conversations use demonstration
+customers; and the retrieval threshold rests on a handful of unanswerable questions. The runs recorded no prices, so
+cost per case is not reported; the evaluation report gives the tokens per call for pricing at any provider's rates.
