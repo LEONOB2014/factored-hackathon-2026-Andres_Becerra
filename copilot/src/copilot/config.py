@@ -83,7 +83,15 @@ class Settings:
 
     @property
     def llm_available(self) -> bool:
-        # a local open-weight model (evaluation), or a real Anthropic key, not the .env.example placeholder
-        if os.environ.get("COPILOT_LLM_BACKEND") == "ollama":
+        # a local open-weight model (evaluation), a hosted OpenAI-compatible endpoint with its URL and key, or a real
+        # Anthropic key, not the .env.example placeholder
+        backend = os.environ.get("COPILOT_LLM_BACKEND")
+        if backend == "ollama":
             return self.use_llm
+        if backend == "openai":
+            return (
+                self.use_llm
+                and bool(os.environ.get("COPILOT_LLM_BASE_URL"))
+                and bool(os.environ.get("COPILOT_LLM_API_KEY"))
+            )
         return self.use_llm and os.environ.get("ANTHROPIC_API_KEY", "").startswith("sk-ant-")
