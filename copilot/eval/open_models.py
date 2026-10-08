@@ -148,6 +148,9 @@ def wrapped_harness(mod, model: str):
     from copilot.llm_local import LocalLLM
 
     kb = BundledRetriever()
+    # the embedder loads lazily on the first query: probe now, so a run without the rag extra stops here instead of
+    # scoring every knowledge case as a tool failure
+    kb.search("probe", 1)
     threshold = json.loads((HERE.parent / "corpus" / "kb_threshold.json").read_text())["threshold"]
     llm = LocalLLM(model)
     settings = replace(Settings(), secret=b"eval-key", use_llm=True)
