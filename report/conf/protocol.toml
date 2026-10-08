@@ -100,6 +100,7 @@ datasets = ["main", "backup"]
 # frozen here as a rule because its value needs Chapter 6's estimator); the row is then flagged copy_disagreement.
 copy_tolerance = "95th percentile of the paired main-backup noise baseline of the gate's metric (Chapter 6)"
 copy_tolerance_estimator = "z(0.975) x sqrt(sd_main^2 + sd_backup^2), sd = mde / mde_multiplier of each copy's clustered bootstrap"
+runner_failure = "a scenario that raises is recorded as not assessable with the error as its root cause; the other scenarios run unchanged"
 
 [gates.units]
 "02-customer.daypart-of-the-next-transaction" = "customer (rows are customers)"
@@ -237,3 +238,10 @@ old = "(absent)"
 new = "z(0.975) x sqrt(sd_main^2 + sd_backup^2), sd = mde / mde_multiplier of each copy's clustered bootstrap"
 date = "2026-10-07"
 reason = "operationalises copy_tolerance before any re-estimate exists: the paired noise of two independent copies is the sum of their bootstrap variances; Chapter 6's halving estimator needs per-gate model refits the gate runner does not expose"
+
+[[amendments]]
+field = "gates.runner_failure"
+old = "(absent)"
+new = "a scenario that raises is recorded as not assessable with the error as its root cause; the other scenarios run unchanged"
+date = "2026-10-07"
+reason = "the frozen runner aborts the whole scorecard when one scenario raises; on the backup, whose transactions end on 2024-09-25, the market-channel scenario raises on an all-zero training series. Recorded before any backup gate result exists; estimators, splits and the verdict rule are unchanged"
