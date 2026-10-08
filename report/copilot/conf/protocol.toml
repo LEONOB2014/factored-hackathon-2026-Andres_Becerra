@@ -1,0 +1,22 @@
+# Constants of the copilot evaluation report's own analysis, fixed on 2026-10-08 before any of its intervals or
+# tests were computed. The evaluations themselves (cases, attacks, thresholds) are fixed in their sources under
+# copilot/; the report cites those as claims. Chapters cite these keys with \proto{...}.
+
+[protocol]
+document = "BETA AID copilot: evaluation report"
+fixed_on = "2026-10-08"
+frozen = false
+
+[stats]
+level = 0.95                 # every interval
+alpha = 0.05                 # false discovery rate within a family of paired tests (Benjamini-Hochberg)
+interval = "Wilson score"    # proportions
+paired_test = "exact McNemar (two-sided binomial on the discordant pairs)"
+bootstrap_reps = 10000       # percentile bootstrap of medians, high percentiles and macro-F1
+seed = 20261008
+ece_bins = 10                # equal-width confidence bins, as in the tuning script
+
+[privacy]
+# The evaluation items are test phrasings, frozen cases and adapted public attacks, scored one by one; no table or
+# figure aggregates customers, so the smallest publishable cell is a single item.
+min_cell = 1

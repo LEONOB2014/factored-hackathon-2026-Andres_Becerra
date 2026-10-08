@@ -77,10 +77,12 @@ NAME_MACROS = {
 def test_macros_cannot_smuggle_numbers():
     import re
 
-    from report_lib.paths import TEX
+    from report_lib.paths import SHARED_TEX
 
     for name, body in re.findall(
-        r"\\newcommand\{\\(\w+)\}(?:\[\d\])?\{(.*)\}\s*$", (TEX / "macros.tex").read_text(), re.M
+        r"\\newcommand\{\\(\w+)\}(?:\[\d\])?\{(.*)\}\s*$",
+        (SHARED_TEX / "macros.tex").read_text(),
+        re.M,
     ):
         body = re.sub(r"#\d", "", body)  # parameter references
         if re.search(r"\d", body):

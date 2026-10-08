@@ -27,6 +27,7 @@ SourceType = Literal["notebook", "table", "scripted"]
 IntervalMethod = Literal[
     "naive-iid",
     "wilson-iid",
+    "bootstrap-iid",
     "poisson-exact",
     "cluster-bootstrap",
     "block-bootstrap",
@@ -37,7 +38,7 @@ IntervalMethod = Literal[
 ]
 
 ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*\.[a-z0-9][a-z0-9.-]*[a-z0-9]$")
-IID_METHODS = {"naive-iid", "wilson-iid", "poisson-exact"}
+IID_METHODS = {"naive-iid", "wilson-iid", "bootstrap-iid", "poisson-exact"}
 
 # Fields each kind must carry (besides the common ones). An interval, when required, means lo, hi and
 # interval_method together.

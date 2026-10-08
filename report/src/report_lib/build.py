@@ -126,6 +126,24 @@ class Chapter:
             )
         )
 
+    def test(self, topic: str, statistic: float, p: float, q: float, family_id: str, family_size: int,
+             source: Path, null: str, method: str, source_type: str = "scripted") -> None:  # fmt: skip
+        """A hypothesis test with its p-value and its false-discovery adjusted value within its family."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="test",
+                statistic=float(statistic),
+                p=float(p),
+                q=float(q),
+                family_id=family_id,
+                family_size=int(family_size),
+                null=null,
+                method=method,
+                **self._src(source, source_type),
+            )
+        )
+
     def write(self) -> Path:
         from report_lib.claims import write_chapter
 

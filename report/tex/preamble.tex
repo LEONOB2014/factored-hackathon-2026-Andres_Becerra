@@ -18,7 +18,9 @@
 \usepackage{bookmark}  % PDF outline: appendices and bibliography sit at the root, not inside Part VI
 \usepackage[capitalise,noabbrev]{cleveref}
 
-\graphicspath{{../build/figures/}}
+% The build directory, relative to the document's tex/ directory; a second document sets it before \input.
+\providecommand{\reportbuild}{../build}
+\graphicspath{{\reportbuild/figures/}}
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{1}
 
