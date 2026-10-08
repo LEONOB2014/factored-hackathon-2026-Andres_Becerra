@@ -32,7 +32,7 @@ claims: preflight ## Run every chapter's claims script, then the figures and tex
 figures: ## Redraw every figure from its (hashed) sources
 	@for s in $$(ls scripts/figures/*.py | sort); do echo "== $$s"; $(UV) python $$s || exit 1; done
 
-atlas: pdf ## The Grain Atlas with this report as a book: build/atlas/grain_atlas.html
+atlas: pdf copilot ## The Grain Atlas with the reports on a shelf: build/atlas/grain_atlas.html and netlify/index.html
 	$(UV) python scripts/atlas_ebook.py
 
 test: ## Run the report test suite, once per document
