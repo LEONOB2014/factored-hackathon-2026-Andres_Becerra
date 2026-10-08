@@ -68,3 +68,12 @@ def test_unicode_math_in_headers_is_typeset():
 )
 def test_num_rounds_to_significant_figures_without_a_trailing_zero(value, digits, expected):
     assert texgen.num(value, digits) == expected
+
+
+def test_wrapped_columns_get_a_paragraph_spec(tmp_path):
+    src = tmp_path / "t.csv"
+    pd.DataFrame({"field": ["a"], "reason": ["a long reason"]}).to_csv(src, index=False)
+    out = texgen.render_table(
+        src, "wrapped", "Wrapped.", out_dir=tmp_path, min_cell=10, widths={"reason": "5cm"}
+    )
+    assert r"\begin{tabular}{l>{\raggedright\arraybackslash}p{5cm}}" in out.read_text()

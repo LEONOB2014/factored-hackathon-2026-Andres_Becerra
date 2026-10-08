@@ -173,3 +173,19 @@ def test_lists_expose_their_length_to_latex(tmp_path):
 
     tex, keys = texgen.render_protocol({"gates": {"ids": ["a.b", "c.d", "e.f"]}})
     assert "gates.ids.n" in keys and "\\num{3}" in tex
+
+
+def test_every_gate_has_a_registered_row():
+    """Once Chapter 19's claims are built, each frozen gate id has a registered claim on main and on backup."""
+    import pandas as pd
+
+    from report_lib.paths import CLAIMS_DIR
+
+    path = CLAIMS_DIR / "19.parquet"
+    if not path.exists():
+        pytest.skip("Chapter 19 claims not built (needs the dataset and the re-estimation)")
+    claims = pd.read_parquet(path)
+    reg = set(claims.loc[claims.status == "registered", "id"])
+    for gate in protocol.load()["gates"]["ids"]:
+        for copy in ("main", "backup"):
+            assert f"ch19.{copy}.{gate}" in reg, f"no registered row for {gate} on {copy}"

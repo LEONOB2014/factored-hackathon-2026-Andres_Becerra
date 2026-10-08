@@ -133,6 +133,7 @@ def render_table(
     digits: int = 3,
     out_dir: Path = GENERATED,
     min_cell: int | None = None,
+    widths: dict[str, str] | None = None,
 ) -> Path:
     """Render one CSV source as a booktabs table whose caption carries the source path and its SHA-256."""
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]*", label):
@@ -144,7 +145,15 @@ def render_table(
     check_frame(frame, min_cell, count_cols)
     digest = sources.sha256(source)
     rel = sources.rel(source)
-    spec = "".join("r" if pd.api.types.is_numeric_dtype(frame[c]) else "l" for c in frame.columns)
+    widths = widths or {}  # text columns to wrap, e.g. {"reason": "8cm"}
+    spec = "".join(
+        f">{{\\raggedright\\arraybackslash}}p{{{widths[c]}}}"
+        if c in widths
+        else "r"
+        if pd.api.types.is_numeric_dtype(frame[c])
+        else "l"
+        for c in frame.columns
+    )
     head = " & ".join(tex_escape(str(c).replace("_", " ")) for c in frame.columns)
     body = []
     for row in frame.itertuples(index=False):

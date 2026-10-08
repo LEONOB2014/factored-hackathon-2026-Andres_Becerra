@@ -26,8 +26,9 @@ class Chapter:
             self._hash[path] = sources.sha256(path)
         rel = sources.rel(path)
         status = expected_status(source_type, rel) or self.status or "exploratory"
+        extra = {"protocol_commit": self.protocol_commit} if status == "registered" else {}
         return {"source_type": source_type, "source_path": rel, "source_sha256": self._hash[path],
-                "status": status, "chapter": self.number}  # fmt: skip
+                "status": status, "chapter": self.number, **extra}  # fmt: skip
 
     def count(
         self, topic: str, value: float, source: Path, source_type: str = "scripted", **kw
