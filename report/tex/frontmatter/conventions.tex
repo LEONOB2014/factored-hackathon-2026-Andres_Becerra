@@ -1,3 +1,48 @@
 \chapter*{Conventions}
 \addcontentsline{toc}{chapter}{Conventions}
-\emph{Planned content.} Notation, how to read claims and their status, and how to rebuild every number.
+
+\paragraph{Numbers come from a ledger.} Every number derived from data is a field of a claim in the ledger of
+\cref{app:claims-ledger}, generated at build time from the artefact it was computed from. A count is printed exactly;
+other values are rounded to a few leading digits, a precision the claim may set, and a share is printed
+either as a fraction or, where the text says so, as a per cent. Constants of the analysis, such as thresholds, interval
+levels and the dates that bound the dataset, come from the frozen protocol and are printed the same way. A number that
+the build cannot resolve prints as a red marker and fails the test suite, so a printed copy never contains a number
+that was typed by hand.
+
+\paragraph{Intervals.} Unless a claim says otherwise, an interval is at level $\proto{intervals.level}$ and is written
+$[\,\text{lower}, \text{upper}\,]$. Its method is recorded in the ledger and chosen as \cref{ch:evidence-model}
+describes: over the independent unit when rows are nested in customers, agents, branches or campaigns, over blocks of
+days when the series is serially dependent, and under independence of rows only when rows are independent. An interval
+that the notebooks computed treating dependent rows as independent is marked \naivemark{}; it is likely too narrow and
+is reported as found, not used for a decision.
+
+\paragraph{Status.} Each claim has a status that limits its use.
+\begin{description}[style=nextline]
+  \item[Exploratory] Found by the exploratory notebooks or recomputed by this report; it describes the data and may
+  guide further work.
+  \item[Registered] Re-estimated under a specification frozen before it ran; only a registered claim decides a
+  readiness gate.
+  \item[Positive control] Measured on data with a planted answer; it shows what a method can detect and says nothing
+  about the bank.
+\end{description}
+
+\paragraph{Tests and discoveries.} A sentence that calls a result statistically detectable cites its
+false-discovery adjusted value $q$, computed over a family of tests that the protocol declares, and a result is a
+discovery when $q \le \proto{gates.alpha}$. A p-value cited without $q$ belongs to a single declared test.
+
+\paragraph{Tables and figures.} A table rendered from a stored result prints, in its caption, the path of that result
+and the first characters of its \shaname{} digest, so a reader can check that the table and the file agree. No table or
+figure shows an identifier, and no cell or plotted group describes fewer than $\proto{privacy.min_cell}$ customers.
+
+\paragraph{Names.} Identifiers that contain digits, such as decision records, notebooks, rules and files, are set in
+\ident{typewriter} type. Notebook sources are named by their folder and number, as in \ident{country\_template/13};
+a notebook run once per market appears once. Markets are written ALL (the whole bank), AR (Argentina), CO (Colombia) and
+MX (Mexico). The main copy is the dataset the pipelines serve; the backup is the second copy that arrived with it.
+
+\paragraph{Notation.} Symbols are defined where they are first used and collected in \cref{app:notation}. Throughout,
+$\E$, $\Prob$ and $\Var$ denote expectation, probability and variance, a hat marks an estimate, an asterisk a bootstrap
+replicate, and $z_{1-\alpha/2}$ the standard normal quantile.
+
+\paragraph{Rebuilding.} \Cref{app:software} gives the commands that rebuild the report and its numbers, the versions of
+the software that computed them, the digests of the data files they were computed from, and the commits of the
+protocol and of the build.

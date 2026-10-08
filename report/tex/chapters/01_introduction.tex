@@ -1,4 +1,105 @@
-% Stub: replaced in the phase that writes this chapter.
 \chapter{Introduction}\label{ch:introduction}
 
-\emph{Planned content.} LATAM Bank, the dataset and its main and backup copies, the readiness question, the contributions and a reading guide.
+BETA AID is a customer-service copilot for LATAM Bank, built for the Factored AI \& Data Hackathon 2026, together with
+the data platform beneath it: a lakehouse of bronze, silver and gold layers, orchestrated pipelines, data contracts,
+an audit layer, and the readiness gates that decide which machine-learning products the data can support. Before any
+of it was built, a long series of exploratory notebooks asked what the bank's data contain, whether they can be
+trusted, at which grain they carry information, and which targets can be learned from them. The Grain Atlas, the
+platform's control plane, publishes their answers. This report examines the methods behind those answers: what each
+one assumes, whether the assumption holds in these data, how much uncertainty its result carries, and what follows
+for the pipelines and the gates.
+
+\section{The data}\label{sec:intro-data}
+
+The bank operates in Mexico, Colombia and Argentina. Its dataset was delivered as a set of extracts with a data
+dictionary and a summary of target volumes: customers, their products, transactions, digital events, contact-centre
+interactions and their transcripts, complaints, satisfaction surveys, marketing campaigns and their sends, branches,
+service agents, and daily exchange rates. The main copy holds $\est{ch03.tables-main}{value}$ tables, among them
+$\est{ch03.rows-main-customers}{value}$ customers and $\est{ch03.rows-main-transactions}{value}$ transactions over
+$\est{ch03.main-tx-months}{value}$ months, and ends on \proto{dataset.end_date}.
+
+A second copy arrived with it, which no document mentions: the backup. It holds $\est{ch03.tables-backup}{value}$
+tables, and its transactions end on \proto{dataset.backup_transactions_end_date}, after
+$\est{ch03.backup-tx-months}{value}$ months. The exploratory series set out hypotheses about how the copies relate, and
+Part~II tests them.
+\begin{description}[style=nextline]
+  \item[\ident{H1}, a shift in time] The backup holds the same records on other dates (\cref{ch:time-and-clocks}).
+  \item[\ident{H2}, new keys] It holds the same entities under new surrogate keys (\cref{ch:inventory-keys}).
+  \item[\ident{H3}, an independent replicate] It is another draw from the same generating process
+  (\cref{ch:statistical-equivalence}).
+  \item[\ident{H4}, an incomplete copy] It lacks tables or periods of the main copy (\cref{ch:inventory-keys}).
+  \item[\ident{H5}, silent mutation] Records present in both copies were changed without a trace
+  (\cref{ch:record-linkage}).
+\end{description}
+The answer matters beyond the backup. If the copies are independent draws of one process, the backup is a replicate
+against which a finding on the main copy can be checked, and the report uses it that way.
+
+\section{The readiness question}\label{sec:intro-question}
+
+A machine-learning product is worth building only when the data carry a signal that a model can learn out of time,
+that is larger than what a transparent rule already captures, and that holds across markets. The project turns that
+requirement into readiness gates. For each candidate model, a gate compares the model with a transparent benchmark on
+later data and returns green (build it), amber (use the signal as a rule or a KPI) or red (the data do not support
+it), together with the root cause and the data requirement that would turn it green (\cref{sec:em-gate}). The
+published scorecard of the $\est{ch19.gates}{value}$ gates of the hour grain has $\est{ch19.pub-green}{value}$ green,
+$\est{ch19.pub-amber}{value}$ amber and $\est{ch19.pub-red}{value}$ red gates.
+
+A red gate is not a dead end. It is an audit: it says whether a target is unlearnable because of the natural structure
+of the data, a defect of the data, the wrong capture or grain, or missing complementary data, and each cause has an
+owner and a fix in the data-engineering cycle. Read this way, the gates are the measuring instrument of a process that
+turns unlearnable data into learnable data, and this report is the calibration of that instrument.
+
+\section{Why a report}\label{sec:intro-why}
+
+The notebooks are exploratory. They chose features, windows, benchmarks and tests after looking at the data; they
+computed many intervals as if every row were independent, although a customer's transactions, an agent's contacts and
+the days of a calendar are not; and they ran many tests without controlling for multiplicity. Such analyses can make
+chance findings look real \autocite{simmons2011}. A gate is a decision with consequences, so its evidence should be the
+strictest the data allow. The report therefore re-examines every method with the tools that \cref{ch:evidence-model}
+develops: intervals computed over the unit that is actually independent, false-discovery control over families of tests
+fixed in advance, and a registered re-estimation of every gate under a specification frozen before it ran
+\autocite{nosek2018}.
+
+The report also enforces a discipline on itself. No number derived from data is typed into the text: each is a field of
+a row of a claims ledger, generated from the artefact it was computed from, whose digest the row records. A claim's
+status says what it may be used for: exploratory, registered or positive control. The test suite, which runs on every
+commit, fails on a typed number, a
+missing claim, a stale digest or an unmapped notebook heading. The chapters of Parts~II to~VI rest on
+$\est{ch01.ledger-claims}{value}$ claims (\cref{app:claims-ledger}), and the $\est{ch01.ledger-headings}{value}$
+headings of the $\est{ch01.ledger-notebooks}{value}$ notebook sources are mapped to the chapters that treat them
+(\cref{app:traceability}).
+
+\section{Contributions}\label{sec:intro-contributions}
+
+\begin{enumerate}
+  \item \textbf{An evidence model for nested, serially dependent data} (\cref{ch:evidence-model}): cluster, wild cluster
+  and stationary block bootstraps chosen by the number and kind of independent units, false-discovery control over
+  declared families, a claim status that limits what each number may decide, and a registered re-estimation whose
+  limits are stated as plainly as its guarantees.
+  \item \textbf{An account of the data as delivered} (Part~II): what each copy contains and how the copies relate, in
+  which clock every process drew its days, which records were silently changed, whether the copies are draws of the
+  same process, and what the source changed without saying so, with the controls that would and would not notice.
+  \item \textbf{Calibrated monitoring} (Part~III): for every detector, rule and chart, the size of effect it would have
+  caught and the rate at which it alarms when nothing happens, so that a null result is informative.
+  \item \textbf{The pipeline as a statistical object} (Part~IV): the assumptions embedded in conformance, features,
+  marts, privacy and audit, checked against the built lakehouse, with the defects found and their repairs.
+  \item \textbf{The grain at which information lives} (Part~V): the rules of aggregation, and the customer, operational
+  and campaign signals that survive them.
+  \item \textbf{Learnability and readiness} (Part~VI): the learnability map of $\est{ch18.targets}{value}$ targets in
+  $\est{ch18.scopes}{value}$ scopes, a calibrated model with a pair of parameters for the one learnable target, and
+  the registered re-estimation of every gate on both copies.
+\end{enumerate}
+
+\section{How to read this report}\label{sec:intro-reading}
+
+Part~I sets out the evidence model, and every later chapter relies on it. Parts~II to~V follow the pipeline from the
+raw extracts to the grains of the gold layer, and Part~VI turns the findings into decisions. Each method section follows
+the same order: the question, the estimand, the model and its assumptions stated formally, why this method rather than
+another, estimation and inference, diagnostics, results, interpretation, implications for the pipeline and the gates,
+and limitations. Each chapter ends with its verdict and its implications, so a reader interested in decisions can read
+those sections and \cref{ch:conclusions}.
+
+The conventions before this chapter explain how to read a cited number, its interval and its status. The appendices
+give the traceability of every notebook heading (\cref{app:traceability}), the full claims ledger
+(\cref{app:claims-ledger}), the country series side by side (\cref{app:per-country}), the software, data digests and
+provenance needed to rebuild every number (\cref{app:software}), and the notation (\cref{app:notation}).
