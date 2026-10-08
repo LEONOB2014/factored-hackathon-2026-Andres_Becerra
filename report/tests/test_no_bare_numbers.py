@@ -70,7 +70,8 @@ NAME_MACROS = {
     "CRtwo",
     "HCthree",
     "logten",
-}  # method names with digits; every other macro body must be digit-free
+    "reportdate",  # the report's date, fixed by the author: a date, not a quantity
+}  # names with digits; every other macro body must be digit-free
 
 
 def test_macros_cannot_smuggle_numbers():

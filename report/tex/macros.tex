@@ -14,6 +14,9 @@
 \InputIfFileExists{../build/generated/claims.tex}{}{}
 \InputIfFileExists{../build/generated/protocol.tex}{}{}
 
+% The report's date, fixed rather than the build day (the day of the hackathon submission).
+\newcommand{\reportdate}{5 October 2026}
+
 % Identifiers that contain digits but are not statistics (decision records, notebooks, files): the lint skips
 % the argument, so a quantity can never hide in it unnoticed by a reader.
 \newcommand{\ident}[1]{\texttt{#1}}
@@ -27,6 +30,12 @@
 \newsavebox{\reportbox}
 \newcommand{\fittable}[1]{\sbox{\reportbox}{#1}%
   \ifdim\wd\reportbox>\linewidth\resizebox{\linewidth}{!}{\usebox{\reportbox}}\else\usebox{\reportbox}\fi}
+
+% Column types of the notation index (Appendix E): symbol, wide meaning, meaning beside a reference, reference.
+\newcolumntype{Q}{>{\raggedright\arraybackslash}p{0.2\linewidth}}
+\newcolumntype{W}{>{\raggedright\arraybackslash}p{0.76\linewidth}}
+\newcolumntype{V}{>{\raggedright\arraybackslash}p{0.55\linewidth}}
+\newcolumntype{Z}{>{\raggedright\arraybackslash}p{0.18\linewidth}}
 
 % Theorem-like environments.
 \theoremstyle{definition}
