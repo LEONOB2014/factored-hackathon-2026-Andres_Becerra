@@ -109,3 +109,25 @@ def test_repository_references_resolve(tmp_path):
     gen = tmp_path / "gen" / "protocol.tex"
     if gen.exists():
         assert gen.read_text().count(r"\csname proto@") > 10
+
+
+def test_paths_through_the_data_symlink_stay_repository_relative(tmp_path, monkeypatch):
+    """Worktrees symlink data/ to the main checkout; a claim must record data/..., never the machine's home path."""
+    from report_lib import sources
+
+    repo, shared = tmp_path / "worktree", tmp_path / "main" / "data"
+    (shared / "parquet").mkdir(parents=True)
+    (shared / "parquet" / "t.parquet").write_bytes(b"x")
+    repo.mkdir()
+    (repo / "data").symlink_to(shared)
+    monkeypatch.setattr(sources, "REPO", repo)
+    assert sources.rel(repo / "data" / "parquet" / "t.parquet") == "data/parquet/t.parquet"
+    assert sources.rel(shared / "parquet" / "t.parquet") == "data/parquet/t.parquet"
+    assert sources.rel(repo / "eda" / "x.csv") == "eda/x.csv"
+
+
+def test_built_claims_record_no_absolute_paths():
+    from report_lib.paths import CLAIMS_DIR
+
+    absolute = [c.id for c in claims.load_all(CLAIMS_DIR).values() if c.source_path.startswith("/")]
+    assert absolute == []

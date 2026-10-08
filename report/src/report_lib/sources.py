@@ -17,9 +17,15 @@ def sha256(path: Path) -> str:
 
 
 def rel(path: Path) -> str:
-    """Path relative to the repository root, as claims record it (absolute for files outside the repository)."""
+    """Path relative to the repository root, as claims record it (absolute for files outside the repository).
+
+    A worktree's data/ is a symlink to the main checkout's, so a file reached through it (or through its target)
+    is recorded as data/..., never as the machine's own path.
+    """
     resolved = path.resolve()
-    try:
-        return resolved.relative_to(REPO).as_posix()
-    except ValueError:
-        return resolved.as_posix()
+    for root, prefix in ((REPO.resolve(), ""), ((REPO / "data").resolve(), "data/")):
+        try:
+            return prefix + resolved.relative_to(root).as_posix()
+        except ValueError:
+            continue
+    return resolved.as_posix()
