@@ -131,5 +131,5 @@ ranked first and Claude's explicit `NO_ANSWER`.
   answers stay short, cited and paired with an offer of a person.
 - The LLM path (fallback, rephrasing, generated knowledge answers, three repeated runs) is measured only when a key is
   configured; the numbers above are the deterministic path.
-- MLflow tracing of turns is implemented but was not verified end to end against the stack's MLflow 3.1 server.
+- MLflow tracing stays off unless `COPILOT_MLFLOW_URI` is set. The tune extra's client (3.16) posts to the trace v3 route, which the stack's MLflow 3.1 server does not implement; a 404 falls back to the v2 API. Export is asynchronous and the HTTP and retry waits are bounded, so a slow export cannot stall a turn. Three engine turns against the local server landed in experiment `copilot-traces` with spans `copilot.turn`, `intent.model`, `policy` and `tools.read`.
 - Conversations and actions live in one process (one warm container on Modal); a restart resets demo actions.
