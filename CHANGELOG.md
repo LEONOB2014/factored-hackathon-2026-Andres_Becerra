@@ -6,6 +6,40 @@ All notable changes to this project are documented here. The format follows
 Entries are generated from Conventional Commits by commitizen; see
 [docs/development/releasing.md](docs/development/releasing.md).
 
+## v0.7.0 (2026-10-17)
+
+### Highlights
+
+- **The copilot runs on a hosted OpenAI-compatible model.** Qwen3-30B-A3B-Instruct and Gemma-3-27B on hosted
+  endpoints, with the same 85 adapted attacks and the frozen 120-question challenge set: 0/85 violations and 0 unsafe
+  cases inside BETA AID in every configuration; challenge scores 0.942 and 0.950 (Qwen3-30B on two providers) and
+  0.933 (Gemma-3-27B).
+- **The technical report**, a registered and frozen protocol with every claim checked against its source, and the
+  **copilot brief and evaluation report** (433 claims, 0 unresolved), shelved as three books in the Grain Atlas.
+- **Evaluation fix:** the stored model runs scored every knowledge case as a tool failure because retrieval had no
+  embedder; harnesses now stop when retrieval cannot embed, and the replay with retrieval working answers 2 of 4.
+- ADR-001 to ADR-010 rewritten with evidence and traceability; an evaluation-only Kumo readiness probe (not yet run).
+
+### Feat
+
+- **ml**: add an evaluation-only kumo readiness probe (#57)
+- shelve the copilot reports in the Grain Atlas
+- **agents**: store per-call speed screening of hosted models
+- **agents**: label hosted-model evaluation runs by provider
+- **agents**: run the copilot on a hosted OpenAI-compatible model
+- add the technical report to the Grain Atlas as a book
+- **eda**: add a clustered bootstrap switch to the readiness gates
+
+### Fix
+
+- **agents**: make the demo sign-in say what to do (#59)
+- **agents**: bound mlflow trace export so a turn cannot hang (#58)
+- **agents**: stop evaluation runs when retrieval cannot embed
+- rename a notation column type that shadowed array's W
+- record data sources by their repository path
+- print report numbers without grouped decimals or trailing zeros
+- protect the frozen BH families in the protocol check
+
 ## v0.6.0 (2026-10-05)
 
 ### Highlights
