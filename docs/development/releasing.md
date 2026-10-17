@@ -21,6 +21,7 @@
 | `v0.4.0` | BETA AID: the card-service copilot (policy, verified actions, handoff, RAG and GraphRAG), its frozen held-out evaluation, the lateral pipelines by scope and grain (ADR-015 to ADR-020), and deployment on Modal and per residency region on Cloud Run (ADR-021) |
 | `v0.5.0` | The AI readiness factory: the Grain Atlas published as the decision dashboard, the console wired to the real copilot and scorecard, the read-only Data API, the fully documented lakehouse and published dbt docs, the grain-by-country architecture, and documented security layers |
 | `v0.6.0` | Open-weight and hosted models evaluated raw versus inside BETA AID: 85 adapted public attacks per model, 0 succeed inside BETA AID, and the frozen challenge set with each model |
+| `v0.7.0` | The copilot on a hosted OpenAI-compatible model (0/85 attacks succeed inside BETA AID), the technical report and the copilot brief and evaluation report in the Grain Atlas, the retrieval-embedder evaluation fix, and ADR-001 to ADR-010 rewritten with evidence |
 
 ## Cut a release
 
