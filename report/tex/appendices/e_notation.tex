@@ -1,0 +1,101 @@
+\chapter{Notation index}\label{app:notation}
+
+Symbols are defined where they are first used. The report keeps the notation of each method's literature, so a few
+letters, such as $\lambda$, $\pi$, $q$ and $G$, mean different things in different chapters; within a chapter each
+letter has one meaning. This index lists the symbols that recur across chapters and the named statistics, each with the
+place it is defined.
+
+\section{General}
+
+{\small
+\begin{longtable}{@{}QY@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\E$, $\Prob$, $\Var$ & Expectation, probability and variance. \\
+$\hat\theta$ & An estimate of the estimand $\theta$. \\
+$\theta^{*}$, $\Delta^{*}$ & A bootstrap replicate of an estimate. \\
+$x_{(i)}$, $p_{(i)}$ & The $i$-th smallest value of a sample, or of a set of p-values. \\
+$z_{1-\alpha/2}$, $\Phi$ & The standard normal quantile and distribution function. \\
+$\alpha$ & One minus the interval level; the false-discovery rate at which a test family is read. \\
+$\mathbb{1}\{\cdot\}$ & The indicator of an event. \\
+$\mathrm{KL}(p \,\|\, q)$ & The Kullback--Leibler divergence of distribution $p$ from $q$. \\
+$\mathrm{MAD}$ & The median absolute deviation from the median. \\
+$\indep$ & Independence. \\
+\naivemark & An interval computed treating dependent rows as independent (\cref{sec:em-ledger}). \\
+\end{longtable}}
+
+\section{The evidence model}
+
+{\small
+\begin{longtable}{@{}QVZ@{}}
+\toprule
+Symbol & Meaning & Defined in \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$g$, $G$ & A cluster (customer, agent, branch, campaign or day) and the number of clusters. & \Cref{def:clusters} \\
+$i$, $m_g$, $n$ & An observation of a cluster, the size of cluster $g$, and the number of observations. & \Cref{def:clusters} \\
+$y_{gi}$, $d_{gi}$ & The outcome of an observation and its size in a ratio. & \Cref{def:clusters} \\
+$Y_g$, $D_g$ & The totals of cluster $g$. & \Cref{eq:ratio} \\
+$\theta$ & A ratio of population totals: a share, a rate per exposure or a mean per unit. & \Cref{eq:ratio} \\
+$\rho$ & The correlation of observations within a cluster. & \Cref{eq:deff} \\
+$B$ & The number of bootstrap replicates. & \Cref{def:cluster-bootstrap} \\
+$w_g$, $r_g$, $h_g$ & The weight, ratio and leverage of cluster $g$ with few clusters. & \Cref{eq:cr2} \\
+$v_g$ & The Rademacher sign of the wild cluster bootstrap. & \Cref{sec:em-few} \\
+$L$, $\hat b$ & The mean block length of the stationary bootstrap and its automatic choice. & \Cref{eq:pw} \\
+$\hat R(k)$, $M$ & The sample autocovariance at lag $k$ and the bandwidth of the flat-top window. & \Cref{eq:pw} \\
+$m$, $q_{(i)}$ & The size of a test family and the false-discovery adjusted values. & \Cref{eq:bh} \\
+$\Delta$ & A gate's gain over its benchmark, oriented so that larger is better. & \Cref{sec:em-gate} \\
+$L$, $U$ & The bounds of the bootstrap interval of $\Delta$. & \Cref{sec:em-gate} \\
+$\mu$ & The material gain a gate declares before training. & \Cref{sec:em-gate} \\
+$\mathrm{MDE}$, $c$, $\pi$ & The minimum detectable effect, its multiplier and the power it targets. & \Cref{eq:mde} \\
+\end{longtable}}
+
+\section{Named statistics}
+
+{\small
+\begin{longtable}{@{}QVZ@{}}
+\toprule
+Symbol & Meaning & Defined in \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+$\pi$ & The probability that a value of one copy appears in the other by coincidence. & \Cref{eq:chance-overlap} \\
+$\mathrm{BIC}$ & The Bayesian information criterion of a drift model. & \Cref{eq:bic} \\
+$X^2(s)$ & Pearson's statistic for weekday and hour read in a clock shifted by $s$ hours. & \Cref{eq:chi2} \\
+$W(\gamma)$, $m_k$, $u_k$ & The Fellegi--Sunter weight of an agreement pattern and the agreement probabilities among matches and non-matches. & \Cref{eq:fs-weight} \\
+$\mathrm{JS}(p, q)$ & The Jensen--Shannon divergence of category shares. & \Cref{eq:js} \\
+$\tau$ & The paired tolerance between the main and backup copies. & \Cref{eq:paired-tol} \\
+$T_k$ & The standardized CUSUM statistic of a split after day $k$. & \Cref{eq:sf-cusum} \\
+$\hat\varphi$ & The Pearson dispersion of daily shares. & \Cref{eq:sf-dispersion} \\
+$z_d$, $b_0$ & The binomial score of day $d$ against a reference-window baseline. & \Cref{eq:sf-z} \\
+$\mathrm{PSI}$ & The population stability index. & \Cref{eq:sf-psi} \\
+$M$ & The modified $z$-score. & \Cref{eq:ad-modz} \\
+$F_S$ & The strength of a weekly pattern. & \Cref{eq:ad-strength} \\
+$\lambda_i$ & The critical value of the generalized extreme studentized deviate test. & \Cref{eq:ad-esd} \\
+$\mathrm{AP}$ & Average precision. & \Cref{eq:ad-ap} \\
+$\hat A$ & The Mann--Whitney estimate of the AUC, with DeLong's variance. & \Cref{eq:auc-delong} \\
+$\beta$ & The penalty for a change point in penalised segmentation. & \Cref{eq:cp-penalised} \\
+$z_t$, $\lambda$ & The EWMA statistic and its smoothing weight. & \Cref{eq:cp-ewma} \\
+$g$ & The task group of a model in the lineage. & \Cref{eq:cf-monotone} \\
+$r_{ij}$ & The quoted rate from currency $i$ to currency $j$. & \Cref{eq:cf-arbitrage} \\
+$h(x)$ & The change hash of a record. & \Cref{eq:cf-hash} \\
+$f_w(e, t)$ & A point-in-time feature of entity $e$ at time $t$ over window $w$. & \Cref{eq:mf-pit} \\
+$\varepsilon$, $\Delta$ & The privacy budget and the sensitivity of a release. & \Cref{eq:gp-dp} \\
+$f^{\star}$ & The share of a delivery that must violate a rule before the audit gate breaches. & \Cref{eq:ag-share} \\
+$R$, $r_i$ & A rate of a coarser grain and the rates of its parts. & \Cref{eq:ag2-ratio} \\
+$G^2$ & The likelihood-ratio statistic against a second-order chain. & \Cref{eq:cd-g2} \\
+$\hat S(t)$ & The Kaplan--Meier survival estimate. & \Cref{eq:cd-km} \\
+$G$ & The Gini coefficient of lifetime spend. & \Cref{eq:cd-gini} \\
+$\mathrm{MASE}$ & The mean absolute scaled error of a forecast. & \Cref{eq:op-mase} \\
+$q^{\star}$ & The newsvendor's optimal load. & \Cref{eq:op-newsvendor} \\
+$P_W$, $\mathrm{SL}(t)$ & The probability that a contact waits and the share answered within $t$ seconds. & \Cref{eq:op-erlangc} \\
+$\tilde\theta_c$, $\kappa$ & The empirical Bayes rate of a cell and the concentration of its prior. & \Cref{eq:pc-eb} \\
+$\lambda$, $a$, $b$ & A customer's monthly transaction rate and the shape and rate of its gamma distribution. & \Cref{prop:le-gp} \\
+\end{longtable}}

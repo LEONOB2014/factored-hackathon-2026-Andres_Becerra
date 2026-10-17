@@ -1,0 +1,71 @@
+\chapter{The system under test}\label{ch:system}
+
+\section{One turn}
+
+\Cref{fig:turn} follows a customer's message through the copilot. The path in grey is deterministic and runs on
+every turn; the teal boxes are the only places a language model may act, and each has a deterministic fallback.
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\linewidth}{!}{\input{turn_diagram}}
+  \caption{One conversation turn. Grey: the deterministic path. Teal: where a language model may act, each with a
+  fallback that needs no model. Brick: where a turn stops before any model or any tool acts.}
+  \label{fig:turn}
+\end{figure}
+
+\begin{description}[style=nextline]
+  \item[Identity.] A signed session token, with an expiry, names the customer. Every tool call takes the customer
+  from the verified session, never from the message, so no wording can bring another customer's data into scope.
+  Unblocking a card needs a second factor (a step-up) on top of the session.
+  \item[Gateway.] Before anything reads the message, card numbers that pass the Luhn check are masked down to the final
+  digits a customer uses to recognise a card, prompt-injection and cross-customer probes are flagged and refused, and the language is detected.
+  A refused message never reaches a model.
+  \item[Intent model.] A character n-gram logistic regression labels the message with one of
+  \est{sys.intents}{value} intents (\cref{ch:intent}). When its confidence is below the tuned threshold, a language
+  model, if one is configured, labels the message instead; otherwise the copilot asks the customer to rephrase.
+  \item[Card resolution.] When the intent needs a card, the copilot resolves which one from the customer's own
+  cards, and asks when the message is ambiguous.
+  \item[Policy.] A versioned policy file assigns each intent an autonomy level. \est{sys.intents-a0}{value} intents
+  are answered from verified facts (\ident{A0}); \est{sys.intents-a2}{value} are card actions that need the
+  customer's explicit confirmation (\ident{A2}), \est{sys.intents-step-up}{value} of them also a step-up; and
+  \est{sys.intents-a3}{value} go to a person with a hand-off packet (\ident{A3}). \est{sys.vetoes}{value}
+  card-level vetoes, checked once the card is known, override the intent: a fraud flag sends the case to the fraud
+  queue, a closed card cannot be unblocked, an expired card is replaced rather than unblocked.
+  \item[Tools.] Reads come from a read-only snapshot filtered by the session's customer. An action is prepared as a
+  confirmation token bound to the action, customer, card and expiry; executed only once, after the customer
+  confirms; and reported as done only when a fresh read shows the new state.
+  \item[Reply.] A template states the facts the tools returned. A language model may reword it; a grounding check
+  rejects any rewording that adds or changes a number, date, amount or card suffix, and the template is used
+  instead.
+  \item[Knowledge.] A general question goes to the governed knowledge base (\cref{ch:retrieval}). When no
+  document scores above the relevance threshold, the copilot asks the customer to rephrase. When the best document
+  is internal, only a person may explain it, and the case is handed off. When it is public, a model, if configured,
+  writes an answer from the retrieved passages that must cite one of them and contain no number the cited passages
+  lack; an answer that fails this check is not shown, and the case is handed off. Without a model, the copilot points
+  the customer to the public document.
+  \item[Trace and audit.] Every turn records its stages, the policy rule that decided it and the model calls, in a
+  hash-chained audit log whose records hold masked text only.
+\end{description}
+
+\section{Where a model may act, and where it may not}
+
+The model's jobs are bounded by what it receives and what is done with its output. When it labels an unsure
+message it receives the masked message and returns one label from a closed list, which the policy then treats like
+any other label: a wrong label for a card action still needs the customer's confirmation, and a wrong hand-off label
+only routes the case to a person. When it rewords or answers, its text is checked against the facts or the cited
+passages before a customer sees it. It never receives another customer's data, never calls a tool, and never decides
+an outcome.
+
+The copilot's model timeout is \est{sys.model-timeout}{value}\,s: a call that has not finished by then is abandoned
+and the deterministic path decides. \Cref{ch:screening} measures how often hosted models exceed it.
+
+\section{The governed knowledge base}
+
+The knowledge base holds \est{sys.kb-documents}{value} document versions (\cref{tab:kb-documents}):
+\est{sys.kb-approved}{value} approved, \est{sys.kb-draft}{value} draft, \est{sys.kb-superseded}{value} superseded
+and \est{sys.kb-retired}{value} retired; \est{sys.kb-public}{value} are classified public. Only approved versions
+inside their effective window can be retrieved; drafts, superseded, retired and expired versions stay in the
+registry for audit but are never served. The documents are synthetic policies of the demonstration bank and short
+summaries of public regulations.
+
+\generated{tables/kb-documents}

@@ -1,0 +1,20 @@
+\chapter{Per-country tables}\label{app:per-country}
+
+The country template runs the same notebooks for the whole bank and for each market, and stores one result table per
+run. This appendix sets the stored results of the main copy side by side, the whole bank (ALL) first and the markets of
+Argentina (AR), Colombia (CO) and Mexico (MX) after it. The tables are combined from the stored results without
+recomputation; the chapters that interpret them are \cref{ch:inventory-keys} for the profile and the sizes,
+\cref{ch:record-linkage} for the reconciliation, \cref{ch:schema-forensics} for the contract,
+\cref{ch:audit-and-gates} for the rules, \cref{ch:anomaly-detection,ch:change-points} for the anomalies and
+\cref{ch:time-and-clocks} for the calendar. The learnability of each target by market is \cref{tab:ch18-map}.
+
+Amounts are recorded in each account's currency, so a median amount in dollars compares markets but a sum across them
+does not (\cref{sec:sf-countries}).
+
+\input{../build/generated/tables/appc-profile}
+\input{../build/generated/tables/appc-size}
+\input{../build/generated/tables/appc-reconciliation}
+\input{../build/generated/tables/appc-contract}
+\input{../build/generated/tables/appc-rule-slo}
+\input{../build/generated/tables/appc-anomalies}
+\input{../build/generated/tables/appc-calendar}

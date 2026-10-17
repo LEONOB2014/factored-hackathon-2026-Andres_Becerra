@@ -1,13 +1,16 @@
-"""A local open-weight model (served by Ollama) in the language model's two bounded jobs, for evaluation.
+"""Open-weight models in the language model's two bounded jobs: a local model (Ollama) for evaluation, or a hosted
+OpenAI-compatible endpoint (for example Featherless) at evaluation or at runtime.
 
 Same contract as `copilot.llm.LLM`: classify an intent the fast model is unsure of, rephrase a template reply, answer
 from cited passages. Same prompts, same grounding checks in the engine, same circuit breaker. Every call is streamed so
-the time to first token is measured. Nothing leaves the machine.
+the time to first token is measured. With Ollama nothing leaves the machine; a hosted endpoint receives the masked
+message, the template reply or the cited public passages, never identifiers or another customer's data.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import time
 import urllib.request
 
@@ -15,6 +18,7 @@ from copilot.llm import (
     ANSWER_SYSTEM,
     CLASSIFY_SYSTEM,
     INTENT_DESCRIPTIONS,
+    PRICES,
     REPHRASE_SYSTEM,
     Breaker,
     Usage,
@@ -68,7 +72,9 @@ def chat(
     }
 
 
-def chat_gateway(
+def chat_openai(
+    url: str,
+    api_key: str,
     model: str,
     system: str,
     user: str,
@@ -76,12 +82,11 @@ def chat_gateway(
     fmt: dict | None = None,
     max_tokens: int = 300,
     timeout_s: float = 60.0,
+    headers: dict | None = None,
 ) -> tuple[str, dict]:
-    """One streamed call through an OpenAI-compatible gateway; same timings as `chat`."""
-    import os
-
+    """One streamed call to an OpenAI-compatible chat-completions URL; same timings as `chat`."""
     body = {
-        "model": os.environ.get("COPILOT_GATEWAY_MODEL", "gpt-4o-mini"),
+        "model": model,
         "stream": True,
         "stream_options": {"include_usage": True},
         "temperature": 0,
@@ -90,21 +95,18 @@ def chat_gateway(
     }
     if fmt is not None:
         body["response_format"] = {"type": "json_object"}
-    url = GATEWAY.format(
-        workspace=os.environ.get("BLAXEL_WORKSPACE", "ingeniai"), name=model.split("/", 1)[1]
-    )
-    req = urllib.request.Request(  # noqa: S310 (fixed https gateway)
+    req = urllib.request.Request(  # noqa: S310 (https endpoint from the configuration)
         url,
         data=json.dumps(body).encode(),
         headers={
             "content-type": "application/json",
-            "authorization": f"Bearer {os.environ['BLAXEL_TOKEN']}",
-            "x-blaxel-workspace": os.environ.get("BLAXEL_WORKSPACE", "ingeniai"),
-            "user-agent": "beta-aid-eval/1.0",
+            "authorization": f"Bearer {api_key}",
+            "user-agent": "beta-aid-copilot/1.0",
+            **(headers or {}),
         },
     )
     t0, ttft, parts, usage = time.perf_counter(), None, [], {}
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 (fixed https gateway)
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # noqa: S310 (configured endpoint)
         for raw in resp:
             line = raw.decode().strip()
             if not line.startswith("data:") or line == "data: [DONE]":
@@ -125,9 +127,36 @@ def chat_gateway(
     }
 
 
+def chat_gateway(model: str, system: str, user: str, **kw) -> tuple[str, dict]:
+    """The Blaxel gateway (evaluation): models named `blaxel/<name>`, token in BLAXEL_TOKEN."""
+    workspace = os.environ.get("BLAXEL_WORKSPACE", "ingeniai")
+    return chat_openai(
+        GATEWAY.format(workspace=workspace, name=model.split("/", 1)[1]),
+        os.environ["BLAXEL_TOKEN"],
+        os.environ.get("COPILOT_GATEWAY_MODEL", "gpt-4o-mini"),
+        system,
+        user,
+        headers={"x-blaxel-workspace": workspace, "user-agent": "beta-aid-eval/1.0"},
+        **kw,
+    )
+
+
+def chat_hosted(model: str, system: str, user: str, **kw) -> tuple[str, dict]:
+    """A hosted OpenAI-compatible endpoint: COPILOT_LLM_BASE_URL (ending in /v1) and COPILOT_LLM_API_KEY."""
+    base = os.environ["COPILOT_LLM_BASE_URL"].rstrip("/")
+    return chat_openai(
+        f"{base}/chat/completions", os.environ["COPILOT_LLM_API_KEY"], model, system, user, **kw
+    )
+
+
 def chat_any(model: str, system: str, user: str, **kw) -> tuple[str, dict]:
-    """Route `blaxel/<name>` to the hosted gateway, anything else to the local Ollama server."""
-    return (chat_gateway if model.startswith("blaxel/") else chat)(model, system, user, **kw)
+    """Route `blaxel/<name>` to the Blaxel gateway, the `openai` backend to the configured hosted endpoint, and
+    anything else to the local Ollama server."""
+    if model.startswith("blaxel/"):
+        return chat_gateway(model, system, user, **kw)
+    if os.environ.get("COPILOT_LLM_BACKEND") == "openai":
+        return chat_hosted(model, system, user, **kw)
+    return chat(model, system, user, **kw)
 
 
 class LocalLLM:
@@ -135,6 +164,12 @@ class LocalLLM:
 
     def __init__(self, model: str, timeout_s: float = 60.0):
         self.model, self.timeout_s = model, timeout_s
+        if os.environ.get("COPILOT_LLM_PRICE_IN") and os.environ.get("COPILOT_LLM_PRICE_OUT"):
+            # USD per million tokens, for the cost report (a hosted provider's published price)
+            PRICES[model] = (
+                float(os.environ["COPILOT_LLM_PRICE_IN"]),
+                float(os.environ["COPILOT_LLM_PRICE_OUT"]),
+            )
         self.breaker = Breaker()
         self.calls: list[dict] = []
 

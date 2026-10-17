@@ -1,0 +1,30 @@
+<div id="ebk" hidden role="dialog" aria-modal="true" aria-label="Reports">
+  <div class="ebk-bar">
+    <button type="button" id="ebkClose" title="Back to the Atlas (Esc)"><span aria-hidden="true">←</span><span class="lbl">Atlas</span></button>
+    <button type="button" id="ebkLib" title="All reports (l)" hidden><span aria-hidden="true">▤</span><span class="lbl">Shelf</span></button>
+    <div class="ebk-title"><b id="ebkBookTitle">Reports</b><span id="ebkRun">BETA AID</span></div>
+    <div class="ebk-ctl" id="ebkCtl">
+      <button type="button" id="ebkTocBtn" aria-expanded="false" aria-controls="ebkToc" title="Contents (c)"><span aria-hidden="true">☰</span><span class="lbl">Contents</span></button>
+      <button type="button" id="ebkPrev" aria-label="Previous page" title="Previous page (←)">‹</button>
+      <label class="ebk-pg" for="ebkPg"><span class="ebk-sr">Go to page</span><input id="ebkPg" type="text" inputmode="numeric" autocomplete="off"><span id="ebkOf"></span></label>
+      <button type="button" id="ebkNext" aria-label="Next page" title="Next page (→)">›</button>
+    </div>
+  </div>
+  <div class="ebk-stage" id="ebkStage">
+    <section class="ebk-shelf" id="ebkShelf" hidden aria-labelledby="ebkShelfH">
+      <h2 id="ebkShelfH">The reports behind BETA AID</h2>
+      <p class="ebk-shelf-lede">Every number in these books is generated from a claims ledger; none is typed by hand.</p>
+      <ul class="ebk-books" id="ebkBooks"></ul>
+    </section>
+    <div class="ebk-book" id="ebkBook">
+      <div class="ebk-page l" id="ebkL"><canvas></canvas><div class="ebk-lnk"></div></div>
+      <div class="ebk-page r" id="ebkR"><canvas></canvas><div class="ebk-lnk"></div></div>
+    </div>
+    <p class="ebk-msg" id="ebkMsg">Opening the report…</p>
+    <aside class="ebk-toc" id="ebkToc" hidden aria-label="Contents">
+      <h2>Contents</h2>
+      <ol id="ebkTocList"></ol>
+    </aside>
+  </div>
+  <nav class="ebk-edge" id="ebkEdge" aria-label="Chapters along the edge of the book"></nav>
+</div>

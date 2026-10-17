@@ -1,0 +1,128 @@
+\chapter{Discussion, limitations and conclusions}\label{ch:conclusions}
+
+The report set out to examine every method behind the Grain Atlas and to judge, with the strictest evidence the data
+allow, which machine-learning products the bank's data can support. This chapter gathers what the evidence supports,
+what the data lack, what follows for the pipelines, and the limits of the report itself.
+
+\section{What the evidence supports}\label{sec:cc-supports}
+
+\paragraph{The data are sound in form and thin in content.} Every primary key is unique and never null, every record
+of the raw files is accounted for, and under the reviewed contract the circuit breaker holds
+$\est{ch07.held-global-country-all}{value}$ partitions of the main copy (\cref{ch:inventory-keys,ch:schema-forensics}).
+The defects lie in the content: links documented as foreign keys that resolve to nothing, a null rendered into the text
+of $\est{ch07.nan-subjects}{value}$ campaign messages, channels born and retired without open tracking, and a field of
+the complaints whose values are a uniform random draw. Of the $\est{ch18.cp-total}{value}$ complaints,
+$\est{ch18.cp-with-product}{value}$ name an affected product, and every one of them,
+$\est{ch18.cp-other-owner}{value}$, names a product of another customer (\cref{sec:le-random}).
+
+\paragraph{The backup is a replicate, not a copy.} It is incomplete (\ident{H4}), it does not re-key the main copy's
+entities (\ident{H2}), no shift in time aligns it (\ident{H1}), its shared records were changed without a trace
+(\ident{H5}): $\est{ch05.rescored}{value}\,\%$ of shared customers were re-scored without moving their audit timestamp
+and $\est{ch05.redenominated}{value}\,\%$ of paired products changed currency at flat rates. Its core tables are
+indistinguishable in distribution from the main copy's (\ident{H3}), so it served throughout as an independent draw of
+the same process (\cref{ch:record-linkage,ch:statistical-equivalence}).
+
+\paragraph{The process behind the data has fixed parameters.} The transaction population of every month is
+indistinguishable from sampling noise around a fixed distribution (\cref{sec:sf-countries}), no level shift larger
+than about $\est{ch09.mde-l2}{value}\,\%$ occurred (\cref{ch:change-points}), and after false-discovery control the
+only calendar structure is the weekly rhythm (\cref{sec:time-calendar}). Contacts and complaints are Poisson at the
+customer-month grain, and the learnable customer signal is the arithmetic of exposure: the dormant share falls with the
+number of products held along a line on the log scale with $R^2 = \est{ch14.exp-r2}{value}$ (\cref{sec:ag2-exposure}).
+Such data cannot test a model's robustness to drift, and they reward no feature that a generator did not put there.
+
+\paragraph{One target is learnable, and a model with a pair of parameters learns it.} Of the
+$\est{ch18.cells}{value}$ evaluations of the learnability map, $\est{ch18.no-signal}{value}$ show no evidence of signal.
+Fraud is predictable only through a score shipped with the data that encodes the label; from behaviour alone the
+out-of-time AUC is $\est{ch08.leak-auc-features}{estimate}$, interval $\est{ch08.leak-auc-features}{ci}$
+(\cref{sec:ad-fraud}). Dormancy is learnable, and the gamma-Poisson model of \cref{prop:le-gp} ranks it with an AUC of
+$\est{ch18.gp-auc}{estimate}$ ($\est{ch18.gp-auc}{ci}$), as well as boosting, and calibrated (\cref{ch:learnability}).
+
+\paragraph{No model of the hour grain is ready.} The registered re-estimation gives, on the main copy,
+$\est{ch19.main-green}{value}$ green, $\est{ch19.main-amber}{value}$ amber, $\est{ch19.main-red}{value}$ red and
+$\est{ch19.main-not-assessable}{value}$ not assessable gates, and on the backup $\est{ch19.backup-green}{value}$ green,
+$\est{ch19.backup-amber}{value}$ amber, $\est{ch19.backup-red}{value}$ red and $\est{ch19.backup-not-assessable}{value}$
+not assessable. It confirms the published scorecard wherever it can and overturns $\est{ch19.disagree}{value}$ red into
+not assessable, in the direction of caution (\cref{ch:readiness-gates}).
+
+\section{What the data lack}\label{sec:cc-lack}
+
+A red gate is a statement about missing data, and the chapters name what is missing. Each item below is a data
+requirement with an owner, and each would be judged by re-running the same frozen gate on the new feed.
+
+\begin{description}[style=nextline]
+  \item[Time with a declared clock] Every process drew its days in a delivery clock that no field records
+  (\cref{ch:time-and-clocks}); timestamps must carry their zone, and the day boundary of each process must be
+  declared, not inferred.
+  \item[Keys that link what they claim to link] Complaints cannot be traced to the contact that started them, customers
+  and agents cannot be joined to a branch, and of $\est{ch11.disputes}{value}$ complaints only
+  $\est{ch11.disputes-linked}{value}$ reach a link to the disputed transaction with any confidence, because the source
+  never recorded it (\cref{ch:inventory-keys,ch:marts-and-features}).
+  \item[Confirmed labels] The fraud label is explained by a leaked score; a label confirmed by investigation, with its
+  date, is the only basis for a fraud model (\cref{ch:anomaly-detection}).
+  \item[Workforce, telephony and schedules] Agent and hour gates need shifts, staffing, queue and handle-time logs that
+  the extract does not hold (\cref{ch:operations,ch:readiness-gates}).
+  \item[Counterparties] Without the counterparty of a payment the graph has no money-movement edges, and no graph
+  feature of fraud or money laundering can be built (\cref{ch:graph-and-privacy}).
+  \item[Experiments] Every causal question about campaigns needs a randomised holdout, which the marketing process
+  never ran (\cref{ch:products-and-campaigns}).
+\end{description}
+
+\section{What follows for the pipelines}\label{sec:cc-pipelines}
+
+The repairs the chapters derive are changes to code and contracts, not to models.
+\begin{itemize}
+  \item \textbf{Contracts.} Monitor an empty share within the rows where its field applies and judge it with a binomial
+  rule against a reference-window baseline; set scale baselines per currency; add an expected-partition check driven
+  by the landing manifest; require that every change of a value moves its audit timestamp
+  (\cref{ch:schema-forensics,ch:record-linkage}).
+  \item \textbf{Monitors.} Report the smallest change a detector would have caught; give hourly limits the day-level
+  dispersion; test change points on dependent series by permuting blocks (\cref{ch:change-points}).
+  \item \textbf{Conformance.} Check the order of task groups statically on every pull request; convert dollar amounts at
+  the source's own convention; start the first version of every slowly changing dimension at the beginning of time
+  (\cref{ch:conformance}).
+  \item \textbf{Marts and exports.} Capture the disputed transaction when a complaint is taken; build no feature or
+  match on the complaint's affected product, which is a random draw, and count a card's open cases by its owner, not by
+  that product (\cref{sec:le-random,sec:mf-disputes}); replace
+  the salted hash of identifiers by a keyed function; set the contribution bounds of private releases without looking
+  at the data and publish their noise scales (\cref{ch:marts-and-features,ch:graph-and-privacy}).
+  \item \textbf{Audit.} Judge each delivery rather than the cumulative history: the current gate on approved payments
+  without a response code breaches only after $\est{ch13.r03-days}{value}$ entirely corrupted days
+  (\cref{ch:audit-and-gates}).
+  \item \textbf{Gates.} Never raise on a degenerate input, report it as not assessable; make every benchmark
+  deterministic; resample the independent unit; judge every learnable target against the simplest model of the same
+  thing (\cref{ch:learnability,ch:readiness-gates}).
+\end{itemize}
+
+\section{Limitations of this report}\label{sec:cc-limits}
+
+\paragraph{The data are fixed.} The dataset ends on \proto{dataset.end_date}, and every notebook saw all of it. The
+registered re-estimation rules out adjusting a gate's specification after seeing its clustered result; it does not rule
+out choices of features, windows and benchmarks made earlier on the same data, and it adds no new evidence. A confirmatory
+test of any gate needs data that did not exist when the gate was designed.
+
+\paragraph{Most claims are exploratory.} Of the $\est{ch01.ledger-claims}{value}$ claims, $\est{ch01.ledger-registered}{value}$
+are registered and $\est{ch01.ledger-exploratory}{value}$ exploratory, and $\est{ch01.ledger-naive}{value}$ of the
+exploratory intervals treat dependent rows as independent and are marked \naivemark{}. Exploratory claims describe the
+data; they do not decide a gate.
+
+\paragraph{The scope of the re-estimation.} It ran once per copy, on the whole bank; the scopes per market were not
+re-estimated, and on the backup the scenarios that could not run leave their gates without a verdict
+(\cref{sec:rg-limits}).
+
+\paragraph{The environments.} The registered gates ran in the \ident{eda} environment and every other claim in the
+report's, and on the build platform the environments resolve some shared packages to different versions
+(\cref{app:software}).
+
+\paragraph{The data are generated.} The evidence of Parts~II and~III is that the copies are draws of a generator with
+fixed parameters. The methods, their checks and the repairs transfer to a bank's real data; the specific verdicts
+describe this generator and should not be read as statements about any real bank.
+
+\section{Conclusions}\label{sec:cc-conclusions}
+
+The bank's data are structurally sound and nearly empty of learnable behaviour. That is not a failure of the analysis:
+the positive controls show that the methods find a signal where one was planted, and the registered gates show that the
+verdicts survive the strictest treatment of their uncertainty. The value of the work lies in the audit. Every red gate
+names why its target cannot be learned, and the cause is a property of the data that the data-engineering cycle can
+change: a clock, a key, a label, a log, a counterparty, an experiment. Collecting what is missing, re-running the same
+frozen gates on the new feed and building only what passes is the loop that turns this data platform into a source of
+machine-learning products, of which the copilot is the first.

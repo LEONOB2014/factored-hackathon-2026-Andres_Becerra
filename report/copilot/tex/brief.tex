@@ -1,0 +1,24 @@
+% BETA AID copilot: the brief. Build with `make -C report copilot`; the full evidence is in evaluation.tex.
+\documentclass[paper=a4,fontsize=11pt,parskip=half-,headings=standardclasses]{scrartcl}
+\input{setup}
+\setcounter{tocdepth}{1}
+
+\begin{document}
+\begin{center}
+  {\LARGE\bfseries The BETA AID Card Copilot\par}
+  \vspace{0.4em}
+  {\large What it is, how it works, what was trained and which language models were tested\par}
+  \vspace{0.8em}
+  {Andrés Becerra \quad\textperiodcentered\quad \reportdate\par}
+\end{center}
+\vspace{0.5em}
+
+\input{brief/01_overview}
+\input{brief/02_turn}
+\input{brief/03_trained}
+\input{brief/04_models}
+\input{brief/05_results}
+\input{brief/06_recommendation}
+
+\printbibliography[heading=bibintoc]
+\end{document}

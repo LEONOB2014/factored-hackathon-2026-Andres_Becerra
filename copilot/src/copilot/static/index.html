@@ -53,7 +53,8 @@ pre{font-family:var(--mono);font-size:11.5px;white-space:pre-wrap;word-break:bre
   <section>
     <h2>Sign in · test identity</h2>
     <div class="pad">
-      <div id="customers" class="empty">Loading…</div>
+      <label id="custlbl">Choose a demo customer</label>
+      <div id="customers" class="empty" role="group" aria-labelledby="custlbl">Loading…</div>
       <label for="otp">One-time code (test fixture)</label>
       <input id="otp" autocomplete="off">
       <div style="margin-top:10px;display:flex;gap:8px"><button class="pri" id="login">Sign in</button><button class="sec" id="logout">Sign out</button></div>
@@ -91,10 +92,10 @@ async function say(text){bubble(text,"me");try{show(await api("/api/message",{te
 async function act(yes){bubble(yes?"✔ Confirmar":"✘ Cancelar","me");show(await api("/api/confirm",{yes}))}
 $("#send").onsubmit=e=>{e.preventDefault();const t=$("#text").value.trim();if(t){$("#text").value="";say(t)}};
 document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{tab=b.dataset.t;render()});
-$("#login").onclick=async()=>{if(!pick)return;try{token=(await api("/api/session",{customer_id:pick.customer_id,otp:$("#otp").value})).token;$("#who").innerHTML=`Signed in as <b>${esc(pick.customer_id)}</b> · ${esc(pick.label_es)}`;$("#chat").innerHTML="";bubble(pick.cards+" tarjeta(s) en el perfil. ¿En qué te ayudo? / Em que posso ajudar?","bot")}catch(e){$("#who").textContent="Sign-in refused: "+e.message}};
+$("#login").onclick=async()=>{if(!pick){$("#who").textContent="Choose a demo customer above, then sign in.";return}try{token=(await api("/api/session",{customer_id:pick.customer_id,otp:$("#otp").value})).token;$("#who").innerHTML=`Signed in as <b>${esc(pick.customer_id)}</b> · ${esc(pick.label_es)}`;$("#chat").innerHTML="";bubble(pick.cards+" tarjeta(s) en el perfil. ¿En qué te ayudo? / Em que posso ajudar?","bot")}catch(e){$("#who").textContent="Sign-in refused: "+e.message}};
 $("#logout").onclick=()=>{token=null;$("#who").textContent="Not signed in. Messages without a session are refused."};
 $("#stepgo").onclick=async()=>{bubble("•••••• (segundo factor)","me");const r=await api("/api/stepup",{otp:$("#step").value});if(r.token)token=r.token;show(r)};
-(async()=>{demo=await api("/api/demo");if(demo.deployment){const d=demo.deployment;$("#sub").textContent=`Atención de tarjetas · ES / PT · modo de prueba · ${d.region||d.name} · datos de ${d.countries.join(", ")}`;}$("#otp").value=demo.otp;$("#step").value=demo.stepup;const c=$("#customers");c.className="";c.innerHTML="";demo.customers.forEach(x=>{const b=document.createElement("button");b.className="cust";b.innerHTML=`${esc(x.label_es)}<small>${esc(x.label_pt)} · ${esc(x.customer_id)} · ${x.cards} card(s)</small>`;b.onclick=()=>{pick=x;document.querySelectorAll(".cust").forEach(e=>e.classList.remove("on"));b.classList.add("on")};c.appendChild(b)});chips("es")})();
+(async()=>{demo=await api("/api/demo");if(demo.deployment){const d=demo.deployment;$("#sub").textContent=`Atención de tarjetas · ES / PT · modo de prueba · ${d.region||d.name} · datos de ${d.countries.join(", ")}`;}$("#otp").value=demo.otp;$("#step").value=demo.stepup;const c=$("#customers");c.className="";c.innerHTML="";demo.customers.forEach(x=>{const b=document.createElement("button");b.className="cust";b.innerHTML=`${esc(x.label_es)}<small>${esc(x.label_pt)} · ${esc(x.customer_id)} · ${x.cards} card(s)</small>`;b.onclick=()=>{pick=x;document.querySelectorAll(".cust").forEach(e=>e.classList.remove("on"));b.classList.add("on")};c.appendChild(b)});if(!pick){c.querySelector(".cust")?.click()}chips("es")})();
 </script>
 </body>
 </html>

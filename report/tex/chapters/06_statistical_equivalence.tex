@@ -1,0 +1,149 @@
+\chapter{Are the main and backup copies the same process?}\label{ch:statistical-equivalence}
+
+Rows of the copies cannot, in the main, be paired (\cref{ch:inventory-keys,ch:time-and-clocks,ch:record-linkage}). The
+question left is whether they are draws from the same process: an independent replicate, the same generator with a
+different random state (\ident{H3}). That is a question about distributions, and it needs inference. With as many rows as
+these tables hold, every difference is statistically detectable, so the chapter calibrates every comparison against
+the difference that the same process produces with itself, checks that the method detects what it should, and then
+asks what the real differences are.
+
+\section{Distances and their calibration}\label{sec:eq-distances}
+
+For a numeric column with empirical distribution functions $F_m$ and $F_b$ in the copies, the exploratory notebook
+used the Kolmogorov--Smirnov distance $D = \sup_x \lvert F_m(x) - F_b(x) \rvert$ \autocite{smirnov1948} and the
+first Wasserstein distance $\int \lvert F_m(x) - F_b(x) \rvert\,dx$, divided by the main copy's standard deviation so
+that it is scale-free \autocite{ramdas2017}. For a categorical column with category shares $p$ and $q$ it used
+Cram\'er's $V$ of the copy-by-category table \autocite{cramer1946} and the Jensen--Shannon distance, the square root of
+\begin{equation}\label{eq:js}
+  \mathrm{JS}(p, q) = \tfrac{1}{2}\,\mathrm{KL}\bigl(p \,\big\|\, \tfrac{p+q}{2}\bigr) + \tfrac{1}{2}\,\mathrm{KL}\bigl(q \,\big\|\, \tfrac{p+q}{2}\bigr)
+\end{equation}
+in bits \autocite{lin1991}.
+
+A distance alone says nothing about sameness: samples of the same process are never at distance zero. Each
+distance is therefore divided by the distance between the parts of a random equal split of the main copy (leaving out rows that share a
+key with the backup, which would make the copies look closer than they are). A ratio near one means the backup is as
+close to the main copy as the main copy is to itself. Across the $\est{ch06.marginal-columns}{value}$ columns compared,
+the core tables (customers, products, transactions) have median ratios between $\est{ch06.core-median-ratio-min}{value}$
+and $\est{ch06.core-median-ratio-max}{value}$, and $\est{ch06.core-above-two}{value}$ of their columns exceeds the notebook's ratio threshold of
+$\est{ch06.ratio-threshold}{value}$, the marketing-consent flag, whose distance is tiny in absolute terms (\cref{tab:ch06-marginals}). The other
+tables have columns well above the baseline; \cref{sec:eq-differences} shows which.
+
+\input{../build/generated/tables/ch06-marginals}
+
+\section{Joint structure: the classifier two-sample test}\label{sec:eq-c2st}
+
+Columns that agree one at a time can still differ jointly, through their dependence. The classifier two-sample test
+turns the question into prediction \autocite{lopezpaz2017}: label each row by its copy, train a classifier on all
+non-key, non-date columns, and measure its cross-validated area under the ROC curve. If the copies come from the same
+distribution, no classifier can beat chance, and the AUC stays at chance level up to sampling error; any joint difference a
+flexible classifier can find raises it. The baseline is the same test between the parts of a random equal split of the main copy, whose AUCs lie
+between $\est{ch06.auc-baseline-min}{value}$ and $\est{ch06.auc-baseline-max}{value}$ (\cref{fig:ch06-c2st,tab:ch06-c2st}).
+
+Customers ($\est{ch06.auc-customers}{value}$), products ($\est{ch06.auc-products}{value}$) and transactions
+($\est{ch06.auc-transactions}{value}$) are indistinguishable from the main copy even jointly. Digital events
+($\est{ch06.auc-digital-events}{value}$) and campaign sends ($\est{ch06.auc-campaign-sends}{value}$) are slightly
+separable, and contacts are almost perfectly separable ($\est{ch06.auc-call-center-interactions}{value}$). Complaints
+fall below chance ($\est{ch06.auc-complaints}{value}$): their rows are identical in both copies, so every row of one
+class has a twin in the other, and cross-validation then systematically scores the held-out twin against its own label.
+An AUC below chance level here confirms identity; it is not evidence of a difference.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.85\textwidth]{fig-06-c2st}
+  \caption{Classifier two-sample test per table: cross-validated AUC of separating main rows from backup rows (blue)
+  and the parts of a random split of main from each other (grey). Bars span the AUC plus or minus $z_{1-\alpha/2}$ standard deviations across
+  cross-validation folds. Source: \ident{eda/reports/tables/c2st.csv}.}
+  \label{fig:ch06-c2st}
+\end{figure}
+
+\input{../build/generated/tables/ch06-c2st}
+
+\section{Controls}\label{sec:eq-controls}
+
+A comparison method is only credible if it detects a difference when there is one and stays silent when there is
+none. The exploratory notebook ran both checks: complaints, identical in content, stay at the noise floor, and a small
+mean shift injected into a random part of the main copy is detected by every distance. Both are positive and negative
+controls on the method, not evidence about the bank (\cref{sec:em-ledger}).
+
+\section{The paired main--backup estimator}\label{sec:eq-paired}
+
+The notebook calibrated its comparisons on a single random equal split of the main copy's rows. Rows of one
+customer are not independent (\cref{sec:em-clusters}), so this report adds an estimator that calibrates on the
+independent unit.
+
+\begin{definition}[Paired main--backup tolerance]\label{def:paired}
+For a share $\theta$ computed in each copy, let $D = \hat\theta_b - \hat\theta_m$. Split the main copy's customers at
+random into equal parts $A$ and $B$, $R$ times, and record $D^{0}_r = \hat\theta_{A_r} - \hat\theta_{B_r}$. With $n_m$ and $n_b$
+the rows of the copies and $n_{A}$, $n_{B}$ those of the parts, the tolerance is
+\begin{equation}\label{eq:paired-tol}
+  \tau = Q_{1-\alpha}\bigl(\lvert D^{0} \rvert\bigr)\,
+  \sqrt{\frac{n_m^{-1} + n_b^{-1}}{\overline{n_A^{-1} + n_B^{-1}}}},
+\end{equation}
+and the copies differ materially for $\theta$ when $\lvert D \rvert > \tau$.
+\end{definition}
+
+Splitting customers keeps every customer's rows together, so the noise in $D^{0}$ includes the dependence between
+them; the square root rescales the spread between the parts to the sizes of the copies, since the variance of a
+difference of shares is proportional to the sum of the reciprocal sizes. Under the hypothesis that the copies come
+from the same process, $\lvert D \rvert$ exceeds $\tau$ with probability close to $\alpha$. The test suite checks this
+on simulated clustered data: the false-alarm rate stays near $\alpha$, a real shift is detected, and the tolerance is
+much wider than a row-level one when customers matter. The protocol freezes the same construction, applied to each
+gate's metric, as the tolerance for comparing a gate's main and backup re-estimates (\cref{ch:readiness-gates}).
+
+\paragraph{Applied to null rates.} The share of nulls in each column of the fact tables with a customer key gives
+$\est{ch06.paired-columns}{value}$ comparisons. The paired tolerance flags $\est{ch06.paired-flags}{value}$ of them; a
+row-level tolerance flags $\est{ch06.iid-flags}{value}$, and the notebook's row-level $z$-tests flagged
+$\est{ch06.notebook-z-flags}{value}$. Here the customer correction changes little: the paired tolerance is, at the
+median, $\est{ch06.widening-median}{value}$ times the row-level one, at most $\est{ch06.widening-max}{value}$ times.
+Null rates in this dataset are set by column and channel, not by the customer, so rows of one customer are nearly
+independent with respect to them, and the notebook's row-level test was adequate for this question. That is a finding,
+not a disappointment: the estimator tells when the clustering correction matters and when it does not.
+
+A flag measures detectability, not size. The flagged columns include differences of hundredths of a percentage point
+alongside the large defects of \cref{sec:eq-differences} (\cref{tab:ch06-paired-flags}).
+
+\input{../build/generated/tables/ch06-paired-flags}
+
+\section{The differences that are real}\label{sec:eq-differences}
+
+Where the copies differ, they differ in a few columns, sharply. Contacts lose their call metrics in the backup: the
+duration is null for $\est{ch06.null-main-duration}{value}\,\%$ of main rows and $\est{ch06.null-backup-duration}{value}\,\%$
+of backup rows, against a tolerance of $\est{ch06.tol-duration}{value}$ percentage points, and the waiting time for
+$\est{ch06.null-main-wait}{value}\,\%$ against $\est{ch06.null-backup-wait}{value}\,\%$. Campaign sends gain nulls in
+the click flag, from $\est{ch06.null-main-clicked}{value}\,\%$ to $\est{ch06.null-backup-clicked}{value}\,\%$, and
+digital events lose part of their marketing attribution. The vocabulary of the contact type changes: the backup labels
+$\est{ch06.vocab-share}{value}\,\%$ of its contacts in Spanish where the main copy uses English, the only column of the
+dataset whose vocabulary differs between the copies. An unmapped label would silently drop those contacts from every
+rule that filters on the English value. These are targeted changes of a pipeline, not the diffuse differences of a
+different population, and they are what the classifier of \cref{sec:eq-c2st} detects.
+
+\section{Benford's law}\label{sec:eq-benford}
+
+The leading digits of many naturally occurring amounts follow the logarithmic law
+$\Prob(d) = \logten(1 + 1/d)$, $d \in \{1, \dots, 9\}$, first observed by \textcite{newcomb1881} and derived by
+\textcite{hill1995} as the distribution that results from mixing many scales. Forensic accounting measures conformity by
+the mean absolute deviation of the observed first-digit shares from the law \autocite{nigrini2012}. The transaction
+amounts of the main copy have a deviation of $\est{ch06.benford-mad-main}{value}$ and those of the backup
+$\est{ch06.benford-mad-backup}{value}$. Both sit at the bound above which Nigrini classes first digits as nonconforming
+($\proto{benford.mad_first_digit_nonconformity}$), and above the bound for marginal acceptability
+($\proto{benford.mad_first_digit_marginal}$). For the replicate hypothesis what matters is that the copies agree: they
+deviate from the law in the same way and by almost the same amount, as samples of one generator would.
+
+\section{Verdict and implications}\label{sec:eq-verdict}
+
+\ident{H3} is supported for the core tables: customers, products and transactions are indistinguishable from the main
+copy in every column and jointly, and their amounts share the same digit distribution. The backup is a re-draw of the
+same generator, with targeted defects in contacts, sends and events. For the platform, the defects are exactly what a
+data contract must catch: a vocabulary outside the declared values, a measure that turns null, a flag that loses its
+values. \Cref{ch:schema-forensics} shows that the contract and its circuit breaker catch them. For the gates, the copies
+can be compared only through distributions, never row by row, and the paired tolerance of \cref{def:paired} is the
+yardstick with which \cref{ch:readiness-gates} judges whether a gate's backup re-estimate differs from its main one.
+
+\section{Limitations}\label{sec:eq-limits}
+
+The distances, the classifier tests and the vocabulary and null scans are the exploratory notebook's, read from its
+stored results; the paired estimator and the digit test are recomputed here. The classifier test detects differences
+a gradient-boosting model can find with the columns given; a difference that only shows in a transformation the
+classifier cannot learn would pass. The paired estimator splits by customer; for tables whose dependence runs through
+another unit, such as the campaign or the day, it should split by that unit. Its tolerance uses a quantile estimated
+from a finite number of splits, so ratios near one are uncertain.

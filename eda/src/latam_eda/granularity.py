@@ -760,17 +760,134 @@ def readiness_row(
 
 
 def paired_boot(
-    metric, y: np.ndarray, a: np.ndarray, b: np.ndarray, B: int = 300, seed: int = 0
+    metric,
+    y: np.ndarray,
+    a: np.ndarray,
+    b: np.ndarray,
+    B: int = 300,
+    seed: int = 0,
+    groups: np.ndarray | None = None,
 ) -> tuple[float, np.ndarray]:
-    """metric(y, a) − metric(y, b) and its paired bootstrap distribution (rows resampled with replacement)."""
+    """metric(y, a) − metric(y, b) and its paired bootstrap distribution.
+
+    By default rows are resampled with replacement. With `groups` (one cluster id per row), whole clusters are
+    resampled instead (`cluster_rows`), so rows of one customer, agent or campaign stay together.
+    """
     rng = np.random.default_rng(seed)
     y, a, b = np.asarray(y), np.asarray(a), np.asarray(b)
     d0 = metric(y, a) - metric(y, b)
     out = np.empty(B)
+    members = cluster_members(groups) if groups is not None else None
     for k in range(B):
-        i = rng.integers(0, len(y), len(y))
+        i = rng.integers(0, len(y), len(y)) if members is None else cluster_rows(members, rng)
         try:
             out[k] = metric(y[i], a[i]) - metric(y[i], b[i])
         except ValueError:  # a resample with one class
             out[k] = np.nan
     return float(d0), out
+
+
+# --------------------------------------------------------------------------- clustered and block resampling
+MIN_CLUSTERS = (
+    30  # below this a cluster bootstrap of a gate is not trusted (the gate is not assessable)
+)
+
+
+def cluster_members(groups: np.ndarray) -> list[np.ndarray]:
+    """Row positions of each cluster, computed once so every resample only draws cluster numbers."""
+    codes, _ = pd.factorize(np.asarray(groups), sort=True)
+    order = np.argsort(codes, kind="mergesort")
+    bounds = np.flatnonzero(np.diff(codes[order])) + 1
+    return np.split(order, bounds)
+
+
+def cluster_rows(members: list[np.ndarray], rng: np.random.Generator) -> np.ndarray:
+    """One cluster-bootstrap resample: draw as many clusters as there are, with replacement, keep all their rows."""
+    pick = rng.integers(0, len(members), len(members))
+    return np.concatenate([members[j] for j in pick])
+
+
+def stationary_units(n: int, mean_block: float, rng: np.random.Generator) -> np.ndarray:
+    """One stationary-bootstrap resample (Politis and Romano 1994) of the positions 0..n−1 of a time series.
+
+    Blocks start at a uniform position and have geometric lengths with mean `mean_block`; the series wraps around.
+    """
+    p = 1.0 / max(mean_block, 1.0)
+    out = np.empty(n, dtype=int)
+    out[0] = rng.integers(0, n)
+    new = rng.random(n) < p
+    starts = rng.integers(0, n, n)
+    for t in range(1, n):
+        out[t] = starts[t] if new[t] else (out[t - 1] + 1) % n
+    return out
+
+
+def politis_white_block(x: np.ndarray) -> float:
+    """Automatic mean block length of the stationary bootstrap for the mean of `x`.
+
+    Politis and White (2004) with the correction of Patton, Politis and White (2009): flat-top lag window,
+    bandwidth chosen from the first run of insignificant autocorrelations, b = (2 G² / D)^(1/3) n^(1/3).
+    """
+    x = np.asarray(x, dtype=float)
+    x = x[~np.isnan(x)]
+    n = len(x)
+    if n < 8:
+        return 1.0
+    x = x - x.mean()
+    kn = max(5, int(np.ceil(np.sqrt(np.log10(n)))))
+    mmax = int(np.ceil(np.sqrt(n))) + kn
+    bmax = float(np.ceil(min(3 * np.sqrt(n), n / 3)))
+    c = 2.0
+    var = float(np.dot(x, x) / n)
+    if var == 0:
+        return 1.0
+    acov = np.array([np.dot(x[: n - k], x[k:]) / n for k in range(mmax + 1)])
+    rho = acov / acov[0]
+    thresh = c * np.sqrt(np.log10(n) / n)
+    mhat = None
+    for m in range(1, mmax - kn + 1):
+        if np.all(np.abs(rho[m : m + kn]) < thresh):
+            mhat = m
+            break
+    M = mmax if mhat is None else min(2 * mhat, mmax)
+    k = np.arange(-M, M + 1)
+    t = np.abs(k) / M if M > 0 else np.zeros_like(k, dtype=float)
+    lam = np.where(t <= 0.5, 1.0, np.where(t <= 1.0, 2 * (1 - t), 0.0))
+    r = acov[np.abs(k)]
+    g = float(np.sum(lam * np.abs(k) * r))
+    d = 2.0 * float(np.sum(lam * r)) ** 2
+    if d <= 0:
+        return 1.0
+    b = (2 * g**2 / d) ** (1 / 3) * n ** (1 / 3)
+    return float(min(max(b, 1.0), bmax))
+
+
+def clustered_gate(
+    boot: np.ndarray,
+    delta: float,
+    material: float,
+    cause_if_red: str,
+    unit: str,
+    n_clusters: int,
+    nan_share_max: float,
+    fold_deltas: np.ndarray | None = None,
+) -> dict:
+    """The readiness gate on a clustered or block bootstrap, with the two rules a clustered run adds.
+
+    The verdict is `readiness_verdict`'s, unchanged, except that a gate is "not assessable" when fewer than
+    MIN_CLUSTERS clusters were resampled, or when more than `nan_share_max` of the draws failed (for example a
+    resample of customers with one class only). The row records the unit, the cluster count and the failed share.
+    """
+    b = np.asarray(boot, dtype=float)
+    nan_share = float(np.isnan(b).mean()) if len(b) else 1.0
+    gate = readiness_verdict(b, delta, material, cause_if_red, fold_deltas)
+    if n_clusters < MIN_CLUSTERS:
+        gate.update(
+            verdict="not assessable", root_cause=f"too few clusters ({n_clusters} < {MIN_CLUSTERS})"
+        )
+    elif nan_share > nan_share_max:
+        gate.update(
+            verdict="not assessable",
+            root_cause=f"failed bootstrap draws ({nan_share:.1%} > {nan_share_max:.0%})",
+        )
+    return {**gate, "resampling": unit, "n_clusters": int(n_clusters), "nan_share": nan_share}

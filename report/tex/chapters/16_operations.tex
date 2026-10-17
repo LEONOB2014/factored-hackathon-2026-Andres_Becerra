@@ -1,0 +1,162 @@
+\chapter{Operations}\label{ch:operations}
+
+Operations plan against forecasts and queues. How many transactions will a market handle next week, how much cash should a
+branch load, how many agents does the contact centre need at this hour, which agents perform best, how long will a complaint
+take? Each question has a classical method: rolling-origin forecasting, the newsvendor, Erlang C, reliability analysis,
+survival with censoring. This chapter states each method's assumptions, checks them on the data, and reports what the
+granularity series concluded with the uncertainty it left out.
+
+\section{Forecasting the day}\label{sec:op-forecast}
+
+\subsection{The backtest}
+
+A forecast is judged by a rolling-origin backtest: at each origin, fit on the past only, forecast the next $h$ days and score
+the errors \autocite{hyndman2006}. The series uses $h = \est{ch16.fc-h}{value}$, an origin every $\est{ch16.fc-step}{value}$ days
+over the last $\est{ch16.fc-test}{value}$ days, and the mean absolute scaled error,
+\begin{equation}\label{eq:op-mase}
+  \mathrm{MASE} = \frac{\frac{1}{m} \sum_{t} \lvert y_t - \hat y_t \rvert}
+                       {\frac{1}{n - 7} \sum_{s=8}^{n} \lvert y_s - y_{s-7} \rvert},
+\end{equation}
+which divides the forecast's error by the in-sample error of the forecast "same weekday last week": below one, the model beats
+that seasonal-naive rule. Recomputed here on each market's daily transactions and contacts, the calendar regression of
+\cref{eq:cp-calendar} has a MASE between $\est{ch16.fc-mase-min}{value}$ and $\est{ch16.fc-mase-max}{value}$ and beats the naive
+forecast in $\est{ch16.fc-beats-naive}{value}$ of $\est{ch16.fc-series}{value}$ series (\cref{tab:ch16-forecasts}). Its
+prediction intervals are less reliable than its point forecasts: the series' nominal $\est{ch16.cov-nominal}{value}\,\%$ intervals covered between
+$\est{ch16.cov80-min}{value}\,\%$ and $\est{ch16.cov80-max}{value}\,\%$ of outcomes.
+
+\subsection{Is the gain real? The test and its variance}
+
+Whether a lower MASE is more than luck is judged by the Diebold--Mariano test \autocite{diebold1995}: with loss differential
+$d_t = \lvert e^{\text{model}}_t \rvert - \lvert e^{\text{naive}}_t \rvert$, the statistic $\bar d / \sqrt{\widehat{\operatorname{Var}}(\bar d)}$
+is compared with a $t$ distribution after the small-sample correction of \textcite{harvey1997}. The variance is where the
+care lies.
+
+\begin{proposition}\label{prop:op-dm}
+Errors of forecasts made from the same origin at horizons $1, \dots, h$ share that origin's information, so the loss
+differentials form, at best, a moving average of order $h - 1$, and
+$\operatorname{Var}(\bar d) = \frac{1}{m}\bigl(\gamma_0 + 2 \sum_{k=1}^{h-1} \gamma_k\bigr)$ with $\gamma_k$ the
+autocovariances of $d_t$.
+\end{proposition}
+
+The notebooks compute the test with $\gamma_0$ alone, which is correct only for one-step forecasts. With
+$\est{ch16.fc-h}{value}$-day horizons the autocovariances belong in the variance; a Newey--West estimator with declining
+weights keeps it positive \autocite{newey1987}. And because only $\est{ch16.fc-origins}{value}$ origins supply the
+$\est{ch16.fc-errors}{value}$ errors of each series, a test on the mean differential of each origin block, with that many
+degrees of freedom, is the most honest of all. The versions find $\est{ch16.fc-sig-naive}{value}$,
+$\est{ch16.fc-sig-nw}{value}$ and $\est{ch16.fc-sig-block}{value}$ series better than naive at the conventional level, but not
+the same ones, and the $p$-values of the Newey--West version range from $\est{ch16.fc-p-ratio-min}{value}$ to
+$\est{ch16.fc-p-ratio-max}{value}$ times those of the notebooks' version. The calendar model is better on average in every
+series; the evidence for any single series is weak and depends on a choice the notebooks did not make explicitly. A longer
+backtest, with more origins, is the remedy.
+
+\input{../build/generated/tables/ch16-forecasts}
+
+\paragraph{Does one process lead another?} A series $x$ Granger-causes $y$ when past values of $x$ improve the forecast of $y$
+beyond $y$'s own past \autocite{granger1969}. The series tested $\est{ch16.granger-tests}{value}$ pairs of processes (errors
+before contacts, contacts before complaints, declines before contacts, sends before transactions). The smallest $p$-value is
+$\est{ch16.granger-p-min}{value}$ and the smallest Benjamini--Hochberg $q$-value $\est{ch16.granger-q-min}{value}$; no pair is
+a discovery. The stored adjusted values are all one ($\est{ch16.granger-stored-one}{value}$ of them), which is not the
+Benjamini--Hochberg adjustment, but the conclusion does not depend on it: no process of this bank leads another by days.
+
+\section{Branch cash}\label{sec:op-cash}
+
+A branch must load cash before it knows the day's withdrawals. Forecasting each branch's daily cash $\est{ch16.fc-h}{value}$ days ahead,
+gradient boosting reaches a median MASE of $\est{ch16.cash-mase-boost}{value}$ against $\est{ch16.cash-mase-naive}{value}$ for
+the naive forecast. Forecasts at different levels of a hierarchy need not agree: on average over the markets, summing branch forecasts gives a market forecast with a mean absolute error of $\est{ch16.hier-market-bu}{value}$ dollars, against $\est{ch16.hier-market-td}{value}$ for
+forecasting the market directly, while at the branch level the direct forecasts ($\est{ch16.hier-branch-bu}{value}$) beat the
+market split down ($\est{ch16.hier-branch-td}{value}$). Each level is forecast best at its own level, and reconciliation methods
+combine them into coherent forecasts that use the information of both \autocite{hyndman2011,wickramasuriya2019}.
+
+How much to load is a newsvendor problem \autocite{arrow1951}. If a dollar short costs $c_u$ and a dollar idle costs $c_o$, the
+expected cost is minimised by loading the quantile
+\begin{equation}\label{eq:op-newsvendor}
+  q^{\star} = F^{-1}\Bigl(\frac{c_u}{c_u + c_o}\Bigr)
+\end{equation}
+of the demand distribution $F$, here the forecast plus a buffer from the quantiles of past errors. Over the backtest
+(\cref{tab:ch16-cash}), the cheapest of the $\est{ch16.cash-policies}{value}$ policies covers demand on
+$\est{ch16.cash-best-sl}{value}\,\%$ of branch-days; cutting the buffer saves idle cash and loses more in shortfall. The costs
+themselves are assumptions of the notebook, and the service level that follows from them should be set with the business.
+
+\input{../build/generated/tables/ch16-cash}
+
+\section{Staffing the contact centre}\label{sec:op-erlang}
+
+Erlang C models the contact centre as an $M/M/c$ queue: Poisson arrivals at rate $\lambda$, exponential handle times with mean
+$\mathrm{AHT}$, and $c$ agents \autocite{gross2008}. With offered load $A = \lambda \cdot \mathrm{AHT}$ in Erlangs, the probability
+that a contact waits is
+\begin{equation}\label{eq:op-erlangc}
+  P_W = \frac{\dfrac{A^c}{c!} \dfrac{c}{c - A}}{\displaystyle \sum_{k=0}^{c-1} \frac{A^k}{k!} + \frac{A^c}{c!} \frac{c}{c - A}},
+  \qquad
+  \mathrm{SL}(t) = 1 - P_W\, e^{-(c - A)\, t / \mathrm{AHT}},
+\end{equation}
+where $\mathrm{SL}(t)$ is the share answered within $t$ seconds. For the bank's average hour of inbound calls, with
+$\lambda = \est{ch16.lambda-hour}{value}$ calls an hour and a handle time of $\est{ch16.aht}{value}$ seconds, the load is
+$\est{ch16.load}{value}$ Erlangs. The standard target of $\est{ch16.target-share}{value}\,\%$ answered within
+$\est{ch16.target-s}{value}$ seconds needs $\est{ch16.agents-80-20}{value}$ agents, who answer $\est{ch16.sl-4}{value}\,\%$ in time,
+while one fewer answers only $\est{ch16.sl-3}{value}\,\%$.
+
+The first assumption holds here: hourly arrivals are Poisson (\cref{sec:cp-hours}). The second does not. Handle times range
+from $\est{ch16.aht-min}{value}$ to $\est{ch16.aht-max}{value}$ seconds with a coefficient of variation of
+$\est{ch16.aht-cv}{value}$, where the exponential's is one. Less variable service means shorter queues; the Allen--Cunneen
+approximation scales the $M/M/c$ mean wait by $(1 + C_s^2)/2 = \est{ch16.ac-factor}{value}$ for service coefficient of
+variation $C_s$ \autocite{allen1990}. With $\est{ch16.agents-fewer}{value}$ agents the mean wait falls from
+$\est{ch16.wq-mmc-3}{value}$ to about $\est{ch16.wq-mgc-3}{value}$ seconds, with $\est{ch16.agents-80-20}{value}$ from
+$\est{ch16.wq-mmc-4}{value}$ to about $\est{ch16.wq-mgc-4}{value}$. Erlang C is therefore conservative on this data: a roster
+planned with it errs towards too many agents, a known and usually acceptable bias, but one worth knowing when a target is
+tight. The method transfers: forecast arrivals per hour, measure the handle-time distribution, and size with the model that
+fits it.
+
+\section{Agents and shifts}\label{sec:op-agents}
+
+A league table of agents ranks them by resolution rate, escalations, handle time, sentiment and survey score. It is meaningful
+only if the KPI measures something stable about the agent. Split each agent's contacts at random into equal parts; if the KPI is a property of the agent, its values on the parts correlate, with correlation $r$, and the reliability of the KPI on all contacts
+is the Spearman--Brown projection $2r / (1 + r)$ \autocite{spearman1910,brown1910}. A random-intercept model gives the same
+quantity as the share of variance between agents, the intraclass correlation \autocite{shrout1979}. Across
+$\est{ch16.agents}{value}$ agents, no KPI has a reliability above $\est{ch16.sb-max}{value}$ in absolute value, and the intraclass
+correlations are at most $\est{ch16.icc-max}{value}$ (\cref{tab:ch16-agents}). The league table is noise: ranking agents by it
+would reward and punish luck. Shift labels are equally empty. Agents labelled for a morning, afternoon or night shift handle
+between $\est{ch16.shift-inside-min}{value}\,\%$ and $\est{ch16.shift-inside-max}{value}\,\%$ of their contacts inside it, the
+share of the day a shift covers: the label is unrelated to when they work.
+
+\input{../build/generated/tables/ch16-agents}
+
+\section{Complaint cases and the clock}\label{sec:op-cases}
+
+Only $\est{ch16.case-resolved}{value}\,\%$ of the $\est{ch16.case-n}{value}$ complaint cases are resolved by the end of the data.
+The mean time to resolution of the resolved cases is $\est{ch16.case-naive-mean}{value}$ days, a figure that describes the
+minority and invites the reading that cases close in about a fortnight. The Kaplan--Meier estimate (\cref{eq:cd-km}), which
+counts the open cases as censored, says instead that $\est{ch16.case-p30}{value}\,\%$ of cases are resolved within a month, and its median is undefined because a majority of cases is never resolved. Ignoring censoring reverses the story.
+
+The breach of the service level cannot be foreseen at assignment: a classifier reaches an AUC of $\est{ch16.sla-auc}{value}$
+($\est{ch16.sla-auc-lo}{value}$ to $\est{ch16.sla-auc-hi}{value}$). The flag itself does not follow the regulatory clock it is
+meant to record: its agreement with breaches recomputed from the timestamps and each country's business hours, measured by
+Cohen's $\kappa$, the agreement beyond chance \autocite{cohen1960}, is at most $\est{ch16.kappa-max}{value}$ in absolute value.
+Neither the hour a case arrives (Kruskal--Wallis $p = \est{ch16.kw-hour-p}{value}$) nor its priority (log-rank
+$p = \est{ch16.lr-priority-p}{value}$) changes how fast it is answered. In this data the service-level flag is a random label and
+the priority field changes nothing; on real data both are what a regulator would audit first.
+
+\section{The hour of operations}\label{sec:op-hours}
+
+The intraday profile of every channel in every market is flat: all $\est{ch16.channel-flat}{value}$ of
+$\est{ch16.channel-tests}{value}$ channel-market profiles are consistent with uniform hours, with effect sizes $w$ of at most
+$\est{ch16.channel-w-max}{value}$, below what \textcite{cohen1988} calls small. Branch transactions ignore opening hours: on
+weekdays $\est{ch16.teller-out-obs}{value}\,\%$ of teller transactions fall outside the schedule against
+$\est{ch16.teller-out-blind}{value}\,\%$ if the schedule were ignored, and over all days $\est{ch16.teller-every-obs}{value}\,\%$
+against $\est{ch16.teller-every-blind}{value}\,\%$. Staffing by hour, opening hours and peak management cannot be calibrated on
+this data.
+
+\section{Verdict and implications}\label{sec:op-verdict}
+
+The operational methods are the right ones and they are implemented correctly; the data give most of them little to work on.
+Daily volumes are forecastable to a modest degree, with evidence per series that is weaker than the notebooks report once the
+test's variance is right; no process leads another; cash forecasts beat naive and the newsvendor sets the buffer; Erlang C is
+conservative because handle times vary less than it assumes; agent KPIs, shift labels, priorities and the service-level flag
+carry no information; hours are flat and opening hours are ignored. What transfers to a real bank is the method with its
+checks: forecast with a backtest whose test uses the horizon's variance, size queues with the handle-time distribution that is
+measured, and test a KPI's reliability before publishing a league table.
+
+\section{Limitations}\label{sec:op-limits}
+
+The forecast backtest is recomputed here with the smaller calendar model of \cref{ch:change-points} on processing days; the
+notebooks' fuller calendar and their other models are not refitted. The staffing example uses the bank's average hour, not a
+per-market roster. The cash, agent, case, clock and hour results are the series' stored results.

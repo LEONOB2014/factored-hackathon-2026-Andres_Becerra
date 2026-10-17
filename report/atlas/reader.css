@@ -1,0 +1,129 @@
+/* Layout: a reading room laid over the Atlas. A dark umber bar carries the title and the controls, the book sits
+   centred on a sepia desk as one or two pages of aged paper, and the bottom edge is the book's fore-edge: one strip
+   per chapter, which doubles as a scrubber. The room is sepia in either Atlas theme, by design. */
+#ebk{
+  --ebk-desk:#c8b38c; --ebk-desk-deep:#a78f68; --ebk-paper:#f3e6c9; --ebk-paper-edge:#e3d1ac;
+  --ebk-umber:#2c2219; --ebk-umber-2:#3b2e22; --ebk-cream:#f2e5c7; --ebk-cream-mut:#bea983;
+  --ebk-ink:#2a2118; --ebk-ribbon:#2c4677; --ebk-ribbon-soft:#d7d4c4;
+  --ebk-f-display:"Source Serif 4","Iowan Old Style",Georgia,serif;
+  --ebk-f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --ebk-f-num:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  position:fixed; inset:0; z-index:1000; display:grid; grid-template-rows:auto minmax(0,1fr) auto;
+  grid-template-columns:minmax(0,1fr);
+  background:radial-gradient(120% 90% at 50% 45%,var(--ebk-desk) 0%,var(--ebk-desk-deep) 100%);
+  color:var(--ebk-ink); font-family:var(--ebk-f-ui); color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+#ebk[hidden]{display:none!important}
+#ebk button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+#ebk :focus-visible{outline:2px solid var(--ebk-ribbon);outline-offset:2px}
+
+.ebk-bar{min-width:0;display:flex;align-items:center;gap:.75rem;padding:.55rem 16px;background:var(--ebk-umber);color:var(--ebk-cream);
+  box-shadow:0 1px 0 rgba(0,0,0,.25)}
+.ebk-bar button{display:inline-flex;align-items:center;gap:.4rem;padding:.35rem .6rem;border-radius:6px;color:var(--ebk-cream)}
+.ebk-bar button:hover{background:var(--ebk-umber-2)}
+.ebk-bar button[disabled]{opacity:.35;cursor:default;background:none}
+.ebk-title{min-width:0;flex:1;display:flex;flex-direction:column;line-height:1.2}
+.ebk-title b{font-family:var(--ebk-f-display);font-weight:600;font-size:1.02rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ebk-title span{font-family:var(--ebk-f-display);font-style:italic;font-size:.86rem;color:var(--ebk-cream-mut);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ebk-ctl{display:flex;align-items:center;gap:.25rem}
+.ebk-pg{display:inline-flex;align-items:baseline;gap:.35rem;font-family:var(--ebk-f-num);font-size:.82rem;color:var(--ebk-cream-mut);
+  font-variant-numeric:tabular-nums}
+.ebk-pg input{width:3.6em;padding:.2rem .3rem;border-radius:5px;border:1px solid #5a4835;background:var(--ebk-umber-2);
+  color:var(--ebk-cream);font:inherit;text-align:center}
+.ebk-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.ebk-stage{min-width:0;position:relative;display:grid;place-items:center;overflow:hidden;min-height:0;perspective:2600px;touch-action:pan-y}
+.ebk-book{position:relative;display:flex;filter:drop-shadow(0 18px 28px rgba(44,34,25,.35)) drop-shadow(0 2px 3px rgba(44,34,25,.3))}
+.ebk-page{position:relative;background:var(--ebk-paper);overflow:hidden}
+.ebk-page canvas,.ebk-face canvas{display:block;width:100%;height:100%;mix-blend-mode:multiply}
+.ebk-page.l{border-radius:4px 0 0 4px}
+.ebk-page.r{border-radius:0 4px 4px 0}
+.ebk-book.single .ebk-page.r{border-radius:4px}
+.ebk-page.blank canvas{visibility:hidden}
+.ebk-page.void{background:none}
+.ebk-page.void canvas{visibility:hidden}
+/* the gutter: paper darkens toward the spine on both sides */
+.ebk-page.l::after,.ebk-page.r::after,.ebk-face::after{content:"";position:absolute;inset:0;pointer-events:none}
+.ebk-page.l::after{background:linear-gradient(to left,rgba(90,64,34,.22),rgba(90,64,34,0) 9%)}
+.ebk-page.r::after{background:linear-gradient(to right,rgba(90,64,34,.22),rgba(90,64,34,0) 9%)}
+.ebk-book.single .ebk-page.r::after{background:linear-gradient(to right,rgba(90,64,34,.12),rgba(90,64,34,0) 4%)}
+.ebk-page.void::after{display:none}
+.ebk-lnk{position:absolute;inset:0;z-index:2}
+.ebk-lnk a{position:absolute;display:block;border-radius:2px}
+.ebk-lnk a:hover{background:rgba(44,70,119,.12);box-shadow:inset 0 -1px 0 rgba(44,70,119,.5)}
+
+/* the turning leaf */
+.ebk-leaf{position:absolute;top:0;z-index:5;transform-style:preserve-3d;will-change:transform}
+.ebk-face{position:absolute;inset:0;background:var(--ebk-paper);backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden}
+.ebk-face.back{transform:rotateY(180deg)}
+.ebk-face::after{background:linear-gradient(to right,rgba(60,40,20,0),rgba(60,40,20,.28));opacity:0;animation:ebk-shade var(--ebk-t) ease-in-out}
+.ebk-face.back::after{background:linear-gradient(to left,rgba(60,40,20,0),rgba(60,40,20,.28))}
+@keyframes ebk-shade{0%{opacity:0}50%{opacity:1}100%{opacity:0}}
+
+.ebk-msg{position:absolute;inset:auto 0 46%;text-align:center;font-family:var(--ebk-f-display);font-style:italic;font-size:1.05rem;color:var(--ebk-umber)}
+.ebk-msg[hidden]{display:none}
+
+/* the fore-edge: one strip per chapter, read like the edge of a closed book */
+.ebk-edge{min-width:0;position:relative;height:34px;margin:0 16px 10px;display:flex;align-items:stretch;gap:1px;cursor:pointer;
+  border-radius:3px;overflow:hidden;background:var(--ebk-paper-edge)}
+.ebk-edge i{flex:var(--w) 0 0;min-width:2px;background:repeating-linear-gradient(90deg,#efe0c0 0 2px,#e2cfa8 2px 3px);
+  border-right:1px solid rgba(90,64,34,.35)}
+.ebk-edge i.app{background:repeating-linear-gradient(90deg,#e7d6b2 0 2px,#d8c39a 2px 3px)}
+.ebk-edge i:hover{filter:brightness(.93)}
+.ebk-edge .mark{position:absolute;top:0;bottom:0;width:3px;background:var(--ebk-ribbon);border-radius:2px;pointer-events:none;
+  box-shadow:0 0 0 1px rgba(242,229,199,.7)}
+.ebk-edge .mark::after{content:"";position:absolute;bottom:-6px;left:-3px;border:4.5px solid transparent;border-top-color:var(--ebk-ribbon)}
+
+/* contents drawer */
+.ebk-toc{position:absolute;top:0;bottom:0;left:0;z-index:20;width:min(390px,92vw);overflow:auto;padding:1rem 18px 2rem;
+  background:var(--ebk-paper);box-shadow:4px 0 22px rgba(44,34,25,.35)}
+.ebk-toc[hidden]{display:none}
+.ebk-toc h2{font-family:var(--ebk-f-display);font-weight:600;font-size:1.3rem;margin:.2rem 0 .8rem;text-wrap:balance}
+.ebk-toc ol{list-style:none;margin:0;padding:0}
+.ebk-toc li{margin:0}
+.ebk-toc .part{font-family:var(--ebk-f-ui);font-size:.72rem;letter-spacing:.09em;text-transform:uppercase;color:#7a6446;
+  margin:1rem 0 .3rem;padding-top:.6rem;border-top:1px solid #dcc9a4}
+.ebk-toc button.it{display:flex;gap:.6rem;width:100%;text-align:left;padding:.28rem .35rem;border-radius:4px;
+  font-family:var(--ebk-f-display);font-size:.98rem;line-height:1.3}
+.ebk-toc button.it:hover,.ebk-toc button.it[aria-current="true"]{background:var(--ebk-ribbon-soft)}
+.ebk-toc button.it .t{flex:1}
+.ebk-toc button.it .p{font-family:var(--ebk-f-num);font-size:.78rem;color:#7a6446;font-variant-numeric:tabular-nums}
+.ebk-toc ol ol button.it{font-family:var(--ebk-f-ui);font-size:.84rem;padding-left:1.4rem;color:#4a3a2a}
+.ebk-toc details>summary{list-style:none}
+.ebk-toc details>summary::-webkit-details-marker{display:none}
+.ebk-toc .sub{font-family:var(--ebk-f-ui);font-size:.76rem;color:#7a6446;padding:.1rem .35rem .3rem 1.4rem;cursor:pointer}
+
+/* the shelf: one cloth-bound cover per report, standing on the desk */
+.ebk-shelf{align-self:stretch;justify-self:stretch;overflow:auto;padding:2rem 16px 1.5rem;display:flex;flex-direction:column;
+  align-items:center;gap:.6rem}
+.ebk-shelf[hidden]{display:none}
+.ebk-shelf h2{font-family:var(--ebk-f-display);font-weight:600;font-size:1.6rem;margin:0;color:var(--ebk-umber);text-wrap:balance;
+  text-align:center}
+.ebk-shelf-lede{margin:0 0 1rem;font-family:var(--ebk-f-display);font-style:italic;color:#4a3a2a;text-align:center;max-width:52ch}
+.ebk-books{list-style:none;margin:0;padding:0 0 1rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),250px));
+  gap:1.4rem;justify-content:center;width:100%;max-width:880px}
+.ebk-books li{display:flex}
+#ebk .ebk-cover{flex:1;display:flex;flex-direction:column;gap:.55rem;text-align:left;min-height:300px;padding:1.4rem 1.2rem 1.1rem 1.6rem;
+  border-radius:3px 8px 8px 3px;background:linear-gradient(90deg,#20304f 0 10px,#2c4677 10px 100%);color:#efe3c4;
+  box-shadow:inset 3px 0 0 rgba(255,255,255,.08),inset -1px 0 0 rgba(0,0,0,.25),0 14px 24px rgba(44,34,25,.35),0 2px 3px rgba(44,34,25,.3);
+  transition:transform .18s ease,box-shadow .18s ease}
+#ebk .ebk-books li:nth-child(2) .ebk-cover{background:linear-gradient(90deg,#14403c 0 10px,#1f5c56 10px 100%)}
+#ebk .ebk-books li:nth-child(3) .ebk-cover{background:linear-gradient(90deg,#4a2d14 0 10px,#6b4220 10px 100%)}
+#ebk .ebk-cover:hover{transform:translateY(-3px);box-shadow:inset 3px 0 0 rgba(255,255,255,.08),0 20px 30px rgba(44,34,25,.4)}
+.ebk-cover .k{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:#d9c79d}
+.ebk-cover .t{font-family:var(--ebk-f-display);font-weight:600;font-size:1.32rem;line-height:1.2;text-wrap:balance;
+  padding-bottom:.55rem;border-bottom:1px solid rgba(239,227,196,.35)}
+.ebk-cover .s{font-family:var(--ebk-f-display);font-style:italic;font-size:.92rem;line-height:1.35;color:#e3d5b2;flex:1}
+.ebk-cover .go{align-self:flex-start;font-size:.82rem;padding:.25rem .65rem;border:1px solid rgba(239,227,196,.5);border-radius:999px}
+.ebk-book[hidden],.ebk-edge[hidden],.ebk-ctl[hidden],#ebk .ebk-bar button[hidden]{display:none}
+@media (prefers-reduced-motion:reduce){ #ebk .ebk-cover{transition:none} #ebk .ebk-cover:hover{transform:none} }
+
+@media (max-width:640px){
+  .ebk-bar{flex-wrap:wrap;gap:.4rem}
+  #ebk .ebk-cover{min-height:200px}
+  .ebk-title{order:3;flex-basis:100%}
+  .ebk-bar .lbl{display:none}
+}
+@media (prefers-reduced-motion:reduce){ .ebk-face::after{animation:none} }

@@ -17,7 +17,10 @@ jobs:
     name: "Lint, Format & Type Check"
     runs-on: ubuntu-latest
     steps:
+      # Full history: report-tests reads the protocol at its freeze commit with git show.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5

@@ -1,0 +1,105 @@
+\chapter{Readiness gates as decisions}\label{ch:readiness-gates}
+
+The project turns its analyses into decisions through readiness gates: for each model that might be trained on the hour grain,
+a gate says whether it is ready to build (green), useful only as a rule or KPI (amber) or not supported by the data (red), and,
+when it is not green, what the data collection must change. A gate is a decision with consequences, so it deserves the
+strictest evidence the report can give. This chapter states the gate rule, re-estimates every gate under a protocol frozen before
+the re-estimation ran, on the main copy the pipeline serves and on the backup, and reports where the re-estimates agree with the
+published scorecard, where they do not, and why.
+
+\section{The gate rule}\label{sec:rg-rule}
+
+Each of the $\est{ch19.gates}{value}$ gates compares a model with a transparent benchmark on the same out-of-time rows, through a
+gain $\delta$ oriented so that larger is better (an AUC difference, or a reduction of loss), and its bootstrap distribution. The
+rule (\cref{def:verdict}) is green when the $1 - \proto{gates.alpha}$ bootstrap interval of $\delta$ excludes zero, the gain is at
+least the material gain the gate declares and the folds agree in sign; amber when the gain is detectable but not material, or the
+folds disagree; red otherwise. A red gate's root cause is \emph{insufficient volume} when the minimum detectable effect,
+$\proto{gates.mde_multiplier}$ bootstrap standard deviations (\cref{eq:mde}), exceeds the material gain, so that even a material
+gain could not have been seen; otherwise the scenario's declared cause, most often \emph{generator independence}, the absence of
+the dependence the model needs. The published scorecard has $\est{ch19.pub-green}{value}$ green, $\est{ch19.pub-amber}{value}$
+amber and $\est{ch19.pub-red}{value}$ red gates.
+
+\section{The registered re-estimation}\label{sec:rg-registered}
+
+The published scorecard resamples rows, as if every row were independent. Its gates rest on customers, agents, branches,
+campaigns and days, whose rows are not (\cref{sec:em-clusters}). The registered re-estimation keeps everything else fixed and
+changes only how the interval is computed: each gate's bootstrap resamples its independent unit, or blocks of days with the
+Politis--White length for daily series, with $\proto{gates.bootstrap_draws}$ draws. Rules protect the result. A gate with
+fewer than $\proto{gates.min_clusters}$ clusters is not assessable, because a cluster bootstrap with so few units is not trusted;
+nor is one where more than a share $\proto{gates.nan_share_max}$ of the draws fail.
+
+Everything that defines a gate was frozen in \ident{conf/protocol.toml} before any re-estimate ran: the gate identifiers, their
+units and splits, the unchanged verdict rule, the bootstrap, and the rule by which a re-estimate disagrees with the published
+gate (a different verdict or root cause). The freeze is recorded at commit \ident{b387f69}, and a test fails if any frozen field
+changes without a dated, reasoned amendment. \Cref{tab:ch19-amendments} lists all $\est{ch19.amendments}{value}$ amendments. The
+$\est{ch19.amendments-gates}{value}$ that touch the gates either document constants of the unchanged rule or, in the cases that matter here, were recorded before the results they govern: how the tolerance between the copies is computed, and what
+happens when a scenario raises an error. Registered claims cite the protocol commit in force, \ident{a46f2e4}.
+
+\input{../build/generated/tables/ch19-amendments}
+
+What the registered status can and cannot claim deserves a sentence. It rules out adjusting the specification after seeing the
+re-estimates. It does not rule out choices made earlier, when the exploratory notebooks were written on the same data, and the
+dataset itself is fixed, ending on \proto{dataset.end_date}: the re-estimation re-examines the evidence; it does not add new
+evidence.
+
+\section{The main copy}\label{sec:rg-main}
+
+On main, the re-estimate gives $\est{ch19.main-green}{value}$ green, $\est{ch19.main-amber}{value}$ amber,
+$\est{ch19.main-red}{value}$ red and $\est{ch19.main-not-assessable}{value}$ not assessable (\cref{tab:ch19-gates}).
+The re-estimate disagrees with the published scorecard on $\est{ch19.disagree}{value}$ gate, the branch-hour ATM cash forecast, which, published as red, is
+not assessable, because its out-of-time window holds $\est{ch19.clusters-min}{value}$ days, fewer than the
+$\proto{gates.min_clusters}$ independent blocks the rule requires. The disagreement is in the direction of caution: the published
+red rested on an interval the clustered rule does not trust. Every other gate keeps its verdict and root cause, and
+$\est{ch19.same-delta}{value}$ of the $\est{ch19.gates}{value}$ gains are identical to the published ones, as they must be when only
+the interval changes. No draw failed in any gate (largest failed share $\est{ch19.nan-share-max}{value}$).
+
+\input{../build/generated/tables/ch19-gates}
+
+\paragraph{A benchmark that moves.} The gain of the SLA-breach gate is not identical, and the reason is a defect worth naming. Its
+benchmark is the base rate, a constant, whose ranking of cases should be no ranking at all: an AUC of exactly chance level. The code
+adds a tiny random jitter to the constant to break ties, drawn from the same random stream the bootstrap loop uses before it. A
+clustered bootstrap consumes that stream differently, so the jitter differs, and with it the benchmark's AUC:
+$\est{ch19.sla-bench-pub}{value}$ in the published run and $\est{ch19.sla-bench-reg}{value}$ here, for a model whose AUC is
+$\est{ch19.sla-model-auc}{value}$ in both. The published gain of $\est{ch19.sla-delta-pub}{value}$ is mostly jitter; against the
+constant's true AUC the gain is $\est{ch19.sla-delta-const}{value}$. The verdict, red, does not change, but a benchmark must be
+deterministic: ties should be scored as half-wins, as the Mann--Whitney statistic of \cref{eq:auc-delong} does.
+
+\section{The backup copy}\label{sec:rg-backup}
+
+On the backup, the re-estimate gives $\est{ch19.backup-green}{value}$ green, $\est{ch19.backup-amber}{value}$ amber,
+$\est{ch19.backup-red}{value}$ red and $\est{ch19.backup-not-assessable}{value}$ not assessable. The original runner aborted on the
+backup: the market-channel scenario raised an error on a training series with no transactions, because the backup's transactions
+end on \proto{dataset.backup_transactions_end_date} (\cref{ch:inventory-keys}). Under the amendment recorded before any backup
+gate result existed, each scenario that raises is recorded as not assessable with its error, and the others run unchanged. The agent scenario raises on an empty training set, consistent with the call durations the backup wiped (\cref{sec:eq-differences}), and the session-and-send scenario on an empty set of inputs; a scenario carries all its gates down with it. The gate runner should never raise on a degenerate input: a gate that cannot be estimated must say
+so, which is a requirement on the code as much as on the data.
+
+\paragraph{Main against backup.} For the $\est{ch19.copy-comparable}{value}$ gates assessable on both copies, the main and backup
+gains are compared with the frozen tolerance, the two-sided quantile of the paired noise of independent copies,
+$z_{1-\alpha/2} \sqrt{\sigma^2_{\mathrm{main}} + \sigma^2_{\mathrm{backup}}}$ with each $\sigma$ recovered from its copy's minimum
+detectable effect. $\est{ch19.copy-disagree}{value}$ gates exceed it, both customer-level gates that are red on both copies. Their
+splits are defined relative to each copy's own end of data, and the backup's customer histories end earlier, so the copies evaluate
+different windows; the difference measures that shift, not an instability of the verdict, which is the same.
+
+\section{The ledgers of the series}\label{sec:rg-ledgers}
+
+Behind the gates stand the tests of the time and hour series, pooled in ledgers under false-discovery control like the daily ledger
+of \cref{sec:ag2-ledger}. Recomputed here, the Benjamini--Hochberg $q$-values of both ledgers agree exactly with the stored ones
+($\est{ch19.time-q-reproduced}{value}$ and $\est{ch19.hour-q-reproduced}{value}$ for agreement). The time series has
+$\est{ch19.time-discoveries}{value}$ discoveries among $\est{ch19.time-tests}{value}$ tests and the hour series
+$\est{ch19.hour-discoveries}{value}$ among $\est{ch19.hour-tests}{value}$; none of them turns a gate green.
+
+\section{Verdict and implications}\label{sec:rg-verdict}
+
+No model of the hour grain is ready to build on this data, on either copy, under the published rule or the registered
+re-estimation. The re-estimation confirms the scorecard where it can, overturns one red into not assessable, and finds that the
+gate runner needs guards against degenerate inputs and a deterministic benchmark. Read together with the learnability map of
+\cref{ch:learnability}, the readiness of this dataset for machine learning is a statement about what it lacks: real timestamps with a
+declared clock, workforce and telephony logs, schedules, counterparties, consistent service-level flags, confirmed labels. Each red
+gate names the requirement that would turn it green, and the re-evaluation loop is to collect it, re-run the same frozen gate on the
+new feed, and build only what passes.
+
+\section{Limitations}\label{sec:rg-limits}
+
+The re-estimation ran once per copy on the whole bank; the scopes per market were not re-estimated. The backup's results are limited
+by the scenarios that could not run. The copy tolerance treats the copies' bootstrap distributions as normal, through their minimum
+detectable effects; the gates it flags are red on both copies, so the approximation does not decide any verdict.

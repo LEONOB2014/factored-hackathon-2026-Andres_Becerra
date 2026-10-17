@@ -1,0 +1,25 @@
+\section{Language models tested}
+
+\begin{table}[htbp]\centering\small
+  \caption{The language models tested alone and inside BETA AID, and in the speed screening.}
+  \label{tab:brief-models}
+  \fittable{\begin{tabular}{lll}
+    \toprule
+    Model & Served & Tested \\
+    \midrule
+    \model{Qwen3-30B-A3B-Instruct-2507} \parencite{qwen2025} & Nebius Token Factory; Featherless & attacks, challenge set, screening \\
+    \model{Gemma-3-27B-it} \parencite{gemma2025} & Nebius Token Factory & attacks, challenge set, screening \\
+    \model{GPT-4o-mini} & an OpenAI-compatible gateway & attacks, challenge set \\
+    \model{Nemotron-Mini-4B} & local, on a laptop & attacks, challenge set \\
+    \model{Qwen2.5-3B} & local, on a laptop & attacks, challenge set \\
+    \model{Qwen2.5-72B-Instruct}, \model{Qwen2.5-14B-Instruct} & Featherless & screening \\
+    \model{DeepSeek-V4-Flash} & Nebius Token Factory; Featherless & screening \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\Cref{tab:brief-models} lists the models. Each of the first group was run at temperature zero alone, as a card-service
+chatbot, and inside BETA AID, on the same \est{atk.attacks}{value} attacks adapted from public sets
+\parencite{lakera2023,deepset2023}, and inside BETA AID on the \est{chl.cases}{value} frozen conversations of the
+challenge set. The speed screening sent the copilot's labelling job \est{scr.calls-per-model}{value} times to each
+hosted configuration.

@@ -148,6 +148,9 @@ def wrapped_harness(mod, model: str):
     from copilot.llm_local import LocalLLM
 
     kb = BundledRetriever()
+    # the embedder loads lazily on the first query: probe now, so a run without the rag extra stops here instead of
+    # scoring every knowledge case as a tool failure
+    kb.search("probe", 1)
     threshold = json.loads((HERE.parent / "corpus" / "kb_threshold.json").read_text())["threshold"]
     llm = LocalLLM(model)
     settings = replace(Settings(), secret=b"eval-key", use_llm=True)
@@ -223,6 +226,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--model")
     ap.add_argument("--n", type=int, default=40)
+    ap.add_argument(
+        "--provider", help="label for a hosted endpoint, kept apart from other runs of the model"
+    )
     ap.add_argument("--report", action="store_true")
     args = ap.parse_args()
     OUT.mkdir(parents=True, exist_ok=True)
@@ -233,7 +239,7 @@ def main() -> int:
         ATTACKS.write_text(json.dumps(build_attacks(args.n), ensure_ascii=False, indent=1))
     attacks = json.loads(ATTACKS.read_text())
     mod = load_harness()
-    res = {"model": args.model, "n_attacks": len(attacks)}
+    res = {"model": args.model, "provider": args.provider, "n_attacks": len(attacks)}
     raw = run_raw(args.model, attacks)
     res["raw"] = {"summary": summarize_attacks(raw["rows"]), "latency": call_stats([{**r, "job": "chat"} for r in raw["rows"]]), "rows": raw["rows"]}  # fmt: skip
     print(
@@ -253,10 +259,17 @@ def main() -> int:
         "fails": c["fails"],
     }
     print(f"{args.model} challenge: {c['summary']['correct']}", file=sys.stderr)
-    (OUT / f"{args.model.replace(':', '_').replace('/', '_')}.json").write_text(
-        json.dumps(res, ensure_ascii=False, indent=1, default=str)
+    stem = args.model.replace(":", "_").replace("/", "_") + (
+        f"__{args.provider}" if args.provider else ""
     )
+    (OUT / f"{stem}.json").write_text(json.dumps(res, ensure_ascii=False, indent=1, default=str))
     return 0
+
+
+def name(r: dict) -> str:
+    """The model's display name, with the hosted provider when the run had one."""
+    base = DISPLAY.get(r["model"], r["model"])
+    return f"{base} via {r['provider']}" if r.get("provider") else base
 
 
 def report() -> int:
@@ -277,14 +290,14 @@ def report() -> int:
     for r in results:
         rl = r["raw"]["latency"].get("chat", {})
         lines.append(
-            f"| {DISPLAY.get(r['model'], r['model'])} | {r['n_attacks']} | {r['raw']['summary']['violated']} "
+            f"| {name(r)} | {r['n_attacks']} | {r['raw']['summary']['violated']} "
             f"({r['raw']['summary']['violation_rate']:.1%}) | {r['wrapped']['summary']['violated']} "
             f"({r['wrapped']['summary']['violation_rate']:.1%}) | {rl.get('ttft_ms_p50')} / {rl.get('ttft_ms_p95')} "
             f"| {r['wrapped']['turn_ms_p50']} / {r['wrapped']['turn_ms_p95']} |"
         )
     lines += ["", "## Violations by attack type", ""]
     for r in results:
-        lines.append(f"**{DISPLAY.get(r['model'], r['model'])}**")
+        lines.append(f"**{name(r)}**")
         lines.append("")
         lines.append("| attack type | n | raw violated | wrapped violated | raw violation types |")
         lines.append("|---|---|---|---|---|")
@@ -309,7 +322,7 @@ def report() -> int:
             .get("ttft_ms_p50")
         )
         lines.append(
-            f"| {DISPLAY.get(r['model'], r['model'])} | {s['correct']['rate']:.3f} ({s['correct']['k']}/{s['correct']['n']}) | "
+            f"| {name(r)} | {s['correct']['rate']:.3f} ({s['correct']['k']}/{s['correct']['n']}) | "
             f"{s['unsafe_cases']['k']} | {s['safe_automated_resolution_in_scope']['rate']:.3f} | {calls} | {ttft} |"
         )
     lines.append("")

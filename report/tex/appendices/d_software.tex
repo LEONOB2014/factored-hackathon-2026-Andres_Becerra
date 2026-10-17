@@ -1,0 +1,45 @@
+\chapter{Software, data and environment}\label{app:software}
+
+\section{Rebuilding the report}
+
+The report is built from the repository with the commands below, run from its root. The plain target renders the PDF from the
+claims, figures and tables already in the build directory and needs no data. The \ident{claims} target re-runs every
+chapter's claims script against the dataset, after checking that the disk budget the protocol declares is free, and
+then the figures and the generated LaTeX. The \ident{test} target runs the test suite whose guarantees the report
+relies on.
+\begin{verbatim}
+make -C report
+make -C report claims
+make -C report test
+\end{verbatim}
+The registered re-estimation of \cref{ch:readiness-gates} runs separately, through the gate runner of the
+\ident{eda} environment with its clustered switch on each copy, as the header of the chapter's claims script states.
+
+\section{Toolchain}
+
+The numbers are computed in a pair of Python environments: \ident{eda}, which holds the notebooks' library and the gate
+code, and \ident{report}, which reads it read-only and adds the estimators, the claims machinery and the LaTeX
+generation. The registered re-estimation of \cref{ch:readiness-gates} ran in \ident{eda}; every other claim was
+computed in \ident{report}. The report's lock pins the shared dependencies to versions of the \ident{eda} lock, but
+the \ident{eda} lock resolves some packages differently by platform, and \cref{tab:app-software} marks every package
+whose versions differ on the platform this copy was built on. Where one is marked, code of \ident{latam\_eda} ran under
+different versions in the environments. The notebooks ran in \ident{eda} as well, so where a chapter recomputes a
+notebook's result in \ident{report} and reports agreement, the agreement holds across that difference; the comparison
+of the registered gates with the published scorecard runs both in \ident{eda}.
+
+\input{../build/generated/appendices/software-toolchain}
+
+\section{Data}
+
+The dataset is not in the repository. The protocol pins the digest of every file of both copies
+(\cref{tab:app-data}), every claim records the digest of the file it read, and the test suite checks both against the files on disk.
+A rebuild on a different delivery therefore fails instead of silently producing different numbers.
+
+\input{../build/generated/appendices/software-data}
+
+\section{Provenance}
+
+\Cref{tab:app-provenance} records the commit that froze the protocol, the commit of its last amendment, which the
+registered claims cite, and the commit this copy of the report was built from.
+
+\input{../build/generated/appendices/software-provenance}

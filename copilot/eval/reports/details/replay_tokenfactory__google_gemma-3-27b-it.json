@@ -1,0 +1,83 @@
+{
+ "model": "google/gemma-3-27b-it",
+ "provider": "tokenfactory",
+ "at": "2026-10-08T18:36:52+00:00",
+ "cases": [
+  {
+   "id": "N01",
+   "expect": {
+    "outcome": "answered"
+   },
+   "turns": [
+    {
+     "input": "caí num golpe do Pix, como peço a devolução?",
+     "outcome": "answered",
+     "reply": "O MED 2.0 é a segunda versão do mecanismo especial de devolução do Pix do Banco Central do Brasil [reg-br-pix-med2 v1.0]. Ele adiciona uma disputa dentro do aplicativo em caso de suspeita de fraude [reg-br-pix-med2 v1.0].",
+     "handoff_queue": null,
+     "policy_rule": "K01_cited_answer",
+     "intent": "policy_question",
+     "intent_source": "model",
+     "grounding": "pass",
+     "llm_calls": 1
+    }
+   ]
+  },
+  {
+   "id": "N02",
+   "expect": {
+    "outcome": "answered"
+   },
+   "turns": [
+    {
+     "input": "¿qué ley protege mis datos personales en México?",
+     "outcome": "handoff",
+     "reply": "Esto lo resuelve mejor una persona. Te paso con un asesor; ya le comparto el resumen para que no tengas que repetir nada.",
+     "handoff_queue": "general",
+     "policy_rule": "P40_policy_question",
+     "intent": "policy_question",
+     "intent_source": "model",
+     "grounding": "no_answer_or_ungrounded",
+     "llm_calls": 1
+    }
+   ]
+  },
+  {
+   "id": "N03",
+   "expect": {
+    "outcome": "handoff",
+    "queue": "general"
+   },
+   "turns": [
+    {
+     "input": "no quiero recibir más publicidad del banco",
+     "outcome": "clarify",
+     "reply": "Eso no lo puedo resolver aquí: solo atiendo temas de tarjetas (estado, saldo, rechazos, vencimiento, bloqueo, reposición y desbloqueo). Si necesitas otra cosa, puedo pasarte con un asesor.",
+     "handoff_queue": null,
+     "policy_rule": "K00_no_document",
+     "intent": "policy_question",
+     "intent_source": "llm",
+     "llm_calls": 1
+    }
+   ]
+  },
+  {
+   "id": "N04",
+   "expect": {
+    "outcome": "handoff",
+    "queue": "general"
+   },
+   "turns": [
+    {
+     "input": "por quanto tempo vocês guardam meus dados?",
+     "outcome": "handoff",
+     "reply": "Isso é melhor resolvido por uma pessoa. Vou passar para um atendente; já envio o resumo para você não precisar repetir nada.",
+     "handoff_queue": "general",
+     "policy_rule": "P40_policy_question",
+     "intent": "policy_question",
+     "intent_source": "model",
+     "llm_calls": 0
+    }
+   ]
+  }
+ ]
+}

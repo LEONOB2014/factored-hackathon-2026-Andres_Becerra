@@ -1,0 +1,98 @@
+\chapter{The intent model}\label{ch:intent}
+
+The intent model is the only component of the copilot trained on data. It decides, on every turn, what the customer
+is asking for; the policy then decides what the copilot may do about it.
+
+\section{Training data}
+
+The team wrote \est{int.base-phrasings}{value} base phrasings for \est{int.intents}{value} intents:
+\est{int.base-es}{value} in Spanish and \est{int.base-pt}{value} in Portuguese, including
+\est{int.base-transcripts}{value} customer openings taken from the bank's call transcripts. Each base phrasing was
+augmented deterministically with greetings, courtesy words, dropped accents and changed casing, which gives
+\est{int.augmented}{value} training phrasings. Every variant keeps the identity of its base phrasing, so that
+cross-validation never trains on one variant of a sentence and scores another.
+
+\section{Model and tuning}
+
+The model is a logistic regression on character n-grams of length \est{int.ngram-min}{value} to
+\est{int.ngram-max}{value}, taken within word boundaries after folding accents and case, with balanced class weights
+and an inverse regularisation strength of \est{int.reg-c}{value} \parencite{pedregosa2011}. Character n-grams suit
+short, informal, misspelt messages in a pair of closely related languages, and the model labels a message in
+well under a millisecond (median \est{int.ms-p50}{value}\,ms on the held-out phrasings).
+
+The settings were chosen with Optuna \parencite{akiba2019} to maximise the macro-averaged $F_1$ of grouped
+\est{int.folds}{value}-fold cross-validation, where a group is a base phrasing with all its variants; the best value
+was \est{int.cv-f1}{value}.
+
+\section{The confidence threshold}
+
+The model labels a message on its own only when its confidence reaches a threshold; below it, a language model
+labels the message, or, with no model configured, the copilot asks the customer to rephrase. The threshold was set on
+the out-of-fold predictions of the training phrasings as the lowest confidence above which the model is right at
+least \est{int.target-precision}{value} of the time. It is \est{int.threshold}{value}. A wrong label above it cannot
+act on its own, because every card action still needs the customer's confirmation and every hand-off only routes to
+a person; the threshold therefore trades clarifying questions or model calls against accuracy, not safety.
+
+Out of fold, \est{int.oof-coverage}{pct}\,\% of the training phrasings reach the threshold (interval
+\est{int.oof-coverage}{pct_ci}\,\%), and \est{int.oof-acc-confident}{pct}\,\% of those are labelled correctly
+(interval \est{int.oof-acc-confident}{pct_ci}\,\%); both intervals resample the \est{int.oof-groups}{value} base
+phrasings, not the variants.
+
+\section{Held-out results}
+
+The \est{int.held-out}{value} held-out phrasings were written after the training phrasings and before any tuning,
+and never chose anything. The learned model labels \est{int.acc-learned}{num} of them correctly
+(\est{int.acc-learned}{pct}\,\%, interval \est{int.acc-learned}{pct_ci}\,\%); the keyword baseline, which takes the
+first matching keyword in a fixed priority order, labels \est{int.acc-keyword}{num}
+(\est{int.acc-keyword}{pct}\,\%, interval \est{int.acc-keyword}{pct_ci}\,\%). On the same phrasings, the learned model
+is right where the keywords are wrong \est{int.mcnemar-b}{value} times, and the reverse happens
+\est{int.mcnemar-c}{value} times; the exact McNemar test rejects equal accuracy with $p = \est{int.mcnemar}{p}$. The
+macro-averaged $F_1$ is \est{int.f1-learned}{estimate} (interval \est{int.f1-learned}{ci}) for the learned model and
+\est{int.f1-keyword}{estimate} (interval \est{int.f1-keyword}{ci}) for the keywords.
+
+By language, the learned model is right on \est{int.acc-learned-es}{num} of \est{int.acc-learned-es}{den} Spanish and
+\est{int.acc-learned-pt}{num} of \est{int.acc-learned-pt}{den} Portuguese phrasings; the intervals overlap, so the
+evaluation does not show a difference between the languages.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.82\linewidth]{fig-int-confusion}
+  \caption{Held-out confusion matrix of the learned model: rows are the intent each phrasing was written for,
+  columns the label the model gave. Counts of phrasings; empty cells are zero.}
+  \label{fig:int-confusion}
+\end{figure}
+
+\Cref{fig:int-confusion} shows where the errors fall. Of the \est{int.errors}{value} errors,
+\est{int.errors-oos}{value} are out-of-scope requests (a loan, a film, the opening hours of a branch) given a card
+intent or a hand-off; the model recognises only a few of the \est{int.oos-items}{value} out-of-scope phrasings as
+such. Out of scope is the hardest intent because it is defined by exclusion: its phrasings share no vocabulary, and a
+request about a loan shares words with the card intents. These errors are not unsafe: a card intent on an
+out-of-scope request answers about the customer's own card or asks which card is meant, and a hand-off reaches a
+person. \Cref{tab:intent-recall} gives the recall of every intent for both systems.
+
+\generated{tables/intent-recall}
+
+\section{Calibration and coverage}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.38\linewidth]{fig-int-reliability}\hfill
+  \includegraphics[width=0.6\linewidth]{fig-int-coverage}
+  \caption{Left: reliability diagram of the learned model on the held-out phrasings, in
+  \proto{stats.ece_bins} equal-width confidence bins; the number beside each point is the phrasings in the bin, and the
+  dashed line is perfect calibration. Right: accuracy against coverage as the threshold moves, out of fold and held
+  out; the dots mark the tuned threshold.}
+  \label{fig:int-calibration}
+\end{figure}
+
+A threshold is only useful if confidence tracks accuracy. On the held-out phrasings the expected calibration error,
+the coverage-weighted gap between confidence and accuracy over the bins \parencite{naeini2015,guo2017}, is
+\est{int.ece-learned}{value}; the reliability diagram (\cref{fig:int-calibration}, left) lies above the diagonal in every
+bin but the lowest, so where it errs the model is underconfident: it is right more often than its confidence says. At the tuned threshold the model labels
+\est{int.cover}{num} of the \est{int.cover}{den} held-out phrasings on its own (\est{int.cover}{pct}\,\%, interval
+\est{int.cover}{pct_ci}\,\%), and \est{int.acc-confident}{num} of those correctly (\est{int.acc-confident}{pct}\,\%,
+interval \est{int.acc-confident}{pct_ci}\,\%). Below the threshold it would be right on only
+\est{int.acc-unsure}{num} of \est{int.acc-unsure}{den}, which is why those messages go to a language model or back to
+the customer. The held-out curve lies above the out-of-fold one (\cref{fig:int-calibration}, right): at every coverage the
+model was more accurate on the held-out phrasings than out of fold, so the threshold chosen out of fold was
+conservative for them.
