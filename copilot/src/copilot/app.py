@@ -46,9 +46,21 @@ def engine() -> Engine:
     s = Settings()
     tracing.setup()
     tools = Tools(s.snapshot, s.store, s.secret, s.confirm_ttl_s, sandbox=s.sandbox)
-    llm = LLM(s.llm_model, s.llm_timeout_s) if s.llm_available else None
+    llm = _llm(s)
     kb, kb_threshold = _knowledge()
     return Engine(s, tools, llm=llm, kb=kb, kb_threshold=kb_threshold)
+
+
+def _llm(s: Settings):
+    """Claude by default; an open-weight model through Ollama or a hosted OpenAI-compatible endpoint when
+    COPILOT_LLM_BACKEND says so; none when no model is configured (the deterministic path)."""
+    if not s.llm_available:
+        return None
+    if os.environ.get("COPILOT_LLM_BACKEND") in ("ollama", "openai"):
+        from copilot.llm_local import LocalLLM
+
+        return LocalLLM(s.llm_model, s.llm_timeout_s)
+    return LLM(s.llm_model, s.llm_timeout_s)
 
 
 def _knowledge():
