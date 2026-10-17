@@ -1,0 +1,309 @@
+\chapter{Anomaly detection}\label{ch:anomaly-detection}
+
+An anomaly is not one thing. A record can break a rule that should never be broken; a value can be extreme for its
+context; a day can carry an unusual volume; a customer can be unusual across many dimensions at once. Each needs its
+own tool, and each tool rests on assumptions that decide what it can and cannot see. This chapter follows the
+exploratory notebooks from rules to robust statistics to machine-learning detectors, and asks of every method the
+same questions: what does it assume, how would we know if it worked, and what did it find in this dataset?
+
+The answer to the second question shapes the chapter. The real data carry only one label, the fraud flag, and
+\cref{sec:ad-fraud} shows that the behaviour the detectors see carries no information about it. Detectors are
+therefore compared on a benchmark with planted anomalies, a positive control in the sense of \cref{sec:em-ledger}:
+its numbers show what each method can find, never what the bank contains.
+
+\section{Integrity rules}\label{sec:ad-rules}
+
+The simplest detector is a predicate that should never be true: an approved payment without a response code, a
+product opened before its owner existed. The notebook encodes $\est{ch08.rules}{value}$ such rules and counts, for
+each, the share of the rows it applies to that violate it, in both copies (\cref{tab:ch08-rules}). A rate relative to
+the rows a rule applies to is comparable across copies even when one copy is truncated.
+
+\input{../build/generated/tables/ch08-rules}
+
+Almost every violation is structural. Apart from one rule, the rates of the copies differ by at most
+$\est{ch08.rule-gap-max}{value}$ percentage points, so the defects come from the generator that produced both, not
+from the path that produced the backup. The exception confirms the reading: transactions dated before their product
+opened make up $\est{ch08.rate-r01}{value}\,\%$ of the main copy and $\est{ch08.rate-r01-backup}{value}\,\%$ of the
+backup, because the backup's transactions stop early (\cref{ch:inventory-keys}) and early transactions precede product
+openings more often: a change of denominator, not a new defect.
+
+The violations fall into a few kinds.
+\begin{itemize}
+  \item \emph{Timelines are not causally ordered.} $\est{ch08.rate-r02}{value}\,\%$ of products open before their
+  customer registered, and $\est{ch08.rate-r01}{value}\,\%$ of transactions predate their product. Tenure and
+  time-since-opening features are unreliable in this dataset.
+  \item \emph{Mandatory fields are missing at a fixed rate.} Approved transactions without a response code
+  ($\est{ch08.rate-r03}{value}\,\%$), non-dollar transactions without a dollar amount ($\est{ch08.rate-r18}{value}\,\%$)
+  and branch transactions without a branch ($\est{ch08.rate-r10}{value}\,\%$) cluster at the same level, the signature
+  of nulls injected at a fixed rate rather than of a process failure.
+  \item \emph{A currency label is wrong.} $\est{ch08.rate-r17}{value}\,\%$ of transactions in Mexico are labelled in
+  dollars, and the peso code does not exist, while transaction and product currencies always agree
+  ($\est{ch08.viol-r04}{value}$ violations): the label is consistently wrong, which no per-row check could reveal.
+  \item \emph{Audit stamps and attributes are implausible.} $\est{ch08.rate-r06}{value}\,\%$ of customers carry an
+  update stamp after the end of the data, $\est{ch08.rate-r05}{value}\,\%$ were minors at registration, and credit
+  attributes sit on products that cannot have them ($\est{ch08.rate-r08}{value}\,\%$ and
+  $\est{ch08.rate-r09}{value}\,\%$).
+\end{itemize}
+The clock rules are a cross-check of \cref{ch:time-and-clocks}. The convention that a timestamp moved to the delivery
+clock of transactions reproduces the processing date fails for $\est{ch08.viol-r14}{value}$ transactions, but for
+$\est{ch08.rate-r15}{value}\,\%$ of contacts and $\est{ch08.rate-r16}{value}\,\%$ of complaints: exactly the tables
+whose delivery window \cref{ch:time-and-clocks} found to start later, so the rule is right to fire and its threshold is
+wrong for those tables. Location is absent on $\est{ch08.rate-r19}{value}\,\%$ of ATM and point-of-sale transactions and
+$\est{ch08.rate-r20}{value}\,\%$ of digital events are anonymous; these are coverage facts that bound what any
+geographic or identity feature can do.
+
+\section{Point outliers in amounts}\label{sec:ad-points}
+
+For a value $x$ in a group with median $\tilde x$ and median absolute deviation $\mathrm{MAD}$, the modified $z$-score
+\begin{equation}\label{eq:ad-modz}
+  M = \frac{\Phi^{-1}(3/4)\,(x - \tilde x)}{\mathrm{MAD}}
+\end{equation}
+is a robust standardisation: under normality it has unit spread, and a handful of extreme values cannot inflate its
+yardstick. The conventional screen flags $\lvert M \rvert > \est{ch08.modz-cut}{value}$ \autocite{iglewicz1993}; Tukey's fences flag
+values beyond the quartiles by more than $\est{ch08.tukey-k}{value}$ interquartile ranges \autocite{tukey1977}. The notebook applies both to
+log amounts within each combination of transaction type and channel, since a value normal for a transfer is extreme
+for a purchase.
+
+Both screens rely on a tail. Here there is none: the dollar value of transactions never exceeds
+$\est{ch08.usd-max}{value}$, and $\est{ch08.usd-at-or-above-cap}{value}$ transactions reach the conventional
+ten-thousand-dollar reporting level. Amounts are a bounded mixture of bands, so the screens flag the edges of the bands,
+not risk, and a structuring analysis (splitting payments to stay below a reporting threshold) has nothing to find. The
+behavioural rules of card-fraud engines fare similarly: the notebook counts $\est{ch08.impossible-travel}{value}$
+consecutive transactions in different countries within a short interval and $\est{ch08.rapid-repeat}{value}$ rapid
+repeats, a number chance alone produces at this volume. These quantities reappear below as detector features.
+
+\section{Abnormal days}\label{sec:ad-days}
+
+For the daily row count $y_t$ of each table, the notebook decomposes $\log(1 + y_t) = T_t + S_t + R_t$ into trend,
+weekly seasonal and remainder components by STL, the robust loess-based decomposition \autocite{cleveland1990}, and
+measures the strength of the weekly pattern as
+\begin{equation}\label{eq:ad-strength}
+  F_S = \max\Bigl(0,\ 1 - \frac{\operatorname{Var}(R_t)}{\operatorname{Var}(S_t + R_t)}\Bigr)
+\end{equation}
+\autocite{wang2006}. Abnormal days are sought in $R_t$ by the generalized extreme studentized deviate test
+\autocite{rosner1983}: remove the most extreme value repeatedly, computing at step $i$ the statistic
+$R_i = \max \lvert x - \bar x \rvert / s$ over the remaining values and the critical value
+\begin{equation}\label{eq:ad-esd}
+  \lambda_i = \frac{(n - i)\, t_{p,\,n-i-1}}{\sqrt{(n - i - 1 + t^2_{p,\,n-i-1})(n - i + 1)}}, \qquad
+  p = 1 - \frac{\alpha}{2 (n - i + 1)},
+\end{equation}
+and declare as outliers the most extreme $k$ values, where $k$ is the largest $i$ with $R_i > \lambda_i$. Unlike a
+fixed threshold, the procedure controls the chance of declaring any outlier in a sample of approximately normal
+values.
+
+Recomputed here on both copies, the procedure flags the same number of days as the notebook in
+$\est{ch08.esd-agree}{value}$ of $\est{ch08.esd-series}{value}$ series (\cref{tab:ch08-volume}). Daily volumes are
+dominated by the week: the seasonal strength lies between $\est{ch08.strength-min}{value}$ and
+$\est{ch08.strength-max}{value}$ for every fact table except digital events ($\est{ch08.strength-events}{value}$),
+and no series has more than $\est{ch08.esd-max}{value}$ abnormal days. The decisive test is replication. If an abnormal
+day were an event in the bank, both copies would show it. They do not: the share of flagged days the copies have in
+common is $\est{ch08.jaccard-max-other}{value}$ for every table but complaints, whose rows are identical in both copies
+and whose flagged day coincides exactly (Jaccard $\est{ch08.jaccard-complaints}{value}$). Abnormal days are draws of the
+generator's noise, not dated events, which is what \cref{ch:statistical-equivalence} predicts of independent
+replicates. The test itself carries caveats: it assumes approximately normal, independent remainders, and STL
+remainders of daily series are rarely free of autocorrelation, so the declared outliers are best read as a ranking. Level
+shifts are the subject of \cref{ch:change-points}.
+
+\input{../build/generated/tables/ch08-volume}
+
+\section{Unusual customers: robust distance}\label{sec:ad-mcd}
+
+For a feature vector $x$ with centre $\mu$ and covariance $\Sigma$, the squared Mahalanobis distance
+$d^2(x) = (x - \mu)^\top \Sigma^{-1} (x - \mu)$ is $\chi^2_p$-distributed when $x$ is $p$-variate normal. Outliers
+inflate the classical estimates of $\mu$ and $\Sigma$ and so mask themselves; the minimum covariance determinant
+estimator avoids this by computing the mean and covariance of the subset of observations whose covariance has the
+smallest determinant \autocite{rousseeuw1984,rousseeuw1999}. The notebook scores
+$\est{ch08.mcd-customers}{value}$ customers on $\est{ch08.mcd-df}{value}$ features and flags those beyond the
+$\est{ch08.mcd-level}{value}\,\%$ quantile of $\chi^2_{\est{ch08.mcd-df}{value}}$, a cutoff of
+$\est{ch08.mcd-cutoff}{value}$. It flags $\est{ch08.mcd-flagged}{value}$ customers, $\est{ch08.mcd-flagged-pct}{value}\,\%$
+instead of the nominal $\est{ch08.mcd-nominal}{value}\,\%$.
+
+The excess has more than one cause. The features are counts and ratios with heavy right tails, far from normal, so the
+$\chi^2$ reference is wrong for them. And even under normality, distances computed from a robust estimate do not follow
+$\chi^2_p$: the MCD estimate is computed from a subset and is less efficient, and its distances are better approximated
+by a scaled $F$ distribution whose tail is heavier \autocite{hardin2005}. A cutoff taken from the $\chi^2$ table
+therefore overflags even on ideal data. The distance remains useful as a ranking, and a cutoff for production should be
+calibrated on the empirical distribution of distances, not read from a table.
+
+\section{Detectors compared on planted anomalies}\label{sec:ad-benchmark}
+
+\subsection{Design}
+
+Without labels, detectors can only be compared on data with a known answer. The notebook follows the standard design
+for unsupervised outlier detection \autocite{campos2016}: take real main-copy transactions, plant labelled anomalies
+of $\est{ch08.bench-types}{value}$ types in a small share of rows, fit every detector blind on the contaminated data, and judge how well its
+scores recover the planted rows. Some types are points or bursts that any detector should catch (a value above anything
+in the data; a burst of foreign or rapid transactions); a low-and-slow type shifts several features mildly at once; a
+dormant-reactivation type follows a long silence with a large movement. The evaluation rows number
+$\est{ch08.bench-rows}{value}$, of which $\est{ch08.bench-injected}{value}$ are planted (prevalence
+$\est{ch08.prevalence}{value}$), drawn from $\est{ch08.bench-customers}{value}$ customers.
+
+The detectors span the families of the field: the robust Mahalanobis distance of \cref{sec:ad-mcd}; a Gaussian
+mixture's negative log-likelihood; per-feature tail probabilities, from histograms \autocite{goldstein2012} or from
+empirical copulas \autocite{li2020,li2023}; distance to the $k$-th neighbour \autocite{ramaswamy2000} and the local
+outlier factor \autocite{breunig2000}; the boundary of a one-class support vector machine \autocite{scholkopf2001};
+isolation forests, which score a point by how few random splits isolate it \autocite{liu2008}; and reconstruction
+error, from principal components, an autoencoder and a variational autoencoder \autocite{kingma2014}.
+
+\subsection{Metrics and their uncertainty}
+
+With planted anomalies at a prevalence of $\est{ch08.prevalence}{value}$, the area under the ROC curve is a poor guide: it
+weighs every negative equally, and almost all negatives are easy. Average precision, the area under the
+precision-recall curve,
+\begin{equation}\label{eq:ad-ap}
+  \mathrm{AP} = \sum_{k} (R_k - R_{k-1})\, P_k ,
+\end{equation}
+with $P_k$ and $R_k$ the precision and recall among the $k$ highest scores, concentrates on the top of the ranking,
+where alerts are reviewed; a random ranking scores the prevalence \autocite{davis2006,saito2015}. The notebooks report
+both metrics as point values. This report adds their uncertainty: evaluation rows of one customer share that customer's
+behaviour, so intervals come from resampling customers (\cref{def:cluster-bootstrap}),
+$\est{ch08.bench-boot}{value}$ times, with every detector scored on the same resamples so that differences are paired.
+
+\subsection{Results}
+
+The best detector by average precision, COPOD, reaches $\est{ch08.ap-copod}{estimate}$
+(interval $\est{ch08.ap-copod}{ci}$), ahead of the robust Mahalanobis distance by $\est{ch08.ap-diff-copod-mahalanobis}{estimate}$
+($\est{ch08.ap-diff-copod-mahalanobis}{ci}$) and of the isolation forest by $\est{ch08.ap-diff-copod-iforest}{estimate}$
+($\est{ch08.ap-diff-copod-iforest}{ci}$); the robust distance and the isolation forest cannot be told apart
+($\est{ch08.ap-diff-mahalanobis-iforest}{estimate}$, $\est{ch08.ap-diff-mahalanobis-iforest}{ci}$)
+(\cref{tab:ch08-benchmark,fig:ch08-benchmark}). Most detectors have ROC AUCs between $\est{ch08.auc-min}{value}$ and $\est{ch08.auc-max}{value}$, COPOD
+$\est{ch08.auc-copod}{estimate}$, while their average precisions range from $\est{ch08.ap-pca}{estimate}$ to
+$\est{ch08.ap-copod}{estimate}$: the AUC hides the differences that matter.
+
+\input{../build/generated/tables/ch08-benchmark}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{fig-08-benchmark}
+  \caption{Planted-anomaly benchmark (positive control). Left: average precision of each detector with its interval
+  from resampling customers. Right: share of each planted type among the top hundredth of rows by score.}
+  \label{fig:ch08-benchmark}
+\end{figure}
+
+The averages hide a stronger result: no detector sees every type (\cref{tab:ch08-recall}). With a review budget of
+the top $\est{ch08.budget}{value}$ rows, the robust distance recovers $\est{ch08.recall-mahalanobis-amount-spike}{pct}\,\%$
+of the value spikes but $\est{ch08.recall-mahalanobis-low-and-slow}{pct}\,\%$ of the low-and-slow anomalies
+($\est{ch08.recall-mahalanobis-low-and-slow}{pct_ci}$), while COPOD recovers
+$\est{ch08.recall-copod-low-and-slow}{pct}\,\%$ of the low-and-slow ones and only
+$\est{ch08.recall-copod-amount-spike}{pct}\,\%$ of the spikes. The mechanisms are visible in the preprocessing. Tail
+probabilities and ranks clip a value beyond the training range to the largest value seen, so a spike above everything
+looks merely large; a distance on robustly scaled data keeps its magnitude. Conversely, mild shifts in several
+features that include rare binary states are improbable jointly in the marginal view and unremarkable in a distance
+dominated by continuous features. Dormant reactivations are almost invisible to everyone: COPOD finds
+$\est{ch08.recall-copod-dormant-reactivation}{num}$ and the isolation forest
+$\est{ch08.recall-iforest-dormant-reactivation}{num}$ of $\est{ch08.dormant-injected}{value}$, and only the local outlier
+factor, poor at everything else, finds $\est{ch08.recall-lof-dormant-reactivation}{pct}\,\%$. The cause is an encoding:
+the first transaction of every customer carries a placeholder gap, so a long silence lands next to a dense cluster of
+placeholders and looks normal. That is a feature-engineering defect, and no detector can repair it.
+
+\input{../build/generated/tables/ch08-recall}
+
+\subsection{Ensembles}
+
+If detectors see different anomalies, combining them should help. The notebook converts each score to its rank and
+averages the ranks of the chosen members, or fuses them by reciprocal ranks \autocite{cormack2009}, choosing members on
+a validation part of the evaluation rows and judging on a separate test part. One combination, the best single
+detectors, was in fact chosen by their scores on the test part; chosen on the validation part, the same members are
+selected, so the reported result stands. Recomputed with intervals on the test part, the ensemble of COPOD, the robust distance
+and the isolation forest reaches $\est{ch08.ens-test}{estimate}$ ($\est{ch08.ens-test}{ci}$) against
+$\est{ch08.best-test}{estimate}$ ($\est{ch08.best-test}{ci}$) for the best single member, a gain of
+$\est{ch08.ens-gain}{estimate}$ ($\est{ch08.ens-gain}{ci}$). Averaging all $\est{ch08.methods}{value}$ detectors, by
+contrast, collapses to $\est{ch08.all-test}{estimate}$: a rank average gives a blind member the same vote as a good
+one, and the noise of the blind members drowns the signal. A small committee of different families is the right
+design, and it cannot recover a type that all its members miss.
+
+The method-level conclusions transfer to the backup: re-run there, most detectors move by at most
+$\est{ch08.stab-max-other}{value}$ in average precision; COPOD moves by $\est{ch08.stab-copod}{value}$, the most
+sensitive to the particular draw.
+
+\subsection{Choosing a review budget by cost}
+
+A bank does not review a ranking; it reviews the top $k$ alerts. Let a review cost $c_r$ and a missed anomaly
+$c_m$, and let $\mathrm{TP}(k)$ be the planted anomalies among the top $k$ of $P$.
+
+\begin{proposition}\label{prop:ad-cost}
+The total cost $C(k) = c_r k + c_m (P - \mathrm{TP}(k))$ changes by $c_r - c_m h_k$ when the $k$-th alert is
+added, where $h_k \in \{0, 1\}$ says whether it is an anomaly. Smoothing $h_k$ by the local precision $\pi(k)$, the cost
+falls while $\pi(k) > c_r / c_m$ and the optimal budget is where the precision of the marginal alert drops to
+$c_r / c_m$.
+\end{proposition}
+
+The optimum therefore depends on the ratio $r = c_m / c_r$, and so does the best detector (\cref{tab:ch08-cost}). At
+$r = \est{ch08.ratio-10}{value}$ the cheapest policy reviews $\est{ch08.cost-k-10}{value}$ alerts and saves
+$\est{ch08.cost-saving-10}{value}\,\%$ of the cost of reviewing nothing; at $r = \est{ch08.ratio-100}{value}$ it
+reviews $\est{ch08.cost-k-100}{value}$ alerts and saves $\est{ch08.cost-saving-100}{value}\,\%$; at
+$r = \est{ch08.ratio-1000}{value}$ it reviews $\est{ch08.cost-k-1000}{value}$. Across the ratios examined,
+$\est{ch08.cost-best-detectors}{value}$ different detectors are cheapest: a detector chosen by average precision is the
+best one only for the cost ratio its top ranks happen to suit. The notebook charges reviews only for false alerts,
+which lowers every total by the number of true alerts reviewed but leaves the optimal budget unchanged; here every
+review is charged, as it is in an operation.
+
+\input{../build/generated/tables/ch08-cost}
+
+\section{The real label}\label{sec:ad-fraud}
+
+The dataset ships a fraud flag on $\est{ch08.fraud-total}{value}$ transactions ($\est{ch08.fraud-rate}{value}\,\%$) and a
+fraud score with every transaction. \Cref{tab:ch08-fraud-bands} shows what the score is. Every one of the
+$\est{ch08.band-35-and-above-fraud}{value}$ transactions scored at the top band is fraud (Wilson lower bound
+$\est{ch08.band-35-and-above}{pct_lo}\,\%$), and they are $\est{ch08.band-35-and-above-share}{value}\,\%$ of all fraud; the
+band just below holds $\est{ch08.band-30-to-35}{pct}\,\%$ fraud ($\est{ch08.band-30-to-35}{pct_ci}$). Below it the fraud
+rate is $\est{ch08.band-under-30}{pct}\,\%$, and where the score is missing it is $\est{ch08.band-missing}{pct}\,\%$; these
+low and missing bands hold $\est{ch08.band-under-30-share}{value}\,\%$ and $\est{ch08.band-missing-share}{value}\,\%$ of all
+fraud, cases no threshold on the score can reach. The score is not a feature that predicts the label; it is largely the
+label, leaked into the data \autocite{kaufman2012}.
+
+The decisive test is a model without it. The notebook trained gradient-boosted trees \autocite{friedman2001} on a
+sample that keeps every fraud row; the sample holds $\est{ch08.leak-fraud}{value}$ of them among
+$\est{ch08.leak-rows}{value}$ rows. Refitted here on the notebook's own split, with DeLong intervals
+(\cref{eq:auc-delong}), the model on behavioural features alone reaches an AUC of $\est{ch08.leak-auc-features}{estimate}$
+($\est{ch08.leak-auc-features}{ci}$, $\est{ch08.leak-test-fraud}{value}$ fraud cases in the test part), an interval that
+contains the chance level, and an average precision of $\est{ch08.leak-ap-features}{value}$ against a
+prevalence of $\est{ch08.leak-prevalence}{value}$. With the score it reaches $\est{ch08.leak-auc-with-score}{estimate}$
+($\est{ch08.leak-auc-with-score}{ci}$), and the score alone $\est{ch08.leak-auc-score}{estimate}$
+($\est{ch08.leak-auc-score}{ci}$). Amount, time, channel, geography and velocity carry no detectable information about the
+label. This dataset cannot evaluate a behavioural fraud model, and any evaluation against the flag must remove the score
+first and expect the low-score fraud to be unfindable.
+
+\input{../build/generated/tables/ch08-fraud-bands}
+
+\paragraph{The AUC interval.} For $m$ positives with scores $X_i$ and $n$ negatives with scores $Y_j$, the AUC
+estimate is the Mann--Whitney statistic $\hat A = (mn)^{-1} \sum_{i,j} \psi(X_i, Y_j)$, where $\psi$ is one, a half-point
+or zero as $X_i$ is above, tied with or below $Y_j$. With the structural components
+$V^{+}(X_i) = n^{-1} \sum_j \psi(X_i, Y_j)$ and $V^{-}(Y_j) = m^{-1} \sum_i \psi(X_i, Y_j)$, its variance is estimated by
+\begin{equation}\label{eq:auc-delong}
+  \widehat{\operatorname{Var}}(\hat A) = \frac{s^2_{+}}{m} + \frac{s^2_{-}}{n},
+\end{equation}
+where $s^2_{+}$ and $s^2_{-}$ are the sample variances of the components \autocite{delong1988}, computed in
+$O((m + n)\log(m + n))$ from midranks \autocite{sun2014}.
+
+\section{What the detectors flag in the real data}\label{sec:ad-consensus}
+
+Fitted on the clean main sample, the notebook's complementary detectors (COPOD, the robust distance and the
+isolation forest) agree on $\est{ch08.consensus-alerts}{value}$
+rows ($\est{ch08.consensus-pct}{value}\,\%$) when a majority of them must flag a row at their own extreme tail. The
+flagged rows are bursts of declined, pending or reversed transactions, often abroad: a recognisable pattern of card
+testing, built from rare discrete states rather than from amounts. They are not integrity defects: approved payments
+without a response code are rarer among them ($\est{ch08.r03-alerts}{value}\,\%$) than among the other rows
+($\est{ch08.r03-rest}{value}\,\%$). Rules and detectors catch different problems, and a bank needs both. The kind of row
+flagged replicates in the backup, whose profile of flagged rows correlates with the main copy's at
+$\est{ch08.profile-rho}{value}$, although the rows themselves differ: structure replicates, individual records do not.
+
+\section{Verdict and implications}\label{sec:ad-verdict}
+
+The integrity rules find the dataset's real defects, all structural: broken timelines, fixed-rate nulls in mandatory
+fields, a wrong currency label, implausible stamps. They belong in the ingestion gates. Point outliers, abnormal days and
+unusual customers carry little information here, because amounts are bounded, daily noise is independent between copies
+and the features are far from the distributions the textbook cutoffs assume; their cutoffs need calibration on data,
+not tables. On planted anomalies the detectors are complementary, a small diverse ensemble beats every member, and the
+choice of budget and detector depends on the cost of a miss. On the real label nothing behavioural works, because the
+label is explained by a leaked score. For later chapters this has a direct consequence: fraud is not a learnable target
+in this dataset, and the readiness gates must say so.
+
+\section{Limitations}\label{sec:ad-limits}
+
+The planted benchmark measures recovery of the anomalies its design plants; absolute numbers depend on that design, and
+only relative orderings and failure modes generalise. Its intervals resample customers but treat the planting itself as
+fixed. The robust-distance flag count, the consensus profile and its correlation between copies are the notebooks'
+printed results; the rule rates and the stability of detectors come from their stored tables. The daily-outlier test,
+the benchmark metrics with their intervals, the costs and the fraud analysis are recomputed here. The supervised models
+are refitted on a single split, so their intervals describe the test sample, not the variation from refitting.

@@ -1,0 +1,102 @@
+\chapter{Which targets are learnable?}\label{ch:learnability}
+
+Part V turns from describing the data to deciding what to build on it. Before a model is built, these questions must be answered: is there a signal at all, out of time and not merely in sample; is the signal more than a single feature or a
+simple rule already captures; and does the answer hold across markets and across an independent replicate of the data?
+The country series answered them for $\est{ch18.targets}{value}$ candidate targets in $\est{ch18.scopes}{value}$ scopes. This chapter examines that learnability map,
+fits the transparent model the series recommended for its one learnable target, and identifies a field whose values carry
+no information by construction. \Cref{ch:readiness-gates} then turns the answers into gates.
+
+\section{The protocol}\label{sec:le-protocol}
+
+Each target is predicted from features computed strictly before a cutoff (\cref{eq:mf-pit}) and judged on later cutoffs only.
+The series reports the ROC AUC with a Hanley--McNeil interval \autocite{hanley1982} and the average precision as a multiple of
+the base rate, the lift, and turns them into a verdict: no evidence of signal when the interval's lower bound does not exceed chance level; a weak signal, for rules rather than models, when the AUC is below $\est{ch18.rule-weak-auc}{value}$ or the lift
+below $\est{ch18.rule-weak-lift}{value}$; a moderate signal below $\est{ch18.rule-learnable-auc}{value}$; learnable above. Controls give the verdicts weight. The fraud score shipped with the data, which \cref{sec:ad-fraud} showed to encode the
+label, is entered as a target's feature: a protocol that finds no signal anywhere might simply be unable to find any, and this
+positive control shows it can. And every target is evaluated again on the backup copy, an independent replicate
+(\cref{ch:statistical-equivalence}), so that a verdict that holds in both is not an accident of one draw.
+
+One caution applies to the intervals. A customer appears at several cutoffs, and the Hanley--McNeil interval treats every row
+as independent, so the intervals are somewhat too narrow; the verdicts near a threshold should be read with that in mind.
+
+\section{The map}\label{sec:le-map}
+
+\Cref{tab:ch18-map} shows the out-of-time AUC of the $\est{ch18.targets}{value}$ targets in the $\est{ch18.scopes}{value}$
+scopes. Of the $\est{ch18.cells}{value}$ evaluations, $\est{ch18.no-signal}{value}$ show no evidence of signal, and
+$\est{ch18.verdict-stable}{value}$ of the targets receive the same verdict in every scope. The positive control works: with the
+leaked score, fraud is predicted with AUCs between $\est{ch18.auc-min-leak}{value}$ and $\est{ch18.auc-max-leak}{value}$.
+Without it, fraud lies between $\est{ch18.auc-min-fraud}{value}$ and $\est{ch18.auc-max-fraud}{value}$, and complaints within the following months ($\est{ch18.auc-min-complaint}{value}$ to $\est{ch18.auc-max-complaint}{value}$), delinquency
+($\est{ch18.auc-min-dpd}{value}$ to $\est{ch18.auc-max-dpd}{value}$) and escalation after a contact
+($\est{ch18.auc-min-escalation}{value}$ to $\est{ch18.auc-max-escalation}{value}$) show no signal anywhere. Campaign conversion
+is moderate ($\est{ch18.auc-min-conversion}{value}$ to $\est{ch18.auc-max-conversion}{value}$, lift $\est{ch18.ap-lift-conversion}{value}$),
+and the model adds a median of $\est{ch18.gain-conversion}{value}$ in AUC over its best single feature, the channel-by-segment
+structure of \cref{sec:pc-campaigns}: a contact rule, not a model.
+
+\input{../build/generated/tables/ch18-map}
+
+Dormancy is the one learnable target: AUCs between $\est{ch18.auc-min-dormant}{value}$ and $\est{ch18.auc-max-dormant}{value}$,
+with a median lift of $\est{ch18.ap-lift-dormant}{value}$. But the number of transactions in the previous $\est{ch18.months-past}{value}$ months alone
+reaches between $\est{ch18.single-min-dormant}{value}$ and $\est{ch18.single-max-dormant}{value}$. The boosted model learns a
+customer's activity rate, the exposure of \cref{sec:ag2-exposure}, and nothing else.
+
+\section{Dormancy as a personal Poisson rate}\label{sec:le-poisson}
+
+If a customer transacts as a Poisson process with a personal monthly rate $\lambda$, and the rates vary across customers as a
+gamma distribution with shape $a$ and rate $b$, the prediction of dormancy has a closed form.
+
+\begin{proposition}\label{prop:le-gp}
+Let $\lambda \sim \mathrm{Gamma}(a, b)$, let $k \mid \lambda \sim \mathrm{Poisson}(s \lambda)$ be the count over the $s$ months
+before a cutoff, and let the next $u$ months be independent of the past given $\lambda$. Then
+\begin{equation}\label{eq:le-gp}
+  \Pr(\text{no transaction in the next } u \text{ months} \mid k) = \Bigl(\frac{b + s}{b + s + u}\Bigr)^{a + k}.
+\end{equation}
+\end{proposition}
+
+\begin{proof}
+By conjugacy, $\lambda \mid k \sim \mathrm{Gamma}(a + k, b + s)$. The probability of no event in $u$ months given $\lambda$ is
+$e^{-u\lambda}$, and its expectation under that posterior is the gamma's Laplace transform at $u$,
+$\bigl((b + s)/(b + s + u)\bigr)^{a + k}$.
+\end{proof}
+
+The marginal of $k$ is the negative binomial of \textcite{greenwood1920}, so $a$ and $b$ are fitted by maximum likelihood on
+the training cutoffs, truncated to the active customers the target concerns ($k \ge 1$), with $s = \est{ch18.months-past}{value}$
+and $u = \est{ch18.months-future}{value}$. Rebuilt here from the transactions, the target has $\est{ch18.rows-train}{value}$
+training and $\est{ch18.rows-test}{value}$ test rows, and the fit gives $a = \est{ch18.gp-a}{value}$ and
+$b = \est{ch18.gp-b}{value}$, a mean rate of $\est{ch18.gp-mean-rate}{value}$ transactions a month.
+
+The model with its pair of parameters ranks the test customers with an AUC of $\est{ch18.gp-auc}{estimate}$ ($\est{ch18.gp-auc}{ci}$),
+indistinguishable from the boosted model's $\est{ch18.nb-dormant-auc}{value}$ ($\est{ch18.nb-dormant-lo}{value}$ to
+$\est{ch18.nb-dormant-hi}{value}$). It is also calibrated, which a ranking metric cannot show (\cref{tab:ch18-calibration}): its
+mean prediction is $\est{ch18.gp-mean-pred}{value}$ against an observed $\est{ch18.gp-obs}{value}$, and no decile is off by more
+than $\est{ch18.cal-gap-max}{value}$. Its Brier score \autocite{brier1950} is $\est{ch18.gp-brier}{value}$ against
+$\est{ch18.gp-brier-base}{value}$ for predicting the base rate, a skill of $\est{ch18.gp-brier-skill}{value}\,\%$. The shrinkage
+of the gamma prior is what does the work: the naive plug-in $e^{-u k / s}$, which treats each customer's observed rate as known,
+predicts a mean of $\est{ch18.naive-mean-pred}{value}$ and scores worse than the base rate (skill
+$\est{ch18.naive-brier-skill}{value}\,\%$). The champion for this target is a model with a pair of parameters that explains every prediction
+in a sentence: a customer with $k$ recent transactions has the dormancy probability of \cref{eq:le-gp}.
+
+\input{../build/generated/tables/ch18-calibration}
+
+\section{A field drawn at random}\label{sec:le-random}
+
+A learnability map can only be as good as the fields its features read, and one field of the complaints is empty of information
+by construction. Of the $\est{ch18.cp-total}{value}$ complaints, $\est{ch18.cp-with-product}{value}$ name an affected product,
+and every one of them, $\est{ch18.cp-other-owner}{value}$, names a product of another customer. If the product were drawn
+uniformly from the bank's products, the share of complaints naming a product of the complainant's own market would equal that
+market's share of all products. It does, to within $\est{ch18.cp-max-gap}{value}$ in every market, and a goodness-of-fit test
+does not reject it ($p = \est{ch18.cp-chi2-p}{value}$). The affected product is a random draw; the integrity rule that flags it
+(\cref{sec:ag-policy}) measures the generator, not the bank, and any feature built from it is noise.
+
+\section{Verdict and implications}\label{sec:le-verdict}
+
+Of the candidate targets, one is learnable, one is a contact rule, and the rest show no signal in any market or in either copy,
+while the positive control shows that the protocol would have found a signal. The learnable target is the arithmetic of personal
+rates, and a gamma-Poisson model with a pair of parameters, calibrated and explainable, ranks it as well as boosting. This is the factual basis
+of the readiness gates: they must certify not only that a target is learnable but that the learning beats the simplest model of
+the same thing.
+
+\section{Limitations}\label{sec:le-limits}
+
+The learnability map is the country series' stored result, with intervals that ignore the repetition of customers across cutoffs.
+The dormancy target is rebuilt here on processing months with quarterly cutoffs, close to but not identical with the series'
+construction; the agreement of the AUCs suggests the difference is immaterial.

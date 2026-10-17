@@ -1,0 +1,53 @@
+% BETA AID technical report: master document. Build with `make -C report`.
+\documentclass[paper=a4,twoside,open=right,fontsize=11pt,parskip=no,headings=standardclasses]{scrbook}
+\input{preamble}
+\input{macros}
+
+\begin{document}
+\frontmatter
+\input{frontmatter/title}
+\cleardoublepage\pdfbookmark[0]{Contents}{bm-contents}
+\tableofcontents
+\input{frontmatter/abstract}
+\input{frontmatter/conventions}
+
+\mainmatter
+\part{Foundations}
+\include{chapters/01_introduction}
+\include{chapters/02_evidence_model}
+\part{Data integrity}
+\include{chapters/03_inventory_keys}
+\include{chapters/04_time_and_clocks}
+\include{chapters/05_record_linkage}
+\include{chapters/06_statistical_equivalence}
+\include{chapters/07_schema_forensics}
+\part{Anomalies and change}
+\include{chapters/08_anomaly_detection}
+\include{chapters/09_change_points}
+\part{The pipeline as a statistical object}
+\include{chapters/10_conformance}
+\include{chapters/11_marts_and_features}
+\include{chapters/12_graph_and_privacy}
+\include{chapters/13_audit_and_gates}
+\part{Grain}
+\include{chapters/14_aggregation}
+\include{chapters/15_customer_dynamics}
+\include{chapters/16_operations}
+\include{chapters/17_products_and_campaigns}
+\part{Learnability and readiness}
+\include{chapters/18_learnability}
+\include{chapters/19_readiness_gates}
+\include{chapters/20_conclusions}
+
+\appendix
+\cleardoublepage\bookmarksetup{startatroot}\pdfbookmark[-1]{Appendices}{bm-appendices}
+\include{appendices/a_traceability}
+\include{appendices/b_claims_ledger}
+\include{appendices/c_per_country}
+\include{appendices/d_software}
+\include{appendices/e_notation}
+
+\backmatter
+\bookmarksetup{startatroot}
+\printbibliography[heading=bibintoc]
+\end{document}

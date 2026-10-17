@@ -1,0 +1,54 @@
+% Claims and protocol constants. Every data-derived number in a chapter is \est{claim-id}{field};
+% every protocol constant is \proto{key}. Both are defined by files that texgen.py generates into
+% ../build/generated/. An undefined id prints a red marker and a LaTeX warning; the claims tests
+% turn any unresolved id into a build failure.
+\newcommand{\reportmissing}[1]{\textcolor{red}{\textbf{[#1?]}}}
+\newcommand{\est}[2]{%
+  \ifcsname est@#1@#2\endcsname\csname est@#1@#2\endcsname
+  \else\reportmissing{#1.#2}\PackageWarning{report}{Undefined claim #1.#2}\fi}
+\newcommand{\proto}[1]{%
+  \ifcsname proto@#1\endcsname\csname proto@#1\endcsname
+  \else\reportmissing{#1}\PackageWarning{report}{Undefined protocol key #1}\fi}
+% Marks an interval computed treating rows as independent (likely too narrow); explained in Chapter 2.
+\newcommand{\naivemark}{\textsuperscript{\dag}}
+\InputIfFileExists{../build/generated/claims.tex}{}{}
+\InputIfFileExists{../build/generated/protocol.tex}{}{}
+
+% The report's date, fixed rather than the build day (the day of the hackathon submission).
+\newcommand{\reportdate}{5 October 2026}
+
+% Identifiers that contain digits but are not statistics (decision records, notebooks, files): the lint skips
+% the argument, so a quantity can never hide in it unnoticed by a reader.
+\newcommand{\ident}[1]{\texttt{#1}}
+% Names of methods that contain digits (never quantities); tests/test_no_bare_numbers.py allows only these.
+\newcommand{\shaname}{SHA-256}
+\newcommand{\CRtwo}{CR2}
+\newcommand{\HCthree}{HC3}
+\newcommand{\logten}{\log_{10}}
+
+% Generated tables keep their natural width and shrink to the line only when they are wider than it.
+\newsavebox{\reportbox}
+\newcommand{\fittable}[1]{\sbox{\reportbox}{#1}%
+  \ifdim\wd\reportbox>\linewidth\resizebox{\linewidth}{!}{\usebox{\reportbox}}\else\usebox{\reportbox}\fi}
+
+% Column types of the notation index (Appendix E): symbol, wide meaning, meaning beside a reference, reference.
+\newcolumntype{Q}{>{\raggedright\arraybackslash}p{0.2\linewidth}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}p{0.76\linewidth}}
+\newcolumntype{V}{>{\raggedright\arraybackslash}p{0.55\linewidth}}
+\newcolumntype{Z}{>{\raggedright\arraybackslash}p{0.18\linewidth}}
+
+% Theorem-like environments.
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{assumption}{Assumption}[chapter]
+\theoremstyle{plain}
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+% Notation.
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\Var}{\operatorname{Var}}
+\newcommand{\indep}{\perp\!\!\!\perp}

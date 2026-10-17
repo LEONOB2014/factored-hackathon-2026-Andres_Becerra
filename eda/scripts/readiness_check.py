@@ -2,6 +2,7 @@
 
     uv run scripts/readiness_check.py --dataset main --scope ALL
     uv run scripts/readiness_check.py --dataset backup --scope MX --out /tmp/readiness.csv
+    uv run scripts/readiness_check.py --cluster        # clustered / day-block bootstrap per gate
 
 Builds (or reuses) the scratch lakehouse of the scope with `latam_eda.country.session`, builds the hour-grain star and
 runs every scenario of `latam_eda.hour_models` with the readiness gate of `latam_eda.granularity`. A newly ingested
@@ -29,13 +30,25 @@ def main() -> None:
     ap.add_argument("--dataset", default="main", choices=["main", "backup"])
     ap.add_argument("--scope", default="ALL", choices=["ALL", *country.COUNTRIES])
     ap.add_argument("--out", type=Path, default=None)
+    ap.add_argument(
+        "--cluster",
+        action="store_true",
+        help="resample each gate's independent unit (customer, agent, branch, campaign, day blocks)",
+    )
+    ap.add_argument(
+        "--nan-share-max",
+        type=float,
+        default=hm.NAN_SHARE_MAX,
+        help="clustered runs: above this share of failed draws a gate is not assessable",
+    )
     a = ap.parse_args()
+    suffix = "_cluster" if a.cluster else ""
     out = a.out or (
         pipe.repo_root(Path.cwd())
         / "data"
         / "derived"
         / "readiness"
-        / f"hour_readiness_{a.dataset}_{a.scope.lower()}.csv"
+        / f"hour_readiness_{a.dataset}_{a.scope.lower()}{suffix}.csv"
     )
     t0 = time.time()
     pl = country.session(a.scope, a.dataset)
@@ -48,14 +61,16 @@ def main() -> None:
         raise SystemExit(
             "the hour star does not pass its checks: fix the data before judging models"
         )
-    sc = hm.scorecard(star)
+    sc = hm.scorecard(star, cluster=a.cluster, nan_share_max=a.nan_share_max)
     pl.close()
     out.parent.mkdir(parents=True, exist_ok=True)
     sc.to_csv(out, index=False)
     print(sc[["scenario", "model", "verdict", "root_cause"]].to_string(index=False))
     print(
         f"\n{(sc.verdict == 'green').sum()} green, {(sc.verdict == 'amber').sum()} amber, "
-        f"{(sc.verdict == 'red').sum()} red -> {out} ({time.time() - t0:.0f} s)"
+        f"{(sc.verdict == 'red').sum()} red"
+        + (f", {(sc.verdict == 'not assessable').sum()} not assessable" if a.cluster else "")
+        + f" -> {out} ({time.time() - t0:.0f} s)"
     )
 
 

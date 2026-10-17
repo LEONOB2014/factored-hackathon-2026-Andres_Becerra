@@ -1,0 +1,28 @@
+% Packages and layout. Fonts: Latin Modern; references: biblatex with biber.
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[english]{babel}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+\usepackage[group-separator={,},group-digits=integer,round-mode=none]{siunitx}
+\usepackage{booktabs,multirow,threeparttable,array,longtable}
+\usepackage{graphicx}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{csquotes}
+\usepackage[backend=biber,style=authoryear-comp,maxcitenames=2,uniquelist=false,doi=true,url=true,isbn=true]{biblatex}
+\addbibresource{refs.bib}
+\usepackage{xurl}
+\usepackage[hidelinks,pdfusetitle]{hyperref}
+\usepackage{bookmark}  % PDF outline: appendices and bibliography sit at the root, not inside Part VI
+\usepackage[capitalise,noabbrev]{cleveref}
+
+\graphicspath{{../build/figures/}}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{1}
+
+% Room for three-digit page numbers in the table of contents
+\makeatletter\renewcommand*\@pnumwidth{2.2em}\makeatother
+% Let pages end short rather than stretch the space around floats and lists
+\raggedbottom
