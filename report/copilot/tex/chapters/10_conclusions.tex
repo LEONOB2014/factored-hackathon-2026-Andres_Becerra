@@ -1,0 +1,48 @@
+\chapter{Conclusions}\label{ch:conclusions}
+
+\section{What the evaluations establish}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{The learned intent model is the copilot's main gain.} It beats keyword routing on held-out phrasings
+  ($p = \est{int.mcnemar}{p}$) and on whole conversations ($p = \est{chl.mcnemar}{p}$), and its confidence is
+  calibrated well enough for a threshold to be trusted: above it, \est{int.acc-confident}{pct}\,\% of held-out
+  phrasings are labelled correctly.
+  \item \textbf{Safety comes from the architecture, not the model.} Alone, models of every size and provider broke
+  card-service rules; inside BETA AID none did, on any attack, and the refusals did not depend on the model. The model
+  never holds what an attacker wants, never acts, and never speaks unchecked.
+  \item \textbf{The language models do not separate on accuracy.} With a model inside, the copilot ends within a few
+  cases of the copilot without one, and no difference is detectable at this sample size. Every model rescues the same
+  informal phrasings the intent model is unsure of, and loses a few multi-turn or out-of-scope cases.
+  \item \textbf{They do separate on speed and reliability.} Calls range from a steady sub-second median to timeouts
+  and malformed replies, and the same model differs between providers.
+  \item \textbf{Governed retrieval keeps unapproved documents out, but its threshold does not reject unanswerable
+  questions.} The steps after retrieval keep that from reaching a customer as an unverified answer.
+\end{itemize}
+
+\section{Recommendation}
+
+Run the copilot with \model{Qwen3-30B-A3B-Instruct-2507} on Nebius Token Factory. Inside BETA AID it was as safe as
+every other model (\est{atk.qwen30-tf-wrapped}{num} violations in \est{atk.qwen30-tf-wrapped}{den} attacks) and as
+accurate as the evaluations can tell (\est{mod.qwen30-tf-correct-compared}{num} of
+\est{mod.qwen30-tf-correct-compared}{den} compared cases). The choice rests on the screening: the lowest median call
+of the hosted options (\est{scr.qwen30-tf-p50}{estimate}\,ms), a slowest call well inside the timeout
+(\est{scr.qwen30-tf-max}{value}\,ms), and a valid label every time (\est{scr.qwen30-tf-valid}{num} of
+\est{scr.qwen30-tf-valid}{den}). The copilot remains fully usable without any model, with the same safety; the model
+adds the informal phrasings it would otherwise ask the customer to rephrase.
+
+\section{Limits and next steps}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Sample sizes.} The frozen set cannot rank models within a few cases of each other. A larger set,
+  written the same way and frozen before scoring, is the way to separate them; repeated runs would also measure how
+  much a model's answers vary from run to run.
+  \item \textbf{Retrieval rejection.} The relevance threshold rests on a handful of unanswerable development
+  questions; more of them, and a threshold that uses the gap between the top scores, would make the knowledge base say
+  \enquote{no document} when it should.
+  \item \textbf{The losses with a model.} The multi-card follow-ups and the out-of-scope request that models fail should
+  be replayed with full traces, as the knowledge cases were, to locate the stage that produced them.
+  \item \textbf{The defect in the stored runs.} The model runs of the local and gateway models should be repeated with
+  retrieval working; only the hosted models' knowledge cases were replayed here.
+  \item \textbf{Cost.} The runs recorded no prices. The tokens per call in \cref{ch:screening} price the job at any
+  provider's rates, and recording prices with each run would put cost per resolved case beside accuracy.
+\end{itemize}

@@ -1,0 +1,16 @@
+% Shared setup of the copilot brief and the copilot evaluation report. Build with `make -C report copilot`.
+% The claims, tables and figures of both documents are generated into ../../build/copilot/.
+\newcommand{\reportbuild}{../../build/copilot}
+\newcommand{\reportdate}{5 October 2026}
+\input{../../tex/preamble}
+\input{../../tex/macros}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc,backgrounds}
+% A language model's name, digits included (versions and sizes are part of the name); the number lint skips it.
+\newcommand{\model}[1]{#1}
+% A generated table or appendix fragment of this document.
+\newcommand{\generated}[1]{\input{\reportbuild/generated/#1}}
+\definecolor{teal}{HTML}{0F766E}
+\definecolor{brick}{HTML}{B45309}
+\definecolor{ink}{HTML}{1F2A37}
+\definecolor{paper}{HTML}{F4F6F8}

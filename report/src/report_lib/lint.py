@@ -26,8 +26,10 @@ from pylatexenc.macrospec import MacroSpec
 
 from report_lib.paths import CONF
 
+# \model names a language model, whose name carries digits (versions, sizes) that are part of the name, not
+# quantities the report measured; like \ident it is skipped.
 SKIP_MACROS = {
-    "est", "proto", "ident", "ref", "eqref", "pageref", "cref", "Cref", "autoref", "label", "cite", "citet",
+    "est", "proto", "ident", "model", "ref", "eqref", "pageref", "cref", "Cref", "autoref", "label", "cite", "citet",
     "citep", "textcite", "parencite", "autocite", "citeauthor", "citeyear", "fullcite", "footcite",
     "include", "input", "includegraphics", "url", "href", "verb", "addbibresource", "bibliography",
     "setcounter", "addtocounter", "vspace", "hspace", "rule", "includeonly", "nocite",
@@ -51,6 +53,7 @@ _MACROS = [
     MacroSpec("est", "{{"),
     MacroSpec("proto", "{"),
     MacroSpec("ident", "{"),
+    MacroSpec("model", "{"),
     MacroSpec("cref", "*{"),
     MacroSpec("Cref", "*{"),
     MacroSpec("textcite", "[[{"),

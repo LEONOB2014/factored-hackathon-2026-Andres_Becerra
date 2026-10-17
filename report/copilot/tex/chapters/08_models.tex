@@ -1,0 +1,83 @@
+\chapter{The challenge set with each model inside}\label{ch:models}
+
+\Cref{ch:attacks} showed that no model can make the copilot break its rules. This chapter asks the complementary
+question: does a model make the copilot more often right? Each model of \cref{tab:models} was plugged into the copilot
+after the fix of \cref{ch:challenge} and run on the same frozen cases; the baseline is the same copilot without a
+model, from the rerun after the fix.
+
+\section{A defect in the stored model runs}\label{sec:models-defect}
+
+All \est{mod.knowledge-failed-runs}{value} model runs failed every one of the \est{mod.knowledge-cases}{value}
+knowledge cases, while the copilot without a model passed \est{mod.base-knowledge-passed}{value} of them. Tracing it
+while preparing this report showed the cause: the environments that ran the models lacked the optional retrieval
+package, which loads the embedder on the first query. The harness started normally, and every knowledge question
+then failed inside retrieval and ended as a tool failure, before any model was asked. The failures measure the
+environment, not the models.
+
+The report handles it as follows. The comparisons below use the \est{mod.compared-cases}{value} cases retrieval
+does not touch. The knowledge cases were replayed with retrieval working for the hosted models (\cref{sec:knowledge-replay}). And both evaluation harnesses now run a probe query before scoring, so a run without the embedder stops
+instead of recording tool failures. The stored totals over all \est{chl.cases}{value} cases are kept in
+\cref{tab:models-challenge} for the record.
+
+\section{Accuracy}
+
+\generated{tables/models-challenge}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\linewidth]{fig-mod-forest}
+  \caption{Correct final outcome on the compared cases with each model inside BETA AID and without a model, with
+  Wilson intervals; the dashed line is the copilot without a model.}
+  \label{fig:mod-forest}
+\end{figure}
+
+On the \est{mod.compared-cases}{value} compared cases, the copilot with a model ended between
+\est{mod.gpt4omini-correct-compared}{num} (\model{GPT-4o-mini}) and \est{mod.qwen30-fl-correct-compared}{num}
+(\model{Qwen3-30B-A3B} on Featherless, and \model{Nemotron-Mini-4B}) cases correctly, and
+\est{mod.qwen30-tf-correct-compared}{num} with \model{Qwen3-30B-A3B} on Token Factory; without a model it ended
+\est{mod.base-correct-compared}{num} correctly (\cref{fig:mod-forest}). No model differs detectably from the copilot
+without one: \est{mod.vs-base-q05}{value} of the \est{atk.runs}{value} paired tests reach $q \le \proto{stats.alpha}$,
+and the smallest unadjusted $p$-value among the pairs of models is \est{mod.pairs-min-p}{value}, with
+\est{mod.pairs-q05}{value} of \est{mod.pairs}{value} pairs detected. The reason is visible in the counts: any pair of
+configurations disagrees on at most \est{mod.max-discordant}{value} cases, too few for any difference to be told apart
+from chance (\cref{ch:design}). The models are not equal; the frozen set is too small to rank them, and every one of
+them is within a few cases of the copilot without a model.
+
+\section{Where a model changes the outcome}
+
+The cases the models change are few and the same across models. Every one of the \est{atk.runs}{value} models passed
+the same \est{mod.common-gains}{value} cases the copilot without a model fails: informal phrasings whose confidence
+fell below the intent model's threshold, which the copilot without a model answers with a request to rephrase and a
+model labels correctly. The losses fall in \est{mod.loss-categories}{value} categories. In
+\est{mod.runs-lose-multicard}{value} runs, multi-card follow-ups failed, where the customer's second turn only says
+which card they mean; in \est{mod.runs-lose-out-of-scope}{value} runs, a request for a joke, which must be declined
+with a clarifying question, was answered instead. The stored runs keep only the identifiers of failed cases, so the
+stage that produced each loss was not traced; the knowledge replay of \cref{sec:knowledge-replay} keeps every turn's
+trace, and a replay of these cases would locate them. \Cref{tab:models-failures} in \cref{app:tables} lists every
+configuration's failed cases.
+
+\section{The knowledge cases, with retrieval working}\label{sec:knowledge-replay}
+
+\generated{tables/knowledge-replay}
+
+With retrieval working, the \est{mod.replays}{value} hosted configurations behaved identically on the knowledge cases
+(\cref{tab:knowledge-replay}), and each resolved \est{mod.qwen30-tf-replay-passed}{value} of the
+\est{mod.knowledge-cases}{value}. A question about recovering money from a transfer scam got a generated answer that
+cited the governing regulation and passed the grounding check. A question about the law that protects personal data
+in Mexico got a generated answer that failed the check, so it was not shown and the case went to a person: a safe
+failure, where the copilot without a model would have pointed to the document. A request to stop marketing messages
+got a clarifying question instead of the expected hand-off, the same failure as without a model: the right document,
+the internal marketing-consent policy, scored just below the relevance threshold. A question about how long the bank keeps data found an internal document and went to a person, as
+expected. With a model the copilot resolves \est{mod.qwen30-tf-replay-passed}{value} of these cases and without one
+\est{mod.base-knowledge-passed}{value}: on knowledge questions the grounding check costs a pointer whenever a
+generated answer cannot be verified, and the copilot prefers a hand-off to an unverified answer.
+
+\section{Model calls and latency}
+
+Over the \est{chl.cases}{value} cases, a model was called between \est{mod.nemotron4b-calls}{value} and
+\est{mod.qwen30-fl-calls}{value} times: to label a message the intent model was unsure of
+(\est{mod.qwen30-tf-classify}{value} times with every model) and to reword a reply (the rest). Most turns call no model.
+The median time to the first token of these calls was \est{mod.qwen30-tf-ttft-p50}{value}\,ms for
+\model{Qwen3-30B-A3B} on Token Factory and \est{mod.gpt4omini-ttft-p50}{value}\,ms for \model{GPT-4o-mini} through
+the gateway. The runs recorded no prices, so this report gives no cost per case; \cref{ch:screening} gives the tokens
+per call, from which a cost follows at any provider's price.

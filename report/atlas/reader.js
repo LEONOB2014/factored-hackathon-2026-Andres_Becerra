@@ -1,38 +1,60 @@
-/* The technical report as a book inside the Atlas. The PDF ships with the page (base64 in #ebkData) and is drawn by
-   pdf.js, which loads from cdnjs the first time the book opens, so the Atlas starts exactly as before. */
+/* The reports as books inside the Atlas, on one shelf. Each PDF ships with the page (base64 in a
+   script.ebk-data block that names the book) and is drawn by pdf.js, which loads from cdnjs the first time a book
+   opens, so the Atlas starts exactly as before. Routes: #library, #<book>, #<book>/<page>. */
 (function(){
 "use strict";
 const PDFJS="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/";
 const $=id=>document.getElementById(id);
 const root=$("ebk"), stage=$("ebkStage"), book=$("ebkBook"), L=$("ebkL"), R=$("ebkR"), msg=$("ebkMsg");
 const pgIn=$("ebkPg"), ofEl=$("ebkOf"), run=$("ebkRun"), edge=$("ebkEdge"), toc=$("ebkToc"), tocBtn=$("ebkTocBtn");
+const shelf=$("ebkShelf"), libBtn=$("ebkLib"), ctl=$("ebkCtl"), titleEl=$("ebkBookTitle");
 const reduce=window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches;
 const TURN=reduce?0:640;
 const store={get(k){try{return localStorage.getItem(k)}catch(e){return null}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
 
+// The books on the shelf, in page order: id, kind, title, subtitle, whether the outline has parts.
+const BOOKS=Array.from(document.querySelectorAll("script.ebk-data")).map(s=>({id:s.dataset.id,kind:s.dataset.kind||"",
+  title:s.dataset.title||s.dataset.id,sub:s.dataset.sub||"",parts:s.dataset.parts==="1",el:s,doc:null}));
+const bookById=id=>BOOKS.find(b=>b.id===id)||null;
+// the technical report keeps the ribbon key it had before the shelf, so returning readers land where they stopped
+const ribbonKey=b=>b.id==="report"?"ebk.page":"ebk.page."+b.id;
+
+let B=null;                   // the open book
 let pdf=null, N=0, labels=null, aspect=0.707, two=true, pw=0, ph=0, cur=1, busy=false, opener=null, prevHash="";
-let marks=[];                 // outline entries {title, depth, page}
+let marks=[];                 // outline entries {title, depth, page, kids, parent}
 const cache=new Map();        // "page@width" -> canvas, most recent last
 
 /* ---------------------------------------------------------------- loading */
 function script(src){return new Promise((ok,no)=>{const s=document.createElement("script"); s.src=src; s.onload=ok;
   s.onerror=()=>no(new Error("could not load "+src)); document.head.appendChild(s);});}
-let loading=null;
-function load(){
-  if(loading) return loading;
-  loading=(async()=>{
+let engine=null;
+function loadEngine(){
+  if(engine) return engine;
+  engine=(async()=>{
     if(!window.pdfjsLib) await script(PDFJS+"pdf.min.js");
     if(!window.pdfjsWorker) await script(PDFJS+"pdf.worker.min.js");   // runs pdf.js on this page: no worker needed
     pdfjsLib.GlobalWorkerOptions.workerSrc=PDFJS+"pdf.worker.min.js";
-    const b64=$("ebkData").textContent.trim(), bin=atob(b64), bytes=new Uint8Array(bin.length);
-    for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
-    pdf=await pdfjsLib.getDocument({data:bytes,isEvalSupported:false}).promise;
-    N=pdf.numPages;
-    try{labels=await pdf.getPageLabels();}catch(e){labels=null;}
-    const v=(await pdf.getPage(1)).getViewport({scale:1}); aspect=v.width/v.height;
-    await outline();
   })();
-  return loading;
+  engine.catch(()=>{engine=null;});
+  return engine;
+}
+async function loadBook(b){
+  if(!b.doc){
+    b.doc=(async()=>{
+      await loadEngine();
+      const b64=b.el.textContent.trim(), bin=atob(b64), bytes=new Uint8Array(bin.length);
+      for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+      const d={pdf:await pdfjsLib.getDocument({data:bytes,isEvalSupported:false}).promise};
+      d.N=d.pdf.numPages;
+      try{d.labels=await d.pdf.getPageLabels();}catch(e){d.labels=null;}
+      const v=(await d.pdf.getPage(1)).getViewport({scale:1}); d.aspect=v.width/v.height;
+      d.marks=await readOutline(d.pdf);
+      return d;
+    })();
+    b.doc.catch(()=>{b.doc=null;});
+  }
+  const d=await b.doc;
+  if(B!==b){B=b; pdf=d.pdf; N=d.N; labels=d.labels; aspect=d.aspect; marks=d.marks; cache.clear(); buildToc(); buildEdge();}
 }
 const label=p=>labels&&labels[p-1]?labels[p-1]:String(p);
 function pageOfLabel(s){
@@ -40,33 +62,37 @@ function pageOfLabel(s){
   if(labels){const i=labels.findIndex(x=>String(x).toLowerCase()===s); if(i>=0) return i+1;}
   const n=parseInt(s,10); return n>=1&&n<=N?n:null;
 }
-async function destPage(dest){
+async function destPage(dest,doc){
+  doc=doc||pdf;
   try{
-    if(typeof dest==="string") dest=await pdf.getDestination(dest);
+    if(typeof dest==="string") dest=await doc.getDestination(dest);
     if(!Array.isArray(dest)) return null;
-    const ref=dest[0]; return (typeof ref==="number"?ref:await pdf.getPageIndex(ref))+1;
+    const ref=dest[0]; return (typeof ref==="number"?ref:await doc.getPageIndex(ref))+1;
   }catch(e){return null;}
 }
 
 /* ---------------------------------------------------------------- outline: contents, running title, fore-edge */
-async function outline(){
-  const out=await pdf.getOutline()||[];
-  async function walk(items,depth){for(const it of items){const p=await destPage(it.dest);
-    marks.push({title:it.title,depth,page:p||1,kids:it.items&&it.items.length?it.items:null}); if(it.items) await walk(it.items,depth+1);}}
-  await walk(out,0);
-  buildToc(); buildEdge();
+async function readOutline(doc){
+  const out=await doc.getOutline()||[], ms=[];
+  async function walk(items,depth,parent){for(const it of items){const p=await destPage(it.dest,doc);
+    const m={title:it.title,depth,page:p||1,kids:it.items&&it.items.length?it.items:null,parent}; ms.push(m);
+    if(it.items) await walk(it.items,depth+1,m);}}
+  await walk(out,0,null);
+  return ms;
 }
-function runningTitle(p){let t=null; for(const m of marks){if(m.depth<=1&&!isPart(m)&&m.page<=p) t=m;} return t?t.title:"Title and contents";}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
-// The outline has parts (depth 0 with children: the six parts and the appendices), entries at the root without
-// children (contents, abstract, conventions, bibliography), chapters (depth 1) and their sections (depth 2).
-const isPart=m=>m.depth===0&&!!m.kids;
+// A group heads chapters without being one: a part of a book with parts (the technical report), or the appendices
+// bookmark of any book. A chapter is an entry at the root that is not a group, or a child of a group. Sections are
+// the chapters' children.
+const isPart=m=>m.depth===0&&!!m.kids&&(B.parts||/^appendices$/i.test(m.title));
+const isChapter=m=>!isPart(m)&&(m.depth===0||(m.depth===1&&!!m.parent&&isPart(m.parent)));
+function runningTitle(p){let t=null; for(const m of marks){if(isChapter(m)&&m.page<=p) t=m;} return t?t.title:"Title and contents";}
 function buildToc(){
   const ol=$("ebkTocList"); let h="";
   const item=m=>'<button type="button" class="it" data-p="'+m.page+'"><span class="t">'+esc(m.title)+'</span><span class="p">'+esc(label(m.page))+'</span></button>';
   marks.forEach((m,i)=>{
     if(isPart(m)){h+='<li class="part">'+esc(m.title)+'</li>'; return;}
-    if(m.depth>1) return;
+    if(!isChapter(m)) return;
     const kids=[]; for(const s of marks.slice(i+1)){ if(s.depth<=m.depth) break; if(s.depth===m.depth+1) kids.push(s); }
     h+='<li>'+item(m)+(kids.length?'<details><summary class="sub">'+kids.length+(kids.length===1?' section':' sections')+'</summary><ol>'+
       kids.map(k=>'<li>'+item(k)+'</li>').join("")+'</ol></details>':'')+'</li>';
@@ -75,7 +101,7 @@ function buildToc(){
 }
 function edgeEntries(){
   const out=[{title:"Title and contents",page:1}];
-  marks.filter(m=>m.depth<=1&&!isPart(m)).sort((a,b)=>a.page-b.page).forEach(m=>{
+  marks.filter(isChapter).sort((a,b)=>a.page-b.page).forEach(m=>{
     const last=out[out.length-1]; if(m.page>last.page) out.push(m); else if(m.page===last.page) out[out.length-1]=m;});
   return out;
 }
@@ -95,7 +121,7 @@ function layout(){
   for(const el of [L,R]){el.style.width=pw+"px"; el.style.height=ph+"px";}
 }
 async function render(p){
-  const dpr=Math.min(window.devicePixelRatio||1,2.5), key=p+"@"+pw+"@"+dpr;
+  const dpr=Math.min(window.devicePixelRatio||1,2.5), key=B.id+":"+p+"@"+pw+"@"+dpr;
   if(cache.has(key)){const c=cache.get(key); cache.delete(key); cache.set(key,c); return c;}
   const page=await pdf.getPage(p), vp=page.getViewport({scale:pw/page.getViewport({scale:1}).width*dpr});
   const c=document.createElement("canvas"); c.width=Math.round(vp.width); c.height=Math.round(vp.height);
@@ -135,8 +161,8 @@ function status(){
   $("ebkPrev").disabled=first<=1; $("ebkNext").disabled=(two?(r||0):cur)>=N;
   const mk=$("ebkMark"); if(mk) mk.style.left="calc("+(100*(first-1)/Math.max(1,N-1))+"% - 1.5px)";
   $$(".ebk-toc button.it").forEach(b=>b.setAttribute("aria-current",String(+b.dataset.p===first||+b.dataset.p===r)));
-  store.set("ebk.page",String(first));
-  if(location.hash.startsWith("#report")) history.replaceState(null,"","#report/"+first);
+  store.set(ribbonKey(B),String(first));
+  history.replaceState(null,"","#"+B.id+"/"+first);
 }
 const $$=s=>Array.from(root.querySelectorAll(s));
 
@@ -157,7 +183,7 @@ function spin(el,from,to){
   });
 }
 async function turn(dir){
-  if(busy||!pdf) return; busy=true;
+  if(busy||!pdf||!shelf.hidden) return; busy=true;
   try{
     if(two){
       const [l,r]=shown(), target=dir>0?r+1:Math.max(1,l-1);
@@ -182,24 +208,50 @@ async function turn(dir){
 function prefetch(){const [l,r]=shown(), base=r||l||cur; [base+1,base+2,base+3,(l||base)-1,(l||base)-2].forEach(p=>{if(p>=1&&p<=N) render(p).catch(()=>{});});}
 async function jump(p){ if(!pdf||!p) return; cur=Math.min(Math.max(1,p),N); await paint(); prefetch(); }
 
+/* ---------------------------------------------------------------- the shelf */
+function buildShelf(){
+  $("ebkBooks").innerHTML=BOOKS.map(b=>'<li><button type="button" class="ebk-cover" data-book="'+esc(b.id)+'">'+
+    '<span class="k">'+esc(b.kind)+'</span><span class="t">'+esc(b.title)+'</span><span class="s">'+esc(b.sub)+'</span>'+
+    '<span class="go">Read<span aria-hidden="true"> →</span></span></button></li>').join("");
+}
+function showShelf(){
+  shelf.hidden=false; book.hidden=true; msg.hidden=true; edge.hidden=true; ctl.hidden=true; libBtn.hidden=true;
+  toc.hidden=true; tocBtn.setAttribute("aria-expanded","false");
+  titleEl.textContent="Reports"; run.textContent="BETA AID"; root.setAttribute("aria-label","Reports");
+  history.replaceState(null,"","#library");
+  const first=shelf.querySelector(".ebk-cover"); if(first) first.focus();
+}
+
 /* ---------------------------------------------------------------- open and close */
-async function open(page){
-  if(root.hidden){opener=document.activeElement; prevHash=location.hash.startsWith("#report")?"":location.hash;}
-  root.hidden=false; document.documentElement.style.overflow="hidden"; $("ebkClose").focus();
+function enter(){
+  if(root.hidden){opener=document.activeElement; const h=location.hash; prevHash=route(h)?"":h;}
+  root.hidden=false; document.documentElement.style.overflow="hidden";
+}
+async function openBook(b,page){
+  enter();
+  shelf.hidden=true; book.hidden=false; edge.hidden=false; ctl.hidden=false; libBtn.hidden=BOOKS.length<2;
+  titleEl.textContent=b.title; run.textContent=b.kind; root.setAttribute("aria-label",b.title);
+  $("ebkClose").focus();
   try{
-    msg.hidden=false; msg.textContent="Opening the report…";
-    await load(); msg.hidden=true; layout();
-    const saved=parseInt(store.get("ebk.page")||"",10);   // the ribbon: reopen where the reader stopped
+    msg.hidden=false; msg.textContent="Opening the report…"; book.style.visibility="hidden";
+    await loadBook(b); msg.hidden=true; book.style.visibility=""; layout();
+    const saved=parseInt(store.get(ribbonKey(b))||"",10);   // the ribbon: reopen where the reader stopped
     await jump(page||(saved>=1&&saved<=N?saved:1));
-    if(!location.hash.startsWith("#report")) history.replaceState(null,"","#report/"+cur);
   }catch(e){msg.hidden=false; msg.textContent="The reader could not load its PDF engine. Check the connection and open the report again.";}
 }
+function openShelf(){ enter(); showShelf(); }
 function close(){
   root.hidden=true; toc.hidden=true; tocBtn.setAttribute("aria-expanded","false"); document.documentElement.style.overflow="";
   history.replaceState(null,"",prevHash||location.pathname+location.search);
   if(opener&&opener.focus) opener.focus();
 }
-function hashPage(h){const m=(h===undefined?location.hash:h).match(/^#report(?:\/(\d+))?$/); return m?(m[1]?+m[1]:0):null;}
+// "#library" -> the shelf; "#<book>" or "#<book>/<page>" -> that book; anything else is the Atlas's own route
+function route(h){
+  const m=String(h||"").match(/^#([a-z][a-z0-9-]*)(?:\/(\d+))?$/); if(!m) return null;
+  if(m[1]==="library") return {shelf:true};
+  const b=bookById(m[1]); return b?{book:b,page:m[2]?+m[2]:0}:null;
+}
+function go(r){ if(!r) return; if(r.shelf) openShelf(); else openBook(r.book,r.page); }
 
 /* ---------------------------------------------------------------- the Atlas: header button, rail entry, help, key */
 const ICON='<svg width="15" height="15" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.2c2.1-.9 4.1-.8 6 .6 1.9-1.4 3.9-1.5 6-.6v9.6c-2.1-.9-4.1-.8-6 .6-1.9-1.4-3.9-1.5-6-.6z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8 3.8v9.6" stroke="currentColor" stroke-width="1.3"/></svg>';
@@ -207,23 +259,25 @@ function hookAtlas(){
   const help=document.getElementById("helpBtn");
   if(help&&!document.getElementById("ebkOpen")){
     const b=document.createElement("button"); b.type="button"; b.className="tb"; b.id="ebkOpen"; b.dataset.ebk="";
-    b.title="Technical report (r)"; b.innerHTML=ICON+'<span class="lbl">Report</span>'; help.parentNode.insertBefore(b,help);
+    b.title="Reports (r)"; b.innerHTML=ICON+'<span class="lbl">Reports</span>'; help.parentNode.insertBefore(b,help);
   }
   const dl=document.querySelector("#help dl");
-  if(dl&&!dl.querySelector("[data-ebk-help]")){dl.insertAdjacentHTML("beforeend",'<dt data-ebk-help><kbd>r</kbd></dt><dd>technical report, as a book</dd>');}
+  if(dl&&!dl.querySelector("[data-ebk-help]")){dl.insertAdjacentHTML("beforeend",'<dt data-ebk-help><kbd>r</kbd></dt><dd>the reports, as books</dd>');}
   const rail=document.getElementById("rail");
   const addRail=()=>{ if(!rail||rail.querySelector("[data-ebk]")) return; const last=Array.from(rail.querySelectorAll(".vi.gl")).pop(); if(!last) return;
-    last.insertAdjacentHTML("afterend",'<button class="vi gl" type="button" data-ebk><span class="ic">'+ICON+'</span><span>Technical report</span></button>'); };
+    last.insertAdjacentHTML("afterend",'<button class="vi gl" type="button" data-ebk><span class="ic">'+ICON+'</span><span>Reports</span></button>'); };
   addRail(); if(rail) new MutationObserver(addRail).observe(rail,{childList:true});
 }
 
 document.addEventListener("click",e=>{
-  const o=e.target.closest("[data-ebk]"); if(o){e.preventDefault(); e.stopPropagation(); open(0); return;}
+  const o=e.target.closest("[data-ebk]"); if(o){e.preventDefault(); e.stopPropagation(); openShelf(); return;}
   if(root.hidden) return;
+  const c=e.target.closest("[data-book]"); if(c&&root.contains(c)){e.preventDefault(); openBook(bookById(c.dataset.book),0); return;}
   const a=e.target.closest(".ebk-lnk a"); if(a&&a.dataset.dest){e.preventDefault(); destPage(JSON.parse(a.dataset.dest)).then(jump); return;}
   const t=e.target.closest("[data-p]"); if(t&&root.contains(t)){e.preventDefault(); jump(+t.dataset.p); if(t.closest(".ebk-toc")){toc.hidden=true; tocBtn.setAttribute("aria-expanded","false");} return;}
 },true);
 $("ebkClose").addEventListener("click",close);
+libBtn.addEventListener("click",showShelf);
 $("ebkPrev").addEventListener("click",()=>turn(-1));
 $("ebkNext").addEventListener("click",()=>turn(1));
 tocBtn.addEventListener("click",()=>{toc.hidden=!toc.hidden; tocBtn.setAttribute("aria-expanded",String(!toc.hidden));});
@@ -241,22 +295,25 @@ stage.addEventListener("pointerup",e=>{ if(sx===null) return; const dx=e.clientX
 window.addEventListener("keydown",e=>{
   const typing=/^(INPUT|TEXTAREA|SELECT)$/.test((e.target&&e.target.tagName)||"")||(e.target&&e.target.isContentEditable);
   if(root.hidden){
-    if(!typing&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&e.key==="r"){e.preventDefault(); e.stopPropagation(); open(0);}
+    if(!typing&&!e.metaKey&&!e.ctrlKey&&!e.altKey&&e.key==="r"){e.preventDefault(); e.stopPropagation(); openShelf();}
     return;
   }
-  e.stopPropagation();     // the Atlas's own shortcuts stay quiet while the book is open
+  e.stopPropagation();     // the Atlas's own shortcuts stay quiet while the reader is open
   if(typing&&e.key!=="Escape") return;
   const k=e.key;
-  if(k==="Escape"){e.preventDefault(); if(!toc.hidden){toc.hidden=true; tocBtn.setAttribute("aria-expanded","false");} else close();}
-  else if(k==="ArrowRight"||k==="PageDown"||k===" "){e.preventDefault(); turn(1);}
+  if(k==="Escape"){e.preventDefault(); if(!toc.hidden){toc.hidden=true; tocBtn.setAttribute("aria-expanded","false");} else close(); return;}
+  if(!shelf.hidden) return;
+  if(k==="ArrowRight"||k==="PageDown"||k===" "){e.preventDefault(); turn(1);}
   else if(k==="ArrowLeft"||k==="PageUp"){e.preventDefault(); turn(-1);}
   else if(k==="Home"){e.preventDefault(); jump(1);}
   else if(k==="End"){e.preventDefault(); jump(N);}
   else if(k==="c"){e.preventDefault(); tocBtn.click();}
+  else if(k==="l"&&BOOKS.length>1){e.preventDefault(); showShelf();}
 },true);
-let rt=null; window.addEventListener("resize",()=>{ if(root.hidden||!pdf) return; clearTimeout(rt); rt=setTimeout(()=>{cache.clear(); layout(); paint();},150); });
-window.addEventListener("hashchange",()=>{const p=hashPage(); if(p!==null&&root.hidden) open(p);});
+let rt=null; window.addEventListener("resize",()=>{ if(root.hidden||!pdf||!shelf.hidden) return; clearTimeout(rt); rt=setTimeout(()=>{cache.clear(); layout(); paint();},150); });
+window.addEventListener("hashchange",()=>{ if(root.hidden) go(route(location.hash)); });
 
+buildShelf();
 hookAtlas();
-const hp=hashPage(window.__ebkHash||location.hash); if(hp!==null) open(hp);
+go(route(window.__ebkHash||location.hash));
 })();

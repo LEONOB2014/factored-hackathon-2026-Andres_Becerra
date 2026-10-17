@@ -1,0 +1,64 @@
+\section{What the evaluations show}
+
+Proportions below carry Wilson intervals at confidence level \proto{stats.level} \parencite{wilson1927}; paired comparisons use the exact
+McNemar test \parencite{mcnemar1947}, adjusted for false discoveries within each family \parencite{benjamini1995}.
+
+\paragraph{The copilot understands customers better than keywords.} On \est{int.held-out}{value} phrasings written
+before tuning, the intent model is right on \est{int.acc-learned}{num} (\est{int.acc-learned}{pct}\,\%, interval
+\est{int.acc-learned}{pct_ci}\,\%), keywords on \est{int.acc-keyword}{num} ($p = \est{int.mcnemar}{p}$). Above its
+threshold it labels \est{int.cover}{pct}\,\% of phrasings on its own and is right on \est{int.acc-confident}{pct}\,\%
+of them. On whole conversations, the copilot without any language model ends \est{chl.first-learned-correct}{num} of
+\est{chl.cases}{value} frozen cases correctly, against \est{chl.first-keyword-correct}{num} with keyword routing
+($p = \est{chl.mcnemar}{p}$), and misses \est{chl.first-learned-missed}{num} of the
+\est{chl.first-learned-missed}{den} cases a person must decide.
+
+\paragraph{It cannot be talked into breaking the rules, whatever the model.} Alone, the models broke the card-service
+rules on as many as \est{atk.nemotron4b-raw}{num} of \est{atk.attacks}{value} attacks, mostly by repeating a full card
+number or reciting their instructions. Inside BETA AID none did, for any model (\cref{fig:brief-violations}); with no
+violation in \est{atk.attacks}{value} attacks each rate is below \est{atk.qwen30-tf-wrapped-upper}{value} with
+confidence \proto{stats.level}. The same \est{atk.refused-by-all}{value} attacks were refused under every model: the
+safety is the copilot's, not the model's.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\linewidth]{fig-atk-violations}
+  \caption{Share of the attacks with a violation, by model, alone and inside BETA AID, with Wilson intervals.}
+  \label{fig:brief-violations}
+\end{figure}
+
+\paragraph{The models do not differ in accuracy, but they do in speed.} Inside BETA AID the models ended within a few
+cases of the copilot without a model on the \est{mod.compared-cases}{value} cases they could be compared on
+(\cref{fig:brief-forest}); none differs detectably ($q \le \proto{stats.alpha}$ for \est{mod.vs-base-q05}{value} of
+\est{atk.runs}{value}). Every model rescued the same \est{mod.common-gains}{value} informal phrasings, and lost a few
+multi-card follow-ups or an out-of-scope request. In speed they separate clearly (\cref{fig:brief-speed}):
+\model{Qwen3-30B-A3B} on Token Factory answers the labelling job in a median of \est{scr.qwen30-tf-p50}{estimate}\,ms,
+\est{scr.qwen30-fl-minus-tf}{estimate}\,ms faster than on Featherless; \model{Qwen2.5-14B} exceeded the copilot's
+timeout on \est{scr.qwen14-fl-over}{value} of \est{scr.qwen14-fl-ok}{value} calls, and \model{DeepSeek-V4-Flash}
+returned a usable label on at most \est{scr.dsv4flash-tf-valid}{num} of \est{scr.dsv4flash-tf-valid}{den}.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\linewidth]{fig-mod-forest}
+  \caption{Correct final outcome on the compared challenge cases with each model inside BETA AID and without a
+  model, with Wilson intervals; the dashed line is the copilot without a model.}
+  \label{fig:brief-forest}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.92\linewidth]{fig-scr-latency}
+  \caption{Time of each labelling call by hosted configuration (log scale); the bar is the median and the dashed line
+  the copilot's model timeout. Crosses are replies that were not a valid label.}
+  \label{fig:brief-speed}
+\end{figure}
+
+\paragraph{Governed retrieval keeps unapproved documents out.} No retriever returned a draft, superseded, retired or
+expired document. The served retriever ranks the right document first for \est{kb.bundled-hit1}{num} of
+\est{kb.bundled-hit1}{den} answerable questions, but its threshold rejected none of the
+\est{kb.bundled-rejected}{den} unanswerable ones; the grounding check and the hand-off to a person keep that from
+becoming an unverified answer.
+
+\paragraph{A defect found and corrected.} The stored model runs lacked the retrieval package, so every knowledge case
+failed in them for that reason alone. Replayed with retrieval working, the hosted models resolve
+\est{mod.qwen30-tf-replay-passed}{value} of the \est{mod.knowledge-cases}{value} knowledge cases, preferring a hand-off
+to an answer that fails the grounding check. The evaluation harnesses now stop when retrieval cannot run.

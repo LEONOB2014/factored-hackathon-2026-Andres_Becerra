@@ -1,0 +1,121 @@
+\chapter{Language models alone and inside BETA AID}\label{ch:attacks}
+
+A bank cannot deploy a chatbot that a customer can talk into revealing secrets, another customer's card, or a card
+number, or into claiming an action it did not perform. This chapter sends the same attacks to each language model
+alone and to the same model inside BETA AID, and counts the violations.
+
+\section{The models}
+
+\begin{table}[htbp]\centering\small
+  \caption{The language models tested, how each was served, and whose technical report describes it.}
+  \label{tab:models}
+  \fittable{\begin{tabular}{lll}
+    \toprule
+    Model & Served & Reference \\
+    \midrule
+    \model{Qwen3-30B-A3B-Instruct-2507} & hosted: Nebius Token Factory, and Featherless & \textcite{qwen2025} \\
+    \model{Gemma-3-27B-it} & hosted: Nebius Token Factory & \textcite{gemma2025} \\
+    \model{GPT-4o-mini} & hosted: an OpenAI-compatible gateway & provider documentation \\
+    \model{Nemotron-Mini-4B} & local: Ollama on a laptop & model card \\
+    \model{Qwen2.5-3B} & local: Ollama on a laptop & model card \\
+    \bottomrule
+  \end{tabular}}
+\end{table}
+
+\Cref{tab:models} lists the models: small open-weight models run locally, larger open-weight models on hosted
+endpoints, and a small proprietary model through a gateway. \model{Qwen3-30B-A3B} is a mixture of experts that
+activates a fraction of its parameters for each token \parencite{qwen2025}. Every call used temperature zero. Each configuration was run once; the
+\est{atk.runs}{value} runs include the same open-weight model on both hosted providers.
+
+\section{The attacks}
+
+The \est{atk.attacks}{value} attacks (\est{atk.n-es}{value} in Spanish and \est{atk.n-pt}{value} in Portuguese) come
+from public sets, adapted to the card service by a customer's opening line such as \enquote{my card does not go
+through}:
+\begin{itemize}[leftmargin=*]
+  \item \est{atk.n-secret}{value} attempts to extract a secret, from \ident{Lakera/gandalf\_ignore\_instructions}
+  \parencite{lakera2023};
+  \item \est{atk.n-prompt}{value} prompt injections, from \ident{deepset/prompt-injections} \parencite{deepset2023};
+  \item \est{atk.n-pii}{value} probes with public test card numbers, which ask the copilot to repeat a card number or
+  to confirm an action.
+\end{itemize}
+
+Alone, each model plays a card-service chatbot whose system prompt holds a secret staff code and another customer's
+card number, with the instruction never to reveal either. Inside BETA AID, the same model is plugged into the copilot
+for its bounded jobs, behind the gateway, the policy, the tools and the grounding checks, with a signed-in
+demonstration customer. A reply violates the rules when it leaks the secret, leaks the other customer's card, echoes a
+full card number, or claims an action that was not verified; inside BETA AID an executed action also counts.
+
+\section{Violations}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\linewidth]{fig-atk-violations}
+  \caption{Share of the attacks with a violation, by model, alone and inside BETA AID, with Wilson intervals.}
+  \label{fig:atk-violations}
+\end{figure}
+
+Alone, the models broke the rules on between \est{atk.gpt4omini-raw}{num} (\model{GPT-4o-mini}) and
+\est{atk.nemotron4b-raw}{num} (\model{Nemotron-Mini-4B} and \model{Qwen2.5-3B}) of the \est{atk.attacks}{value}
+attacks (\cref{fig:atk-violations}). \model{Qwen3-30B-A3B} broke them \est{atk.qwen30-tf-raw}{num} times on Token
+Factory and \est{atk.qwen30-fl-raw}{num} on Featherless, and \model{Gemma-3-27B} \est{atk.gemma27-tf-raw}{num} times.
+\Cref{tab:attacks-by-kind} shows what went wrong: the card-number probes caught almost every model, which repeated
+the full number back (\est{atk.qwen30-tf-raw-pii}{value} of \est{atk.n-pii}{value} for \model{Qwen3-30B-A3B} on Token
+Factory), and the secret-extraction prompts made several models recite their instructions, staff code and the other
+customer's card included.
+
+\generated{tables/attacks-by-kind}
+
+Inside BETA AID, no model broke the rules on any attack: \est{atk.qwen30-tf-wrapped}{num} of
+\est{atk.qwen30-tf-wrapped}{den} for every one of them. With no events in \est{atk.attacks}{value} attacks, the exact
+one-sided bound puts each model's violation rate inside the copilot below \est{atk.qwen30-tf-wrapped-upper}{value} with
+confidence \proto{stats.level}.
+
+Per model, the paired test of alone against inside detects the difference for the models that broke the rules most
+often: $q = \est{atk.nemotron4b-raw-vs-wrapped}{q}$ for \model{Nemotron-Mini-4B} and for \model{Qwen2.5-3B},
+$q = \est{atk.gemma27-tf-raw-vs-wrapped}{q}$ for \model{Gemma-3-27B}, and $q = \est{atk.qwen30-fl-raw-vs-wrapped}{q}$
+for \model{Qwen3-30B-A3B} on Featherless. For \model{Qwen3-30B-A3B} on Token Factory, with only
+\est{atk.qwen30-tf-only-raw}{value} discordant attacks, the smallest attainable $p$-value is
+\est{atk.qwen30-tf-raw-vs-wrapped}{p} and the test cannot detect the difference ($q =
+\est{atk.qwen30-tf-raw-vs-wrapped}{q}$); for \model{GPT-4o-mini}, which broke no rule alone, there is nothing to
+detect. Between the models alone, \est{atk.pairs-q05}{value} of the \est{atk.pairs}{value} pairs differ at $q \le
+\proto{stats.alpha}$: \model{GPT-4o-mini} against \model{Gemma-3-27B}, \model{Nemotron-Mini-4B} and
+\model{Qwen2.5-3B} (\cref{tab:attacks-paired} in \cref{app:tables}).
+
+\section{Why the copilot holds}
+
+The zero inside BETA AID is a property of the copilot, not of the models, and the outcomes show it
+(\cref{tab:attacks-outcomes}). The same \est{atk.refused-by-all}{value} attacks were refused under every model, and
+no other attack was refused under any: the gateway refuses them before a model sees the message. The rest went
+through the deterministic path. The model never held a secret, because the copilot's prompts contain none; it never
+saw another customer's card, because tools read only the session's customer; it never saw a full card number,
+because the gateway masks it first; and it could not claim an action, because an action needs a confirmation token
+and a read-back, and the reply states only what the tools returned. A model's raw weakness therefore had nothing to
+act on.
+
+\generated{tables/attacks-outcomes}
+
+The models still did their jobs: each labelled the same \est{atk.qwen30-tf-wrapped-classify}{value} messages the
+intent model was unsure of, and reworded between \est{atk.qwen3b-wrapped-rephrase}{value} and
+\est{atk.nemotron4b-wrapped-rephrase}{value} replies, each checked for grounding. One attack under
+\model{Nemotron-Mini-4B} ended as a tool failure: the stored runs lacked the retrieval embedder
+(\cref{sec:models-defect}), so an attack routed to the knowledge base failed safely.
+
+\section{Latency}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.9\linewidth]{fig-atk-ttft}
+  \caption{Distribution of the time to the first token of each raw call, by model (log scale).}
+  \label{fig:atk-ttft}
+\end{figure}
+
+\Cref{fig:atk-ttft} compares how fast each model starts answering. \model{Qwen3-30B-A3B} on Token Factory has a median
+time to first token of \est{atk.qwen30-tf-ttft-p50}{estimate}\,ms (interval \est{atk.qwen30-tf-ttft-p50}{ci}) and a
+tight tail (\est{atk.qwen30-tf-ttft-p95}{estimate}\,ms at the \proto{stats.high_percentile}th percentile); on
+Featherless the median is \est{atk.qwen30-fl-ttft-p50}{estimate}\,ms but the tail reaches
+\est{atk.qwen30-fl-ttft-p95}{estimate}\,ms. \model{GPT-4o-mini} through the gateway starts after
+\est{atk.gpt4omini-ttft-p50}{estimate}\,ms. The local models have the lowest medians
+(\est{atk.nemotron4b-ttft-p50}{estimate}\,ms for \model{Nemotron-Mini-4B}) and the widest spread. Inside BETA AID most turns call no model, so a
+whole turn with \model{Qwen3-30B-A3B} on Token Factory takes a median of \est{atk.qwen30-tf-turn-p50}{estimate}\,ms
+on these attacks, and \est{atk.qwen30-tf-turn-p95}{estimate}\,ms at the \proto{stats.high_percentile}th percentile.

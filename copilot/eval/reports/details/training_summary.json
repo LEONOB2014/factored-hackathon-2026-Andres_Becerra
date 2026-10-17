@@ -1,0 +1,32 @@
+{
+ "base_phrasings": 374,
+ "augmented_phrasings": 2563,
+ "intents": 15,
+ "base_by_intent": {
+  "balance_limit": 25,
+  "block_card": 24,
+  "card_status": 24,
+  "complaint": 24,
+  "decline_reason": 24,
+  "dispute": 24,
+  "expiry_renewal": 24,
+  "fraud_report": 24,
+  "human_agent": 24,
+  "limit_increase": 24,
+  "out_of_scope": 31,
+  "policy_question": 24,
+  "reissue_card": 24,
+  "smalltalk": 30,
+  "unblock_card": 24
+ },
+ "base_by_language": {
+  "es": 188,
+  "pt": 186
+ },
+ "base_by_source": {
+  "team": 372,
+  "transcripts": 2
+ },
+ "held_out_phrasings": 132,
+ "folds": 5
+}

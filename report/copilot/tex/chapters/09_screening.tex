@@ -1,0 +1,63 @@
+\chapter{Speed screening of hosted models}\label{ch:screening}
+
+The evaluations so far cannot separate the models on safety or accuracy. What a customer notices is time: the copilot
+abandons a model call after \est{sys.model-timeout}{value}\,s and falls back to its deterministic path, so a slow or
+erratic model is a model that silently stops helping. This chapter measures hosted models in the job the copilot gives
+them most often.
+
+\section{Method}
+
+Each configuration received the copilot's intent-labelling job exactly as the copilot sends it: the same system
+prompt, the same request for a JSON object, the same token budget, with informal messages in Spanish and Portuguese.
+After one warm-up call, \est{scr.calls-per-model}{value} timed calls were made in sequence; each recorded the time to
+the first token, the total time, the tokens, and whether the reply was a JSON object holding one of the copilot's
+intents. The screening allowed each call \est{scr.call-timeout}{value}\,s, well past the copilot's own timeout, so slow
+calls were measured rather than cut. \est{scr.configurations}{value} configurations were screened: the models of
+\cref{ch:attacks} available on the hosted providers, and larger or newer models the providers offer.
+
+\section{Results}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{fig-scr-latency}
+  \caption{Total time of each timed call by configuration (log scale), ordered by median; teal dots are valid
+  labels, brick crosses replies that were not, the bar is the median, and the dashed line is the copilot's model
+  timeout.}
+  \label{fig:scr-latency}
+\end{figure}
+
+\generated{tables/screening}
+
+\model{Qwen3-30B-A3B-Instruct-2507} on Token Factory was the fastest configuration and among the tightest: a median
+call of \est{scr.qwen30-tf-p50}{estimate}\,ms (interval \est{scr.qwen30-tf-p50}{ci}),
+\est{scr.qwen30-tf-p95}{estimate}\,ms at the \proto{stats.high_percentile}th percentile, a slowest call of
+\est{scr.qwen30-tf-max}{value}\,ms, and a valid label on \est{scr.qwen30-tf-valid}{num} of
+\est{scr.qwen30-tf-valid}{den} calls (\cref{fig:scr-latency,tab:screening}). The same model on Featherless was
+slower by \est{scr.qwen30-fl-minus-tf}{estimate}\,ms at the median (interval \est{scr.qwen30-fl-minus-tf}{ci}), and
+its tail was longer (\est{scr.qwen30-fl-p95}{estimate}\,ms). \model{Gemma-3-27B-it} on Token Factory was nearly as
+fast (median \est{scr.gemma27-tf-p50}{estimate}\,ms) after a slow warm-up of \est{scr.gemma27-tf-warmup}{value}\,ms;
+Featherless refused to serve it (\est{scr.gemma27-fl-refused}{value} configuration, a gated model).
+
+\model{DeepSeek-V4-Flash} and \model{Qwen2.5-14B-Instruct} fail the job. \model{DeepSeek-V4-Flash} answered fast on
+both providers but returned a valid label on only \est{scr.dsv4flash-tf-valid}{num} of
+\est{scr.dsv4flash-tf-valid}{den} calls on Token Factory and \est{scr.dsv4flash-fl-valid}{num} of
+\est{scr.dsv4flash-fl-valid}{den} on Featherless. Its invalid replies used the whole budget of
+\est{scr.token-budget}{value} tokens (\est{scr.dsv4flash-tf-invalid-at-budget}{value} of them on Token Factory,
+\est{scr.dsv4flash-fl-invalid-at-budget}{value} on Featherless), so they were cut off before a complete object; the
+screening did not store the replies' text, so what filled the budget was not recorded. \model{Qwen2.5-14B-Instruct} on Featherless had a median of
+\est{scr.qwen14-fl-p50}{estimate}\,ms, and \est{scr.qwen14-fl-over}{value} of its \est{scr.qwen14-fl-ok}{value} calls
+exceeded the copilot's timeout, the slowest taking \est{scr.qwen14-fl-max}{value}\,ms; inside the copilot those calls
+would have been abandoned. \model{Qwen2.5-72B-Instruct} on Featherless was reliable but slower than
+\model{Qwen3-30B-A3B} (median \est{scr.qwen72-fl-p50}{estimate}\,ms), with the slowest warm-up of all
+(\est{scr.qwen72-fl-warmup}{value}\,ms).
+
+Warm-up calls matter for a service that sits idle: the first call after a pause can be several times slower than the
+rest, and for some configurations it reached or passed the copilot's timeout. A deployment that keeps a model warm, or sends
+a cheap call at start-up, avoids paying that cost on a customer's first message.
+
+\section{What the screening does not show}
+
+The screening measures one sequence of calls per configuration on one day, from one location. Hosted latency depends
+on the provider's load, and a provider can change the hardware behind a model at any time; the numbers are a snapshot
+to choose between options, not a service level. The tokens per call in \cref{tab:screening} let a reader price the
+job at any provider's current rates.

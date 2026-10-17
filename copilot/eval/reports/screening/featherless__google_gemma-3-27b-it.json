@@ -1,0 +1,14 @@
+{
+ "provider": "featherless",
+ "model": "google/gemma-3-27b-it",
+ "n": 20,
+ "timeout_s": 30.0,
+ "at": "2026-10-08T18:14:18+00:00",
+ "warmup": {
+  "i": 0,
+  "lang": "es",
+  "message": "oye y lo del plástico ese que no me llegó",
+  "error": "HTTP 403"
+ },
+ "calls": []
+}

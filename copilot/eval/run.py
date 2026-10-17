@@ -346,6 +346,7 @@ def main() -> int:
         from copilot.kb import BundledRetriever
 
         kb = BundledRetriever()
+        kb.search("probe", 1)  # the embedder loads lazily: fail here, not on every knowledge case
         kb_threshold = json.loads((PROJECT / "corpus" / "kb_threshold.json").read_text())[
             "threshold"
         ]

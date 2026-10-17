@@ -76,6 +76,21 @@ class Chapter:
             )
         )
 
+    def descriptive(self, topic: str, value: float, source: Path, reason: str, source_type: str = "scripted",
+                    unit: str | None = None, digits: int | None = None) -> None:  # fmt: skip
+        """A value with no interval, for the reason given (a figure stored by its source run without one)."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="descriptive",
+                value=float(value),
+                reason=reason,
+                unit=unit,
+                digits=digits,
+                **self._src(source, source_type),
+            )  # fmt: skip
+        )
+
     def constant(self, topic: str, value: float, source: Path, source_type: str = "scripted", unit: str | None = None,
                  digits: int | None = None) -> None:  # fmt: skip
         """A threshold or parameter read from its source: descriptive, no interval (CONSTANT)."""
@@ -122,6 +137,24 @@ class Chapter:
                 cluster_unit=cluster_unit,
                 unit=unit,
                 digits=digits,
+                **self._src(source, source_type),
+            )
+        )
+
+    def test(self, topic: str, statistic: float, p: float, q: float, family_id: str, family_size: int,
+             source: Path, null: str, method: str, source_type: str = "scripted") -> None:  # fmt: skip
+        """A hypothesis test with its p-value and its false-discovery adjusted value within its family."""
+        self.claims.append(
+            Claim(
+                id=f"{self.prefix}.{topic}",
+                kind="test",
+                statistic=float(statistic),
+                p=float(p),
+                q=float(q),
+                family_id=family_id,
+                family_size=int(family_size),
+                null=null,
+                method=method,
                 **self._src(source, source_type),
             )
         )

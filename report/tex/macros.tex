@@ -11,11 +11,12 @@
   \else\reportmissing{#1}\PackageWarning{report}{Undefined protocol key #1}\fi}
 % Marks an interval computed treating rows as independent (likely too narrow); explained in Chapter 2.
 \newcommand{\naivemark}{\textsuperscript{\dag}}
-\InputIfFileExists{../build/generated/claims.tex}{}{}
-\InputIfFileExists{../build/generated/protocol.tex}{}{}
+\InputIfFileExists{\reportbuild/generated/claims.tex}{}{}
+\InputIfFileExists{\reportbuild/generated/protocol.tex}{}{}
 
-% The report's date, fixed rather than the build day (the day of the hackathon submission).
-\newcommand{\reportdate}{5 October 2026}
+% The report's date, fixed rather than the build day (the day of the hackathon submission); another document
+% sets its own before \input.
+\providecommand{\reportdate}{5 October 2026}
 
 % Identifiers that contain digits but are not statistics (decision records, notebooks, files): the lint skips
 % the argument, so a quantity can never hide in it unnoticed by a reader.
@@ -37,13 +38,14 @@
 \newcolumntype{V}{>{\raggedright\arraybackslash}p{0.55\linewidth}}
 \newcolumntype{Z}{>{\raggedright\arraybackslash}p{0.18\linewidth}}
 
-% Theorem-like environments.
+% Theorem-like environments, numbered within chapters (or within sections in an article-class document).
+\ifdefined\chapter\def\reportthmwithin{chapter}\else\def\reportthmwithin{section}\fi
 \theoremstyle{definition}
-\newtheorem{definition}{Definition}[chapter]
-\newtheorem{assumption}{Assumption}[chapter]
+\newtheorem{definition}{Definition}[\reportthmwithin]
+\newtheorem{assumption}{Assumption}[\reportthmwithin]
 \theoremstyle{plain}
-\newtheorem{proposition}{Proposition}[chapter]
-\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{proposition}{Proposition}[\reportthmwithin]
+\newtheorem{lemma}{Lemma}[\reportthmwithin]
 \theoremstyle{remark}
 \newtheorem*{remark}{Remark}
 

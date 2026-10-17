@@ -1,0 +1,60 @@
+\chapter{Evaluation design}\label{ch:design}
+
+\section{Held-out discipline}
+
+Each evaluation keeps its scoring items away from the choices it judges.
+\begin{itemize}[leftmargin=*]
+  \item The intent model's held-out phrasings were written separately from the training phrasings and before any
+  tuning; they never selected a parameter or the threshold (\cref{ch:intent}).
+  \item The retrieval threshold was chosen on a development split of the questions; the rates are reported on the
+  test split only (\cref{ch:retrieval}).
+  \item The challenge set was written from the specification of what a correct bank agent must do, before any scored
+  run, and frozen by a manifest of digests that every run checks (\cref{ch:challenge}). After the first scored run,
+  one failure was fixed and the set was run again; that rerun is reported as such, because the fix was chosen
+  knowing which case had failed.
+  \item The attacks come from public datasets and were never used to tune the gateway's rules or the models
+  (\cref{ch:attacks}).
+\end{itemize}
+
+\section{Units and intervals}
+
+Every evaluation scores independent items: a phrasing, a question, a scripted conversation, an attack, a call. The
+only exception is the intent model's out-of-fold training phrasings, where each base phrasing appears with its
+augmented variants; their rates resample whole base phrasings (a cluster bootstrap), so the variants of one sentence
+never count as independent evidence.
+
+For a proportion the report uses the Wilson score interval \parencite{wilson1927}, which keeps its coverage near
+the nominal level for small samples and proportions near zero or one, where the normal approximation fails. When no
+event occurs in $n$ items, it also gives the exact one-sided upper bound $1 - \alpha^{1/n}$
+\parencite{clopper1934}, the largest rate still consistent with seeing none. Medians, high percentiles of latency
+and the macro-averaged $F_1$ get a percentile bootstrap interval over items \parencite{efron1979}, with
+\proto{stats.bootstrap_reps} resamples and a fixed seed.
+
+\section{Paired comparisons}
+
+When a pair of systems is scored on the same items, only the items on which they disagree carry information about
+which is better. The exact McNemar test \parencite{mcnemar1947} conditions on those discordant items. Let $b$ count
+the items only the first system gets right and $c$ those only the second does. Under the null of equal accuracy each
+discordant item is equally likely to favour either system, so $b \sim \mathrm{Binomial}(b + c, 1/2)$, and the
+two-sided $p$-value is
+\begin{equation*}
+  p = \min\Bigl(1,\; 2 \min\bigl(\Prob[B \le b],\, \Prob[B \ge b]\bigr)\Bigr), \qquad B \sim \mathrm{Binomial}(b + c, 1/2).
+\end{equation*}
+The test needs no assumption about the items the systems agree on, which is why it suits small paired samples, and
+it cannot detect anything when the systems disagree on only a handful of items: with $b + c$ discordant items the
+smallest attainable $p$-value is $2^{1-(b+c)}$.
+
+Several comparisons are often made at once: each model against the copilot without a model, or every pair of
+models. Each such set is a family, and its $p$-values are adjusted by the Benjamini--Hochberg procedure
+\parencite{benjamini1995}, which controls the expected share of false discoveries among the rejected hypotheses at
+$\alpha = \proto{stats.alpha}$. A difference is called detected only when its adjusted value $q$ is at most
+$\alpha$.
+
+\section{Limits of the design}
+
+Each model run is a single pass at temperature zero, so it measures one draw of a hosted service on one day; a
+second pass could flip the cases a model is unsure of. The attacks are public prompts adapted to the card service by
+a customer-like prefix, which tests the copilot's rules but not an attacker who knows them. The conversations run
+against a snapshot of demonstration customers, so they test behaviour, not the bank's real traffic mix. And the
+evaluations ran on different days and machines, which matters once: \cref{sec:models-defect} reports a defect in the
+environment of the stored model runs and how the report handles it.

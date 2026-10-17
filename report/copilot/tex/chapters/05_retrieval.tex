@@ -1,0 +1,69 @@
+\chapter{Knowledge retrieval}\label{ch:retrieval}
+
+A customer's general question (how to recover money lost to a transfer scam, which law protects their data) is
+answered from the governed knowledge base of \cref{ch:system}. Retrieval must find the right document, find nothing
+when no document applies, and never return a document that is not approved and in force.
+
+\section{Questions and retrievers}
+
+\est{kb.questions}{value} questions in Spanish and Portuguese were written against the documents, which are in
+English. \est{kb.dev}{value} form a development split (\est{kb.dev-unanswerable}{value} of them unanswerable) used
+only to choose each retriever's relevance threshold; the other \est{kb.test}{value} are the test split:
+\est{kb.test-answerable}{value} with a right document and \est{kb.test-unanswerable}{value} that no document answers.
+
+All the retrievers read the same governed chunks with the same multilingual embeddings
+\parencite{wang2024e5}, which match a Spanish or Portuguese question to an English passage:
+\begin{description}[style=nextline]
+  \item[bundled] an in-process index built from the documents, the retriever the copilot serves;
+  \item[pgvector] cosine search over the governed view in Postgres;
+  \item[graph] vector seeds in \ident{Neo4j} expanded through the entities (controls, rules, regulators, regulations) the
+  seed chunks mention, restricted to active versions;
+  \item[hybrid] the pgvector and graph rankings fused by reciprocal rank \parencite{cormack2009}.
+\end{description}
+Each threshold is the midpoint between the lowest top score of an answerable development question ranked correctly
+and the highest top score of an unanswerable one. Below it, the copilot says it has no document.
+
+\section{Results}
+
+\generated{tables/retrieval}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{fig-kb-rates}
+  \caption{Retrieval rates on the test questions with Wilson intervals: over the
+  \est{kb.test-unanswerable}{value} unanswerable questions for the last panel, and over the
+  \est{kb.test-answerable}{value} answerable ones for the others.}
+  \label{fig:kb-rates}
+\end{figure}
+
+The served retriever ranks the right document first for \est{kb.bundled-hit1}{num} of the
+\est{kb.bundled-hit1}{den} answerable questions (interval \est{kb.bundled-hit1}{ci}) and among its top results (\ident{hit@3}) for
+\est{kb.bundled-hit3}{num} (interval \est{kb.bundled-hit3}{ci}); its mean reciprocal rank is
+\est{kb.bundled-mrr}{estimate} (interval \est{kb.bundled-mrr}{ci}). pgvector returns the same rankings, as it should
+with the same embeddings and chunks. The graph retriever ranks the right document first slightly less often
+(\est{kb.graph-hit1}{num} of \est{kb.graph-hit1}{den}), and the hybrid matches the bundled index. With
+\est{kb.test-answerable}{value} answerable questions the intervals are wide and overlap: the test does not separate
+the retrievers on ranking.
+
+No retriever returned a document outside the active set: \est{kb.bundled-violations}{value} governance violations
+for the bundled index and \est{kb.graph-violations}{value} for the graph retriever, the same for the others. Drafts,
+superseded, retired and expired versions never reached a ranking.
+
+The weak point is rejection. At its threshold the served retriever rejected \est{kb.bundled-rejected}{num} of the
+\est{kb.bundled-rejected}{den} unanswerable questions: each scored above the threshold, so the copilot would go on to
+the next step with an irrelevant passage. The graph retriever, with a higher threshold, rejected
+\est{kb.graph-rejected}{num} of \est{kb.graph-rejected}{den} (interval \est{kb.graph-rejected}{ci}) at the cost of
+keeping fewer answerable questions (\est{kb.graph-kept}{num} of \est{kb.graph-kept}{den}). The thresholds rest on
+only \est{kb.dev-unanswerable}{value} unanswerable development questions, too few to place a boundary, and the
+embeddings' scores for related and unrelated passages overlap.
+
+What protects the customer here is the step after retrieval. A passage from an internal document sends the case to a
+person; an answer written from a public passage must cite it and pass the grounding check, or the case goes to a
+person; without a model, the copilot only points to the document. An irrelevant passage can therefore produce a
+needless hand-off, an unhelpful pointer, or a cited answer that does not address the question; the grounding check
+guarantees the citation and the numbers, not the relevance. A better threshold needs more unanswerable questions in
+the development split.
+
+Latency is small next to a model call: the served index takes a median of \est{kb.bundled-ms-p50}{value}\,ms, with
+a slow tail (\est{kb.bundled-ms-p95}{value}\,ms at the \proto{stats.high_percentile}th percentile) from a few
+queries scattered through the run, whose cause the run does not record.

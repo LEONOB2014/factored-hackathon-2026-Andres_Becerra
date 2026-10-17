@@ -17,7 +17,7 @@ from pathlib import Path
 import pandas as pd
 
 from report_lib import claims as claims_mod
-from report_lib import protocol, sources
+from report_lib import paths, protocol, sources
 from report_lib.manifest import Claim
 from report_lib.paths import CLAIMS_DIR, GENERATED, TEX
 from report_lib.privacy import check_frame
@@ -104,9 +104,9 @@ def render_protocol(proto: dict) -> tuple[str, set[str]]:
 
 
 def chapter_files(tex: Path = TEX) -> list[Path]:
-    return sorted(
-        [*tex.glob("chapters/*.tex"), *tex.glob("appendices/*.tex"), *tex.glob("frontmatter/*.tex")]
-    )
+    """Every file of the document's prose: the .tex files one directory below tex/ (chapters, appendices,
+    frontmatter, sections). The master files, preamble and macros at the top are left out."""
+    return sorted(tex.glob("*/*.tex"))
 
 
 def unresolved(files: list[Path], defined: dict[str, set[str]], proto_keys: set[str]) -> list[str]:
@@ -218,8 +218,12 @@ def main(claims_dir: Path = CLAIMS_DIR, out_dir: Path = GENERATED) -> int:
     proto_tex, keys = render_protocol(protocol.load())
     (out_dir / "claims.tex").write_text(claims_tex)
     (out_dir / "protocol.tex").write_text(proto_tex)
-    from report_lib import appendix  # imports texgen's renderers, so it loads here
-
+    if paths.DOC == "copilot":
+        from report_lib import (
+            copilot_appendix as appendix,  # imports texgen's renderers, so it loads here
+        )
+    else:
+        from report_lib import appendix
     appendix.render_all(all_claims, out_dir)
     problems = unresolved(chapter_files(), defined, keys)
     for p in problems:

@@ -1,0 +1,34 @@
+\chapter{Software and reproduction}\label{app:software}
+
+\section{Rebuilding this report}
+
+The report reads only the stored evaluation results under \ident{copilot/eval/reports}, never the dataset. From the
+repository root, the first command recomputes every claim, table and figure and typesets this report and the brief;
+the second runs the tests whose guarantees the report relies on, for this document and the technical report.
+\begin{verbatim}
+make -C report copilot
+make -C report test
+\end{verbatim}
+
+\section{Re-running the evaluations}
+
+Each evaluation has its own script in the copilot project, which writes the results this report reads:
+\begin{description}[style=nextline]
+  \item[\ident{scripts/tune\_intent.py}] tunes the intent model and scores it on the held-out phrasings;
+  \item[\ident{eval/export\_details.py}] refits the stored parameters and exports each phrasing's label and
+  confidence, failing unless the stored held-out accuracy is reproduced;
+  \item[\ident{eval/kb\_retrieval.py}] compares the retrievers;
+  \item[\ident{eval/run.py}] runs the frozen challenge set;
+  \item[\ident{eval/open\_models.py}] runs a model alone and inside the copilot on the attacks and the challenge set;
+  \item[\ident{eval/replay\_cases.py}] replays chosen cases with full traces;
+  \item[\ident{eval/screen\_models.py}] runs the speed screening.
+\end{description}
+The retrieval scripts and the model runs need the copilot's optional retrieval package; the harnesses now stop when
+it is missing. Hosted models read their endpoint and key from the environment, and no key is ever written to a
+result.
+
+\section{Toolchain}
+
+\generated{appendices/software-toolchain}
+
+\generated{appendices/software-provenance}

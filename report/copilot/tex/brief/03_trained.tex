@@ -1,0 +1,16 @@
+\section{What was trained}
+
+\paragraph{The intent model.} It is the only trained component. The team wrote \est{int.base-phrasings}{value} base
+phrasings for the \est{int.intents}{value} intents (\est{int.base-es}{value} in Spanish, \est{int.base-pt}{value} in
+Portuguese), augmented with greetings, courtesy words, dropped accents and casing into \est{int.augmented}{value}
+training phrasings. The model is a logistic regression over character n-grams \parencite{pedregosa2011}, which suits
+short, informal and misspelt messages; it labels a message in well under a millisecond. Its settings were tuned with
+Optuna \parencite{akiba2019} on cross-validation that keeps every variant of a sentence in the same fold.
+
+\paragraph{The confidence threshold.} The model labels a message on its own only when its confidence reaches
+\est{int.threshold}{value}, the lowest value at which it was right at least \est{int.target-precision}{value} of the
+time out of fold. Below it, a language model labels the message, or the copilot asks the customer to rephrase.
+
+\paragraph{The knowledge base.} Nothing is trained: questions are matched to passages of the governed documents with
+multilingual embeddings \parencite{wang2024e5}, and only approved documents inside their effective window can be
+retrieved. A relevance threshold, chosen on a development split, decides when no document applies.

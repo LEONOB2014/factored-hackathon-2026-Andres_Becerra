@@ -1,0 +1,32 @@
+\section{How a turn works}
+
+\begin{figure}[htbp]
+  \centering
+  \resizebox{\linewidth}{!}{\input{turn_diagram}}
+  \caption{One conversation turn. Grey: the deterministic path, run on every turn. Teal: where a language model may
+  act, each with a fallback that needs no model. Brick: where a turn stops before any model or tool acts.}
+  \label{fig:turn}
+\end{figure}
+
+A message passes the same stages every time (\cref{fig:turn}):
+\begin{description}[style=nextline]
+  \item[Identity] A signed session names the customer; every tool takes the customer from it, never from the message.
+  \item[Gateway] Card numbers are masked, prompt-injection and cross-customer probes are refused, and the language
+  is detected. A refused message never reaches a model.
+  \item[Intent] The trained intent model labels the message with one of \est{sys.intents}{value} intents.
+  \item[Policy] A versioned policy decides what the copilot may do: \est{sys.intents-a0}{value} intents are
+  answered from verified facts, \est{sys.intents-a2}{value} card actions need the customer's explicit confirmation
+  (unblocking also a second factor), and \est{sys.intents-a3}{value} go to a person. \est{sys.vetoes}{value}
+  card-level vetoes override the intent, for example sending any flagged card to the fraud queue.
+  \item[Tools] An action is prepared as a confirmation token, executed once after the customer confirms, and
+  reported as done only when a fresh read shows the new state.
+  \item[Reply] A template states the tools' facts; every turn is traced and written to a hash-chained audit log.
+\end{description}
+
+\paragraph{Where a language model may act.} A model has bounded jobs. It labels a message the intent model is
+unsure of, returning one label from a closed list that the policy then treats like any other. It may reword a
+template reply, and a grounding check rejects any rewording that changes a number, date, amount or card suffix. It
+may write an answer to a general question from passages of the governed knowledge base, which must cite a passage
+and contain no number the passage lacks, or the case goes to a person. A model never holds a secret, never sees
+another customer's data or a full card number, never calls a tool and never decides an outcome. A call that takes
+longer than \est{sys.model-timeout}{value}\,s is abandoned and the deterministic path decides.

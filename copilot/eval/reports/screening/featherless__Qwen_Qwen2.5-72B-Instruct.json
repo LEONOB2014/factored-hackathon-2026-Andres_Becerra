@@ -1,0 +1,240 @@
+{
+ "provider": "featherless",
+ "model": "Qwen/Qwen2.5-72B-Instruct",
+ "n": 20,
+ "timeout_s": 30.0,
+ "at": "2026-10-08T18:14:59+00:00",
+ "warmup": {
+  "i": 0,
+  "lang": "es",
+  "message": "oye y lo del plástico ese que no me llegó",
+  "ttft_ms": 839.2,
+  "total_ms": 6972.4,
+  "tokens_in": 347,
+  "tokens_out": 72,
+  "valid_json": false,
+  "valid_label": false
+ },
+ "calls": [
+  {
+   "i": 0,
+   "lang": "es",
+   "message": "oye y lo del plástico ese que no me llegó",
+   "ttft_ms": 1051.5,
+   "total_ms": 1846.6,
+   "tokens_in": 347,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 1,
+   "lang": "pt",
+   "message": "quero saber quanto devo no cartão",
+   "ttft_ms": 791.8,
+   "total_ms": 1576.1,
+   "tokens_in": 343,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 2,
+   "lang": "es",
+   "message": "¿me pueden subir el cupo?",
+   "ttft_ms": 639.9,
+   "total_ms": 1439.5,
+   "tokens_in": 342,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 3,
+   "lang": "pt",
+   "message": "não reconheço essa compra",
+   "ttft_ms": 786.4,
+   "total_ms": 1614.5,
+   "tokens_in": 340,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 4,
+   "lang": "es",
+   "message": "mi tarjeta no pasa en el súper",
+   "ttft_ms": 669.8,
+   "total_ms": 1482.7,
+   "tokens_in": 344,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 5,
+   "lang": "es",
+   "message": "oye y lo del plástico ese que no me llegó",
+   "ttft_ms": 942.9,
+   "total_ms": 2013.1,
+   "tokens_in": 347,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 6,
+   "lang": "pt",
+   "message": "quero saber quanto devo no cartão",
+   "ttft_ms": 821.8,
+   "total_ms": 1634.8,
+   "tokens_in": 343,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 7,
+   "lang": "es",
+   "message": "¿me pueden subir el cupo?",
+   "ttft_ms": 743.6,
+   "total_ms": 1746.5,
+   "tokens_in": 342,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 8,
+   "lang": "pt",
+   "message": "não reconheço essa compra",
+   "ttft_ms": 752.1,
+   "total_ms": 1814.2,
+   "tokens_in": 340,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 9,
+   "lang": "es",
+   "message": "mi tarjeta no pasa en el súper",
+   "ttft_ms": 857.8,
+   "total_ms": 1937.2,
+   "tokens_in": 344,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 10,
+   "lang": "es",
+   "message": "oye y lo del plástico ese que no me llegó",
+   "ttft_ms": 925.1,
+   "total_ms": 2007.8,
+   "tokens_in": 347,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 11,
+   "lang": "pt",
+   "message": "quero saber quanto devo no cartão",
+   "ttft_ms": 778.9,
+   "total_ms": 1584.1,
+   "tokens_in": 343,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 12,
+   "lang": "es",
+   "message": "¿me pueden subir el cupo?",
+   "ttft_ms": 829.0,
+   "total_ms": 2172.5,
+   "tokens_in": 342,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 13,
+   "lang": "pt",
+   "message": "não reconheço essa compra",
+   "ttft_ms": 831.1,
+   "total_ms": 1654.4,
+   "tokens_in": 340,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 14,
+   "lang": "es",
+   "message": "mi tarjeta no pasa en el súper",
+   "ttft_ms": 773.9,
+   "total_ms": 1616.1,
+   "tokens_in": 344,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 15,
+   "lang": "es",
+   "message": "oye y lo del plástico ese que no me llegó",
+   "ttft_ms": 746.1,
+   "total_ms": 1551.6,
+   "tokens_in": 347,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 16,
+   "lang": "pt",
+   "message": "quero saber quanto devo no cartão",
+   "ttft_ms": 765.8,
+   "total_ms": 1566.4,
+   "tokens_in": 343,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 17,
+   "lang": "es",
+   "message": "¿me pueden subir el cupo?",
+   "ttft_ms": 748.9,
+   "total_ms": 1895.2,
+   "tokens_in": 342,
+   "tokens_out": 7,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 18,
+   "lang": "pt",
+   "message": "não reconheço essa compra",
+   "ttft_ms": 732.5,
+   "total_ms": 1548.4,
+   "tokens_in": 340,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  },
+  {
+   "i": 19,
+   "lang": "es",
+   "message": "mi tarjeta no pasa en el súper",
+   "ttft_ms": 725.6,
+   "total_ms": 1538.9,
+   "tokens_in": 344,
+   "tokens_out": 8,
+   "valid_json": true,
+   "valid_label": true
+  }
+ ]
+}
