@@ -2,7 +2,7 @@
 
 | ADR | decision |
 |---|---|
-| [ADR-001](ADR-001.md) | Lakehouse with medallion zones and a Kimball core |
+| [ADR-001](ADR-001.md) | Lakehouse with lossless bronze, medallion zones and a Kimball core |
 | [ADR-002](ADR-002.md) | Airflow 3 with Astronomer Cosmos for orchestration |
 | [ADR-003](ADR-003.md) | Postgres + pgvector as the operational and vector store |
 | [ADR-004](ADR-004.md) | Neo4j for GraphRAG and the entity graph |
